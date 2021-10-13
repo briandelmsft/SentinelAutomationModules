@@ -1,0 +1,349 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "PlaybookName": {
+            "defaultValue": "Get-OOFDetails",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2017-07-01",
+            "name": "[parameters('PlaybookName')]",
+            "location": "[resourceGroup().location]",
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "state": "Enabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {},
+                    "triggers": {
+                        "manual": {
+                            "type": "Request",
+                            "kind": "Http",
+                            "inputs": {
+                                "schema": {
+                                    "properties": {
+                                        "AddIncientComments": {
+                                            "type": "boolean"
+                                        },
+                                        "Entities": {
+                                            "type": "array"
+                                        },
+                                        "IncidentARMId": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "actions": {
+                        "Compose": {
+                            "runAfter": {
+                                "Condition_2": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Compose",
+                            "inputs": {
+                                "OverallOOFStatus": "@{variables('OverallOOFStatus')}",
+                                "PerUserStatus": "@variables('DetailedResults')"
+                            }
+                        },
+                        "Condition_2": {
+                            "actions": {
+                                "Set_variable": {
+                                    "runAfter": {},
+                                    "type": "SetVariable",
+                                    "inputs": {
+                                        "name": "OverallOOFStatus",
+                                        "value": "@{if(greater(length(body('Filter_array_-_OOF_Enabled')), 0), 'enabled', 'disabled')}"
+                                    }
+                                }
+                            },
+                            "runAfter": {
+                                "Initialize_variable": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "else": {
+                                "actions": {
+                                    "Set_variable_2": {
+                                        "runAfter": {},
+                                        "type": "SetVariable",
+                                        "inputs": {
+                                            "name": "OverallOOFStatus",
+                                            "value": "Inconsistent"
+                                        }
+                                    }
+                                }
+                            },
+                            "expression": {
+                                "or": [
+                                    {
+                                        "equals": [
+                                            "@length(variables('DetailedResults'))",
+                                            "@length(body('Filter_array_-_OOF_DIsabled'))"
+                                        ]
+                                    },
+                                    {
+                                        "equals": [
+                                            "",
+                                            "@length(body('Filter_array_-_OOF_Enabled'))"
+                                        ]
+                                    }
+                                ]
+                            },
+                            "type": "If"
+                        },
+                        "Current_time": {
+                            "runAfter": {},
+                            "type": "Expression",
+                            "kind": "CurrentTime",
+                            "inputs": {}
+                        },
+                        "Filter_array": {
+                            "runAfter": {
+                                "Initialize_variable_-_DetailedResults": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Query",
+                            "inputs": {
+                                "from": "@triggerBody()?['Entities']",
+                                "where": "@equals(item()['kind'], 'Account')"
+                            }
+                        },
+                        "Filter_array_-_OOF_DIsabled": {
+                            "runAfter": {
+                                "Filter_array_-_OOF_Enabled": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Query",
+                            "inputs": {
+                                "from": "@variables('DetailedResults')",
+                                "where": "@equals(item()['OOFStatus'], 'disabled')"
+                            }
+                        },
+                        "Filter_array_-_OOF_Enabled": {
+                            "runAfter": {
+                                "For_each": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Query",
+                            "inputs": {
+                                "from": "@variables('DetailedResults')",
+                                "where": "@equals(item()['OOFStatus'], 'enabled')"
+                            }
+                        },
+                        "For_each": {
+                            "foreach": "@body('Filter_array')",
+                            "actions": {
+                                "HTTP": {
+                                    "runAfter": {},
+                                    "type": "Http",
+                                    "inputs": {
+                                        "authentication": {
+                                            "audience": "https://graph.microsoft.com",
+                                            "type": "ManagedServiceIdentity"
+                                        },
+                                        "method": "GET",
+                                        "uri": "https://graph.microsoft.com/v1.0/users/@{concat(item()['properties']['accountName'],'@',item()['properties']['upnSuffix'])}/mailboxSettings/automaticRepliesSetting"
+                                    }
+                                },
+                                "Switch": {
+                                    "runAfter": {
+                                        "HTTP": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "cases": {
+                                        "Case": {
+                                            "case": "disabled",
+                                            "actions": {
+                                                "Append_to_array_variable": {
+                                                    "runAfter": {},
+                                                    "type": "AppendToArrayVariable",
+                                                    "inputs": {
+                                                        "name": "DetailedResults",
+                                                        "value": {
+                                                            "OOFStatus": "disabled",
+                                                            "UPN": "@{concat(item()['properties']['accountName'],'@',item()['properties']['upnSuffix'])}"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "Case_2": {
+                                            "case": "enabled",
+                                            "actions": {
+                                                "Append_to_array_variable_2": {
+                                                    "runAfter": {
+                                                        "Compose_2": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "AppendToArrayVariable",
+                                                    "inputs": {
+                                                        "name": "DetailedResults",
+                                                        "value": {
+                                                            "ExternalMessage": "@{body('HTTP')['externalReplyMessage']}",
+                                                            "InternalMessage": "@{body('HTTP')['internalReplyMessage']}",
+                                                            "OOFStatus": "enabled",
+                                                            "UPN": "@{concat(item()['properties']['accountName'],'@',item()['properties']['upnSuffix'])}"
+                                                        }
+                                                    }
+                                                },
+                                                "Compose_2": {
+                                                    "runAfter": {},
+                                                    "type": "Compose",
+                                                    "inputs": "User is Out of Office\n\nInternal Message:\n@{body('HTTP')['internalReplyMessage']}\n\nExternal Message (Audience: @{body('HTTP')['externalAudience']}):\n@{body('HTTP')['externalReplyMessage']}\n\n\n"
+                                                }
+                                            }
+                                        },
+                                        "Case_3": {
+                                            "case": "scheduled",
+                                            "actions": {
+                                                "Condition": {
+                                                    "actions": {
+                                                        "Append_to_array_variable_3": {
+                                                            "runAfter": {},
+                                                            "type": "AppendToArrayVariable",
+                                                            "inputs": {
+                                                                "name": "DetailedResults",
+                                                                "value": {
+                                                                    "ExternalMessage": "@{body('HTTP')['externalReplyMessage']}",
+                                                                    "InternalMessage": "@{body('HTTP')['internalReplyMessage']}",
+                                                                    "OOFStatus": "enabled",
+                                                                    "UPN": "@{concat(item()['properties']['accountName'],'@',item()['properties']['upnSuffix'])}"
+                                                                }
+                                                            }
+                                                        }
+                                                    },
+                                                    "runAfter": {},
+                                                    "else": {
+                                                        "actions": {
+                                                            "Append_to_array_variable_4": {
+                                                                "runAfter": {},
+                                                                "type": "AppendToArrayVariable",
+                                                                "inputs": {
+                                                                    "name": "DetailedResults",
+                                                                    "value": {
+                                                                        "OOFStatus": "disabled",
+                                                                        "UPN": "@{concat(item()['properties']['accountName'],'@',item()['properties']['upnSuffix'])}"
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    },
+                                                    "expression": {
+                                                        "and": [
+                                                            {
+                                                                "greaterOrEquals": [
+                                                                    "@body('Current_time')",
+                                                                    "@body('HTTP')['scheduledStartDateTime']['dateTime']"
+                                                                ]
+                                                            },
+                                                            {
+                                                                "lessOrEquals": [
+                                                                    "@body('Current_time')",
+                                                                    "@body('HTTP')['scheduledEndDateTime']['dateTime']"
+                                                                ]
+                                                            }
+                                                        ]
+                                                    },
+                                                    "type": "If"
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "default": {
+                                        "actions": {
+                                            "Append_to_array_variable_5": {
+                                                "runAfter": {},
+                                                "type": "AppendToArrayVariable",
+                                                "inputs": {
+                                                    "name": "DetailedResults",
+                                                    "value": {
+                                                        "OOFStatus": "unknown",
+                                                        "UPN": "@{concat(item()['properties']['accountName'],'@',item()['properties']['upnSuffix'])}"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "expression": "@body('HTTP')['status']",
+                                    "type": "Switch"
+                                }
+                            },
+                            "runAfter": {
+                                "Filter_array": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Foreach"
+                        },
+                        "Initialize_variable": {
+                            "runAfter": {
+                                "Filter_array_-_OOF_DIsabled": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "OverallOOFStatus",
+                                        "type": "string"
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_variable_-_DetailedResults": {
+                            "runAfter": {
+                                "Current_time": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "DetailedResults",
+                                        "type": "array",
+                                        "value": []
+                                    }
+                                ]
+                            }
+                        },
+                        "Response": {
+                            "runAfter": {
+                                "Compose": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Response",
+                            "kind": "Http",
+                            "inputs": {
+                                "body": "@outputs('Compose')",
+                                "statusCode": 200
+                            }
+                        }
+                    },
+                    "outputs": {}
+                },
+                "parameters": {}
+            }
+        }
+    ]
+}
