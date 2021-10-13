@@ -83,6 +83,48 @@
                                 "PerUserStatus": "@variables('DetailedResults')"
                             }
                         },
+                        "Condition_-_Check_for_Account_Entities": {
+                            "actions": {
+                                "Response_-_No_Account_Entities": {
+                                    "runAfter": {},
+                                    "type": "Response",
+                                    "kind": "Http",
+                                    "inputs": {
+                                        "body": {
+                                            "OverallOOFStatus": "NoUserEntities"
+                                        },
+                                        "statusCode": 200
+                                    }
+                                },
+                                "Terminate": {
+                                    "runAfter": {
+                                        "Response_-_No_Account_Entities": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Terminate",
+                                    "inputs": {
+                                        "runStatus": "Succeeded"
+                                    }
+                                }
+                            },
+                            "runAfter": {
+                                "Filter_array_-_Entities": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "expression": {
+                                "and": [
+                                    {
+                                        "equals": [
+                                            "@length(body('Filter_array_-_Entities'))",
+                                            0
+                                        ]
+                                    }
+                                ]
+                            },
+                            "type": "If"
+                        },
                         "Condition_2": {
                             "actions": {
                                 "Set_variable": {
@@ -184,7 +226,7 @@
                             "kind": "CurrentTime",
                             "inputs": {}
                         },
-                        "Filter_array": {
+                        "Filter_array_-_Entities": {
                             "runAfter": {
                                 "Initialize_variable_-_DetailedResults": [
                                     "Succeeded"
@@ -221,8 +263,24 @@
                             }
                         },
                         "For_each": {
-                            "foreach": "@body('Filter_array')",
+                            "foreach": "@body('Filter_array_-_Entities')",
                             "actions": {
+                                "Append_to_DetailedResults_-_Failed_Graph_Call": {
+                                    "runAfter": {
+                                        "HTTP": [
+                                            "TimedOut",
+                                            "Failed"
+                                        ]
+                                    },
+                                    "type": "AppendToArrayVariable",
+                                    "inputs": {
+                                        "name": "DetailedResults",
+                                        "value": {
+                                            "OOFStatus": "unknown",
+                                            "UPN": "@{concat(item()['properties']['accountName'],'@',item()['properties']['upnSuffix'])}"
+                                        }
+                                    }
+                                },
                                 "HTTP": {
                                     "runAfter": {},
                                     "type": "Http",
@@ -245,7 +303,7 @@
                                         "Case": {
                                             "case": "disabled",
                                             "actions": {
-                                                "Append_to_array_variable": {
+                                                "Append_to_DetailedResults_-_disabled": {
                                                     "runAfter": {},
                                                     "type": "AppendToArrayVariable",
                                                     "inputs": {
@@ -261,12 +319,8 @@
                                         "Case_2": {
                                             "case": "enabled",
                                             "actions": {
-                                                "Append_to_array_variable_2": {
-                                                    "runAfter": {
-                                                        "Compose_2": [
-                                                            "Succeeded"
-                                                        ]
-                                                    },
+                                                "Append_to_DetailedResults_-_enabled": {
+                                                    "runAfter": {},
                                                     "type": "AppendToArrayVariable",
                                                     "inputs": {
                                                         "name": "DetailedResults",
@@ -274,14 +328,9 @@
                                                             "ExternalMessage": "@{body('HTTP')['externalReplyMessage']}",
                                                             "InternalMessage": "@{body('HTTP')['internalReplyMessage']}",
                                                             "OOFStatus": "enabled",
-                                                            "UPN": "@{concat(item()['properties']['accountName'],'@',item()['properties']['upnSuffix'])}"
+                                                            "UPN": "@{concat(item()['properties']['accountName'], '@', item()['properties']['upnSuffix'])}"
                                                         }
                                                     }
-                                                },
-                                                "Compose_2": {
-                                                    "runAfter": {},
-                                                    "type": "Compose",
-                                                    "inputs": "User is Out of Office\n\nInternal Message:\n@{body('HTTP')['internalReplyMessage']}\n\nExternal Message (Audience: @{body('HTTP')['externalAudience']}):\n@{body('HTTP')['externalReplyMessage']}\n\n\n"
                                                 }
                                             }
                                         },
@@ -299,7 +348,7 @@
                                                                     "ExternalMessage": "@{body('HTTP')['externalReplyMessage']}",
                                                                     "InternalMessage": "@{body('HTTP')['internalReplyMessage']}",
                                                                     "OOFStatus": "enabled",
-                                                                    "UPN": "@{concat(item()['properties']['accountName'],'@',item()['properties']['upnSuffix'])}"
+                                                                    "UPN": "@{concat(item()['properties']['accountName'], '@', item()['properties']['upnSuffix'])}"
                                                                 }
                                                             }
                                                         }
@@ -325,13 +374,13 @@
                                                             {
                                                                 "greaterOrEquals": [
                                                                     "@body('Current_time')",
-                                                                    "@body('HTTP')['scheduledStartDateTime']['dateTime']"
+                                                                    ""
                                                                 ]
                                                             },
                                                             {
                                                                 "lessOrEquals": [
                                                                     "@body('Current_time')",
-                                                                    "@body('HTTP')['scheduledEndDateTime']['dateTime']"
+                                                                    ""
                                                                 ]
                                                             }
                                                         ]
@@ -361,7 +410,7 @@
                                 }
                             },
                             "runAfter": {
-                                "Filter_array": [
+                                "Condition_-_Check_for_Account_Entities": [
                                     "Succeeded"
                                 ]
                             },
