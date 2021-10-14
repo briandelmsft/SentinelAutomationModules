@@ -55,7 +55,7 @@
                             "inputs": {
                                 "schema": {
                                     "properties": {
-                                        "AddIncientComments": {
+                                        "AddIncidentComments": {
                                             "type": "boolean"
                                         },
                                         "Entities": {
@@ -212,7 +212,7 @@
                                 "and": [
                                     {
                                         "equals": [
-                                            "@triggerBody()?['AddIncientComments']",
+                                            "@triggerBody()?['AddIncidentComments']",
                                             true
                                         ]
                                     }
