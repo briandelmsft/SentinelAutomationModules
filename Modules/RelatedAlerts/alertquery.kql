@@ -1,0 +1,22 @@
+//need to take lookback as a variable
+let lookback = 14d;
+let alertIds = SecurityIncident
+//Update Filter to Incident in question
+//| where IncidentNumber == 350592
+| where IncidentNumber == 350593
+| summarize arg_max(TimeGenerated, *) by IncidentNumber
+| project AlertIds;
+let secAlerts = SecurityAlert
+| where TimeGenerated > ago(lookback)
+| summarize arg_max(TimeGenerated, *) by SystemAlertId
+| mv-expand todynamic(Entities)
+//May need to add support for matching on specific entity types only
+//Add support for additional entity types (host for sure)
+| extend EntityData = case(Entities.Type == "account", strcat(Entities.Type, "-", Entities.Name, "-", Entities.UPNSuffix), 
+    Entities.Type == "ip", strcat(Entities.Type, "-", Entities.Address), "unmapped")
+| where EntityData <> "unmapped";
+secAlerts
+| join kind=inner (secAlerts | where SystemAlertId in (alertIds)) on EntityData
+| project-reorder SystemAlertId, SystemAlertId1
+| where SystemAlertId !in (alertIds)
+| summarize Entities=make_set(Entities) by TimeGenerated, DisplayName, AlertName, AlertSeverity, SystemAlertId, ProviderName
