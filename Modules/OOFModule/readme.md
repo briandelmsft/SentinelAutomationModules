@@ -3,6 +3,9 @@
 ## Description
 This module will check the incidient entities to see if a user is out of the office.
 
+## Suported Entity Types
+* Account
+
 ## Quick Deployment
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fbriandelmsft%2FSentinelAutomationModules%2Fmain%2FModules%2FOOFModule%2Fazuredeploy.json)
