@@ -1,0 +1,22 @@
+{
+    "type": "object",
+    "properties": {
+        "OverallOOFStatus": {
+            "type": "string"
+        },
+        "PerUserStatus": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "OOFStatus": {
+                        "type": "string"
+                    },
+                    "UPN": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    }
+}
