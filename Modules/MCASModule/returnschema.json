@@ -1,0 +1,43 @@
+﻿{
+    "type": "object",
+    "properties": {
+        "countAboveThrehold": {
+            "type": "integer"
+        },
+        "maxScore": {
+            "type": "integer"
+        },
+        "perUser": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "currentScore": {
+                        "type": "integer"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "userId": {
+                        "type": "string"
+                    },
+                    "userLink": {
+                        "type": "string"
+                    },
+                    "userPrincipalName": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "status",
+                    "userId",
+                    "userLink",
+                    "userPrincipalName"
+                ]
+            }
+        },
+        "scoreThreshold": {
+            "type": "integer"
+        }
+    }
+}
