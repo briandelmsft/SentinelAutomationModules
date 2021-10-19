@@ -87,6 +87,9 @@
             "properties": {
                 "displayName": "[variables('AzureKeyVaultConnectionName')]",
                 "parameterValueType": "Alternative",
+		    "alternativeParameterValues": {
+		        "vaultName": "[variables('KeyVaultName')]"
+		    },                
                 "customParameterValues": {},
                 "api": {
                     "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/keyvault')]"
