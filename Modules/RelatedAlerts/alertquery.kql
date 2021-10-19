@@ -1,22 +1,27 @@
-//need to take lookback as a variable
-let lookback = 14d;
-let alertIds = SecurityIncident
-//Update Filter to Incident in question
-//| where IncidentNumber == 350592
-| where IncidentNumber == 350593
+let incidentARMId = "/subscriptions/abccdfbc-d777-412f-acdd-f3a40db4aaee/resourceGroups/oi-default-east-us/providers/Microsoft.OperationalInsights/workspaces/briandel/providers/Microsoft.SecurityInsights/Incidents/fc0414ca-ca5e-cc1d-72fc-e0199624c596";
+let entityData = '[  {    "id": "/subscriptions/abccdfbc-d777-412f-acdd-f3a40db4aaee/resourceGroups/oi-default-east-us/providers/Microsoft.OperationalInsights/workspaces/briandel/providers/Microsoft.SecurityInsights/Entities/",    "type": "Microsoft.SecurityInsights/Entities",    "kind": "Account",    "properties": {      "accountName": "user",      "upnSuffix": "contoso.com",      "isDomainJoined": true,      "displayName": "brian@contoso.com",      "friendlyName": "brian@contoso.com"    }  },  {    "id": "/subscriptions/abccdfbc-d777-412f-acdd-f3a40db4aaee/resourceGroups/oi-default-east-us/providers/Microsoft.OperationalInsights/workspaces/briandel/providers/Microsoft.SecurityInsights/Entities/",    "type": "Microsoft.SecurityInsights/Entities",    "kind": "Ip",    "properties": {      "address": "111.111.11.11",      "friendlyName": "111.111.11.11"    }  },  {    "id": "/subscriptions/abccdfbc-d777-412f-acdd-f3a40db4aaee/resourceGroups/oi-default-east-us/providers/Microsoft.OperationalInsights/workspaces/briandel/providers/Microsoft.SecurityInsights/Entities/",    "type": "Microsoft.SecurityInsights/Entities",    "kind": "Account",    "properties": {      "accountName": "briandel",      "upnSuffix": "contoso.com",      "isDomainJoined": true,      "displayName": "briandel@contoso.com",      "friendlyName": "briandel@contoso.com"    }  }]';
+//need variable for lookback and current alert id
+let lookback = 30d;
+let incidentEntities = datatable(temp:string)['']
+| extend Entities = parse_json(entityData)
+| mv-expand todynamic(Entities)
+| extend EntityData = case(Entities.kind == "Account", strcat(tolower(Entities.kind), "-", Entities.properties.accountName, "-", Entities.properties.upnSuffix), 
+    Entities.kind == "Ip", strcat(tolower(Entities.kind), "-", Entities.properties.address), "unmapped")
+| where EntityData <> "unmapped";
+let currentIncidentAlerts = SecurityIncident
+| where TimeGenerated > ago(1d)
+| where IncidentUrl endswith incidentARMId
 | summarize arg_max(TimeGenerated, *) by IncidentNumber
-| project AlertIds;
-let secAlerts = SecurityAlert
+| mv-expand AlertIds
+| project SystemAlertId=tostring(AlertIds);
+let alertEntities = SecurityAlert
 | where TimeGenerated > ago(lookback)
 | summarize arg_max(TimeGenerated, *) by SystemAlertId
+| where SystemAlertId !in (currentIncidentAlerts)
 | mv-expand todynamic(Entities)
-//May need to add support for matching on specific entity types only
-//Add support for additional entity types (host for sure)
-| extend EntityData = case(Entities.Type == "account", strcat(Entities.Type, "-", Entities.Name, "-", Entities.UPNSuffix), 
-    Entities.Type == "ip", strcat(Entities.Type, "-", Entities.Address), "unmapped")
+| extend EntityData = case(Entities.Type == "account", strcat(tolower(Entities.Type), "-", Entities.Name, "-", Entities.UPNSuffix), 
+    Entities.Type == "ip", strcat(tolower(Entities.Type), "-", Entities.Address), "unmapped")
 | where EntityData <> "unmapped";
-secAlerts
-| join kind=inner (secAlerts | where SystemAlertId in (alertIds)) on EntityData
-| project-reorder SystemAlertId, SystemAlertId1
-| where SystemAlertId !in (alertIds)
+incidentEntities
+| join kind=inner (alertEntities) on EntityData
 | summarize Entities=make_set(Entities) by TimeGenerated, DisplayName, AlertName, AlertSeverity, SystemAlertId, ProviderName
