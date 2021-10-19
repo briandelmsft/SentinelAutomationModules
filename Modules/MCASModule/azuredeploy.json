@@ -1,0 +1,582 @@
+﻿{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "PlaybookName": {
+            "defaultValue": "Get-MCASInvestigationScore",
+            "type": "String"
+        },
+        "API_KEY": {
+            "defaultValue": "Type your API Key",
+            "type": "String"
+        },
+        "MCASAPIUrl": {
+            "defaultValue": "Type your API URL",
+            "type": "String"
+        }
+    },
+    "variables": {
+        "KeyVaultName": "[concat( 'MCAS-Vault-', uniqueString(resourceGroup().id))]",
+        "LogicAppName": "[parameters('PlaybookName')]",
+        "AzureSentinelConnectionName":"[concat('azuresentinel-', parameters('PlaybookName'))]",
+        "AzureKeyVaultConnectionName":"[concat('azurekeyvault-', parameters('PlaybookName'))]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.KeyVault/vaults/accessPolicies",
+            "apiVersion": "2016-10-01",
+            "name": "[concat(variables('KeyVaultName'), '/add')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Logic/workflows', variables('LogicAppName'))]"
+            ],
+            "properties": {
+                "accessPolicies": [
+                    {
+                        "tenantId": "[subscription().tenantId]",
+                        "objectId": "[reference(resourceId('Microsoft.Logic/workflows', variables('LogicAppName')), '2019-05-01', 'full').identity.principalId]",
+                        "permissions": {
+                            "secrets": [
+                                "Get",
+                                "List"
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.KeyVault/vaults",
+            "apiVersion": "2016-10-01",
+            "name": "[variables('KeyVaultName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "sku": {
+                    "family": "A",
+                    "name": "Standard"
+                },
+                "tenantId": "[subscription().tenantId]",
+                "enabledForDeployment": false,
+                "enabledForDiskEncryption": false,
+                "enabledForTemplateDeployment": true,
+                "enableSoftDelete": true,
+                "accessPolicies": [
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[variables('AzureSentinelConnectionName')]",
+            "location": "[resourceGroup().location]",
+            "kind": "V1",
+            "properties": {
+                "displayName": "[variables('AzureSentinelConnectionName')]",
+                "customParameterValues": {},
+                "parameterValueType": "Alternative",
+                "api": {
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azuresentinel')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[variables('AzureKeyVaultConnectionName')]",
+            "location": "[resourceGroup().location]",
+            "kind": "V1",
+            "properties": {
+                "displayName": "[variables('AzureKeyVaultConnectionName')]",
+                "parameterValueType": "Alternative",
+                "customParameterValues": {},
+                "api": {
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/keyvault')]"
+                },
+                "testLinks": []
+            }
+        },
+        {
+            "type": "Microsoft.KeyVault/vaults/secrets",
+            "apiVersion": "2021-06-01-preview",
+            "name": "[concat(variables('KeyVaultName'), '/MCASAPIKEY')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.KeyVault/vaults', variables('KeyVaultName'))]"
+            ],
+            "properties": {
+                "value": "[parameters('API_KEY')]",
+                "contentType": "string",
+                "attributes": {
+                    "enabled": true
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2017-07-01",
+            "name": "[parameters('PlaybookName')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/connections', variables('AzureSentinelConnectionName'))]",
+                "[resourceId('Microsoft.Web/connections', variables('AzureKeyVaultConnectionName'))]"
+            ],
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "state": "Enabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {},
+                            "type": "Object"
+                        }
+                    },
+                    "triggers": {
+                        "Owl": {
+                            "type": "Request",
+                            "kind": "Http",
+                            "inputs": {
+                                "schema": {
+                                    "properties": {
+                                        "AddIncidentComments": {
+                                            "type": "boolean"
+                                        },
+                                        "Entities": {
+                                            "type": "array"
+                                        },
+                                        "IncidentARMId": {
+                                            "type": "string"
+                                        },
+                                        "ScoreThreshold": {
+                                            "type": "integer"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "actions": {
+                        "Compose_final_response": {
+                            "runAfter": {
+                                "Filter_scores_above_the_threshold": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Compose",
+                            "inputs": {
+                                "countAboveThrehold": "@length(body('Filter_scores_above_the_threshold'))",
+                                "maxScore": "@max(variables('Scores'))",
+                                "perUser": "@variables('DetailedResults')",
+                                "scoreThreshold": "@triggerBody()?['ScoreThreshold']"
+                            }
+                        },
+                        "Condition_-_Check_if_comment_is_required": {
+                            "actions": {
+                                "Add_MCAS_score_in_a_comment": {
+                                    "runAfter": {
+                                        "Create_HTML_table_for_comment": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "ApiConnection",
+                                    "inputs": {
+                                        "body": {
+                                            "incidentArmId": "@triggerBody()?['IncidentARMId']",
+                                            "message": "<p><strong>MCAS Users' investigation priority scores: </strong><strong>@{replace(replace(body('Create_HTML_table_for_comment'), '&lt;', '<'), '&gt;', '>')}</strong></p>"
+                                        },
+                                        "host": {
+                                            "connection": {
+                                                "name": "@parameters('$connections')['azuresentinel']['connectionId']"
+                                            }
+                                        },
+                                        "method": "post",
+                                        "path": "/Incidents/Comment"
+                                    }
+                                },
+                                "Create_HTML_table_for_comment": {
+                                    "runAfter": {},
+                                    "type": "Table",
+                                    "inputs": {
+                                        "format": "HTML",
+                                        "from": "@variables('DetailedResults')"
+                                    }
+                                }
+                            },
+                            "runAfter": {
+                                "Compose_final_response": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "expression": {
+                                "and": [
+                                    {
+                                        "equals": [
+                                            "@triggerBody()?['AddIncidentComments']",
+                                            "@true"
+                                        ]
+                                    }
+                                ]
+                            },
+                            "type": "If"
+                        },
+                        "Condition_-_Terminate_if_no_accounts": {
+                            "actions": {
+                                "Response_-_No_Account_Entities": {
+                                    "runAfter": {},
+                                    "type": "Response",
+                                    "kind": "Http",
+                                    "inputs": {
+                                        "body": {
+                                            "countUnderThrehold": 0,
+                                            "maxScore": 0,
+                                            "scoreThreshold": "@triggerBody()?['ScoreThreshold']"
+                                        },
+                                        "statusCode": 200
+                                    }
+                                },
+                                "Terminate": {
+                                    "runAfter": {
+                                        "Response_-_No_Account_Entities": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Terminate",
+                                    "inputs": {
+                                        "runStatus": "Succeeded"
+                                    }
+                                }
+                            },
+                            "runAfter": {
+                                "Filter_array_-_Get_only_accounts": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "expression": {
+                                "and": [
+                                    {
+                                        "equals": [
+                                            "@length(body('Filter_array_-_Get_only_Accounts'))",
+                                            0
+                                        ]
+                                    }
+                                ]
+                            },
+                            "type": "If"
+                        },
+                        "Filter_array_-_Get_only_accounts": {
+                            "runAfter": {
+                                "Get_MCAS_API_secret": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Query",
+                            "inputs": {
+                                "from": "@triggerBody()?['Entities']",
+                                "where": "@equals(item()['kind'], 'Account')"
+                            }
+                        },
+                        "Filter_scores_above_the_threshold": {
+                            "runAfter": {
+                                "For_each_account": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Query",
+                            "inputs": {
+                                "from": "@variables('Scores')",
+                                "where": "@greater(item(), triggerBody()?['ScoreThreshold'])"
+                            }
+                        },
+                        "For_each_account": {
+                            "foreach": "@body('Filter_array_-_Get_only_accounts')",
+                            "actions": {
+                                "Compose_MCAS_user_link": {
+                                    "runAfter": {
+                                        "Condition_-_aadUserId_check": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Compose",
+                                    "inputs": "@concat(split(variables('MCAS_API_URL'),'.')[0],'.portal.cloudappsecurity.com/#/users/',base64(variables('PkUser')))"
+                                },
+                                "Condition_-_Check_MCAS_API_Results": {
+                                    "actions": {
+                                        "Update_DetailedResults_array": {
+                                            "runAfter": {
+                                                "Update_Scores_array": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "AppendToArrayVariable",
+                                            "inputs": {
+                                                "name": "DetailedResults",
+                                                "value": {
+                                                    "currentScore": "@body('HTTP_-_MCAS_API_Call')['threatScore']",
+                                                    "status": "Found",
+                                                    "userId": "@{body('HTTP_-_MCAS_API_Call')['id']}",
+                                                    "userLink": "<a href=@{outputs('Compose_MCAS_user_link')}>Link</a>",
+                                                    "userPrincipalName": "@{concat(item()['properties']['accountName'],'@',item()['properties']['upnSuffix'])}"
+                                                }
+                                            }
+                                        },
+                                        "Update_Scores_array": {
+                                            "runAfter": {},
+                                            "type": "AppendToArrayVariable",
+                                            "inputs": {
+                                                "name": "Scores",
+                                                "value": "@body('HTTP_-_MCAS_API_Call')['threatScore']"
+                                            }
+                                        }
+                                    },
+                                    "runAfter": {
+                                        "HTTP_-_MCAS_API_Call": [
+                                            "Succeeded",
+                                            "Failed"
+                                        ]
+                                    },
+                                    "else": {
+                                        "actions": {
+                                            "Append_to_array_variable": {
+                                                "runAfter": {},
+                                                "type": "AppendToArrayVariable",
+                                                "inputs": {
+                                                    "name": "DetailedResults",
+                                                    "value": {
+                                                        "status": "Score not found in MCAS",
+                                                        "userId": "@{body('HTTP_-_MCAS_API_Call')['id']}",
+                                                        "userLink": "<a href=@{outputs('Compose_MCAS_user_link')}>Link</a>",
+                                                        "userPrincipalName": "@{concat(item()['properties']['accountName'],'@',item()['properties']['upnSuffix'])}"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "expression": {
+                                        "and": [
+                                            {
+                                                "equals": [
+                                                    "@outputs('HTTP_-_MCAS_API_Call')['statusCode']",
+                                                    200
+                                                ]
+                                            },
+                                            {
+                                                "not": {
+                                                    "equals": [
+                                                        "@body('HTTP_-_MCAS_API_Call')['threatScore']",
+                                                        "@null"
+                                                    ]
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    "type": "If"
+                                },
+                                "Condition_-_aadUserId_check": {
+                                    "actions": {
+                                        "Set_PkUser_variable_directly": {
+                                            "runAfter": {},
+                                            "type": "SetVariable",
+                                            "inputs": {
+                                                "name": "PkUser",
+                                                "value": "{\"id\":\"@{items('For_each_account')['properties']['aadUserId']}\",\"saas\":11161,\"inst\":0}"
+                                            }
+                                        }
+                                    },
+                                    "runAfter": {},
+                                    "else": {
+                                        "actions": {
+                                            "HTTP_-_Get_User_ID": {
+                                                "runAfter": {},
+                                                "type": "Http",
+                                                "inputs": {
+                                                    "authentication": {
+                                                        "audience": "https://graph.microsoft.com/",
+                                                        "type": "ManagedServiceIdentity"
+                                                    },
+                                                    "method": "GET",
+                                                    "uri": "https://graph.microsoft.com/v1.0/users/@{concat(item()['properties']['accountName'],'@',item()['properties']['upnSuffix'])}"
+                                                }
+                                            },
+                                            "Set_PkUser_from_AAD": {
+                                                "runAfter": {
+                                                    "HTTP_-_Get_User_ID": [
+                                                        "Succeeded"
+                                                    ]
+                                                },
+                                                "type": "SetVariable",
+                                                "inputs": {
+                                                    "name": "PkUser",
+                                                    "value": "{\"id\":\"@{body('HTTP_-_Get_User_ID')['id']}\",\"saas\":11161,\"inst\":0}"
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "expression": {
+                                        "and": [
+                                            {
+                                                "greater": [
+                                                    "@length(item()['properties']['aadUserId'])",
+                                                    0
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    "type": "If"
+                                },
+                                "HTTP_-_MCAS_API_Call": {
+                                    "runAfter": {
+                                        "Compose_MCAS_user_link": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Http",
+                                    "inputs": {
+                                        "headers": {
+                                            "Authorization": "Token @{body('Get_MCAS_API_secret')?['value']}"
+                                        },
+                                        "method": "GET",
+                                        "uri": "@{variables('MCAS_API_URL')}/v1/entities/@{base64(variables('PkUser'))}/"
+                                    }
+                                }
+                            },
+                            "runAfter": {
+                                "Condition_-_Terminate_if_no_accounts": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Foreach",
+                            "runtimeConfiguration": {
+                                "concurrency": {
+                                    "repetitions": 1
+                                }
+                            }
+                        },
+                        "Get_MCAS_API_secret": {
+                            "runAfter": {
+                                "Initialize_DetailedResults": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ApiConnection",
+                            "inputs": {
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['keyvault']['connectionId']"
+                                    }
+                                },
+                                "method": "get",
+                                "path": "/secrets/@{encodeURIComponent('MCASAPIKey')}/value"
+                            }
+                        },
+                        "Initialize_DetailedResults": {
+                            "runAfter": {
+                                "Initialize_Scores_array": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "DetailedResults",
+                                        "type": "array",
+                                        "value": []
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_MCAS_API_URL": {
+                            "runAfter": {},
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "MCAS_API_URL",
+                                        "type": "string",
+                                        "value": "[parameters('MCASAPIUrl')]"
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_Pk_data_for_MCAP_API_Call": {
+                            "runAfter": {
+                                "Initialize_MCAS_API_URL": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "PkUser",
+                                        "type": "string"
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_Scores_array": {
+                            "runAfter": {
+                                "Initialize_Pk_data_for_MCAP_API_Call": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "Scores",
+                                        "type": "array",
+                                        "value": []
+                                    }
+                                ]
+                            }
+                        },
+                        "Return_final_response": {
+                            "runAfter": {
+                                "Condition_-_Check_if_comment_is_required": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Response",
+                            "kind": "Http",
+                            "inputs": {
+                                "body": "@outputs('Compose_final_response')",
+                                "statusCode": 200
+                            }
+                        }
+                    },
+                    "outputs": {}
+                },
+                "parameters": {
+                    "$connections": {
+                        "value": {
+                            "azuresentinel": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('AzureSentinelConnectionName'))]",
+                                "connectionName": "[variables('AzureSentinelConnectionName')]",
+                                "connectionProperties": {
+                                    "authentication": {
+                                        "type": "ManagedServiceIdentity"
+                                    }
+                                },
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azuresentinel')]"
+                            },
+                            "keyvault": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('AzureKeyVaultConnectionName'))]",
+                                "connectionName": "[variables('AzureKeyVaultConnectionName')]",
+                                "connectionProperties": {
+                                    "authentication": {
+                                        "type": "ManagedServiceIdentity"
+                                    }
+                                },
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/keyvault')]"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ]
+}
