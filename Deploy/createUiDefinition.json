@@ -109,7 +109,7 @@
                         "name": "MCASAPIKEY",
                         "type": "Microsoft.Common.TextBox",
                         "label": "MCAS API Key",
-                        "placeholder": "",
+                        "placeholder": "Enter the API Key obtained from MCAS",
                         "defaultValue": "",
                         "toolTip": "",
                         "constraints": {},
