@@ -2,7 +2,7 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "automationModulesKind": {
+        "enableModulesKind": {
             "type": "array",
             "defaultValue": [],
             "metadata": {
@@ -43,7 +43,7 @@
     },
     "resources": [
         {
-            "condition": "[contains(parameters('automationModuleKind'), 'OOFModule')]",
+            "condition": "[contains(parameters('enableModulesKind'), 'OOFModule')]",
             "apiVersion": "2015-01-01",
             "name": "OOFTemplate",
             "type": "Microsoft.Resources/deployments",
@@ -61,7 +61,7 @@
             }
         },
         {
-            "condition": "[contains(parameters('automationModuleKind'), 'MCASModule')]",
+            "condition": "[contains(parameters('enableModulesKind'), 'MCASModule')]",
             "apiVersion": "2015-01-01",
             "name": "MCASTemplate",
             "type": "Microsoft.Resources/deployments",
@@ -79,7 +79,7 @@
             }
         },
         {
-            "condition": "[contains(parameters('automationModuleKind'), 'UEBAModule')]",
+            "condition": "[contains(parameters('enableModulesKind'), 'UEBAModule')]",
             "apiVersion": "2015-01-01",
             "name": "UEBATemplate",
             "type": "Microsoft.Resources/deployments",
@@ -97,7 +97,7 @@
             }
         },
         {
-            "condition": "[contains(parameters('automationModuleKind'), 'RelatedAlerts')]",
+            "condition": "[contains(parameters('enableModulesKind'), 'RelatedAlerts')]",
             "apiVersion": "2015-01-01",
             "name": "RelatedAlertsTemplate",
             "type": "Microsoft.Resources/deployments",
