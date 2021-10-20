@@ -110,8 +110,8 @@
             }
         ],
         "outputs": {
-            "enableModulesKind": "[steps('dataConnectors').enableDataConnectorsKind]",
-            "securityCollectionTier": "[steps('dataConnectors').securityCollectionTier]",
+            "enableModulesKind": "[steps('automationModules').enableDataConnectorsKind]",
+            "securityCollectionTier": "[steps('automationModules').securityCollectionTier]",
             "location": "[location()]"
         }
     }
