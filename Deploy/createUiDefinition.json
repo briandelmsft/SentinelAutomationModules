@@ -106,7 +106,7 @@
                         "visible": "[if(contains(steps('automationModules').enableModulesKind,'MCASModule'), true, false)]"
                     },
                     {
-                        "name": "MCAS API KEY",
+                        "name": "MCASAPIKEY",
                         "type": "Microsoft.Common.TextBox",
                         "label": "MCAS API Key",
                         "placeholder": "",
@@ -116,7 +116,7 @@
                         "visible": "[if(contains(steps('automationModules').enableModulesKind,'MCASModule'), true, false)]"
                     },
                     {
-                        "name": "MCAS API URL",
+                        "name": "MCASAPIURL",
                         "type": "Microsoft.Common.TextBox",
                         "label": "MCAS API URL",
                         "placeholder": "Enter the API URL obtained from MCAS",
@@ -134,8 +134,8 @@
             "RelatedAlertsPlaybookName": "[steps('automationModules').RelatedAlertsPlaybookName]",
             "UEBAPlaybookName": "[steps('automationModules').UEBAPlaybookName]",
             "MCASPlaybookName": "[steps('automationModules').MCASPlaybookName]",
-            "MCAS API KEY": "[steps('automationModules').MCAS API KEY]",
-            "MCAS API URL": "[steps('automationModules').MCAS API URL]",
+            "MCAS API KEY": "[steps('automationModules').MCASAPIKEY]",
+            "MCAS API URL": "[steps('automationModules').MCASAPIURL]",
             "location": "[location()]"
         }
     }
