@@ -1,0 +1,37 @@
+{
+    "type": "object",
+    "properties": {
+        "DetailedResults": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "StartTime": {
+                        "type": "string"
+                    },
+                    "DisplayName": {
+                        "type": "string"
+                    },
+                    "AlertName": {
+                        "type": "string"
+                    },
+                    "AlertSeverity": {
+                        "type": "string"
+                    },
+                    "SystemAlertId": {
+                        "type": "string"
+                    },
+                    "ProviderName": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "RelatedAlertsCount": {
+            "type": "integer"
+        },
+        "RelatedAlertsFound": {
+            "type": "boolean"
+        }
+    }
+}
