@@ -19,6 +19,33 @@ This module will check the incidient entities to see if there are any other aler
 |LookbackInDays|1-90|This defines how far back to look through the SecurityAlert tables in Sentinel|
 |WorkspaceId|Workspace ID (dynamic content)|This should be selected from the Dynamic content of the incident creation rule trigger|
 
+## Return Properties
+
+|Property|Description|
+|---|---|
+|DetailedResults|An array of each related alert that was found|
+|RelatedAlertsCount|Number of related alerts found|
+|RelatedAlertsFound|true/false indicating if related alerts were found|
+
+## Sample Return
+
+```
+{
+  "DetailedResults": [
+    {
+      "StartTime": "2021-10-12T18:03:36.649Z",
+      "DisplayName": "Alert Display Name",
+      "AlertName": "Alert Name",
+      "AlertSeverity": "Informational",
+      "SystemAlertId": "972af98d-fd82-8b36-3308-93f6ffa2ad17",
+      "ProviderName": "ASI Scheduled Alerts"
+    }
+  ],
+  "RelatedAlertsCount": 1,
+  "RelatedAlertsFound": true
+}
+```
+
 ## Quick Deployment
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fbriandelmsft%2FSentinelAutomationModules%2Fmain%2FModules%2FRelatedAlerts%2Fazuredeploy.json)

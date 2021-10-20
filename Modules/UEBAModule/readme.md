@@ -16,6 +16,44 @@ This module will check the incident account entities to see if there are any Use
 |LookbackInDays|1-90|This defines how far back to look through the UEBA tables in Sentinel|
 |MinimumInvestigationPriority|1-10|Only BehaviourAnalytics records with an InvestirgationPriority of >= this value will be considered|
 
+## Return Properties
+
+|Property|Description|
+|---|---|
+|AllEntityEventCount|Count of all related BehaviorAnalytics records|
+|AllEntityInvestigationPriorityAverage|Average investigation priority of all related BehaviorAnalytics records|
+|AllEntityInvestigationPriorityMax|Maximum investigation priority of all related BehaviorAnalytics records|
+|AllEntityInvestigationPrioritySum|Sum of investigation priority of all related BehaviorAnalytics records|
+|InvestigationPrioritiesFound|true if any investigation priorities are found in all related BehaviorAnalytics records, otherwise false|
+|PerUserStatus|An array of UEBA investigration priority values by UserPrincipalName|
+
+## Sample Return
+
+```
+{
+  "AllEntityEventCount": 222,
+  "AllEntityInvestigationPriorityAverage": 4.031073446327683,
+  "AllEntityInvestigationPriorityMax": 5,
+  "AllEntityInvestigationPrioritySum": 899,
+  "InvestigationPrioritiesFound": true,
+  "PerUserStatus": [
+    {
+      "InvestigationPrioritySum": 180,
+      "InvestigationPriorityAverage": 4,
+      "InvestigationPriorityMax": 4,
+      "EventCount": 45,
+      "UserPrincipalName": "user1@contoso.com"
+    },
+    {
+      "InvestigationPrioritySum": 719,
+      "InvestigationPriorityAverage": 4.062146892655368,
+      "InvestigationPriorityMax": 5,
+      "EventCount": 177,
+      "UserPrincipalName": "user2@contoso.com"
+    }
+  ]
+}
+```
 
 ## Quick Deployment
 
