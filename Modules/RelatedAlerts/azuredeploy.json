@@ -58,6 +58,12 @@
                                         "AddIncidentComments": {
                                             "type": "boolean"
                                         },
+                                        "CheckAccountEntityMatches": {
+                                            "type": "boolean"
+                                        },
+                                        "CheckIPEntityMatches": {
+                                            "type": "boolean"
+                                        },
                                         "Entities": {
                                             "type": "array"
                                         },
@@ -198,7 +204,7 @@
                         "Compose": {
                             "runAfter": {},
                             "type": "Compose",
-                            "inputs": "let incidentARMId = \"@{triggerBody()?['IncidentARMId']}\";\nlet entityData = '@{triggerBody()?['Entities']}';\nlet lookback = @{triggerBody()?['LookbackInDays']}d;\nlet incidentEntities = datatable(temp:string)['']\n| extend Entities = parse_json(entityData)\n| mv-expand todynamic(Entities)\n| extend EntityData = case(Entities.kind == \"Account\", strcat(tolower(Entities.kind), \"-\", Entities.properties.accountName, \"-\", Entities.properties.upnSuffix), \n    Entities.kind == \"Ip\", strcat(tolower(Entities.kind), \"-\", Entities.properties.address), \"unmapped\")\n| where EntityData <> \"unmapped\";\nlet currentIncidentAlerts = SecurityIncident\n| where TimeGenerated > ago(lookback)\n| where IncidentUrl endswith incidentARMId\n| summarize arg_max(TimeGenerated, *) by IncidentNumber\n| mv-expand AlertIds\n| project SystemAlertId=tostring(AlertIds);\nlet alertEntities = SecurityAlert\n| where TimeGenerated > ago(lookback)\n| summarize arg_max(TimeGenerated, *) by SystemAlertId\n| where SystemAlertId !in (currentIncidentAlerts)\n| mv-expand todynamic(Entities)\n| extend EntityData = case(Entities.Type == \"account\", strcat(tolower(Entities.Type), \"-\", Entities.Name, \"-\", Entities.UPNSuffix), \n    Entities.Type == \"ip\", strcat(tolower(Entities.Type), \"-\", Entities.Address), \"unmapped\")\n| where EntityData <> \"unmapped\";\nincidentEntities\n| join kind=inner (alertEntities) on EntityData\n| summarize by StartTime, DisplayName, AlertName, AlertSeverity, SystemAlertId, ProviderName"
+                            "inputs": "let incidentARMId = \"@{triggerBody()?['IncidentARMId']}\";\nlet entityData = '@{triggerBody()?['Entities']}';\nlet checkAccountEntity = @{triggerBody()?['CheckAccountEntityMatches']};\nlet checkIPEntity = @{triggerBody()?['CheckIPEntityMatches']};\nlet lookback = @{triggerBody()?['LookbackInDays']}d;\nlet incidentEntities = datatable(temp:string)['']\n| extend Entities = parse_json(entityData)\n| mv-expand todynamic(Entities)\n| where (Entities.kind =~ \"Account\" and checkAccountEntity) or (Entities.kind =~ \"Ip\" and checkIPEntity)\n| extend EntityData = case(Entities.kind == \"Account\", strcat(tolower(Entities.kind), \"-\", Entities.properties.accountName, \"-\", Entities.properties.upnSuffix), \n    Entities.kind == \"Ip\", strcat(tolower(Entities.kind), \"-\", Entities.properties.address), \"unmapped\")\n| where EntityData <> \"unmapped\";\nlet currentIncidentAlerts = SecurityIncident\n| where TimeGenerated > ago(lookback)\n| where IncidentUrl endswith incidentARMId\n| summarize arg_max(TimeGenerated, *) by IncidentNumber\n| mv-expand AlertIds\n| project SystemAlertId=tostring(AlertIds);\nlet alertEntities = SecurityAlert\n| where TimeGenerated > ago(lookback)\n| summarize arg_max(TimeGenerated, *) by SystemAlertId\n| where SystemAlertId !in (currentIncidentAlerts)\n| mv-expand todynamic(Entities)\n| extend EntityData = case(Entities.Type == \"account\", strcat(tolower(Entities.Type), \"-\", Entities.Name, \"-\", Entities.UPNSuffix), \n    Entities.Type == \"ip\", strcat(tolower(Entities.Type), \"-\", Entities.Address), \"unmapped\")\n| where EntityData <> \"unmapped\";\nincidentEntities\n| join kind=inner (alertEntities) on EntityData\n| summarize by StartTime, DisplayName, AlertName, AlertSeverity, SystemAlertId, ProviderName"
                         },
                         "HTTP": {
                             "runAfter": {
