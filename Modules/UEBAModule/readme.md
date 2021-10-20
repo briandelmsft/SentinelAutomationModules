@@ -1,5 +1,5 @@
-# UEBA Module
----
+# Get-UEBAInsights
+
 ## Description
 This module will check the incident account entities to see if there are any User Entity Behavior Analytics events with an investigation priority.
 
