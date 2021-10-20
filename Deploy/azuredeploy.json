@@ -27,7 +27,9 @@
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
-					"PlaybookName": "[parameters('OOFPlaybookName')]"
+					"PlaybookName": { 
+                        "value": "[parameters('OOFPlaybookName')]"
+                    }
                 }
             }
         },
@@ -42,7 +44,9 @@
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
-					"PlaybookName": "[parameters('RelatedAlertsPlaybookName')]"
+					"PlaybookName": {
+                        "value": "[parameters('RelatedAlertsPlaybookName')]"
+                    }
                 }
             }
         }		
