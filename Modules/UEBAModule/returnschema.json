@@ -1,0 +1,43 @@
+{
+    "type": "object",
+    "properties": {
+        "AllEntityEventCount": {
+            "type": "integer"
+        },
+        "AllEntityInvestigationPriorityAverage": {
+            "type": "number"
+        },
+        "AllEntityInvestigationPriorityMax": {
+            "type": "integer"
+        },
+        "AllEntityInvestigationPrioritySum": {
+            "type": "integer"
+        },
+        "InvestigationPrioritiesFound": {
+            "type": "boolean"
+        },
+        "PerUserStatus": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "InvestigationPrioritySum": {
+                        "type": "integer"
+                    },
+                    "InvestigationPriorityAverage": {
+                        "type": "integer"
+                    },
+                    "InvestigationPriorityMax": {
+                        "type": "integer"
+                    },
+                    "EventCount": {
+                        "type": "integer"
+                    },
+                    "UserPrincipalName": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    }
+}
