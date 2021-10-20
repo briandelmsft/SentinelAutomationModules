@@ -1,7 +1,7 @@
 #  Install-Module AzureAD # Install the module (You need admin on the machine)
 
 $TenantID=""  #Add your AAD Tenant Id
-$DisplayNameOfMSI="Get-OOFDetails" #Name of the Logic App
+$DisplayNameOfMSI="Get-MCASInvestigationScore" #Name of the Logic App
 
 Connect-AzureAD -TenantId $TenantID
 $MSI = (Get-AzureADServicePrincipal -Filter "displayName eq '$DisplayNameOfMSI'")
