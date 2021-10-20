@@ -6,11 +6,11 @@
             "defaultValue": "Get-MCASInvestigationScore",
             "type": "String"
         },
-        "API_KEY": {
+        "API KEY": {
             "defaultValue": "Type your API Key",
             "type": "String"
         },
-        "MCASAPIUrl": {
+        "MCAS API URL": {
             "defaultValue": "Type your API URL",
             "type": "String"
         }
@@ -106,7 +106,7 @@
                 "[resourceId('Microsoft.KeyVault/vaults', variables('KeyVaultName'))]"
             ],
             "properties": {
-                "value": "[parameters('API_KEY')]",
+                "value": "[parameters('API KEY')]",
                 "contentType": "string",
                 "attributes": {
                     "enabled": true
@@ -472,6 +472,13 @@
                                 },
                                 "method": "get",
                                 "path": "/secrets/@{encodeURIComponent('MCASAPIKey')}/value"
+                            },
+                            "runtimeConfiguration": {
+                                "secureData": {
+                                    "properties": [
+                                        "outputs"
+                                    ]
+                                }
                             }
                         },
                         "Initialize_DetailedResults": {
@@ -499,7 +506,7 @@
                                     {
                                         "name": "MCAS_API_URL",
                                         "type": "string",
-                                        "value": "[parameters('MCASAPIUrl')]"
+                                        "value": "[parameters('MCAS API URL')]"
                                     }
                                 ]
                             }
