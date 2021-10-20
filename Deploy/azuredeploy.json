@@ -9,11 +9,16 @@
 		"RelatedAlertsPlaybookName": {
 			"defaultValue": "Get-RelatedAlerts",
 			"type": "String"
+		},
+		"UEBAPlaybookName": {
+			"defaultValue": "Get-UEBAInsights",
+			"type": "String"
 		}
 	},
     "variables": {  
         "OOFTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/OOFModule/azuredeploy.json",
-	"RelatedAlertsTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/RelatedAlerts/azuredeploy.json"
+	"RelatedAlertsTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/RelatedAlerts/azuredeploy.json",
+	"UEBATemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/UEBAModule/azuredeploy.json"
     },
     "resources": [
         {
@@ -29,6 +34,23 @@
                 "parameters": {
 					"PlaybookName": { 
                         "value": "[parameters('OOFPlaybookName')]"
+                    }
+                }
+            }
+        },
+        {
+            "apiVersion": "2015-01-01",
+            "name": "UEBATemplate",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[variables('UEBATemplate')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+					"PlaybookName": { 
+                        "value": "[parameters('UEBAPlaybookName')]"
                     }
                 }
             }
