@@ -16,22 +16,7 @@
                 }
             }
         },
-        "basics": [
-            {
-                "name": "dataRetention",
-                "type": "Microsoft.Common.TextBox",
-                "label": "Number of days of retention",
-                "placeholder": "",
-                "defaultValue": "90",
-                "toolTip": "Only numbers allowed",
-                "constraints": {
-                    "required": true,
-                    "regex": "([3-8][0-9]|9[0-9]|[1-6][0-9]{2}|7[0-2][0-9]|730)",
-                    "validationMessage": "Retention must be between 30 and 730 days."
-                },
-                "visible": true
-            }
-        ],
+        "basics": [],
         "steps": [
             {
                 "name": "automationModules",
@@ -68,13 +53,12 @@
                                     "value": "RelatedAlerts"
                                 },
                                 {
-                                    "label": "MCAS Module",
-                                    "value": "MCASModule"
-                                },
-
-                                {
                                     "label": "UEBA Module",
                                     "value": "UEBAModule"
+                                },
+                                {
+                                    "label": "MCAS Module",
+                                    "value": "MCASModule"
                                 }
                             ],
                             "required": true
@@ -82,28 +66,63 @@
                         "visible": true
                     },
                     {
-                        "name": "securityCollectionTier",
-                        "type": "Microsoft.Common.OptionsGroup",
-                        "label": "Security Events to stream into Sentinel ",
-                        "defaultValue": "Recommended",
+                        "name": "OOFPlaybookName",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Out Of Office Playbook Name",
+                        "placeholder": "",
+                        "defaultValue": "Get-OOFDetails",
                         "toolTip": "",
-                        "constraints": {
-                            "allowedValues": [
-                                {
-                                    "label": "All",
-                                    "value": "All"
-                                },
-                                {
-                                    "label": "Common",
-                                    "value": "Recommended"
-                                },
-                                {
-                                    "label": "Minimal",
-                                    "value": "Minimal"
-                                }
-                            ],
-                            "required": true
-                        },
+                        "constraints": {},
+                        "visible": "[if(contains(steps('automationModules').enableModulesKind,'OOFModule'), true, false)]"
+                    },
+                    {
+                        "name": "RelatedAlertsPlaybookName",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Related Alerts Playbook Name",
+                        "placeholder": "",
+                        "defaultValue": "Get-RelatedAlerts",
+                        "toolTip": "",
+                        "constraints": {},
+                        "visible": "[if(contains(steps('automationModules').enableModulesKind,'RelatedAlerts'), true, false)]"
+                    },
+                    {
+                        "name": "UEBAPlaybookName",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "UEBA Playbook Name",
+                        "placeholder": "",
+                        "defaultValue": "Get-UEBAInsights",
+                        "toolTip": "",
+                        "constraints": {},
+                        "visible": "[if(contains(steps('automationModules').enableModulesKind,'UEBAModule'), true, false)]"
+                    },
+                    {
+                        "name": "MCASPlaybookName",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "MCAS Playbook Name",
+                        "placeholder": "",
+                        "defaultValue": "Get-MCASInvestigationScore",
+                        "toolTip": "",
+                        "constraints": {},
+                        "visible": "[if(contains(steps('automationModules').enableModulesKind,'MCASModule'), true, false)]"
+                    },
+                    {
+                        "name": "MCAS API KEY",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "MCAS API Key",
+                        "placeholder": "",
+                        "defaultValue": "",
+                        "toolTip": "",
+                        "constraints": {},
+                        "visible": "[if(contains(steps('automationModules').enableModulesKind,'MCASModule'), true, false)]"
+                    },
+                    {
+                        "name": "MCAS API URL",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "MCAS API URL",
+                        "placeholder": "Enter the API URL obtained from MCAS",
+                        "defaultValue": "",
+                        "toolTip": "",
+                        "constraints": {},
                         "visible": "[if(contains(steps('automationModules').enableModulesKind,'MCASModule'), true, false)]"
                     }
                 ]
