@@ -1,0 +1,274 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "PlaybookName": {
+            "defaultValue": "Get-UEBAInsights",
+            "type": "String"
+        }
+    },
+    "variables": {
+        "AzureSentinelConnectionName": "[concat('azuresentinel-', parameters('PlaybookName'))]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[variables('AzureSentinelConnectionName')]",
+            "location": "[resourceGroup().location]",
+            "kind": "V1",
+            "properties": {
+                "displayName": "[variables('AzureSentinelConnectionName')]",
+                "customParameterValues": {},
+                "parameterValueType": "Alternative",
+                "api": {
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azuresentinel')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2017-07-01",
+            "name": "[parameters('PlaybookName')]",
+            "location": "[resourceGroup().location]",
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "state": "Enabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {},
+                            "type": "Object"
+                        }
+                    },
+                    "triggers": {
+                        "manual": {
+                            "type": "Request",
+                            "kind": "Http",
+                            "inputs": {
+                                "schema": {
+                                    "properties": {
+                                        "AddIncidentComments": {
+                                            "type": "boolean"
+                                        },
+                                        "Entities": {
+                                            "type": "array"
+                                        },
+                                        "IncidentARMId": {
+                                            "type": "string"
+                                        },
+                                        "LookbackInDays": {
+                                            "type": "integer"
+                                        },
+                                        "MinimumInvestigationPriority": {
+                                            "type": "integer"
+                                        },
+                                        "WorkspaceId": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "actions": {
+                        "Check_for_UEBA_Insights": {
+                            "actions": {
+                                "Condition": {
+                                    "actions": {
+                                        "Add_comment_to_incident_(V3)": {
+                                            "runAfter": {
+                                                "Create_HTML_table": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "ApiConnection",
+                                            "inputs": {
+                                                "body": {
+                                                    "incidentArmId": "@triggerBody()?['IncidentARMId']",
+                                                    "message": "<p>There were @{body('Filter_array_-_Total')[0]['EventCount']} investigation priority events with a minimum priority value of @{triggerBody()?['MinimumInvestigationPriority']}.<br>\n<br>\n@{body('Create_HTML_table')}<br>\n<br>\n</p>"
+                                                },
+                                                "host": {
+                                                    "connection": {
+                                                        "name": "@parameters('$connections')['azuresentinel']['connectionId']"
+                                                    }
+                                                },
+                                                "method": "post",
+                                                "path": "/Incidents/Comment"
+                                            }
+                                        },
+                                        "Create_HTML_table": {
+                                            "runAfter": {},
+                                            "type": "Table",
+                                            "inputs": {
+                                                "format": "HTML",
+                                                "from": "@body('Filter_array_-_Exclude_Total')"
+                                            }
+                                        }
+                                    },
+                                    "runAfter": {
+                                        "Response": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "expression": {
+                                        "and": [
+                                            {
+                                                "equals": [
+                                                    "@triggerBody()?['AddIncidentComments']",
+                                                    true
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    "type": "If"
+                                },
+                                "Filter_array_-_Exclude_Total": {
+                                    "runAfter": {
+                                        "Filter_array_-_Total": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Query",
+                                    "inputs": {
+                                        "from": "@body('Select')",
+                                        "where": "@not(equals(item()['UserPrincipalName'], 'Total'))"
+                                    }
+                                },
+                                "Filter_array_-_Total": {
+                                    "runAfter": {
+                                        "Select": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Query",
+                                    "inputs": {
+                                        "from": "@body('Select')",
+                                        "where": "@equals(item()['UserPrincipalName'], 'Total')"
+                                    }
+                                },
+                                "Response": {
+                                    "runAfter": {
+                                        "Filter_array_-_Exclude_Total": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Response",
+                                    "kind": "Http",
+                                    "inputs": {
+                                        "body": {
+                                            "AllEntityEventCount": "@body('Filter_array_-_Total')[0]['EventCount']",
+                                            "AllEntityInvestigationPriorityAverage": "@  body('Filter_array_-_Total')[0]['InvestigationPriorityAverage']",
+                                            "AllEntityInvestigationPriorityMax": "@body('Filter_array_-_Total')[0]['InvestigationPriorityMax']",
+                                            "AllEntityInvestigationPrioritySum": "@body('Filter_array_-_Total')[0]['InvestigationPrioritySum']",
+                                            "InvestigationPrioritiesFound": true,
+                                            "PerUserStatus": "@body('Filter_array_-_Exclude_Total')"
+                                        },
+                                        "statusCode": 200
+                                    }
+                                },
+                                "Select": {
+                                    "runAfter": {},
+                                    "type": "Select",
+                                    "inputs": {
+                                        "from": "@body('HTTP')['tables'][0]['rows']",
+                                        "select": {
+                                            "@{body('HTTP')['tables'][0]['columns'][0]['name']}": "@item()[0]",
+                                            "@{body('HTTP')['tables'][0]['columns'][1]['name']}": "@item()[1]",
+                                            "@{body('HTTP')['tables'][0]['columns'][2]['name']}": "@item()[2]",
+                                            "@{body('HTTP')['tables'][0]['columns'][3]['name']}": "@item()[3]",
+                                            "@{body('HTTP')['tables'][0]['columns'][4]['name']}": "@item()[4]"
+                                        }
+                                    }
+                                }
+                            },
+                            "runAfter": {
+                                "HTTP": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "else": {
+                                "actions": {
+                                    "Response_2": {
+                                        "runAfter": {},
+                                        "type": "Response",
+                                        "kind": "Http",
+                                        "inputs": {
+                                            "body": {
+                                                "AllEntityEventCount": 0,
+                                                "AllEntityInvestigationPriorityAverage": 0,
+                                                "AllEntityInvestigationPriorityMax": 0,
+                                                "AllEntityInvestigationPrioritySum": 0,
+                                                "InvestigationPrioritiesFound": false,
+                                                "PerUserStatus": []
+                                            },
+                                            "statusCode": 200
+                                        }
+                                    }
+                                }
+                            },
+                            "expression": {
+                                "and": [
+                                    {
+                                        "greater": [
+                                            "@length(body('HTTP')['tables'][0]['rows'])",
+                                            0
+                                        ]
+                                    }
+                                ]
+                            },
+                            "type": "If"
+                        },
+                        "Compose": {
+                            "runAfter": {},
+                            "type": "Compose",
+                            "inputs": "let entityData = '@{triggerBody()?['Entities']}';\nlet minPriority = @{triggerBody()?['MinimumInvestigationPriority']};\nlet lookback = @{triggerBody()?['LookbackInDays']}d;\nlet incidentEntities = datatable(temp:string)['']\n| extend Entities = parse_json(entityData)\n| mv-expand todynamic(Entities)\n| where Entities.kind =~ \"Account\"\n| extend EntityUPN = strcat(Entities.properties.accountName, '@', Entities.properties.upnSuffix)\n| distinct EntityUPN;\nlet userDetails = BehaviorAnalytics\n| where TimeGenerated > ago(lookback)\n| where UserPrincipalName in~ (incidentEntities)\n| where InvestigationPriority >= minPriority\n| summarize InvestigationPrioritySum=sum(InvestigationPriority), InvestigationPriorityAverage=avg(InvestigationPriority), InvestigationPriorityMax=max(InvestigationPriority), EventCount=count() by UserPrincipalName;\nuserDetails\n| summarize InvestigationPrioritySum=sum(InvestigationPrioritySum), InvestigationPriorityAverage=avg(InvestigationPriorityAverage), InvestigationPriorityMax=max(InvestigationPriorityMax), EventCount=sum(EventCount)\n| extend UserPrincipalName=\"Total\"\n| union userDetails"
+                        },
+                        "HTTP": {
+                            "runAfter": {
+                                "Compose": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Http",
+                            "inputs": {
+                                "authentication": {
+                                    "audience": "https://api.loganalytics.io",
+                                    "type": "ManagedServiceIdentity"
+                                },
+                                "body": {
+                                    "query": "@{outputs('Compose')}",
+                                    "timespan": "P@{triggerBody()?['LookbackInDays']}D"
+                                },
+                                "method": "POST",
+                                "uri": "https://api.loganalytics.io/v1/workspaces/@{triggerBody()?['WorkspaceId']}/query"
+                            }
+                        }
+                    },
+                    "outputs": {}
+                },
+                "parameters": {
+                    "$connections": {
+                        "value": {
+                            "azuresentinel": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('AzureSentinelConnectionName'))]",
+                                "connectionName": "[variables('AzureSentinelConnectionName')]",
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azuresentinel')]",
+                                "connectionProperties": {
+                                    "authentication": {
+                                        "type": "ManagedServiceIdentity"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ]
+}
