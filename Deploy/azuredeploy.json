@@ -1,7 +1,14 @@
 {
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
-    "parameters": { 
+    "parameters": {
+        "automationModulesKind": {
+            "type": "array",
+            "defaultValue": [],
+            "metadata": {
+                "description": "The automation modules you want to deploy"
+            }
+        },
 	"OOFPlaybookName": {
 		"defaultValue": "Get-OOFDetails",
 		"type": "String"
@@ -36,6 +43,7 @@
     },
     "resources": [
         {
+            "condition": "[contains(parameters('automationModuleKind'), 'OOFModule')]",
             "apiVersion": "2015-01-01",
             "name": "OOFTemplate",
             "type": "Microsoft.Resources/deployments",
@@ -53,6 +61,7 @@
             }
         },
         {
+            "condition": "[contains(parameters('automationModuleKind'), 'MCASModule')]",
             "apiVersion": "2015-01-01",
             "name": "MCASTemplate",
             "type": "Microsoft.Resources/deployments",
@@ -70,6 +79,7 @@
             }
         },
         {
+            "condition": "[contains(parameters('automationModuleKind'), 'UEBAModule')]",
             "apiVersion": "2015-01-01",
             "name": "UEBATemplate",
             "type": "Microsoft.Resources/deployments",
@@ -87,6 +97,7 @@
             }
         },
         {
+            "condition": "[contains(parameters('automationModuleKind'), 'RelatedAlerts')]",
             "apiVersion": "2015-01-01",
             "name": "RelatedAlertsTemplate",
             "type": "Microsoft.Resources/deployments",
