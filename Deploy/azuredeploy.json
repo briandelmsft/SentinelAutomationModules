@@ -72,8 +72,14 @@
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
-		    "PlaybookName": { 
+		            "PlaybookName": { 
                         "value": "[parameters('MCASPlaybookName')]"
+                    },
+		            "API KEY": { 
+                        "value": "[parameters('MCAS API KEY')]"
+                    },
+		            "MCAS API URL": { 
+                        "value": "[parameters('MCAS API URL')]"
                     }
                 }
             }
