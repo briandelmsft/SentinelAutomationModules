@@ -1,5 +1,5 @@
-# Related Alerts Module
----
+# Get-RelatedAlerts
+
 ## Description
 This module will check the incidient entities to see if there are any other alerts on the same entities.
 
