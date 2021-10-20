@@ -3,7 +3,7 @@
 This Logic App retrieve the investigation score for the entities passed in parameters. This leverages only the Account kind of entity. If the incident has multiple accounts, then the results contain an array with the score of each account (if the account has a score in MCAS). The results will also contain a statistics indicating the maximum score of the account passed in parameters. You can specify a threshold for the score and the results will contain the number of account for which the investigation score is going over the specified threshold.
 
 This Logic App be called from a Playbook using the following parameters:
-![Step 3](Step_3.jpg)
+![Step 2](Step_2.jpg)
 
 If you chose to enable comment in the incident, an HTML table with the results of the API calls will be added to the incident. 
 
@@ -20,7 +20,7 @@ You need the MCAS API URL. You can get it followinf those steps:
 ![Step 1](Step_1.jpg)
 
 3. When deploying the template, type in the API Key and URL in the corresponding fields.
-![Step 2](Step_2.jpg)
+![Step 3](Step_3.jpg)
 
 This will create a Key Vault storing the API Key in the selected resource group. The Logic App will then retrieve the key to query the MCAS API usign the URL you have specified.
 
