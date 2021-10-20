@@ -130,7 +130,12 @@
         ],
         "outputs": {
             "enableModulesKind": "[steps('automationModules').enableModulesKind]",
-            "securityCollectionTier": "[steps('automationModules').securityCollectionTier]",
+            "OOFPlaybookName": "[steps('automationModules').OOFPlaybookName]",
+            "RelatedAlertsPlaybookName": "[steps('automationModules').RelatedAlertsPlaybookName]",
+            "UEBAPlaybookName": "[steps('automationModules').UEBAPlaybookName]",
+            "MCASPlaybookName": "[steps('automationModules').MCASPlaybookName]",
+            "MCAS API KEY": "[steps('automationModules').MCAS API KEY]",
+            "MCAS API URL": "[steps('automationModules').MCAS API URL]",
             "location": "[location()]"
         }
     }
