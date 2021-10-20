@@ -1,7 +1,0 @@
-let entityUPN = "";
-BehaviorAnalytics
-| where TimeGenerated > ago(14d)
-| where UserPrincipalName =~ entityUPN
-| where InvestigationPriority > 0
-| top 20 by InvestigationPriority
-| summarize SumInvestigationPriority=sum(InvestigationPriority), AverageInvestigationPriority=avg(InvestigationPriority), MaxInvestigationPriority=max(InvestigationPriority), Actions=make_set(ActionType)
