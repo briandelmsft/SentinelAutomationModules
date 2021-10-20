@@ -40,7 +40,7 @@
                         "label": "Select Automation Modules to onboard",
                         "placeholder": "",
                         "multiselect": true,
-                        "defaultValue": ["OOFModule", "RelatedAlerts", "UEBA Module", "MCAS Module"],
+                        "defaultValue": ["UEBA Module", "MCAS Module"],
                         "toolTip": "Select the Automation modules you would like to deploy.",
                         "constraints": {
                             "allowedValues": [
