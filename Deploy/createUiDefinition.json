@@ -1,0 +1,118 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/0.1.2-preview/CreateUIDefinition.MultiVm.json#",
+    "handler": "Microsoft.Azure.CreateUIDef",
+    "version": "0.1.2-preview",
+    "parameters": {
+        "config": {
+            "isWizard": true,
+            "basics": {
+                "description": "Azure Sentinel Automaiton Modules Solution Deployment",
+                "location": {
+                    "label": "Location",
+                    "toolTip": "Location for all resources",
+                    "resourceTypes": [
+                        "Microsoft.Logic"
+                    ]
+                }
+            }
+        },
+        "basics": [
+            {
+                "name": "dataRetention",
+                "type": "Microsoft.Common.TextBox",
+                "label": "Number of days of retention",
+                "placeholder": "",
+                "defaultValue": "90",
+                "toolTip": "Only numbers allowed",
+                "constraints": {
+                    "required": true,
+                    "regex": "([3-8][0-9]|9[0-9]|[1-6][0-9]{2}|7[0-2][0-9]|730)",
+                    "validationMessage": "Retention must be between 30 and 730 days."
+                },
+                "visible": true
+            }
+        ],
+        "steps": [
+            {
+                "name": "automationModules",
+                "label": "Automation Modules",
+                "elements": [
+                    {
+                        "name": "textBlock1",
+                        "type": "Microsoft.Common.TextBlock",
+                        "visible": true,
+                        "options": {
+                            "text": "Please select which automation modules you want to deloy",
+                            "link": {
+                                "label": "Learn more",
+                                "uri": "https://github.com/briandelmsft/SentinelAutomationModules/tree/main/Modules"
+                            }
+                        }
+                    },
+                    {
+                        "name": "enableModulesKind",
+                        "type": "Microsoft.Common.DropDown",
+                        "label": "Select Automation Modules to onboard",
+                        "placeholder": "",
+                        "multiselect": true,
+                        "defaultValue": "",
+                        "toolTip": "Select the Automation modules you would like to deploy.",
+                        "constraints": {
+                            "allowedValues": [
+                                {
+                                    "label": "Out of Office Module",
+                                    "value": "OOFModule"
+                                },
+                                {
+                                    "label": "Related Alerts Module",
+                                    "value": "RelatedAlerts"
+                                },
+                                {
+                                    "label": "MCAS Module",
+                                    "value": "MCASModule"
+                                },
+
+                                {
+                                    "label": "UEBA Module",
+                                    "value": "UEBA Module"
+                                }
+                            ],
+                            "required": true
+                        },
+                        "visible": true
+                    },
+                    {
+                        "name": "securityCollectionTier",
+                        "type": "Microsoft.Common.OptionsGroup",
+                        "label": "Security Events to stream into Sentinel ",
+                        "defaultValue": "Recommended",
+                        "toolTip": "",
+                        "constraints": {
+                            "allowedValues": [
+                                {
+                                    "label": "All",
+                                    "value": "All"
+                                },
+                                {
+                                    "label": "Common",
+                                    "value": "Recommended"
+                                },
+                                {
+                                    "label": "Minimal",
+                                    "value": "Minimal"
+                                }
+                            ],
+                            "required": true
+                        },
+                        "visible": "[if(contains(steps('automationModules').enableModulesKind,'MCASModule'), true, false)]"
+                    }
+                ]
+            }
+        ],
+        "outputs": {
+            "enableModulesKind": "[steps('dataConnectors').enableDataConnectorsKind]",
+            "securityCollectionTier": "[steps('dataConnectors').securityCollectionTier]",
+            "location": "[location()]"
+        }
+    }
+}
