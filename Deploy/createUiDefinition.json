@@ -1,0 +1,142 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/0.1.2-preview/CreateUIDefinition.MultiVm.json#",
+    "handler": "Microsoft.Azure.CreateUIDef",
+    "version": "0.1.2-preview",
+    "parameters": {
+        "config": {
+            "isWizard": true,
+            "basics": {
+                "description": "Azure Sentinel Automaiton Modules Solution Deployment",
+                "location": {
+                    "label": "Location",
+                    "toolTip": "Location for all resources",
+                    "resourceTypes": [
+                        "Microsoft.Logic"
+                    ]
+                }
+            }
+        },
+        "basics": [],
+        "steps": [
+            {
+                "name": "automationModules",
+                "label": "Automation Modules",
+                "elements": [
+                    {
+                        "name": "textBlock1",
+                        "type": "Microsoft.Common.TextBlock",
+                        "visible": true,
+                        "options": {
+                            "text": "Please select which automation modules you want to deloy",
+                            "link": {
+                                "label": "Learn more",
+                                "uri": "https://github.com/briandelmsft/SentinelAutomationModules/tree/main/Modules"
+                            }
+                        }
+                    },
+                    {
+                        "name": "enableModulesKind",
+                        "type": "Microsoft.Common.DropDown",
+                        "label": "Select Automation Modules to onboard",
+                        "placeholder": "",
+                        "multiselect": true,
+                        "defaultValue": "Select all",
+                        "toolTip": "Select the Automation modules you would like to deploy.",
+                        "constraints": {
+                            "allowedValues": [
+                                {
+                                    "label": "Out of Office Module",
+                                    "value": "OOFModule"
+                                },
+                                {
+                                    "label": "Related Alerts Module",
+                                    "value": "RelatedAlerts"
+                                },
+                                {
+                                    "label": "UEBA Module",
+                                    "value": "UEBAModule"
+                                },
+                                {
+                                    "label": "MCAS Module",
+                                    "value": "MCASModule"
+                                }
+                            ],
+                            "required": true
+                        },
+                        "visible": true
+                    },
+                    {
+                        "name": "OOFPlaybookName",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Out Of Office Playbook Name",
+                        "placeholder": "",
+                        "defaultValue": "Get-OOFDetails",
+                        "toolTip": "",
+                        "constraints": {},
+                        "visible": "[if(contains(steps('automationModules').enableModulesKind,'OOFModule'), true, false)]"
+                    },
+                    {
+                        "name": "RelatedAlertsPlaybookName",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Related Alerts Playbook Name",
+                        "placeholder": "",
+                        "defaultValue": "Get-RelatedAlerts",
+                        "toolTip": "",
+                        "constraints": {},
+                        "visible": "[if(contains(steps('automationModules').enableModulesKind,'RelatedAlerts'), true, false)]"
+                    },
+                    {
+                        "name": "UEBAPlaybookName",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "UEBA Playbook Name",
+                        "placeholder": "",
+                        "defaultValue": "Get-UEBAInsights",
+                        "toolTip": "",
+                        "constraints": {},
+                        "visible": "[if(contains(steps('automationModules').enableModulesKind,'UEBAModule'), true, false)]"
+                    },
+                    {
+                        "name": "MCASPlaybookName",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "MCAS Playbook Name",
+                        "placeholder": "",
+                        "defaultValue": "Get-MCASInvestigationScore",
+                        "toolTip": "",
+                        "constraints": {},
+                        "visible": "[if(contains(steps('automationModules').enableModulesKind,'MCASModule'), true, false)]"
+                    },
+                    {
+                        "name": "MCASAPIKEY",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "MCAS API Key",
+                        "placeholder": "Enter the API Key obtained from MCAS",
+                        "defaultValue": "",
+                        "toolTip": "",
+                        "constraints": {},
+                        "visible": "[if(contains(steps('automationModules').enableModulesKind,'MCASModule'), true, false)]"
+                    },
+                    {
+                        "name": "MCASAPIURL",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "MCAS API URL",
+                        "placeholder": "Enter the API URL obtained from MCAS",
+                        "defaultValue": "",
+                        "toolTip": "",
+                        "constraints": {},
+                        "visible": "[if(contains(steps('automationModules').enableModulesKind,'MCASModule'), true, false)]"
+                    }
+                ]
+            }
+        ],
+        "outputs": {
+            "enableModulesKind": "[steps('automationModules').enableModulesKind]",
+            "OOFPlaybookName": "[steps('automationModules').OOFPlaybookName]",
+            "RelatedAlertsPlaybookName": "[steps('automationModules').RelatedAlertsPlaybookName]",
+            "UEBAPlaybookName": "[steps('automationModules').UEBAPlaybookName]",
+            "MCASPlaybookName": "[steps('automationModules').MCASPlaybookName]",
+            "MCAS API KEY": "[steps('automationModules').MCASAPIKEY]",
+            "MCAS API URL": "[steps('automationModules').MCASAPIURL]",
+            "location": "[location()]"
+        }
+    }
+}

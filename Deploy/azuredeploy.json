@@ -1,0 +1,124 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "enableModulesKind": {
+            "type": "array",
+            "defaultValue": [],
+            "metadata": {
+                "description": "The automation modules you want to deploy"
+            }
+        },
+	"OOFPlaybookName": {
+		"defaultValue": "Get-OOFDetails",
+		"type": "String"
+	},
+	"RelatedAlertsPlaybookName": {
+		"defaultValue": "Get-RelatedAlerts",
+		"type": "String"
+	},
+	"UEBAPlaybookName": {
+		"defaultValue": "Get-UEBAInsights",
+		"type": "String"
+	},
+        "MCASPlaybookName": {
+            "defaultValue": "Get-MCASInvestigationScore",
+            "type": "String"
+        },
+        "MCAS API KEY": {
+            "defaultValue": "Type your API Key",
+            "type": "String"
+        },
+        "MCAS API URL": {
+            "defaultValue": "Type your API URL",
+            "type": "String"
+        }
+	},
+    "variables": {  
+	"OOFTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/OOFModule/azuredeploy.json",
+        "RelatedAlertsTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/RelatedAlerts/azuredeploy.json",
+        "UEBATemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/UEBAModule/azuredeploy.json",
+	"MCASTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/MCASModule/azuredeploy.json"
+
+    },
+    "resources": [
+        {
+            "condition": "[contains(parameters('enableModulesKind'), 'OOFModule')]",
+            "apiVersion": "2015-01-01",
+            "name": "OOFTemplate",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[variables('OOFTemplate')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+					"PlaybookName": { 
+                        "value": "[parameters('OOFPlaybookName')]"
+                    }
+                }
+            }
+        },
+        {
+            "condition": "[contains(parameters('enableModulesKind'), 'MCASModule')]",
+            "apiVersion": "2015-01-01",
+            "name": "MCASTemplate",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[variables('MCASTemplate')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+		            "PlaybookName": { 
+                        "value": "[parameters('MCASPlaybookName')]"
+                    },
+		            "API KEY": { 
+                        "value": "[parameters('MCAS API KEY')]"
+                    },
+		            "MCAS API URL": { 
+                        "value": "[parameters('MCAS API URL')]"
+                    }
+                }
+            }
+        },
+        {
+            "condition": "[contains(parameters('enableModulesKind'), 'UEBAModule')]",
+            "apiVersion": "2015-01-01",
+            "name": "UEBATemplate",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[variables('UEBATemplate')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+					"PlaybookName": { 
+                        "value": "[parameters('UEBAPlaybookName')]"
+                    }
+                }
+            }
+        },
+        {
+            "condition": "[contains(parameters('enableModulesKind'), 'RelatedAlerts')]",
+            "apiVersion": "2015-01-01",
+            "name": "RelatedAlertsTemplate",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[variables('RelatedAlertsTemplate')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+					"PlaybookName": {
+                        "value": "[parameters('RelatedAlertsPlaybookName')]"
+                    }
+                }
+            }
+        }		
+    ]
+}
