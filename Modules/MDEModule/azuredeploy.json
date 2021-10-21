@@ -2,56 +2,54 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "connections_wdatp_4_name": {
-            "defaultValue": "wdatp-4",
-            "type": "String"
-        },
-        "workflows_Get_MDEUserDetails_name": {
-            "defaultValue": "Get-MDEUserDetails",
+        "PlaybookName": {
+            "defaultValue": "Get-MDEUsersDevicesRiskScore",
             "type": "String"
         }
     },
-    "variables": {},
+    "variables": {
+        "AzureSentinelConnectionName":"[concat('azuresentinel-', parameters('PlaybookName'))]",
+        "DefenderConnectionName":"[concat('defender-', parameters('PlaybookName'))]"
+    },
     "resources": [
         {
             "type": "Microsoft.Web/connections",
             "apiVersion": "2016-06-01",
-            "name": "[parameters('connections_wdatp_4_name')]",
-            "location": "eastus2",
+            "name": "[variables('AzureSentinelConnectionName')]",
+            "location": "[resourceGroup().location]",
             "kind": "V1",
             "properties": {
-                "displayName": "MI Get-MDEUserDetails",
-                "statuses": [
-                    {
-                        "status": "Ready"
-                    }
-                ],
+                "displayName": "[variables('AzureSentinelConnectionName')]",
                 "customParameterValues": {},
-                "createdTime": "2021-10-21T03:45:08.2603121Z",
-                "changedTime": "2021-10-21T03:45:08.2603121Z",
                 "api": {
-                    "name": "wdatp",
-                    "displayName": "Microsoft Defender ATP",
-                    "description": "Microsoft Defender ATP is a unified platform for preventative protection, post-breach detection, automated investigation, and response. Read more about it here: http://aka.ms/wdatp",
-                    "iconUri": "https://connectoricons-prod.azureedge.net/releases/v1.0.1528/1.0.1528.2589/wdatp/icon.png",
-                    "brandColor": "#0078D7",
-                    "id": "/subscriptions/be3353de-b7e4-4d8c-840d-20f348fffe19/providers/Microsoft.Web/locations/eastus2/managedApis/wdatp",
-                    "type": "Microsoft.Web/locations/managedApis"
-                },
-                "testLinks": []
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azuresentinel')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[variables('DefenderConnectionName')]",
+            "location": "[resourceGroup().location]",
+            "kind": "V1",
+            "properties": {
+                "displayName": "[variables('DefenderConnectionName')]",
+                "customParameterValues": {},
+                "api": {
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/wdatp')]"
+                }
             }
         },
         {
             "type": "Microsoft.Logic/workflows",
             "apiVersion": "2017-07-01",
-            "name": "[parameters('workflows_Get_MDEUserDetails_name')]",
-            "location": "eastus2",
+            "name": "[parameters('PlaybookName')]",
+            "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/connections', parameters('connections_wdatp_4_name'))]"
+                "[resourceId('Microsoft.Web/connections', variables('AzureSentinelConnectionName'))]",
+                "[resourceId('Microsoft.Web/connections', variables('DefenderConnectionName'))]"
             ],
             "identity": {
-                "principalId": "eb181895-12b5-4038-9f1f-467fc1b47bcd",
-                "tenantId": "7fd5eae5-c1d3-4337-991f-ece842ce8f75",
                 "type": "SystemAssigned"
             },
             "properties": {
@@ -66,22 +64,30 @@
                         }
                     },
                     "triggers": {
-                        "manual": {
+                        "Owl": {
                             "type": "Request",
                             "kind": "Http",
                             "inputs": {
                                 "schema": {
                                     "properties": {
                                         "AddIncidentComments": {
+                                            "title": "Add comments to the incident",
                                             "type": "boolean"
                                         },
                                         "Entities": {
+                                            "description": "Drag and drop the Entities object from the Dynamic content menu",
                                             "type": "array"
                                         },
                                         "IncidentARMId": {
+                                            "description": "Drag and drop the Incident ARM ID object from the Dynamic content menu",
+                                            "title": "Incident ARM ID",
                                             "type": "string"
                                         },
                                         "LookbackInDays": {
+                                            "description": "Lookback period in days",
+                                            "maximum": 30,
+                                            "minimum": 1,
+                                            "title": "Enter a value between 1 and 30",
                                             "type": "integer"
                                         }
                                     },
@@ -93,7 +99,7 @@
                     "actions": {
                         "Compose_final_results": {
                             "runAfter": {
-                                "Condition_-_check_if_global_risk_is_High": [
+                                "Set_variable_HighestScore": [
                                     "Succeeded"
                                 ]
                             },
@@ -110,6 +116,7 @@
                                     "type": "Response",
                                     "kind": "Http",
                                     "inputs": {
+                                        "body": "{\n  \"HighestScore\":unknown\n}",
                                         "statusCode": 200
                                     }
                                 },
@@ -142,152 +149,131 @@
                             },
                             "type": "If"
                         },
-                        "Condition_-_check_if_global_risk_is_High": {
+                        "Condition_-_check_if_we_need_to_add_comment_to_the_incident": {
                             "actions": {
-                                "Set_variable_HighestScore_to_High": {
-                                    "runAfter": {},
-                                    "type": "SetVariable",
+                                "Add_comment_to_incident_(V3)": {
+                                    "runAfter": {
+                                        "Append_a_footer_to_CommentDetails": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "ApiConnection",
                                     "inputs": {
-                                        "name": "HighestScore",
-                                        "value": "High"
+                                        "body": {
+                                            "incidentArmId": "@triggerBody()?['IncidentARMId']",
+                                            "message": "<p>@{variables('CommentDetails')}</p>"
+                                        },
+                                        "host": {
+                                            "connection": {
+                                                "name": "@parameters('$connections')['azuresentinel']['connectionId']"
+                                            }
+                                        },
+                                        "method": "post",
+                                        "path": "/Incidents/Comment"
+                                    }
+                                },
+                                "Append_a_footer_to_CommentDetails": {
+                                    "runAfter": {
+                                        "For_each": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "AppendToStringVariable",
+                                    "inputs": {
+                                        "name": "CommentDetails",
+                                        "value": "</ul>"
+                                    }
+                                },
+                                "Append_to_string_CommentDetails": {
+                                    "runAfter": {
+                                        "Comment_header": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "AppendToStringVariable",
+                                    "inputs": {
+                                        "name": "CommentDetails",
+                                        "value": "@{outputs('Comment_header')}\n"
+                                    }
+                                },
+                                "Comment_header": {
+                                    "runAfter": {},
+                                    "type": "Compose",
+                                    "inputs": "<b>MDE Lookup (last @{triggerBody()?['LookbackInDays']} days)</b>\n- Highest risk score: <b>@{outputs('Compose_final_results')['HighestScore']}</b><ul>"
+                                },
+                                "For_each": {
+                                    "foreach": "@outputs('Compose_final_results')['PerUserScore']",
+                                    "actions": {
+                                        "Condition_-_check_if_we_have_a_sid": {
+                                            "actions": {
+                                                "Append_to_string_CommentDetails_with_all_info": {
+                                                    "runAfter": {
+                                                        "Create_HTML_table_with_device_info": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "AppendToStringVariable",
+                                                    "inputs": {
+                                                        "name": "CommentDetails",
+                                                        "value": "@{outputs('Comment_user_info')}\n@{body('Create_HTML_table_with_device_info')}</li>"
+                                                    }
+                                                },
+                                                "Comment_user_info": {
+                                                    "runAfter": {},
+                                                    "type": "Compose",
+                                                    "inputs": "<li>@{items('For_each')['UserPrincipalName']} (objectSid: @{items('For_each')['UserSid']})"
+                                                },
+                                                "Create_HTML_table_with_device_info": {
+                                                    "runAfter": {
+                                                        "Comment_user_info": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "Table",
+                                                    "inputs": {
+                                                        "format": "HTML",
+                                                        "from": "@item()['UserDevices']"
+                                                    }
+                                                }
+                                            },
+                                            "runAfter": {},
+                                            "expression": {
+                                                "and": [
+                                                    {
+                                                        "greater": [
+                                                            "@length(items('For_each')['UserSid'])",
+                                                            0
+                                                        ]
+                                                    }
+                                                ]
+                                            },
+                                            "type": "If"
+                                        }
+                                    },
+                                    "runAfter": {
+                                        "Append_to_string_CommentDetails": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Foreach",
+                                    "runtimeConfiguration": {
+                                        "concurrency": {
+                                            "repetitions": 1
+                                        }
                                     }
                                 }
                             },
                             "runAfter": {
-                                "For_each_account": [
+                                "Compose_final_results": [
                                     "Succeeded"
                                 ]
-                            },
-                            "else": {
-                                "actions": {
-                                    "Condition_-_check_if_global_risk_is_Medium": {
-                                        "actions": {
-                                            "Set_variable_HighestScore_to_Medium": {
-                                                "runAfter": {},
-                                                "type": "SetVariable",
-                                                "inputs": {
-                                                    "name": "HighestScore",
-                                                    "value": "Medium"
-                                                }
-                                            }
-                                        },
-                                        "runAfter": {},
-                                        "else": {
-                                            "actions": {
-                                                "Condition_-_check_if_global_risk_is_Low": {
-                                                    "actions": {
-                                                        "Set_variable_HighestScore_to_Low": {
-                                                            "runAfter": {},
-                                                            "type": "SetVariable",
-                                                            "inputs": {
-                                                                "name": "HighestScore",
-                                                                "value": "Low"
-                                                            }
-                                                        }
-                                                    },
-                                                    "runAfter": {},
-                                                    "else": {
-                                                        "actions": {
-                                                            "Condition_-_check_if_global_risk_is_Informational": {
-                                                                "actions": {
-                                                                    "Set_variable_HighestScore_to_Informational": {
-                                                                        "runAfter": {},
-                                                                        "type": "SetVariable",
-                                                                        "inputs": {
-                                                                            "name": "HighestScore",
-                                                                            "value": "Informational"
-                                                                        }
-                                                                    }
-                                                                },
-                                                                "runAfter": {},
-                                                                "else": {
-                                                                    "actions": {
-                                                                        "Condition_-_check_if_global_risk_is_none": {
-                                                                            "actions": {
-                                                                                "Set_variable_HighestScore_to_None": {
-                                                                                    "runAfter": {},
-                                                                                    "type": "SetVariable",
-                                                                                    "inputs": {
-                                                                                        "name": "HighestScore",
-                                                                                        "value": "None"
-                                                                                    }
-                                                                                }
-                                                                            },
-                                                                            "runAfter": {},
-                                                                            "else": {
-                                                                                "actions": {
-                                                                                    "Set_variable_HighestRisk_to_Unknown": {
-                                                                                        "runAfter": {},
-                                                                                        "type": "SetVariable",
-                                                                                        "inputs": {
-                                                                                            "name": "HighestScore",
-                                                                                            "value": "Unknown"
-                                                                                        }
-                                                                                    }
-                                                                                }
-                                                                            },
-                                                                            "expression": {
-                                                                                "and": [
-                                                                                    {
-                                                                                        "contains": [
-                                                                                            "@variables('PerUserHighestScoreGlobal')",
-                                                                                            "None"
-                                                                                        ]
-                                                                                    }
-                                                                                ]
-                                                                            },
-                                                                            "type": "If"
-                                                                        }
-                                                                    }
-                                                                },
-                                                                "expression": {
-                                                                    "and": [
-                                                                        {
-                                                                            "contains": [
-                                                                                "@variables('PerUserHighestScoreGlobal')",
-                                                                                "Informational"
-                                                                            ]
-                                                                        }
-                                                                    ]
-                                                                },
-                                                                "type": "If"
-                                                            }
-                                                        }
-                                                    },
-                                                    "expression": {
-                                                        "and": [
-                                                            {
-                                                                "contains": [
-                                                                    "@variables('PerUserHighestScoreGlobal')",
-                                                                    "Low"
-                                                                ]
-                                                            }
-                                                        ]
-                                                    },
-                                                    "type": "If"
-                                                }
-                                            }
-                                        },
-                                        "expression": {
-                                            "and": [
-                                                {
-                                                    "contains": [
-                                                        "@variables('PerUserHighestScoreGlobal')",
-                                                        "Medium"
-                                                    ]
-                                                }
-                                            ]
-                                        },
-                                        "type": "If"
-                                    }
-                                }
                             },
                             "expression": {
                                 "and": [
                                     {
-                                        "contains": [
-                                            "@variables('PerUserHighestScoreGlobal')",
-                                            "High"
+                                        "equals": [
+                                            "@triggerBody()?['AddIncidentComments']",
+                                            "@true"
                                         ]
                                     }
                                 ]
@@ -296,7 +282,7 @@
                         },
                         "Filter_array_-_Get_only_accounts": {
                             "runAfter": {
-                                "Initialize_variable_HighestScore": [
+                                "Initialize_variable_CommentDetails": [
                                     "Succeeded"
                                 ]
                             },
@@ -320,7 +306,7 @@
                                                 },
                                                 "host": {
                                                     "connection": {
-                                                        "name": "@parameters('$connections')['wdatp_1']['connectionId']"
+                                                        "name": "@parameters('$connections')['wdatp']['connectionId']"
                                                     }
                                                 },
                                                 "method": "post",
@@ -331,7 +317,7 @@
                                             "actions": {
                                                 "Append_to_array_PerUserScore_when_the_sid_is_found": {
                                                     "runAfter": {
-                                                        "Condition_-_check_for_High_risk": [
+                                                        "Set_variable_UserHighestScore": [
                                                             "Succeeded"
                                                         ]
                                                     },
@@ -346,130 +332,6 @@
                                                             "UserSid": "@{variables('UserSid')}"
                                                         }
                                                     }
-                                                },
-                                                "Condition_-_check_for_High_risk": {
-                                                    "actions": {
-                                                        "Set_variable_UserHighestScore_to_High": {
-                                                            "runAfter": {},
-                                                            "type": "SetVariable",
-                                                            "inputs": {
-                                                                "name": "UserHighestScore",
-                                                                "value": "High"
-                                                            }
-                                                        }
-                                                    },
-                                                    "runAfter": {
-                                                        "For_each_device": [
-                                                            "Succeeded"
-                                                        ]
-                                                    },
-                                                    "else": {
-                                                        "actions": {
-                                                            "Condition_-_check_for_Medium_risk": {
-                                                                "actions": {
-                                                                    "Set_variable_UserHighestScore_to_Medium": {
-                                                                        "runAfter": {},
-                                                                        "type": "SetVariable",
-                                                                        "inputs": {
-                                                                            "name": "UserHighestScore",
-                                                                            "value": "Medium"
-                                                                        }
-                                                                    }
-                                                                },
-                                                                "runAfter": {},
-                                                                "else": {
-                                                                    "actions": {
-                                                                        "Condition_-_check_for_Low_risk": {
-                                                                            "actions": {
-                                                                                "Set_variable_UserHighestScore_to_Low": {
-                                                                                    "runAfter": {},
-                                                                                    "type": "SetVariable",
-                                                                                    "inputs": {
-                                                                                        "name": "UserHighestScore",
-                                                                                        "value": "Low"
-                                                                                    }
-                                                                                }
-                                                                            },
-                                                                            "runAfter": {},
-                                                                            "else": {
-                                                                                "actions": {
-                                                                                    "Condition_-_check_for_Informational_risk": {
-                                                                                        "actions": {
-                                                                                            "Set_variable_UserHighestScore_to_Informational": {
-                                                                                                "runAfter": {},
-                                                                                                "type": "SetVariable",
-                                                                                                "inputs": {
-                                                                                                    "name": "UserHighestScore",
-                                                                                                    "value": "Informational"
-                                                                                                }
-                                                                                            }
-                                                                                        },
-                                                                                        "runAfter": {},
-                                                                                        "else": {
-                                                                                            "actions": {
-                                                                                                "Set_variable_UserHighestScore_to_None": {
-                                                                                                    "runAfter": {},
-                                                                                                    "type": "SetVariable",
-                                                                                                    "inputs": {
-                                                                                                        "name": "UserHighestScore",
-                                                                                                        "value": "None"
-                                                                                                    }
-                                                                                                }
-                                                                                            }
-                                                                                        },
-                                                                                        "expression": {
-                                                                                            "and": [
-                                                                                                {
-                                                                                                    "contains": [
-                                                                                                        "@variables('PerUserHighestScore')",
-                                                                                                        "Informational"
-                                                                                                    ]
-                                                                                                }
-                                                                                            ]
-                                                                                        },
-                                                                                        "type": "If"
-                                                                                    }
-                                                                                }
-                                                                            },
-                                                                            "expression": {
-                                                                                "and": [
-                                                                                    {
-                                                                                        "contains": [
-                                                                                            "@variables('PerUserHighestScore')",
-                                                                                            "Low"
-                                                                                        ]
-                                                                                    }
-                                                                                ]
-                                                                            },
-                                                                            "type": "If"
-                                                                        }
-                                                                    }
-                                                                },
-                                                                "expression": {
-                                                                    "and": [
-                                                                        {
-                                                                            "contains": [
-                                                                                "@variables('PerUserHighestScore')",
-                                                                                "Medium"
-                                                                            ]
-                                                                        }
-                                                                    ]
-                                                                },
-                                                                "type": "If"
-                                                            }
-                                                        }
-                                                    },
-                                                    "expression": {
-                                                        "and": [
-                                                            {
-                                                                "contains": [
-                                                                    "@variables('PerUserHighestScore')",
-                                                                    "High"
-                                                                ]
-                                                            }
-                                                        ]
-                                                    },
-                                                    "type": "If"
                                                 },
                                                 "For_each_device": {
                                                     "foreach": "@body('Advanced_Hunting_-_Query_DeviceLogonEvents')?['Results']",
@@ -536,7 +398,7 @@
                                                             "inputs": {
                                                                 "host": {
                                                                     "connection": {
-                                                                        "name": "@parameters('$connections')['wdatp_1']['connectionId']"
+                                                                        "name": "@parameters('$connections')['wdatp']['connectionId']"
                                                                     }
                                                                 },
                                                                 "method": "get",
@@ -550,6 +412,18 @@
                                                         "concurrency": {
                                                             "repetitions": 1
                                                         }
+                                                    }
+                                                },
+                                                "Set_variable_UserHighestScore": {
+                                                    "runAfter": {
+                                                        "For_each_device": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "SetVariable",
+                                                    "inputs": {
+                                                        "name": "UserHighestScore",
+                                                        "value": "@{if(contains(variables('PerUserHighestScore'),'High'),'High',if(contains(variables('PerUserHighestScore'),'Medium'),'Medium',if(contains(variables('PerUserHighestScore'),'Low'),'Low',if(contains(variables('PerUserHighestScore'),'Informational'),'Informational',if(contains(variables('PerUserHighestScore'),'None'),'None','Unknown')))))}"
                                                     }
                                                 }
                                             },
@@ -859,17 +733,75 @@
                                                             "name": "AADFilter",
                                                             "value": "@{items('For_each_account')['properties']['aadUserId']}"
                                                         }
+                                                    },
+                                                    "Set_variable_UserID_from_AADFilter": {
+                                                        "runAfter": {
+                                                            "Set_variable_AADFilter_with_the_aadUserId": [
+                                                                "Succeeded"
+                                                            ]
+                                                        },
+                                                        "type": "SetVariable",
+                                                        "inputs": {
+                                                            "name": "UserId",
+                                                            "value": "@variables('AADFilter')"
+                                                        }
                                                     }
                                                 },
                                                 "runAfter": {},
                                                 "else": {
                                                     "actions": {
-                                                        "Set_variable_AADFilter_with_the_UPN": {
+                                                        "Condition_-_check_if_the_AccountName_exists": {
+                                                            "actions": {
+                                                                "Set_variable_AADFilter_with_a_constructed_UPN": {
+                                                                    "runAfter": {},
+                                                                    "type": "SetVariable",
+                                                                    "inputs": {
+                                                                        "name": "AADFilter",
+                                                                        "value": "@{concat(item()['properties']['accountName'],'@',item()['properties']['upnSuffix'])}"
+                                                                    }
+                                                                }
+                                                            },
                                                             "runAfter": {},
+                                                            "else": {
+                                                                "actions": {
+                                                                    "Set_variable_AADFilter_with_the_accountName_value": {
+                                                                        "runAfter": {},
+                                                                        "type": "SetVariable",
+                                                                        "inputs": {
+                                                                            "name": "AADFilter",
+                                                                            "value": "@{item()['properties']['accountName']}"
+                                                                        }
+                                                                    }
+                                                                }
+                                                            },
+                                                            "expression": {
+                                                                "and": [
+                                                                    {
+                                                                        "equals": [
+                                                                            "@contains(item()['properties'],'accountName')",
+                                                                            "@true"
+                                                                        ]
+                                                                    },
+                                                                    {
+                                                                        "equals": [
+                                                                            "@contains(item()['properties'],'upnSuffix')",
+                                                                            "@true"
+                                                                        ]
+                                                                    }
+                                                                ]
+                                                            },
+                                                            "type": "If"
+                                                        },
+                                                        "Set_variable_UserPrincipalName_with_AADFilter": {
+                                                            "runAfter": {
+                                                                "Condition_-_check_if_the_AccountName_exists": [
+                                                                    "Succeeded"
+                                                                ]
+                                                            },
                                                             "type": "SetVariable",
                                                             "inputs": {
-                                                                "name": "AADFilter",
-                                                                "value": "@{concat(item()['properties']['accountName'],'@',item()['properties']['upnSuffix'])}"
+                                                                "name": "UserPrincipalName",
+                                                                "value": "@variables('AADFilter')"
                                                             }
                                                         }
                                                     }
@@ -902,40 +834,17 @@
                                                     "uri": "https://graph.microsoft.com/beta/users/@{variables('AADFilter')}"
                                                 }
                                             },
-                                            "Set_variable_UserId_from_the_Get_Sid_AAD_query": {
-                                                "runAfter": {
-                                                    "HTTP_Get_the_sid": [
-                                                        "Succeeded"
-                                                    ]
-                                                },
-                                                "type": "SetVariable",
-                                                "inputs": {
-                                                    "name": "UserId",
-                                                    "value": "@{body('HTTP_Get_the_sid')['id']}"
-                                                }
-                                            },
-                                            "Set_variable_UserPrincipalName_from_the_Get_Sid_AAD_query": {
-                                                "runAfter": {
-                                                    "Set_variable_UserId_from_the_Get_Sid_AAD_query": [
-                                                        "Succeeded"
-                                                    ]
-                                                },
-                                                "type": "SetVariable",
-                                                "inputs": {
-                                                    "name": "UserPrincipalName",
-                                                    "value": "@{body('HTTP_Get_the_sid')['userPrincipalName']}"
-                                                }
-                                            },
                                             "Set_variable_UserSid_from_AAD": {
                                                 "runAfter": {
-                                                    "Set_variable_UserPrincipalName_from_the_Get_Sid_AAD_query": [
-                                                        "Succeeded"
+                                                    "HTTP_Get_the_sid": [
+                                                        "Succeeded",
+                                                        "Failed"
                                                     ]
                                                 },
                                                 "type": "SetVariable",
                                                 "inputs": {
                                                     "name": "UserSid",
-                                                    "value": "@{body('HTTP_Get_the_sid')['onPremisesSecurityIdentifier']}"
+                                                    "value": "@{if(contains(body('HTTP_Get_the_sid'),'onPremisesSecurityIdentifier'),body('HTTP_Get_the_sid')['onPremisesSecurityIdentifier'],'')}"
                                                 }
                                             }
                                         }
@@ -1049,6 +958,22 @@
                                 "variables": [
                                     {
                                         "name": "AADFilter",
+                                        "type": "string"
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_variable_CommentDetails": {
+                            "runAfter": {
+                                "Initialize_variable_HighestScore": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "CommentDetails",
                                         "type": "string"
                                     }
                                 ]
@@ -1183,7 +1108,7 @@
                         },
                         "Send_final_results": {
                             "runAfter": {
-                                "Compose_final_results": [
+                                "Condition_-_check_if_we_need_to_add_comment_to_the_incident": [
                                     "Succeeded"
                                 ]
                             },
@@ -1193,6 +1118,18 @@
                                 "body": "@outputs('Compose_final_results')",
                                 "statusCode": 200
                             }
+                        },
+                        "Set_variable_HighestScore": {
+                            "runAfter": {
+                                "For_each_account": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "SetVariable",
+                            "inputs": {
+                                "name": "HighestScore",
+                                "value": "@{if(contains(variables('PerUserHighestScoreGlobal'),'High'),'High',if(contains(variables('PerUserHighestScoreGlobal'),'Medium'),'Medium',if(contains(variables('PerUserHighestScoreGlobal'),'Low'),'Low',if(contains(variables('PerUserHighestScoreGlobal'),'Informational'),'Informational',if(contains(variables('PerUserHighestScoreGlobal'),'None'),'None','Unknown')))))}"
+                            }
                         }
                     },
                     "outputs": {}
@@ -1200,15 +1137,25 @@
                 "parameters": {
                     "$connections": {
                         "value": {
-                            "wdatp_1": {
-                                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('connections_wdatp_4_name'))]",
-                                "connectionName": "wdatp-4",
+                            "azuresentinel": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('AzureSentinelConnectionName'))]",
+                                "connectionName": "[variables('AzureSentinelConnectionName')]",
                                 "connectionProperties": {
                                     "authentication": {
                                         "type": "ManagedServiceIdentity"
                                     }
                                 },
-                                "id": "/subscriptions/be3353de-b7e4-4d8c-840d-20f348fffe19/providers/Microsoft.Web/locations/eastus2/managedApis/wdatp"
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azuresentinel')]"
+                            },
+                            "wdatp": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('DefenderConnectionName'))]",
+                                "connectionName": "[variables('DefenderConnectionName')]",
+                                "connectionProperties": {
+                                    "authentication": {
+                                        "type": "ManagedServiceIdentity"
+                                    }
+                                },
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/wdatp')]"
                             }
                         }
                     }
