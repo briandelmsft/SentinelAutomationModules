@@ -1,0 +1,45 @@
+﻿{
+    "type": "object",
+    "properties": {
+        "HighestScore": {
+            "type": "string"
+        },
+        "PerUserScore": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "UserPrincipalName": {
+                        "type": "string"
+                    },
+                    "UserId": {
+                        "type": "string"
+                    },
+                    "UserSid": {
+                        "type": "string"
+                    },
+                    "UserHighestScore": {
+                        "type": "string"
+                    },
+                    "UserDevices": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "DeviceName": {
+                                    "type": "string"
+                                },
+                                "DeviceId": {
+                                    "type": "string"
+                                },
+                                "DeviceRiskScore": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
