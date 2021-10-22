@@ -152,7 +152,7 @@
                         "toolTip": "",
                         "constraints": {},
                         "visible": "[if(contains(steps('automationModules').enableModulesKind,'SamplePlaybook'), true, false)]"
-                    },
+                    }
                 ]
             }
         ],
