@@ -1,9 +1,6 @@
 name: JSON check
 
 on:
-  push:
-    paths:
-      - '**.json'
   pull_request:
 
 jobs:
