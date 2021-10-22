@@ -266,12 +266,7 @@
                             }
                         }
                     },
-                    "outputs": {
-                        "resourceID": {
-                            "type": "string",
-                            "value": "[resourceId('Microsoft.Logic/workflows', parameters('PlaybookName'))]"
-                        }
-                    }
+                    "outputs": {}
                 },
                 "parameters": {
                     "$connections": {
@@ -291,5 +286,11 @@
                 }
             }
         }
-    ]
+    ],
+    "outputs": {
+        "resourceID": {
+            "type": "string",
+            "value": "[resourceId('Microsoft.Logic/workflows', parameters('PlaybookName'))]"
+        }
+    }
 }
