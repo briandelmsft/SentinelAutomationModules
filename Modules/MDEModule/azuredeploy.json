@@ -86,10 +86,10 @@
                                             "type": "string"
                                         },
                                         "LookbackInDays": {
-                                            "description": "Lookback period in days",
+                                            "title": "Lookback period in days",
                                             "maximum": 30,
                                             "minimum": 1,
-                                            "title": "Enter a value between 1 and 30",
+                                            "description": "Enter a value between 1 and 30",
                                             "type": "integer"
                                         }
                                     },
