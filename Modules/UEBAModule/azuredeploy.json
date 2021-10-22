@@ -56,7 +56,7 @@
                                 "schema": {
                                     "properties": {
                                         "AddIncidentComments": {
-                                            "title": "Add comments to the incident"
+                                            "title": "Add comments to the incident",
                                             "type": "boolean"
                                         },
                                         "Entities": {
