@@ -152,6 +152,15 @@
                         "toolTip": "",
                         "constraints": {},
                         "visible": "[if(contains(steps('automationModules').enableModulesKind,'SamplePlaybook'), true, false)]"
+                    },
+                    {
+                        "name": "DeploySamplePlaybook",
+                        "type": "Microsoft.Common.CheckBox",
+                        "label": "Deploy the Sample Playbook",
+                        "defaultValue": false,
+                        "toolTip": "",
+                        "constraints": {},
+                        "visible": "[and(contains(steps('automationModules').enableModulesKind,'OOFModule'),contains(steps('automationModules').enableModulesKind,'RelatedAlerts'),contains(steps('automationModules').enableModulesKind,'UEBAModule'))]"
                     }
                 ]
             }
