@@ -56,21 +56,34 @@
                                 "schema": {
                                     "properties": {
                                         "AddIncidentComments": {
+                                            "title": "Add comments to the incident",
                                             "type": "boolean"
                                         },
                                         "Entities": {
+                                            "description": "Click here and select the Entities object from the Dynamic content menu",
                                             "type": "array"
                                         },
                                         "IncidentARMId": {
+                                            "description": "Click here and select the Incident ARM ID object from the Dynamic content menu",
+                                            "title": "Incident ARM ID",
                                             "type": "string"
                                         },
                                         "LookbackInDays": {
+                                            "title": "Lookback period in days",
+                                            "maximum": 90,
+                                            "minimum": 1,
+                                            "description": "Enter a value between 1 and 90",
                                             "type": "integer"
                                         },
                                         "MinimumInvestigationPriority": {
+                                            "title": "Minimum Priority to Evaluate",
+                                            "maximum": 10,
+                                            "minimum": 1,
+                                            "description": "Enter a value between 1 and 10, 1 is least unusual, 10 is most unusual",
                                             "type": "integer"
                                         },
                                         "WorkspaceId": {
+                                            "description": "Click here and select the Workspace ID object from the Dynamic content menu",
                                             "type": "string"
                                         }
                                     },
