@@ -36,6 +36,14 @@
         "MCAS API URL": {
             "defaultValue": "Type your API URL",
             "type": "String"
+        },
+        "SamplePlaybookName": {
+            "defaultValue": "Triage-Incident",
+            "type": "String"
+        },
+        "DeploySamplePlaybook": {
+            "defaultValue": false,
+            "type": "bool"
         }
 	},
     "variables": {  
@@ -43,12 +51,13 @@
         "RelatedAlertsTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/RelatedAlerts/azuredeploy.json",
         "UEBATemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/UEBAModule/azuredeploy.json",
 	"MCASTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/MCASModule/azuredeploy.json",
-	"MDETemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/MDEModule/azuredeploy.json"
+	"MDETemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/MDEModule/azuredeploy.json",
+	"SampleTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Samples/azuredeploy.json"
     },
     "resources": [
         {
             "condition": "[contains(parameters('enableModulesKind'), 'OOFModule')]",
-            "apiVersion": "2015-01-01",
+            "apiVersion": "2019-10-01",
             "name": "OOFTemplate",
             "type": "Microsoft.Resources/deployments",
             "properties": {
@@ -66,7 +75,7 @@
         },
         {
             "condition": "[contains(parameters('enableModulesKind'), 'MCASModule')]",
-            "apiVersion": "2015-01-01",
+            "apiVersion": "2019-10-01",
             "name": "MCASTemplate",
             "type": "Microsoft.Resources/deployments",
             "properties": {
@@ -90,7 +99,7 @@
         },
         {
             "condition": "[contains(parameters('enableModulesKind'), 'UEBAModule')]",
-            "apiVersion": "2015-01-01",
+            "apiVersion": "2019-10-01",
             "name": "UEBATemplate",
             "type": "Microsoft.Resources/deployments",
             "properties": {
@@ -108,7 +117,7 @@
         },
         {
             "condition": "[contains(parameters('enableModulesKind'), 'MDEModule')]",
-            "apiVersion": "2015-01-01",
+            "apiVersion": "2019-10-01",
             "name": "MDETemplate",
             "type": "Microsoft.Resources/deployments",
             "properties": {
@@ -126,7 +135,7 @@
         },
         {
             "condition": "[contains(parameters('enableModulesKind'), 'RelatedAlerts')]",
-            "apiVersion": "2015-01-01",
+            "apiVersion": "2019-10-01",
             "name": "RelatedAlertsTemplate",
             "type": "Microsoft.Resources/deployments",
             "properties": {
@@ -141,6 +150,38 @@
                     }
                 }
             }
-        }		
+        },
+        {
+            "condition": "[parameters('DeploySamplePlaybook')]",
+            "apiVersion": "2019-10-01",
+            "name": "SamplePlaybook",
+            "type": "Microsoft.Resources/deployments",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'OOFTemplate')]",
+		"[resourceId('Microsoft.Resources/deployments', 'RelatedAlertsTemplate')]",
+		"[resourceId('Microsoft.Resources/deployments', 'UEBATemplate')]"
+            ],
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[variables('SampleTemplate')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+		    "PlaybookName": { 
+                        "value": "[parameters('SamplePlaybookName')]"
+                    },
+		    "OOFPlaybook_ResourceId": { 
+                        "value": "[reference('OOFTemplate').outputs.resourceID.value]"
+                    },
+		    "RelatedAlertsPlaybook_ResourceId": { 
+                        "value": "[reference('RelatedAlertsTemplate').outputs.resourceID.value]"
+                    },
+		    "UEBAInsightsPlaybook_ResourceId": { 
+                        "value": "[reference('UEBATemplate').outputs.resourceID.value]"
+                    }
+                }
+            }
+        }
     ]
 }

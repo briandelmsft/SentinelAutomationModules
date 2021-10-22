@@ -1,0 +1,402 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "PlaybookName": {
+            "defaultValue": "Triage-Incident",
+            "type": "String"
+        },
+        "OOFPlaybook_ResourceId": {
+            "defaultValue": "",
+            "type": "String"
+        },
+        "RelatedAlertsPlaybook_ResourceId": {
+            "defaultValue": "",
+            "type": "String"
+        },
+        "UEBAInsightsPlaybook_ResourceId": {
+            "defaultValue": "",
+            "type": "String"
+        }
+    },
+    "variables": {
+        "AzureSentinelConnectionName": "[concat('azuresentinel-', parameters('PlaybookName'))]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[variables('AzureSentinelConnectionName')]",
+            "location": "[resourceGroup().location]",
+            "kind": "V1",
+            "properties": {
+                "displayName": "[variables('AzureSentinelConnectionName')]",
+                "customParameterValues": {},
+                "parameterValueType": "Alternative",
+                "api": {
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azuresentinel')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2017-07-01",
+            "name": "[parameters('PlaybookName')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/connections', variables('AzureSentinelConnectionName'))]"
+            ],
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "state": "Enabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {},
+                            "type": "Object"
+                        }
+                    },
+                    "triggers": {
+                        "When_Azure_Sentinel_incident_creation_rule_was_triggered": {
+                            "type": "ApiConnectionWebhook",
+                            "inputs": {
+                                "body": {
+                                    "callback_url": "@{listCallbackUrl()}"
+                                },
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['azuresentinel']['connectionId']"
+                                    }
+                                },
+                                "path": "/incident-creation"
+                            }
+                        }
+                    },
+                    "actions": {
+                        "Condition": {
+                            "actions": {
+                                "Update_incident": {
+                                    "runAfter": {},
+                                    "type": "ApiConnection",
+                                    "inputs": {
+                                        "body": {
+                                            "classification": {
+                                                "ClassificationAndReason": "BenignPositive - SuspiciousButExpected",
+                                                "ClassificationReasonText": "Closed via Automation"
+                                            },
+                                            "incidentArmId": "@triggerBody()?['object']?['id']",
+                                            "status": "Closed"
+                                        },
+                                        "host": {
+                                            "connection": {
+                                                "name": "@parameters('$connections')['azuresentinel']['connectionId']"
+                                            }
+                                        },
+                                        "method": "put",
+                                        "path": "/Incidents"
+                                    }
+                                }
+                            },
+                            "runAfter": {
+                                "Parse_OOF": [
+                                    "Succeeded"
+                                ],
+                                "Parse_Related_Alerts": [
+                                    "Succeeded"
+                                ],
+                                "Parse_UEBA": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "else": {
+                                "actions": {
+                                    "Update_incident_2": {
+                                        "runAfter": {},
+                                        "type": "ApiConnection",
+                                        "inputs": {
+                                            "body": {
+                                                "incidentArmId": "@triggerBody()?['object']?['id']",
+                                                "severity": "High",
+                                                "tagsToAdd": {
+                                                    "TagsToAdd": [
+                                                        {
+                                                            "Tag": "HighPriority"
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            "host": {
+                                                "connection": {
+                                                    "name": "@parameters('$connections')['azuresentinel']['connectionId']"
+                                                }
+                                            },
+                                            "method": "put",
+                                            "path": "/Incidents"
+                                        }
+                                    }
+                                }
+                            },
+                            "expression": {
+                                "or": [
+                                    {
+                                        "and": [
+                                            {
+                                                "equals": [
+                                                    "@body('Parse_Related_Alerts')?['RelatedAlertsCount']",
+                                                    0
+                                                ]
+                                            },
+                                            {
+                                                "less": [
+                                                    "@body('Parse_UEBA')?['AllEntityInvestigationPriorityMax']",
+                                                    4
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "and": [
+                                            {
+                                                "equals": [
+                                                    "@body('Parse_Related_Alerts')?['RelatedAlertsCount']",
+                                                    0
+                                                ]
+                                            },
+                                            {
+                                                "equals": [
+                                                    "@body('Parse_OOF')?['OverallOOFStatus']",
+                                                    "enabled"
+                                                ]
+                                            },
+                                            {
+                                                "less": [
+                                                    "@body('Parse_UEBA')?['AllEntityInvestigationPriorityMax']",
+                                                    6
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            "type": "If"
+                        },
+                        "Get-OOFDetails": {
+                            "runAfter": {},
+                            "type": "Workflow",
+                            "inputs": {
+                                "body": {
+                                    "AddIncidentComments": true,
+                                    "Entities": "@triggerBody()?['object']?['properties']?['relatedEntities']",
+                                    "IncidentARMId": "@triggerBody()?['object']?['id']"
+                                },
+                                "host": {
+                                    "triggerName": "manual",
+                                    "workflow": {
+                                        "id": "[parameters('OOFPlaybook_ResourceId')]"
+                                    }
+                                }
+                            }
+                        },
+                        "Get-RelatedAlerts": {
+                            "runAfter": {},
+                            "type": "Workflow",
+                            "inputs": {
+                                "body": {
+                                    "AddIncidentComments": true,
+                                    "CheckAccountEntityMatches": true,
+                                    "CheckIPEntityMatches": true,
+                                    "Entities": "@triggerBody()?['object']?['properties']?['relatedEntities']",
+                                    "IncidentARMId": "@triggerBody()?['object']?['id']",
+                                    "LookbackInDays": 14,
+                                    "WorkspaceId": "@triggerBody()?['workspaceId']"
+                                },
+                                "host": {
+                                    "triggerName": "manual",
+                                    "workflow": {
+                                        "id": "[parameters('RelatedAlertsPlaybook_ResourceId')]"
+                                    }
+                                }
+                            }
+                        },
+                        "Get-UEBAInsights": {
+                            "runAfter": {},
+                            "type": "Workflow",
+                            "inputs": {
+                                "body": {
+                                    "AddIncidentComments": true,
+                                    "Entities": "@triggerBody()?['object']?['properties']?['relatedEntities']",
+                                    "IncidentARMId": "@triggerBody()?['object']?['id']",
+                                    "LookbackInDays": 14,
+                                    "MinimumInvestigationPriority": 4,
+                                    "WorkspaceId": "@triggerBody()?['workspaceId']"
+                                },
+                                "host": {
+                                    "triggerName": "manual",
+                                    "workflow": {
+                                        "id": "[parameters('UEBAInsightsPlaybook_ResourceId')]"
+                                    }
+                                }
+                            }
+                        },
+                        "Parse_OOF": {
+                            "runAfter": {
+                                "Get-OOFDetails": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ParseJson",
+                            "inputs": {
+                                "content": "@body('Get-OOFDetails')",
+                                "schema": {
+                                    "properties": {
+                                        "OverallOOFStatus": {
+                                            "type": "string"
+                                        },
+                                        "PerUserStatus": {
+                                            "items": {
+                                                "properties": {
+                                                    "OOFStatus": {
+                                                        "type": "string"
+                                                    },
+                                                    "UPN": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            },
+                                            "type": "array"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        },
+                        "Parse_Related_Alerts": {
+                            "runAfter": {
+                                "Get-RelatedAlerts": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ParseJson",
+                            "inputs": {
+                                "content": "@body('Get-RelatedAlerts')",
+                                "schema": {
+                                    "properties": {
+                                        "DetailedResults": {
+                                            "items": {
+                                                "properties": {
+                                                    "AlertName": {
+                                                        "type": "string"
+                                                    },
+                                                    "AlertSeverity": {
+                                                        "type": "string"
+                                                    },
+                                                    "DisplayName": {
+                                                        "type": "string"
+                                                    },
+                                                    "ProviderName": {
+                                                        "type": "string"
+                                                    },
+                                                    "StartTime": {
+                                                        "type": "string"
+                                                    },
+                                                    "SystemAlertId": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            },
+                                            "type": "array"
+                                        },
+                                        "RelatedAlertsCount": {
+                                            "type": "integer"
+                                        },
+                                        "RelatedAlertsFound": {
+                                            "type": "boolean"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        },
+                        "Parse_UEBA": {
+                            "runAfter": {
+                                "Get-UEBAInsights": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ParseJson",
+                            "inputs": {
+                                "content": "@body('Get-UEBAInsights')",
+                                "schema": {
+                                    "properties": {
+                                        "AllEntityEventCount": {
+                                            "type": "integer"
+                                        },
+                                        "AllEntityInvestigationPriorityAverage": {
+                                            "type": "number"
+                                        },
+                                        "AllEntityInvestigationPriorityMax": {
+                                            "type": "integer"
+                                        },
+                                        "AllEntityInvestigationPrioritySum": {
+                                            "type": "integer"
+                                        },
+                                        "InvestigationPrioritiesFound": {
+                                            "type": "boolean"
+                                        },
+                                        "PerUserStatus": {
+                                            "items": {
+                                                "properties": {
+                                                    "EventCount": {
+                                                        "type": "integer"
+                                                    },
+                                                    "InvestigationPriorityAverage": {
+                                                        "type": "integer"
+                                                    },
+                                                    "InvestigationPriorityMax": {
+                                                        "type": "integer"
+                                                    },
+                                                    "InvestigationPrioritySum": {
+                                                        "type": "integer"
+                                                    },
+                                                    "UserPrincipalName": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            },
+                                            "type": "array"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "outputs": {}
+                },
+                "parameters": {
+                    "$connections": {
+                        "value": {
+                            "azuresentinel": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('AzureSentinelConnectionName'))]",
+                                "connectionName": "[variables('AzureSentinelConnectionName')]",
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azuresentinel')]",
+                                "connectionProperties": {
+                                    "authentication": {
+                                        "type": "ManagedServiceIdentity"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ]
+}

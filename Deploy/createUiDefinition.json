@@ -138,6 +138,25 @@
                         "toolTip": "",
                         "constraints": {},
                         "visible": "[if(contains(steps('automationModules').enableModulesKind,'MCASModule'), true, false)]"
+                    },
+                    {
+                        "name": "DeploySamplePlaybook",
+                        "type": "Microsoft.Common.CheckBox",
+                        "label": "Deploy the Sample Incident Triage Playbook",
+                        "defaultValue": false,
+                        "toolTip": "",
+                        "constraints": {},
+                        "visible": "[and(contains(steps('automationModules').enableModulesKind,'OOFModule'),contains(steps('automationModules').enableModulesKind,'RelatedAlerts'),contains(steps('automationModules').enableModulesKind,'UEBAModule'))]"
+                    },
+                    {
+                        "name": "SamplePlaybookName",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Sample Triage Playbook Name",
+                        "placeholder": "",
+                        "defaultValue": "Triage-Incident",
+                        "toolTip": "",
+                        "constraints": {},
+                        "visible": "[and(contains(steps('automationModules').enableModulesKind,'OOFModule'),contains(steps('automationModules').enableModulesKind,'RelatedAlerts'),contains(steps('automationModules').enableModulesKind,'UEBAModule'),steps('automationModules').DeploySamplePlaybook)]"
                     }
                 ]
             }
@@ -151,6 +170,8 @@
             "MCASPlaybookName": "[steps('automationModules').MCASPlaybookName]",
             "MCAS API KEY": "[steps('automationModules').MCASAPIKEY]",
             "MCAS API URL": "[steps('automationModules').MCASAPIURL]",
+            "DeploySamplePlaybook": "[steps('automationModules').DeploySamplePlaybook]",
+            "SamplePlaybookName": "[steps('automationModules').SamplePlaybookName]",
             "location": "[location()]"
         }
     }
