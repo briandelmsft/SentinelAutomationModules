@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: json-syntax-check
-        uses: limitusus/json-syntax-check@v1.0.3
+      - name: json-lint
+        uses: ocular-d/json-linter@0.0.2
         with:
           pattern: "\\.json$"
