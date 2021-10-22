@@ -467,7 +467,7 @@
                         }
                     },
                     "outputs": {
-                        resourceID: {
+                        "resourceID": {
                             "type": "string",
                             "value": "[resourceId('Microsoft.Logic/workflows', parameters('PlaybookName'))]"
                         }
