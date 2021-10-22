@@ -152,6 +152,11 @@
             "apiVersion": "2015-01-01",
             "name": "SamplePlaybook",
             "type": "Microsoft.Resources/deployments",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'OOFTemplate')]",
+		"[resourceId('Microsoft.Resources/deployments', 'RelatedAlertsTemplate')]",
+		"[resourceId('Microsoft.Resources/deployments', 'UEBATemplate')]"
+            ],
             "properties": {
                 "mode": "incremental",
                 "templateLink": {
@@ -159,8 +164,17 @@
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
-					"PlaybookName": { 
+		    "PlaybookName": { 
                         "value": "[parameters('SamplePlaybookName')]"
+                    },
+		    "OOFPlaybook_ResourceId": { 
+                        "value": "[reference('OOFTemplate').outputs.resourceID.value]"
+                    },
+		    "RelatedAlertsPlaybook_ResourceId": { 
+                        "value": "[reference('RelatedAlertsTemplate').outputs.resourceID.value]"
+                    },
+		    "UEBAInsightsPlaybook_ResourceId": { 
+                        "value": "[reference('UEBATemplate').outputs.resourceID.value]"
                     }
                 }
             }
