@@ -56,12 +56,15 @@
                                 "schema": {
                                     "properties": {
                                         "AddIncidentComments": {
+                                            "title": "Add comments to the incident",
                                             "type": "boolean"
                                         },
                                         "Entities": {
+                                            "description": "Click here and select the Entities object from the Dynamic content menu",
                                             "type": "array"
                                         },
                                         "IncidentARMId": {
+                                            "description": "Click here and select the Incident ARM ID object from the Dynamic content menu",
                                             "type": "string"
                                         }
                                     },
