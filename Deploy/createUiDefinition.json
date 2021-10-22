@@ -156,7 +156,7 @@
                         "defaultValue": "Triage-Incident",
                         "toolTip": "",
                         "constraints": {},
-                        "visible": "[steps('automationModules').DeploySamplePlaybook]"
+                        "visible": "[and(contains(steps('automationModules').enableModulesKind,'OOFModule'),contains(steps('automationModules').enableModulesKind,'RelatedAlerts'),contains(steps('automationModules').enableModulesKind,'UEBAModule'),steps('automationModules').DeploySamplePlaybook)]"
                     }
                 ]
             }
