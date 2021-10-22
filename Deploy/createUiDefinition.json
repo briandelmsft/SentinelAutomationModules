@@ -170,6 +170,7 @@
             "MCASPlaybookName": "[steps('automationModules').MCASPlaybookName]",
             "MCAS API KEY": "[steps('automationModules').MCASAPIKEY]",
             "MCAS API URL": "[steps('automationModules').MCASAPIURL]",
+            "DeploySamplePlaybook": "[steps('automationModules').DeploySamplePlaybook]",
             "SamplePlaybookName": "[steps('automationModules').SamplePlaybookName]",
             "location": "[location()]"
         }
