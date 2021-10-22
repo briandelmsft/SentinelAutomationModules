@@ -148,7 +148,7 @@
             }
         },
         {
-            "condition": "[contains(parameters('enableModulesKind'), 'SamplePlaybook')]",
+            "condition": "[parameters('DeploySamplePlaybook')]",
             "apiVersion": "2015-01-01",
             "name": "SamplePlaybook",
             "type": "Microsoft.Resources/deployments",
