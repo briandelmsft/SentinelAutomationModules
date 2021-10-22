@@ -56,21 +56,30 @@
                                 "schema": {
                                     "properties": {
                                         "AddIncidentComments": {
+                                            "title": "Add comments to the incident",
                                             "type": "boolean"
                                         },
                                         "CheckAccountEntityMatches": {
+                                            "title": "Match Alerts on Account Entities",
                                             "type": "boolean"
                                         },
                                         "CheckIPEntityMatches": {
+                                            "title": "Match Alerts on IP Entities",
                                             "type": "boolean"
                                         },
                                         "Entities": {
+                                            "description": "Click here and select the Entities object from the Dynamic content menu",
                                             "type": "array"
                                         },
                                         "IncidentARMId": {
+                                            "description": "Click here and select the Incident ARM ID object from the Dynamic content menu",
                                             "type": "string"
                                         },
                                         "LookbackInDays": {
+                                            "title": "Lookback period in days",
+                                            "maximum": 90,
+                                            "minimum": 1,
+                                            "description": "Enter a value between 1 and 90",
                                             "type": "integer"
                                         },
                                         "WorkspaceId": {
