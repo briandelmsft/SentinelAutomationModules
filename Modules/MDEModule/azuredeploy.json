@@ -1,0 +1,1168 @@
+﻿{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "PlaybookName": {
+            "defaultValue": "Get-MDEUsersDevicesRiskScore",
+            "type": "String"
+        }
+    },
+    "variables": {
+        "AzureSentinelConnectionName":"[concat('azuresentinel-', parameters('PlaybookName'))]",
+        "DefenderConnectionName":"[concat('defender-', parameters('PlaybookName'))]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[variables('AzureSentinelConnectionName')]",
+            "location": "[resourceGroup().location]",
+            "kind": "V1",
+            "properties": {
+                "displayName": "[variables('AzureSentinelConnectionName')]",
+                "customParameterValues": {},
+                "parameterValueType": "Alternative",
+                "api": {
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azuresentinel')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[variables('DefenderConnectionName')]",
+            "location": "[resourceGroup().location]",
+            "kind": "V1",
+            "properties": {
+                "displayName": "[variables('DefenderConnectionName')]",
+                "customParameterValues": {},
+                "parameterValueType": "Alternative",
+                "api": {
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/wdatp')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2017-07-01",
+            "name": "[parameters('PlaybookName')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/connections', variables('AzureSentinelConnectionName'))]",
+                "[resourceId('Microsoft.Web/connections', variables('DefenderConnectionName'))]"
+            ],
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "state": "Enabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {},
+                            "type": "Object"
+                        }
+                    },
+                    "triggers": {
+                        "Owl": {
+                            "type": "Request",
+                            "kind": "Http",
+                            "inputs": {
+                                "schema": {
+                                    "properties": {
+                                        "AddIncidentComments": {
+                                            "title": "Add comments to the incident",
+                                            "type": "boolean"
+                                        },
+                                        "Entities": {
+                                            "description": "Click here and select the Entities object from the Dynamic content menu",
+                                            "type": "array"
+                                        },
+                                        "IncidentARMId": {
+                                            "description": "Click here and select the Incident ARM ID object from the Dynamic content menu",
+                                            "title": "Incident ARM ID",
+                                            "type": "string"
+                                        },
+                                        "LookbackInDays": {
+                                            "description": "Lookback period in days",
+                                            "maximum": 30,
+                                            "minimum": 1,
+                                            "title": "Enter a value between 1 and 30",
+                                            "type": "integer"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "actions": {
+                        "Compose_final_results": {
+                            "runAfter": {
+                                "Set_variable_HighestScore": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Compose",
+                            "inputs": {
+                                "HighestScore": "@{variables('HighestScore')}",
+                                "PerUserScore": "@variables('PerUserScore')"
+                            }
+                        },
+                        "Condition_-_Terminate_if_no_accounts": {
+                            "actions": {
+                                "Response": {
+                                    "runAfter": {},
+                                    "type": "Response",
+                                    "kind": "Http",
+                                    "inputs": {
+                                        "body": "{\n  \"HighestScore\":unknown\n}",
+                                        "statusCode": 200
+                                    }
+                                },
+                                "Terminate": {
+                                    "runAfter": {
+                                        "Response": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Terminate",
+                                    "inputs": {
+                                        "runStatus": "Succeeded"
+                                    }
+                                }
+                            },
+                            "runAfter": {
+                                "Filter_array_-_Get_only_accounts": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "expression": {
+                                "and": [
+                                    {
+                                        "equals": [
+                                            "@length(body('Filter_array_-_Get_only_accounts'))",
+                                            0
+                                        ]
+                                    }
+                                ]
+                            },
+                            "type": "If"
+                        },
+                        "Condition_-_check_if_we_need_to_add_comment_to_the_incident": {
+                            "actions": {
+                                "Add_comment_to_incident_(V3)": {
+                                    "runAfter": {
+                                        "Append_a_footer_to_CommentDetails": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "ApiConnection",
+                                    "inputs": {
+                                        "body": {
+                                            "incidentArmId": "@triggerBody()?['IncidentARMId']",
+                                            "message": "<p>@{variables('CommentDetails')}</p>"
+                                        },
+                                        "host": {
+                                            "connection": {
+                                                "name": "@parameters('$connections')['azuresentinel']['connectionId']"
+                                            }
+                                        },
+                                        "method": "post",
+                                        "path": "/Incidents/Comment"
+                                    }
+                                },
+                                "Append_a_footer_to_CommentDetails": {
+                                    "runAfter": {
+                                        "For_each": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "AppendToStringVariable",
+                                    "inputs": {
+                                        "name": "CommentDetails",
+                                        "value": "</ul>"
+                                    }
+                                },
+                                "Append_to_string_CommentDetails": {
+                                    "runAfter": {
+                                        "Comment_header": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "AppendToStringVariable",
+                                    "inputs": {
+                                        "name": "CommentDetails",
+                                        "value": "@{outputs('Comment_header')}\n"
+                                    }
+                                },
+                                "Comment_header": {
+                                    "runAfter": {},
+                                    "type": "Compose",
+                                    "inputs": "<b>MDE Lookup (last @{triggerBody()?['LookbackInDays']} days)</b>\n- Highest risk score: <b>@{outputs('Compose_final_results')['HighestScore']}</b><ul>"
+                                },
+                                "For_each": {
+                                    "foreach": "@outputs('Compose_final_results')['PerUserScore']",
+                                    "actions": {
+                                        "Condition_-_check_if_we_have_a_sid": {
+                                            "actions": {
+                                                "Append_to_string_CommentDetails_with_all_info": {
+                                                    "runAfter": {
+                                                        "Create_HTML_table_with_device_info": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "AppendToStringVariable",
+                                                    "inputs": {
+                                                        "name": "CommentDetails",
+                                                        "value": "@{outputs('Comment_user_info')}\n@{body('Create_HTML_table_with_device_info')}</li>"
+                                                    }
+                                                },
+                                                "Comment_user_info": {
+                                                    "runAfter": {},
+                                                    "type": "Compose",
+                                                    "inputs": "<li>@{items('For_each')['UserPrincipalName']} (objectSid: @{items('For_each')['UserSid']})"
+                                                },
+                                                "Create_HTML_table_with_device_info": {
+                                                    "runAfter": {
+                                                        "Comment_user_info": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "Table",
+                                                    "inputs": {
+                                                        "format": "HTML",
+                                                        "from": "@item()['UserDevices']"
+                                                    }
+                                                }
+                                            },
+                                            "runAfter": {},
+                                            "expression": {
+                                                "and": [
+                                                    {
+                                                        "greater": [
+                                                            "@length(items('For_each')['UserSid'])",
+                                                            0
+                                                        ]
+                                                    }
+                                                ]
+                                            },
+                                            "type": "If"
+                                        }
+                                    },
+                                    "runAfter": {
+                                        "Append_to_string_CommentDetails": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Foreach",
+                                    "runtimeConfiguration": {
+                                        "concurrency": {
+                                            "repetitions": 1
+                                        }
+                                    }
+                                }
+                            },
+                            "runAfter": {
+                                "Compose_final_results": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "expression": {
+                                "and": [
+                                    {
+                                        "equals": [
+                                            "@triggerBody()?['AddIncidentComments']",
+                                            "@true"
+                                        ]
+                                    }
+                                ]
+                            },
+                            "type": "If"
+                        },
+                        "Filter_array_-_Get_only_accounts": {
+                            "runAfter": {
+                                "Initialize_variable_CommentDetails": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Query",
+                            "inputs": {
+                                "from": "@triggerBody()?['Entities']",
+                                "where": "@equals(item()['kind'], 'Account')"
+                            }
+                        },
+                        "For_each_account": {
+                            "foreach": "@body('Filter_array_-_Get_only_accounts')",
+                            "actions": {
+                                "Check_if_the_sid_is_not_empty": {
+                                    "actions": {
+                                        "Advanced_Hunting_-_Query_DeviceLogonEvents": {
+                                            "runAfter": {},
+                                            "type": "ApiConnection",
+                                            "inputs": {
+                                                "body": {
+                                                    "Query": "DeviceLogonEvents \n| where Timestamp > ago( @{triggerBody()?['LookbackInDays']}d )\n| where LogonType in (\"Interactive\",\"RemoteInteractive\")\n| where AccountSid == \"@{variables('UserSid')}\"\n| distinct DeviceName, DeviceId"
+                                                },
+                                                "host": {
+                                                    "connection": {
+                                                        "name": "@parameters('$connections')['wdatp']['connectionId']"
+                                                    }
+                                                },
+                                                "method": "post",
+                                                "path": "/api/advancedqueries/run"
+                                            }
+                                        },
+                                        "Check_if_the_query_returned_something": {
+                                            "actions": {
+                                                "Append_to_array_PerUserScore_when_the_sid_is_found": {
+                                                    "runAfter": {
+                                                        "Set_variable_UserHighestScore": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "AppendToArrayVariable",
+                                                    "inputs": {
+                                                        "name": "PerUserScore",
+                                                        "value": {
+                                                            "UserDevices": "@variables('UserDevices')",
+                                                            "UserHighestScore": "@{variables('UserHighestScore')}",
+                                                            "UserId": "@{variables('UserId')}",
+                                                            "UserPrincipalName": "@{variables('UserPrincipalName')}",
+                                                            "UserSid": "@{variables('UserSid')}"
+                                                        }
+                                                    }
+                                                },
+                                                "For_each_device": {
+                                                    "foreach": "@body('Advanced_Hunting_-_Query_DeviceLogonEvents')?['Results']",
+                                                    "actions": {
+                                                        "Check_if_we_have_a_result_for_the_machine": {
+                                                            "actions": {
+                                                                "Append_to_array_PerUserHighestScore": {
+                                                                    "runAfter": {
+                                                                        "Append_to_array_UserDevices": [
+                                                                            "Succeeded"
+                                                                        ]
+                                                                    },
+                                                                    "type": "AppendToArrayVariable",
+                                                                    "inputs": {
+                                                                        "name": "PerUserHighestScore",
+                                                                        "value": "@body('Machines_-_Get_single_machine')?['riskScore']"
+                                                                    }
+                                                                },
+                                                                "Append_to_array_PerUserHighestScoreGlobal": {
+                                                                    "runAfter": {
+                                                                        "Append_to_array_PerUserHighestScore": [
+                                                                            "Succeeded"
+                                                                        ]
+                                                                    },
+                                                                    "type": "AppendToArrayVariable",
+                                                                    "inputs": {
+                                                                        "name": "PerUserHighestScoreGlobal",
+                                                                        "value": "@body('Machines_-_Get_single_machine')?['riskScore']"
+                                                                    }
+                                                                },
+                                                                "Append_to_array_UserDevices": {
+                                                                    "runAfter": {},
+                                                                    "type": "AppendToArrayVariable",
+                                                                    "inputs": {
+                                                                        "name": "UserDevices",
+                                                                        "value": {
+                                                                            "DeviceId": "@{body('Machines_-_Get_single_machine')?['id']}",
+                                                                            "DeviceName": "@{body('Machines_-_Get_single_machine')?['computerDnsName']}",
+                                                                            "DeviceRiskScore": "@{body('Machines_-_Get_single_machine')?['riskScore']}"
+                                                                        }
+                                                                    }
+                                                                }
+                                                            },
+                                                            "runAfter": {
+                                                                "Machines_-_Get_single_machine": [
+                                                                    "Succeeded"
+                                                                ]
+                                                            },
+                                                            "expression": {
+                                                                "and": [
+                                                                    {
+                                                                        "equals": [
+                                                                            "@contains(body('Machines_-_Get_single_machine'),'riskScore')",
+                                                                            "@true"
+                                                                        ]
+                                                                    }
+                                                                ]
+                                                            },
+                                                            "type": "If"
+                                                        },
+                                                        "Machines_-_Get_single_machine": {
+                                                            "runAfter": {},
+                                                            "type": "ApiConnection",
+                                                            "inputs": {
+                                                                "host": {
+                                                                    "connection": {
+                                                                        "name": "@parameters('$connections')['wdatp']['connectionId']"
+                                                                    }
+                                                                },
+                                                                "method": "get",
+                                                                "path": "/api/machines/@{encodeURIComponent(item()['DeviceId'])}"
+                                                            }
+                                                        }
+                                                    },
+                                                    "runAfter": {},
+                                                    "type": "Foreach",
+                                                    "runtimeConfiguration": {
+                                                        "concurrency": {
+                                                            "repetitions": 1
+                                                        }
+                                                    }
+                                                },
+                                                "Set_variable_UserHighestScore": {
+                                                    "runAfter": {
+                                                        "For_each_device": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "SetVariable",
+                                                    "inputs": {
+                                                        "name": "UserHighestScore",
+                                                        "value": "@{if(contains(variables('PerUserHighestScore'),'High'),'High',if(contains(variables('PerUserHighestScore'),'Medium'),'Medium',if(contains(variables('PerUserHighestScore'),'Low'),'Low',if(contains(variables('PerUserHighestScore'),'Informational'),'Informational',if(contains(variables('PerUserHighestScore'),'None'),'None','Unknown')))))}"
+                                                    }
+                                                }
+                                            },
+                                            "runAfter": {
+                                                "Advanced_Hunting_-_Query_DeviceLogonEvents": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "else": {
+                                                "actions": {
+                                                    "Append_to_array_PerUserScore_when_no_hunting_results": {
+                                                        "runAfter": {},
+                                                        "type": "AppendToArrayVariable",
+                                                        "inputs": {
+                                                            "name": "PerUserScore",
+                                                            "value": {
+                                                                "UserDevices": [],
+                                                                "UserHighestScore": "@{variables('UserHighestScore')}",
+                                                                "UserId": "@{variables('UserId')}",
+                                                                "UserPrincipalName": "@{variables('UserPrincipalName')}",
+                                                                "UserSid": "@{variables('UserSid')}"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            "expression": {
+                                                "and": [
+                                                    {
+                                                        "greater": [
+                                                            "@length(body('Advanced_Hunting_-_Query_DeviceLogonEvents')?['Results'])",
+                                                            0
+                                                        ]
+                                                    }
+                                                ]
+                                            },
+                                            "type": "If"
+                                        }
+                                    },
+                                    "runAfter": {
+                                        "Condition_-_sid_check": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "else": {
+                                        "actions": {
+                                            "Append_to_array_PerUserScore_when_the_sid_is_not_found": {
+                                                "runAfter": {},
+                                                "type": "AppendToArrayVariable",
+                                                "inputs": {
+                                                    "name": "PerUserScore",
+                                                    "value": {
+                                                        "UserDevices": [],
+                                                        "UserHighestScore": "@{variables('UserHighestScore')}",
+                                                        "UserId": "@{variables('UserId')}",
+                                                        "UserPrincipalName": "@{variables('UserPrincipalName')}",
+                                                        "UserSid": "@{variables('UserSid')}"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "expression": {
+                                        "and": [
+                                            {
+                                                "greater": [
+                                                    "@length(variables('UserSid'))",
+                                                    0
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    "type": "If"
+                                },
+                                "Condition_-_sid_check": {
+                                    "actions": {
+                                        "Check_if_we_have_an_aadUserId_in_the_entitiy": {
+                                            "actions": {
+                                                "Condition_-_check_if_the_AAD_call_returned_something": {
+                                                    "actions": {
+                                                        "Set_variable_UserPrincipalName_through_ID_lookup": {
+                                                            "runAfter": {},
+                                                            "type": "SetVariable",
+                                                            "inputs": {
+                                                                "name": "UserPrincipalName",
+                                                                "value": "@{body('HTTP_Get_the_name_from_the_id')['userPrincipalName']}"
+                                                            }
+                                                        }
+                                                    },
+                                                    "runAfter": {
+                                                        "HTTP_Get_the_name_from_the_id": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "else": {
+                                                        "actions": {
+                                                            "Set_variable_UserPrincipalName_to_unknown_after_lookup": {
+                                                                "runAfter": {},
+                                                                "type": "SetVariable",
+                                                                "inputs": {
+                                                                    "name": "UserPrincipalName",
+                                                                    "value": "unknown"
+                                                                }
+                                                            }
+                                                        }
+                                                    },
+                                                    "expression": {
+                                                        "and": [
+                                                            {
+                                                                "equals": [
+                                                                    "@contains(body('HTTP_Get_the_name_from_the_id'),'userPrincipalName')",
+                                                                    "@true"
+                                                                ]
+                                                            }
+                                                        ]
+                                                    },
+                                                    "type": "If"
+                                                },
+                                                "HTTP_Get_the_name_from_the_id": {
+                                                    "runAfter": {
+                                                        "Set_variable_UserId_from_the_entity": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "Http",
+                                                    "inputs": {
+                                                        "authentication": {
+                                                            "audience": "https://graph.microsoft.com/",
+                                                            "type": "ManagedServiceIdentity"
+                                                        },
+                                                        "method": "GET",
+                                                        "uri": "https://graph.microsoft.com/v1.0/users/@{variables('UserId')}"
+                                                    }
+                                                },
+                                                "Set_variable_UserId_from_the_entity": {
+                                                    "runAfter": {},
+                                                    "type": "SetVariable",
+                                                    "inputs": {
+                                                        "name": "UserId",
+                                                        "value": "@{item()['properties']['aadUserId']}"
+                                                    }
+                                                }
+                                            },
+                                            "runAfter": {
+                                                "Set_variable_UserSid_directly": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "else": {
+                                                "actions": {
+                                                    "Check_if_we_have_a_name_in_the_entity": {
+                                                        "actions": {
+                                                            "Check_if_the_UserPrincipalName_is_the_right_format": {
+                                                                "actions": {
+                                                                    "Check_if_the_ID_lookup_worked": {
+                                                                        "actions": {
+                                                                            "Set_variable_UserId_through_the_UPN_lookup": {
+                                                                                "runAfter": {},
+                                                                                "type": "SetVariable",
+                                                                                "inputs": {
+                                                                                    "name": "UserId",
+                                                                                    "value": "@{ body('HTTP_Get_the_id_from_the_name')['id']}"
+                                                                                }
+                                                                            }
+                                                                        },
+                                                                        "runAfter": {
+                                                                            "HTTP_Get_the_id_from_the_name": [
+                                                                                "Succeeded"
+                                                                            ]
+                                                                        },
+                                                                        "else": {
+                                                                            "actions": {
+                                                                                "Set_variable_UserId_to_unknown_after_UPN_lookup_failure": {
+                                                                                    "runAfter": {},
+                                                                                    "type": "SetVariable",
+                                                                                    "inputs": {
+                                                                                        "name": "UserId",
+                                                                                        "value": "unknown"
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        },
+                                                                        "expression": {
+                                                                            "and": [
+                                                                                {
+                                                                                    "equals": [
+                                                                                        "@contains(body('HTTP_Get_the_id_from_the_name'),'id')",
+                                                                                        "@true"
+                                                                                    ]
+                                                                                }
+                                                                            ]
+                                                                        },
+                                                                        "type": "If"
+                                                                    },
+                                                                    "HTTP_Get_the_id_from_the_name": {
+                                                                        "runAfter": {},
+                                                                        "type": "Http",
+                                                                        "inputs": {
+                                                                            "authentication": {
+                                                                                "audience": "https://graph.microsoft.com/",
+                                                                                "type": "ManagedServiceIdentity"
+                                                                            },
+                                                                            "method": "GET",
+                                                                            "uri": "https://graph.microsoft.com/v1.0/users/@{variables('UserPrincipalName')}"
+                                                                        }
+                                                                    }
+                                                                },
+                                                                "runAfter": {
+                                                                    "Set_variable_UserPrincipalName_from_the_entity": [
+                                                                        "Succeeded"
+                                                                    ]
+                                                                },
+                                                                "else": {
+                                                                    "actions": {
+                                                                        "Set_variable_UserId_to_unknown_because_no_UPN_lookup_possible": {
+                                                                            "runAfter": {},
+                                                                            "type": "SetVariable",
+                                                                            "inputs": {
+                                                                                "name": "UserId",
+                                                                                "value": "unknown"
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                },
+                                                                "expression": {
+                                                                    "and": [
+                                                                        {
+                                                                            "contains": [
+                                                                                "@variables('UserPrincipalName')",
+                                                                                "@"
+                                                                            ]
+                                                                        }
+                                                                    ]
+                                                                },
+                                                                "type": "If"
+                                                            },
+                                                            "Set_variable_UserPrincipalName_from_the_entity": {
+                                                                "runAfter": {},
+                                                                "type": "SetVariable",
+                                                                "inputs": {
+                                                                    "name": "UserPrincipalName",
+                                                                    "value": "@{item()['properties']['name']}"
+                                                                }
+                                                            }
+                                                        },
+                                                        "runAfter": {},
+                                                        "else": {
+                                                            "actions": {
+                                                                "Set_variable_UserPrincipalName_to_unknown": {
+                                                                    "runAfter": {},
+                                                                    "type": "SetVariable",
+                                                                    "inputs": {
+                                                                        "name": "UserPrincipalName",
+                                                                        "value": "unknown"
+                                                                    }
+                                                                }
+                                                            }
+                                                        },
+                                                        "expression": {
+                                                            "and": [
+                                                                {
+                                                                    "equals": [
+                                                                        "@contains(item()['properties'],'name')",
+                                                                        "@true"
+                                                                    ]
+                                                                }
+                                                            ]
+                                                        },
+                                                        "type": "If"
+                                                    }
+                                                }
+                                            },
+                                            "expression": {
+                                                "and": [
+                                                    {
+                                                        "equals": [
+                                                            "@contains(item()['properties'],'aadUserId')",
+                                                            "@true"
+                                                        ]
+                                                    }
+                                                ]
+                                            },
+                                            "type": "If"
+                                        },
+                                        "Set_variable_UserSid_directly": {
+                                            "runAfter": {},
+                                            "type": "SetVariable",
+                                            "inputs": {
+                                                "name": "UserSid",
+                                                "value": "@{item()['properties']['sid']}"
+                                            }
+                                        }
+                                    },
+                                    "runAfter": {
+                                        "Reset_variable_UserHighestScore": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "else": {
+                                        "actions": {
+                                            "Condition_for_aadUserId_and_UPN_": {
+                                                "actions": {
+                                                    "Set_variable_AADFilter_with_the_aadUserId": {
+                                                        "runAfter": {},
+                                                        "type": "SetVariable",
+                                                        "inputs": {
+                                                            "name": "AADFilter",
+                                                            "value": "@{items('For_each_account')['properties']['aadUserId']}"
+                                                        }
+                                                    },
+                                                    "Set_variable_UserID_from_AADFilter": {
+                                                        "runAfter": {
+                                                            "Set_variable_AADFilter_with_the_aadUserId": [
+                                                                "Succeeded"
+                                                            ]
+                                                        },
+                                                        "type": "SetVariable",
+                                                        "inputs": {
+                                                            "name": "UserId",
+                                                            "value": "@variables('AADFilter')"
+                                                        }
+                                                    }
+                                                },
+                                                "runAfter": {},
+                                                "else": {
+                                                    "actions": {
+                                                        "Condition_-_check_if_the_AccountName_exists": {
+                                                            "actions": {
+                                                                "Set_variable_AADFilter_with_a_constructed_UPN": {
+                                                                    "runAfter": {},
+                                                                    "type": "SetVariable",
+                                                                    "inputs": {
+                                                                        "name": "AADFilter",
+                                                                        "value": "@{concat(item()['properties']['accountName'],'@',item()['properties']['upnSuffix'])}"
+                                                                    }
+                                                                }
+                                                            },
+                                                            "runAfter": {},
+                                                            "else": {
+                                                                "actions": {
+                                                                    "Set_variable_AADFilter_with_the_accountName_value": {
+                                                                        "runAfter": {},
+                                                                        "type": "SetVariable",
+                                                                        "inputs": {
+                                                                            "name": "AADFilter",
+                                                                            "value": "@{item()['properties']['accountName']}"
+                                                                        }
+                                                                    }
+                                                                }
+                                                            },
+                                                            "expression": {
+                                                                "and": [
+                                                                    {
+                                                                        "equals": [
+                                                                            "@contains(item()['properties'],'accountName')",
+                                                                            "@true"
+                                                                        ]
+                                                                    },
+                                                                    {
+                                                                        "equals": [
+                                                                            "@contains(item()['properties'],'upnSuffix')",
+                                                                            "@true"
+                                                                        ]
+                                                                    }
+                                                                ]
+                                                            },
+                                                            "type": "If"
+                                                        },
+                                                        "Set_variable_UserPrincipalName_with_AADFilter": {
+                                                            "runAfter": {
+                                                                "Condition_-_check_if_the_AccountName_exists": [
+                                                                    "Succeeded"
+                                                                ]
+                                                            },
+                                                            "type": "SetVariable",
+                                                            "inputs": {
+                                                                "name": "UserPrincipalName",
+                                                                "value": "@variables('AADFilter')"
+                                                            }
+                                                        }
+                                                    }
+                                                },
+                                                "expression": {
+                                                    "and": [
+                                                        {
+                                                            "equals": [
+                                                                "@contains(item()['properties'],'aadUserId')",
+                                                                "@true"
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                "type": "If"
+                                            },
+                                            "HTTP_Get_the_sid": {
+                                                "runAfter": {
+                                                    "Condition_for_aadUserId_and_UPN_": [
+                                                        "Succeeded"
+                                                    ]
+                                                },
+                                                "type": "Http",
+                                                "inputs": {
+                                                    "authentication": {
+                                                        "audience": "https://graph.microsoft.com/",
+                                                        "type": "ManagedServiceIdentity"
+                                                    },
+                                                    "method": "GET",
+                                                    "uri": "https://graph.microsoft.com/beta/users/@{variables('AADFilter')}"
+                                                }
+                                            },
+                                            "Set_variable_UserSid_from_AAD": {
+                                                "runAfter": {
+                                                    "HTTP_Get_the_sid": [
+                                                        "Succeeded",
+                                                        "Failed"
+                                                    ]
+                                                },
+                                                "type": "SetVariable",
+                                                "inputs": {
+                                                    "name": "UserSid",
+                                                    "value": "@{if(contains(body('HTTP_Get_the_sid'),'onPremisesSecurityIdentifier'),body('HTTP_Get_the_sid')['onPremisesSecurityIdentifier'],'')}"
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "expression": {
+                                        "and": [
+                                            {
+                                                "equals": [
+                                                    "@contains(item()['properties'],'sid')",
+                                                    "@true"
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    "type": "If"
+                                },
+                                "Reset_variable_PerUserHisghestScore": {
+                                    "runAfter": {
+                                        "Reset_variable_UserDevices": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "SetVariable",
+                                    "inputs": {
+                                        "name": "PerUserHighestScore",
+                                        "value": []
+                                    }
+                                },
+                                "Reset_variable_UserDevices": {
+                                    "runAfter": {},
+                                    "type": "SetVariable",
+                                    "inputs": {
+                                        "name": "UserDevices",
+                                        "value": []
+                                    }
+                                },
+                                "Reset_variable_UserHighestScore": {
+                                    "runAfter": {
+                                        "Reset_variable_UserId": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "SetVariable",
+                                    "inputs": {
+                                        "name": "UserHighestScore",
+                                        "value": "unknown"
+                                    }
+                                },
+                                "Reset_variable_UserId": {
+                                    "runAfter": {
+                                        "Reset_variable_UserPrincipalName": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "SetVariable",
+                                    "inputs": {
+                                        "name": "UserId",
+                                        "value": "unknown"
+                                    }
+                                },
+                                "Reset_variable_UserPrincipalName": {
+                                    "runAfter": {
+                                        "Reset_variable_PerUserHisghestScore": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "SetVariable",
+                                    "inputs": {
+                                        "name": "UserPrincipalName",
+                                        "value": "unknown"
+                                    }
+                                }
+                            },
+                            "runAfter": {
+                                "Condition_-_Terminate_if_no_accounts": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Foreach",
+                            "runtimeConfiguration": {
+                                "concurrency": {
+                                    "repetitions": 1
+                                }
+                            }
+                        },
+                        "Initialize_PerUserHighestScore": {
+                            "runAfter": {
+                                "Initialize_variable_PerUserScore": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "PerUserHighestScore",
+                                        "type": "array",
+                                        "value": []
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_variable_AADFilter": {
+                            "runAfter": {
+                                "Initialize_variable_UserSid": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "AADFilter",
+                                        "type": "string"
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_variable_CommentDetails": {
+                            "runAfter": {
+                                "Initialize_variable_HighestScore": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "CommentDetails",
+                                        "type": "string"
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_variable_HighestScore": {
+                            "runAfter": {
+                                "Initialize_variable_UserHighestScore": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "HighestScore",
+                                        "type": "string"
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_variable_PerUserScore": {
+                            "runAfter": {
+                                "Initialize_variable_AADFilter": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "PerUserScore",
+                                        "type": "array",
+                                        "value": []
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_variable_UserDevices": {
+                            "runAfter": {
+                                "PerUserHighestScoreGlobal": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "UserDevices",
+                                        "type": "array",
+                                        "value": []
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_variable_UserHighestScore": {
+                            "runAfter": {
+                                "Initialize_variable_UserId": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "UserHighestScore",
+                                        "type": "string"
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_variable_UserId": {
+                            "runAfter": {
+                                "Initialize_variable_UserPrincipalName": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "UserId",
+                                        "type": "string"
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_variable_UserPrincipalName": {
+                            "runAfter": {
+                                "Initialize_variable_UserDevices": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "UserPrincipalName",
+                                        "type": "string"
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_variable_UserSid": {
+                            "runAfter": {},
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "UserSid",
+                                        "type": "string"
+                                    }
+                                ]
+                            }
+                        },
+                        "PerUserHighestScoreGlobal": {
+                            "runAfter": {
+                                "Initialize_PerUserHighestScore": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "PerUserHighestScoreGlobal",
+                                        "type": "array",
+                                        "value": []
+                                    }
+                                ]
+                            }
+                        },
+                        "Send_final_results": {
+                            "runAfter": {
+                                "Condition_-_check_if_we_need_to_add_comment_to_the_incident": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Response",
+                            "kind": "Http",
+                            "inputs": {
+                                "body": "@outputs('Compose_final_results')",
+                                "statusCode": 200
+                            }
+                        },
+                        "Set_variable_HighestScore": {
+                            "runAfter": {
+                                "For_each_account": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "SetVariable",
+                            "inputs": {
+                                "name": "HighestScore",
+                                "value": "@{if(contains(variables('PerUserHighestScoreGlobal'),'High'),'High',if(contains(variables('PerUserHighestScoreGlobal'),'Medium'),'Medium',if(contains(variables('PerUserHighestScoreGlobal'),'Low'),'Low',if(contains(variables('PerUserHighestScoreGlobal'),'Informational'),'Informational',if(contains(variables('PerUserHighestScoreGlobal'),'None'),'None','Unknown')))))}"
+                            }
+                        }
+                    },
+                    "outputs": {}
+                },
+                "parameters": {
+                    "$connections": {
+                        "value": {
+                            "azuresentinel": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('AzureSentinelConnectionName'))]",
+                                "connectionName": "[variables('AzureSentinelConnectionName')]",
+                                "connectionProperties": {
+                                    "authentication": {
+                                        "type": "ManagedServiceIdentity"
+                                    }
+                                },
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azuresentinel')]"
+                            },
+                            "wdatp": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('DefenderConnectionName'))]",
+                                "connectionName": "[variables('DefenderConnectionName')]",
+                                "connectionProperties": {
+                                    "authentication": {
+                                        "type": "ManagedServiceIdentity"
+                                    }
+                                },
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/wdatp')]"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ]
+}
