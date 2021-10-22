@@ -63,6 +63,10 @@
                                 {
                                     "label": "MCAS Module",
                                     "value": "MCASModule"
+                                },
+                                {
+                                    "label": "Sample Playbook",
+                                    "value": "SamplePlaybook"
                                 }
                             ],
                             "required": true
@@ -138,7 +142,17 @@
                         "toolTip": "",
                         "constraints": {},
                         "visible": "[if(contains(steps('automationModules').enableModulesKind,'MCASModule'), true, false)]"
-                    }
+                    },
+                    {
+                        "name": "SamplePlaybookName",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Sample Playbook Name",
+                        "placeholder": "",
+                        "defaultValue": "Triage-Incident",
+                        "toolTip": "",
+                        "constraints": {},
+                        "visible": "[if(contains(steps('automationModules').enableModulesKind,'SamplePlaybook'), true, false)]"
+                    },
                 ]
             }
         ],
@@ -151,6 +165,7 @@
             "MCASPlaybookName": "[steps('automationModules').MCASPlaybookName]",
             "MCAS API KEY": "[steps('automationModules').MCASAPIKEY]",
             "MCAS API URL": "[steps('automationModules').MCASAPIURL]",
+            "SamplePlaybookName": "[steps('automationModules').SamplePlaybookName]",
             "location": "[location()]"
         }
     }
