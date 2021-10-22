@@ -40,6 +40,10 @@
         "SamplePlaybookName": {
             "defaultValue": "Triage-Incident",
             "type": "String"
+        },
+        "DeploySamplePlaybook": {
+            "defaultValue": false,
+            "type": "bool"
         }
 	},
     "variables": {  
