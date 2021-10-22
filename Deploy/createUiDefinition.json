@@ -157,7 +157,7 @@
                         "toolTip": "",
                         "constraints": {},
                         "visible": "[steps('automationModules').DeploySamplePlaybook]"
-                    },
+                    }
                 ]
             }
         ],
