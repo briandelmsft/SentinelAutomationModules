@@ -36,14 +36,19 @@
         "MCAS API URL": {
             "defaultValue": "Type your API URL",
             "type": "String"
+        },
+        "SamplePlaybookName": {
+            "defaultValue": "Triage-Incident",
+            "type": "String"
         }
 	},
     "variables": {  
-	"OOFTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/OOFModule/azuredeploy.json",
-        "RelatedAlertsTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/RelatedAlerts/azuredeploy.json",
-        "UEBATemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/UEBAModule/azuredeploy.json",
-	"MCASTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/MCASModule/azuredeploy.json",
-	"MDETemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/MDEModule/azuredeploy.json"
+	"OOFTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/sampleplaybook/Modules/OOFModule/azuredeploy.json",
+        "RelatedAlertsTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/sampleplaybook/Modules/RelatedAlerts/azuredeploy.json",
+        "UEBATemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/sampleplaybook/Modules/UEBAModule/azuredeploy.json",
+	"MCASTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/sampleplaybook/Modules/MCASModule/azuredeploy.json",
+	"MDETemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/sampleplaybook/Modules/MDEModule/azuredeploy.json",
+	"SampleTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/sampleplaybook/Samples/azuredeploy.json"
     },
     "resources": [
         {
@@ -141,6 +146,24 @@
                     }
                 }
             }
-        }		
+        },
+        {
+            "condition": "[contains(parameters('enableModulesKind'), 'Sample')]",
+            "apiVersion": "2015-01-01",
+            "name": "SamplePlaybook",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[variables('SampleTemplate')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+					"PlaybookName": { 
+                        "value": "[parameters('SamplePlaybookName')]"
+                    }
+                }
+            }
+        }
     ]
 }
