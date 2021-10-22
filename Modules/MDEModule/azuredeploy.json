@@ -118,7 +118,9 @@
                                     "type": "Response",
                                     "kind": "Http",
                                     "inputs": {
-                                        "body": "{\n  \"HighestScore\":unknown\n}",
+                                        "body": {
+                                            "HighestScore": "unknown"
+                                        },
                                         "statusCode": 200
                                     }
                                 },
