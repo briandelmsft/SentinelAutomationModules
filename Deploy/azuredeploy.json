@@ -21,6 +21,10 @@
 		"defaultValue": "Get-UEBAInsights",
 		"type": "String"
 	},
+	"MDEPlaybookName": {
+		"defaultValue": "Get-MDEUsersDevicesRiskScore",
+		"type": "String"
+	},
         "MCASPlaybookName": {
             "defaultValue": "Get-MCASInvestigationScore",
             "type": "String"
@@ -38,8 +42,8 @@
 	"OOFTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/OOFModule/azuredeploy.json",
         "RelatedAlertsTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/RelatedAlerts/azuredeploy.json",
         "UEBATemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/UEBAModule/azuredeploy.json",
-	"MCASTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/MCASModule/azuredeploy.json"
-
+	"MCASTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/MCASModule/azuredeploy.json",
+	"MDETemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/MDEModule/azuredeploy.json"
     },
     "resources": [
         {
@@ -98,6 +102,24 @@
                 "parameters": {
 					"PlaybookName": { 
                         "value": "[parameters('UEBAPlaybookName')]"
+                    }
+                }
+            }
+        },
+        {
+            "condition": "[contains(parameters('enableModulesKind'), 'MDEModule')]",
+            "apiVersion": "2015-01-01",
+            "name": "MDETemplate",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[variables('MDETemplate')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+					"PlaybookName": { 
+                        "value": "[parameters('MDEPlaybookName')]"
                     }
                 }
             }
