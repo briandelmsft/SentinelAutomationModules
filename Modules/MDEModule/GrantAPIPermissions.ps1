@@ -1,6 +1,6 @@
 ﻿#  Install-Module AzureAD # Install the module (You need admin on the machine)
 $TenantID=""  #Add your AAD Tenant Id
-$DisplayNameOfMSI="Get-MDEUserDetails" #Name of the Logic App
+$DisplayNameOfMSI="Get-MDEUsersDevicesRiskScore" #Name of the Logic App
 
 Connect-AzureAD -TenantId $TenantID
 

@@ -77,11 +77,11 @@
                                             "type": "boolean"
                                         },
                                         "Entities": {
-                                            "description": "Drag and drop the Entities object from the Dynamic content menu",
+                                            "description": "Click here and select the Entities object from the Dynamic content menu",
                                             "type": "array"
                                         },
                                         "IncidentARMId": {
-                                            "description": "Drag and drop the Incident ARM ID object from the Dynamic content menu",
+                                            "description": "Click here and select the Incident ARM ID object from the Dynamic content menu",
                                             "title": "Incident ARM ID",
                                             "type": "string"
                                         },
