@@ -40,7 +40,7 @@
                         "label": "Select Automation Modules to onboard",
                         "placeholder": "",
                         "multiselect": true,
-                        "defaultValue": "Select all",
+                        "defaultValue": "MDE Module, UEBA Module",
                         "toolTip": "Select the Automation modules you would like to deploy.",
                         "constraints": {
                             "allowedValues": [
@@ -55,6 +55,10 @@
                                 {
                                     "label": "UEBA Module",
                                     "value": "UEBAModule"
+                                },
+                                {
+                                    "label": "MDE Module",
+                                    "value": "MDEModule"
                                 },
                                 {
                                     "label": "MCAS Module",
@@ -96,6 +100,16 @@
                         "visible": "[if(contains(steps('automationModules').enableModulesKind,'UEBAModule'), true, false)]"
                     },
                     {
+                        "name": "MDEPlaybookName",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "MDE Playbook Name",
+                        "placeholder": "",
+                        "defaultValue": "Get-MDEUsersDevicesRiskScore",
+                        "toolTip": "",
+                        "constraints": {},
+                        "visible": "[if(contains(steps('automationModules').enableModulesKind,'MDEModule'), true, false)]"
+                    },
+                    {
                         "name": "MCASPlaybookName",
                         "type": "Microsoft.Common.TextBox",
                         "label": "MCAS Playbook Name",
@@ -133,6 +147,7 @@
             "OOFPlaybookName": "[steps('automationModules').OOFPlaybookName]",
             "RelatedAlertsPlaybookName": "[steps('automationModules').RelatedAlertsPlaybookName]",
             "UEBAPlaybookName": "[steps('automationModules').UEBAPlaybookName]",
+            "MDEPlaybookName": "[steps('automationModules').MDEPlaybookName]",
             "MCASPlaybookName": "[steps('automationModules').MCASPlaybookName]",
             "MCAS API KEY": "[steps('automationModules').MCASAPIKEY]",
             "MCAS API URL": "[steps('automationModules').MCASAPIURL]",
