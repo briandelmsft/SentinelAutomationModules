@@ -13,7 +13,7 @@ This module will check the risk score in Microsoft Defender for Endpoint of all 
 |AddIncidentComments|Yes/No|When set to yes, the results of the query will be added to the Sentinel Incident Comments|
 |Entities|Entities (dynamic content)|This should be selected from the Dynamic content of the incident creation rule trigger|
 |IncidentARMId|Incident ARM ID (dynamic content)|This should be selected from the Dynamic content of the incident creation rule trigger|
-|LookbackInDays|Number of days to look for user activity on Microsoft Defender for Endpoint data. Minimum 1. Maximum 30|
+|LookbackInDays|1-30|This defines how far back to look through the DeviceLogonEvents table in Microsoft Defender for Endpoint|
 
 ## Return Properties
 
