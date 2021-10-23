@@ -30,6 +30,9 @@
                     "RiskyIPCount": {
                         "type": "integer"
                     },
+                    "RiskyIPList": {
+                        "type": "string"
+                    },
                     "FailedMFACount": {
                         "type": "integer"
                     },
