@@ -1,4 +1,4 @@
-# Automated Azure Sentinel Incident Triage :owl:
+# Automated Azure Sentinel Incident Triage :hospital:
 
 This project will build a library of callable Azure Sentinel Automation [Modules](/Modules/readme.md) that can be called from other automation playbooks.  The goal is to simplify automation by moving the complex tasks into these callable modules so they can be performed consistently and with ease from a parent playbook.
 
