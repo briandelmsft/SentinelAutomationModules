@@ -1,0 +1,43 @@
+﻿{
+    "type": "object",
+    "properties": {
+        "HighestRiskyUser": {
+            "type": "string"
+        },
+        "RiskyIPTotalCount": {
+            "type": "integer"
+        },
+        "FailedMFATotalCount": {
+            "type": "integer"
+        },
+        "MFAFraudTotalCount": {
+            "type": "integer"
+        },
+        "PerUser": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "UserPrincipalName": {
+                        "type": "string"
+                    },
+                    "UserID": {
+                        "type": "string"
+                    },
+                    "UserRiskLevel": {
+                        "type": "string"
+                    },
+                    "RiskyIPCount": {
+                        "type": "integer"
+                    },
+                    "FailedMFACount": {
+                        "type": "integer"
+                    },
+                    "MFAFraudCount": {
+                        "type": "integer"
+                    }
+                }
+            }
+        }
+    }
+}
