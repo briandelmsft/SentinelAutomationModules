@@ -9,3 +9,4 @@ Automation Modules make it easier to perform routine tasks by using a common set
 * Office 365 Out of Office
 * Azure Sentinel Related Alerts
 * Azure Sentinel User Entity Behavior Analytics
+* Azure Sentinel Watchlists
