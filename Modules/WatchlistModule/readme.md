@@ -4,7 +4,8 @@
 This module will check the incident entities to see if there are any matches on a specified watchlist in Azure Sentinel
 
 ## Suported Entity Types
-* TBD
+* Account (UPN)
+* IP Address
 
 ## Trigger Parameters
 
@@ -13,8 +14,10 @@ This module will check the incident entities to see if there are any matches on 
 |AddIncidentComments|Yes/No|When set to yes, the results of the query will be added to the Sentinel Incident Comments|
 |Entities|Entities (dynamic content)|This should be selected from the Dynamic content of the incident creation rule trigger|
 |IncidentARMId|Incident ARM ID (dynamic content)|This should be selected from the Dynamic content of the incident creation rule trigger|
-|Watchlistname|Sentinel Watchlist name|This defines how far back to look through the UEBA tables in Sentinel|
-|WatchlistMatch|TBD|TBD|
+|WatchlistKey|ColumnName|The column name of the watchlist to match with the entity data, such as the UPN or IP Address |
+|WatchlistKeyDataType|upn, ip, or cidr|The type of data in the WatchlistKey column.  Use CIDR if the WactchlistKey contains subnets using CIDR notation|
+|WatchlistName|Sentinel Watchlist name|This defines how far back to look through the UEBA tables in Sentinel|
+|WorkspaceId|Workspace Id (dynamic content)|This should be selected from the Dynamic content of the incident creation rule trigger|
 
 ## Return Properties
 
