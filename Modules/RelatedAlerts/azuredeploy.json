@@ -63,6 +63,10 @@
                                             "title": "Match Alerts on Account Entities",
                                             "type": "boolean"
                                         },
+                                        "CheckHostEntityMatches": {
+                                            "title": "Match Alerts on Host Entities",
+                                            "type": "boolean"
+                                        },
                                         "CheckIPEntityMatches": {
                                             "title": "Match Alerts on IP Entities",
                                             "type": "boolean"
@@ -172,7 +176,8 @@
                                             "@{body('HTTP')['tables'][0]['columns'][2]['name']}": "@item()[2]",
                                             "@{body('HTTP')['tables'][0]['columns'][3]['name']}": "@item()[3]",
                                             "@{body('HTTP')['tables'][0]['columns'][4]['name']}": "@item()[4]",
-                                            "@{body('HTTP')['tables'][0]['columns'][5]['name']}": "@item()[5]"
+                                            "@{body('HTTP')['tables'][0]['columns'][5]['name']}": "@item()[5]",
+                                            "@{body('HTTP')['tables'][0]['columns'][6]['name']}": "@item()[6]"
                                         }
                                     }
                                 }
@@ -214,7 +219,7 @@
                         "Compose": {
                             "runAfter": {},
                             "type": "Compose",
-                            "inputs": "let incidentARMId = \"@{triggerBody()?['IncidentARMId']}\";\nlet entityData = '@{triggerBody()?['Entities']}';\nlet checkAccountEntity = @{triggerBody()?['CheckAccountEntityMatches']};\nlet checkIPEntity = @{triggerBody()?['CheckIPEntityMatches']};\nlet lookback = @{triggerBody()?['LookbackInDays']}d;\nlet incidentEntities = datatable(temp:string)['']\n| extend Entities = parse_json(entityData)\n| mv-expand todynamic(Entities)\n| where (Entities.kind =~ \"Account\" and checkAccountEntity) or (Entities.kind =~ \"Ip\" and checkIPEntity)\n| extend EntityData = case(Entities.kind == \"Account\", strcat(tolower(Entities.kind), \"-\", Entities.properties.accountName, \"-\", Entities.properties.upnSuffix), \n    Entities.kind == \"Ip\", strcat(tolower(Entities.kind), \"-\", Entities.properties.address), \"unmapped\")\n| where EntityData <> \"unmapped\";\nlet currentIncidentAlerts = SecurityIncident\n| where TimeGenerated > ago(lookback)\n| where IncidentUrl endswith incidentARMId\n| summarize arg_max(TimeGenerated, *) by IncidentNumber\n| mv-expand AlertIds\n| project SystemAlertId=tostring(AlertIds);\nlet alertEntities = SecurityAlert\n| where TimeGenerated > ago(lookback)\n| summarize arg_max(TimeGenerated, *) by SystemAlertId\n| where SystemAlertId !in (currentIncidentAlerts)\n| mv-expand todynamic(Entities)\n| extend EntityData = case(Entities.Type == \"account\", strcat(tolower(Entities.Type), \"-\", Entities.Name, \"-\", Entities.UPNSuffix), \n    Entities.Type == \"ip\", strcat(tolower(Entities.Type), \"-\", Entities.Address), \"unmapped\")\n| where EntityData <> \"unmapped\";\nincidentEntities\n| join kind=inner (alertEntities) on EntityData\n| summarize by StartTime, DisplayName, AlertName, AlertSeverity, SystemAlertId, ProviderName"
+                            "inputs": "let incidentARMId = '@{triggerBody()?['IncidentARMId']}';\nlet entityData = '@{triggerBody()?['Entities']}';\nlet checkAccountEntity = @{triggerBody()?['CheckAccountEntityMatches']};\nlet checkIPEntity = @{triggerBody()?['CheckIPEntityMatches']};\nlet checkHostEntity = @{triggerBody()?['CheckHostEntityMatches']};\nlet lookback = @{triggerBody()?['LookbackInDays']}d;\nlet incidentEntities = datatable(temp:string)['']\n| extend Entities = parse_json(entityData)\n| mv-expand todynamic(Entities)\n| extend EntityType = Entities.kind\n| where (EntityType =~ \"Account\" and checkAccountEntity) or (EntityType =~ \"Ip\" and checkIPEntity) or (EntityType =~ \"Host\" and checkHostEntity)\n| extend EntityData = case(EntityType =~ \"Account\", strcat(tolower(EntityType), \"-\", Entities.properties.accountName, \"-\", Entities.properties.upnSuffix), \n    EntityType =~ \"Ip\", strcat(tolower(EntityType), \"-\", Entities.properties.address), EntityType =~ \"Host\", strcat(tolower(EntityType), \"-\", Entities.properties.hostName, \"-\", Entities.properties.dnsDomain), \"unmapped\")\n| where EntityData <> \"unmapped\";\nlet currentIncidentAlerts = SecurityIncident\n| where TimeGenerated > ago(lookback)\n| where IncidentUrl endswith incidentARMId\n| summarize arg_max(TimeGenerated, *) by IncidentNumber\n| mv-expand AlertIds\n| project SystemAlertId=tostring(AlertIds);\nlet alertEntities = SecurityAlert\n| where TimeGenerated > ago(lookback)\n| summarize arg_max(TimeGenerated, *) by SystemAlertId\n| where SystemAlertId !in (currentIncidentAlerts)\n| mv-expand todynamic(Entities)\n| extend EntityData = case(Entities.Type =~ \"account\", strcat(tolower(Entities.Type), \"-\", Entities.Name, \"-\", Entities.UPNSuffix), \n    Entities.Type =~ \"ip\", strcat(tolower(Entities.Type), \"-\", Entities.Address), Entities.Type =~ \"host\", strcat(tolower(Entities.Type), \"-\", Entities.HostName, \"-\", Entities.DnsDomain), \"unmapped\")\n| where EntityData <> \"unmapped\";\nincidentEntities\n| join kind=inner (alertEntities) on EntityData\n| summarize MatchedEntityTypes=make_set(EntityType) by StartTime, DisplayName, AlertName, AlertSeverity, SystemAlertId, ProviderName"
                         },
                         "HTTP": {
                             "runAfter": {

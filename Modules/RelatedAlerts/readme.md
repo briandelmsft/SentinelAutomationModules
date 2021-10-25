@@ -33,12 +33,13 @@ This module will check the incidient entities to see if there are any other aler
 {
   "DetailedResults": [
     {
-      "StartTime": "2021-10-12T18:03:36.649Z",
+      "StartTime": "2021-10-25T15:40:05.341Z",
       "DisplayName": "Alert Display Name",
       "AlertName": "Alert Name",
       "AlertSeverity": "Informational",
-      "SystemAlertId": "972af98d-fd82-8b36-3308-93f6ffa2ad17",
-      "ProviderName": "ASI Scheduled Alerts"
+      "SystemAlertId": "e10dd976-4e15-4144-3ae7-55c660f9aebc",
+      "ProviderName": "ASI Scheduled Alerts",
+      "MatchedEntityTypes": "[\"Account\",\"Ip\",\"Host\"]"
     }
   ],
   "RelatedAlertsCount": 1,
