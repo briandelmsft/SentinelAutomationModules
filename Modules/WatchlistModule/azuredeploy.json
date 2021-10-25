@@ -3,8 +3,8 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "PlaybookName": {
-            "defaultValue": "Get-RelatedAlerts",
-            "type": "string"
+            "defaultValue": "Get-WatchlistInsights",
+            "type": "String"
         }
     },
     "variables": {
@@ -31,9 +31,6 @@
             "apiVersion": "2017-07-01",
             "name": "[parameters('PlaybookName')]",
             "location": "[resourceGroup().location]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Web/connections', variables('AzureSentinelConnectionName'))]"
-            ],
             "identity": {
                 "type": "SystemAssigned"
             },
@@ -59,14 +56,6 @@
                                             "title": "Add comments to the incident",
                                             "type": "boolean"
                                         },
-                                        "CheckAccountEntityMatches": {
-                                            "title": "Match Alerts on Account Entities",
-                                            "type": "boolean"
-                                        },
-                                        "CheckIPEntityMatches": {
-                                            "title": "Match Alerts on IP Entities",
-                                            "type": "boolean"
-                                        },
                                         "Entities": {
                                             "description": "Click here and select the Entities object from the Dynamic content menu",
                                             "type": "array"
@@ -75,12 +64,17 @@
                                             "description": "Click here and select the Incident ARM ID object from the Dynamic content menu",
                                             "type": "string"
                                         },
-                                        "LookbackInDays": {
-                                            "title": "Lookback period in days",
-                                            "maximum": 90,
-                                            "minimum": 1,
-                                            "description": "Enter a value between 1 and 90",
-                                            "type": "integer"
+                                        "WatchlistKey": {
+                                            "description": "Enter the column name from the watchlist to match to the UPN or IP data",
+                                            "type": "string"
+                                        },
+                                        "WatchlistKeyDataType": {
+                                            "description": "Enter the format of the data in the WatchlistKey. UPN, IP, or CIDR.",
+                                            "type": "string"
+                                        },
+                                        "WatchlistName": {
+                                            "description": "Name of the Azure Sentinel Watchlist to check.",
+                                            "type": "string"
                                         },
                                         "WorkspaceId": {
                                             "description": "Click here and select the Workspace ID object from the Dynamic content menu",
@@ -93,7 +87,7 @@
                         }
                     },
                     "actions": {
-                        "Check_for_Related_Alerts": {
+                        "Check_for_Records": {
                             "actions": {
                                 "Condition": {
                                     "actions": {
@@ -107,7 +101,7 @@
                                             "inputs": {
                                                 "body": {
                                                     "incidentArmId": "@triggerBody()?['IncidentARMId']",
-                                                    "message": "<p>There were @{length(body('HTTP')['tables'][0]['rows'])} related alerts found.<br>\n<br>\n@{body('Create_HTML_table')}<br>\n<br>\n</p>"
+                                                    "message": "<p>Temp<br>\n<br>\n@{body('Create_HTML_table')}<br>\n<br>\n</p>"
                                                 },
                                                 "host": {
                                                     "connection": {
@@ -144,9 +138,21 @@
                                     },
                                     "type": "If"
                                 },
-                                "Response": {
+                                "Filter_array": {
                                     "runAfter": {
                                         "Select": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Query",
+                                    "inputs": {
+                                        "from": "@body('Select')",
+                                        "where": "@equals(item()['OnWatchlist'], true)"
+                                    }
+                                },
+                                "Response": {
+                                    "runAfter": {
+                                        "Filter_array": [
                                             "Succeeded"
                                         ]
                                     },
@@ -155,8 +161,8 @@
                                     "inputs": {
                                         "body": {
                                             "DetailedResults": "@body('Select')",
-                                            "RelatedAlertsCount": "@length(body('HTTP')['tables'][0]['rows'])",
-                                            "RelatedAlertsFound": true
+                                            "OnWatchlist": "@greater(length(body('Filter_array')), 0)",
+                                            "WatchListName": "@triggerBody()?['WatchlistName']"
                                         },
                                         "statusCode": 200
                                     }
@@ -167,12 +173,8 @@
                                     "inputs": {
                                         "from": "@body('HTTP')['tables'][0]['rows']",
                                         "select": {
-                                            "@{body('HTTP')['tables'][0]['columns'][0]['name']}": "@item()[0]",
-                                            "@{body('HTTP')['tables'][0]['columns'][1]['name']}": "@item()[1]",
-                                            "@{body('HTTP')['tables'][0]['columns'][2]['name']}": "@item()[2]",
-                                            "@{body('HTTP')['tables'][0]['columns'][3]['name']}": "@item()[3]",
-                                            "@{body('HTTP')['tables'][0]['columns'][4]['name']}": "@item()[4]",
-                                            "@{body('HTTP')['tables'][0]['columns'][5]['name']}": "@item()[5]"
+                                            "@{body('HTTP')['tables'][0]['columns']?[0]?['name']}": "@item()?[0]",
+                                            "@{body('HTTP')['tables'][0]['columns']?[1]?['name']}": "@item()?[1]"
                                         }
                                     }
                                 }
@@ -190,9 +192,7 @@
                                         "kind": "Http",
                                         "inputs": {
                                             "body": {
-                                                "DetailedResults": [],
-                                                "RelatedAlertsCount": 0,
-                                                "RelatedAlertsFound": false
+                                                "Result": "Failed"
                                             },
                                             "statusCode": 200
                                         }
@@ -211,14 +211,39 @@
                             },
                             "type": "If"
                         },
-                        "Compose": {
+                        "Condition_2": {
+                            "actions": {
+                                "Compose_2": {
+                                    "runAfter": {},
+                                    "type": "Compose",
+                                    "inputs": "let keyType = \"@{triggerBody()?['WatchlistKeyDataType']}\";\nlet entityData = '@{triggerBody()?['Entities']}';\nlet entityKind = case(keyType =~ \"upn\", \"account\", keyType =~ \"ip\", \"ip\", keyType);\nlet incidentEntities = datatable(temp:string)['']\n| extend Entities = parse_json(entityData)\n| project-away temp\n| mv-expand todynamic(Entities)\n| extend EntityType = tostring(Entities.kind)\n| where EntityType =~ \"ip\"\n| extend EntityData = tostring(Entities.properties.address);\nincidentEntities\n| evaluate ipv4_lookup(_GetWatchlist('@{triggerBody()?['WatchlistName']}'), EntityData, @{triggerBody()?['WatchlistKey']}, true)\n| extend OnWatchlist = iff(isempty(_DTItemId), false, true)\n| project-away Entities, EntityType, _DTItemId, LastUpdatedTimeUTC\n| project-reorder OnWatchlist, EntityData"
+                                }
+                            },
                             "runAfter": {},
-                            "type": "Compose",
-                            "inputs": "let incidentARMId = \"@{triggerBody()?['IncidentARMId']}\";\nlet entityData = '@{triggerBody()?['Entities']}';\nlet checkAccountEntity = @{triggerBody()?['CheckAccountEntityMatches']};\nlet checkIPEntity = @{triggerBody()?['CheckIPEntityMatches']};\nlet lookback = @{triggerBody()?['LookbackInDays']}d;\nlet incidentEntities = datatable(temp:string)['']\n| extend Entities = parse_json(entityData)\n| mv-expand todynamic(Entities)\n| where (Entities.kind =~ \"Account\" and checkAccountEntity) or (Entities.kind =~ \"Ip\" and checkIPEntity)\n| extend EntityData = case(Entities.kind == \"Account\", strcat(tolower(Entities.kind), \"-\", Entities.properties.accountName, \"-\", Entities.properties.upnSuffix), \n    Entities.kind == \"Ip\", strcat(tolower(Entities.kind), \"-\", Entities.properties.address), \"unmapped\")\n| where EntityData <> \"unmapped\";\nlet currentIncidentAlerts = SecurityIncident\n| where TimeGenerated > ago(lookback)\n| where IncidentUrl endswith incidentARMId\n| summarize arg_max(TimeGenerated, *) by IncidentNumber\n| mv-expand AlertIds\n| project SystemAlertId=tostring(AlertIds);\nlet alertEntities = SecurityAlert\n| where TimeGenerated > ago(lookback)\n| summarize arg_max(TimeGenerated, *) by SystemAlertId\n| where SystemAlertId !in (currentIncidentAlerts)\n| mv-expand todynamic(Entities)\n| extend EntityData = case(Entities.Type == \"account\", strcat(tolower(Entities.Type), \"-\", Entities.Name, \"-\", Entities.UPNSuffix), \n    Entities.Type == \"ip\", strcat(tolower(Entities.Type), \"-\", Entities.Address), \"unmapped\")\n| where EntityData <> \"unmapped\";\nincidentEntities\n| join kind=inner (alertEntities) on EntityData\n| summarize by StartTime, DisplayName, AlertName, AlertSeverity, SystemAlertId, ProviderName"
+                            "else": {
+                                "actions": {
+                                    "Compose": {
+                                        "runAfter": {},
+                                        "type": "Compose",
+                                        "inputs": "let keyType = \"@{triggerBody()?['WatchlistKeyDataType']}\";\nlet entityData = '@{triggerBody()?['Entities']}';\nlet entityKind = case(keyType =~ \"upn\", \"account\", keyType =~ \"ip\", \"ip\", keyType);\nlet incidentEntities = datatable(temp:string)['']\n| extend Entities = parse_json(entityData)\n| project-away temp\n| mv-expand todynamic(Entities)\n| extend EntityType = tostring(Entities.kind)\n| where EntityType =~ entityKind\n| extend EntityData = case(EntityType =~ \"account\", strcat(Entities.properties.accountName, '@', Entities.properties.upnSuffix), EntityType =~ \"Ip\", tostring(Entities.properties.address), \"unknown\");\nincidentEntities\n| join kind=leftouter (_GetWatchlist('@{triggerBody()?['WatchlistName']}')) on $left.EntityData == $right.@{triggerBody()?['WatchlistKey']}\n| extend OnWatchlist = iff(isempty(_DTItemId), false, true)\n| project-away Entities, EntityType, _DTItemId, LastUpdatedTimeUTC\n| project-reorder OnWatchlist, EntityData"
+                                    }
+                                }
+                            },
+                            "expression": {
+                                "and": [
+                                    {
+                                        "equals": [
+                                            "@toLower(triggerBody()?['WatchlistKeyDataType'])",
+                                            "cidr"
+                                        ]
+                                    }
+                                ]
+                            },
+                            "type": "If"
                         },
                         "HTTP": {
                             "runAfter": {
-                                "Compose": [
+                                "Condition_2": [
                                     "Succeeded"
                                 ]
                             },
@@ -229,8 +254,8 @@
                                     "type": "ManagedServiceIdentity"
                                 },
                                 "body": {
-                                    "query": "@{outputs('Compose')}",
-                                    "timespan": "P@{triggerBody()?['LookbackInDays']}D"
+                                    "query": "@{coalesce(outputs('Compose_2'),outputs('Compose'))}",
+                                    "timespan": "P7D"
                                 },
                                 "method": "POST",
                                 "uri": "https://api.loganalytics.io/v1/workspaces/@{triggerBody()?['WorkspaceId']}/query"
