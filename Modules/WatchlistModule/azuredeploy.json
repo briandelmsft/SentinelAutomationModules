@@ -53,24 +53,31 @@
                                 "schema": {
                                     "properties": {
                                         "AddIncidentComments": {
+                                            "title": "Add comments to the incident",
                                             "type": "boolean"
                                         },
                                         "Entities": {
+                                            "description": "Click here and select the Entities object from the Dynamic content menu",
                                             "type": "array"
                                         },
                                         "IncidentARMId": {
+                                            "description": "Click here and select the Incident ARM ID object from the Dynamic content menu",
                                             "type": "string"
                                         },
                                         "WatchlistKey": {
+                                            "description": "Enter the column name from the watchlist to match to the UPN or IP data",
                                             "type": "string"
                                         },
                                         "WatchlistKeyDataType": {
+                                            "description": "Enter the format of the data in the WatchlistKey. UPN, IP, or CIDR.",
                                             "type": "string"
                                         },
                                         "WatchlistName": {
+                                            "description": "Name of the Azure Sentinel Watchlist to check.",
                                             "type": "string"
                                         },
                                         "WorkspaceId": {
+                                            "description": "Click here and select the Workspace ID object from the Dynamic content menu",
                                             "type": "string"
                                         }
                                     },

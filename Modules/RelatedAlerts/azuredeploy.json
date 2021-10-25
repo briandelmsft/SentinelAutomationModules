@@ -83,6 +83,7 @@
                                             "type": "integer"
                                         },
                                         "WorkspaceId": {
+                                            "description": "Click here and select the Workspace ID object from the Dynamic content menu",
                                             "type": "string"
                                         }
                                     },
