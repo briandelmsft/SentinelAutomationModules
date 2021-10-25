@@ -21,6 +21,10 @@
 		"defaultValue": "Get-UEBAInsights",
 		"type": "String"
 	},
+	"WatchlistPlaybookName": {
+		"defaultValue": "Get-WatchlistInsights",
+		"type": "String"
+	},
 	"MDEPlaybookName": {
 		"defaultValue": "Get-MDEUsersDevicesRiskScore",
 		"type": "String"
@@ -52,6 +56,7 @@
         "UEBATemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/UEBAModule/azuredeploy.json",
 	"MCASTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/MCASModule/azuredeploy.json",
 	"MDETemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/MDEModule/azuredeploy.json",
+    "WatchlistTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/WatchlistModule/azuredeploy.json",
 	"SampleTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Samples/azuredeploy.json"
     },
     "resources": [
@@ -69,6 +74,24 @@
                 "parameters": {
 					"PlaybookName": { 
                         "value": "[parameters('OOFPlaybookName')]"
+                    }
+                }
+            }
+        },
+        {
+            "condition": "[contains(parameters('enableModulesKind'), 'WatchlistModule')]",
+            "apiVersion": "2019-10-01",
+            "name": "WatchlistTemplate",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[variables('WatchlistTemplate')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+					"PlaybookName": { 
+                        "value": "[parameters('WatchlistPlaybookName')]"
                     }
                 }
             }
