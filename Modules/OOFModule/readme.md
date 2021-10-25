@@ -45,5 +45,5 @@ This module will check the incidient entities to see if a user is out of the off
 
 ## Post Deployment
 
-* Grant the Logic app managed identity access to the Microsoft Graph application permissions MailboxSettings.Read (GrantAPIPermissions.ps1)
-* Grant the Logic app Azure Sentinel Responder RBAC role on the resource group containing Azure Sentinel
+* Grant the Logic app managed identity access to the Microsoft Graph application permissions MailboxSettings.Read (GrantPermissions.ps1)
+* Grant the Logic app Azure Sentinel Responder RBAC role on the resource group containing Azure Sentinel (GrantPermissions.ps1)

@@ -51,5 +51,5 @@ This module will check the incident entities to see if there are any matches on 
 
 ## Post Deployment
 
-* Grant the Logic app managed identity access to the Log Analytics API application permissions Data.Read (GrantAPIPermissions.ps1)
-* Grant the Logic app Azure Sentinel Responder RBAC role on the resource group containing Azure Sentinel
+* Grant the Logic app managed identity access to the Log Analytics API application permissions Data.Read (GrantPermissions.ps1)
+* Grant the Logic app Azure Sentinel Responder RBAC role on the resource group containing Azure Sentinel (GrantPermissions.ps1)

@@ -86,6 +86,6 @@ This module will check the risk score in Microsoft Defender for Endpoint of all 
 
 ## Post Deployment
 
-* Grant the Logic app managed identity access to the Microsoft Graph application permissions User.Read.All (GrantAPIPermissions.ps1)
-* Grant the Logic app managed identity access to the Microsoft Defender API permissions Machine.Read.All and AdvancedQuery.Read.All (GrantAPIPermissions.ps1)
-* Grant the Logic app Azure Sentinel Responder RBAC role on the resource group containing Azure Sentinel
+* Grant the Logic app managed identity access to the Microsoft Graph application permissions User.Read.All (GrantPermissions.ps1)
+* Grant the Logic app managed identity access to the Microsoft Defender API permissions Machine.Read.All and AdvancedQuery.Read.All (GrantPermissions.ps1)
+* Grant the Logic app Azure Sentinel Responder RBAC role on the resource group containing Azure Sentinel (GrantPermissions.ps1)

@@ -76,8 +76,8 @@ If you do not perform these tasks before the deployement, you can leave the defa
 
 ## Post Deployment
 
-- Grant the Logic App managed identity the permissions User.Read.All on the Azure Graph API (GrantAPIPermissions.ps1).
-- Grant the Logic App managed identity the Azure Sentinel Responder RBAC role on the resource group containing Azure Sentinel.
+- Grant the Logic App managed identity the permissions User.Read.All on the Azure Graph API (GrantPermissions.ps1).
+- Grant the Logic App managed identity the Azure Sentinel Responder RBAC role on the resource group containing Azure Sentinel. (GrantPermissions.ps1)
 
 ## Additional Links
 * [Understand the investigation priority score](https://docs.microsoft.com/en-us/cloud-app-security/tutorial-ueba#understand-the-investigation-priority-score)
