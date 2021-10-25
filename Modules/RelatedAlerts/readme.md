@@ -14,6 +14,7 @@ This module will check the incidient entities to see if there are any other aler
 |---|---|---|
 |AddIncidentComments|Yes/No|When set to yes, the results of the query will be added to the Sentinel Incident Comments|
 |CheckAccountEntityMatches|Yes/No|When set to yes, the module will look for related alerts based on the Account entity type|
+|CheckHostEntityMatches|Yes/No|When set to yes, the module will look for related alerts based on the Host entity type|
 |CheckIPEntityMatches|Yes/No|When set to yes, the module will look for related alerts based on the IP entity type|
 |Entities|Entities (dynamic content)|This should be selected from the Dynamic content of the incident creation rule trigger|
 |IncidentARMId|Incident ARM ID (dynamic content)|This should be selected from the Dynamic content of the incident creation rule trigger|
