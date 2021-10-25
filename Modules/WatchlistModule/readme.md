@@ -23,12 +23,26 @@ This module will check the incident entities to see if there are any matches on 
 
 |Property|Description|
 |---|---|
-|TBD|TBD|
+|DetailedResults|An Array of detailed results from each item that was checked against the watchlist|
+|OnWatchlist|true/false, if item is on the Watchlist|
+|Status|Success/Failure, if the watchlist check was successful|
+|WatchListName|Name of the watchlist that was queried|
+
 
 ## Sample Return
 
 ```
-TBD
+{
+  "DetailedResults": [
+    {
+      "OnWatchlist": false,
+      "EntityData": "111.222.111.222"
+    }
+  ],
+  "OnWatchlist": false,
+  "Status": "Success",
+  "WatchListName": "IP"
+}
 ```
 
 ## Quick Deployment

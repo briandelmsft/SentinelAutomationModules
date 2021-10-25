@@ -1,1 +1,28 @@
-{}
+{
+    "type": "object",
+    "properties": {
+        "DetailedResults": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "OnWatchlist": {
+                        "type": "boolean"
+                    },
+                    "EntityData": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "OnWatchlist": {
+            "type": "boolean"
+        },
+        "Status": {
+            "type": "string"
+        },
+        "WatchListName": {
+            "type": "string"
+        }
+    }
+}
