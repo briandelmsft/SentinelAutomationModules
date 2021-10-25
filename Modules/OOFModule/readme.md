@@ -1,7 +1,7 @@
 # Get-OOFDetails
 
 ## Description
-This module will check the incidient entities to see if a user is out of the office.
+This module will check the incidient entities to see if a user is out of the office. Additional information about the setting module.
 
 ## Suported Entity Types
 * Account
@@ -10,7 +10,7 @@ This module will check the incidient entities to see if a user is out of the off
 
 |Parameter|Expected Values|Description|
 |---|---|---|
-|AddIncidentComments|Yes/No|When set to yes, the results of the query will be added to the Sentinel Incident Comments|
+|AddIncidentComment|Yes/No|When set to yes, the results of the query will be added to the Sentinel Incident Comments|
 |Entities|Entities (dynamic content)|This should be selected from the Dynamic content of the incident creation rule trigger|
 |IncidentARMId|Incident ARM ID (dynamic content)|This should be selected from the Dynamic content of the incident creation rule trigger|
 
@@ -18,7 +18,7 @@ This module will check the incidient entities to see if a user is out of the off
 
 |Property|Description|
 |---|---|
-|OverallOOFStatus|Returns an overall status.  If all user entities are in the same Out of Office state then it will return enabled or disabled.  If the user entities are in different states it will return inconsistent|
+|OOFStatus|Returns an overall status.  If all user entities are in the same Out of Office state then it will return enabled or disabled.  If the user entities are in different states it will return inconsistent|
 |PerUserStatus|An array of OOFStatus by UPN|
 
 ## Sample Return
