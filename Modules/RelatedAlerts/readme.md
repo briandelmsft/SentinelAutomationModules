@@ -5,6 +5,7 @@ This module will check the incidient entities to see if there are any other aler
 
 ## Suported Entity Types
 * Account
+* Host
 * IP Address
 
 ## Trigger Parameters
