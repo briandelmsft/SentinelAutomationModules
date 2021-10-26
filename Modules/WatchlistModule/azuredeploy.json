@@ -46,7 +46,7 @@
                         }
                     },
                     "triggers": {
-                        "manual": {
+                        "triage": {
                             "type": "Request",
                             "kind": "Http",
                             "inputs": {

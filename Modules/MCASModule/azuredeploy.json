@@ -137,7 +137,7 @@
                         }
                     },
                     "triggers": {
-                        "Owl": {
+                        "triage": {
                             "type": "Request",
                             "kind": "Http",
                             "inputs": {

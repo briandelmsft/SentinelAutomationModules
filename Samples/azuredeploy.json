@@ -194,7 +194,7 @@
                                     "IncidentARMId": "@triggerBody()?['object']?['id']"
                                 },
                                 "host": {
-                                    "triggerName": "manual",
+                                    "triggerName": "triage",
                                     "workflow": {
                                         "id": "[parameters('OOFPlaybook_ResourceId')]"
                                     }
@@ -215,7 +215,7 @@
                                     "WorkspaceId": "@triggerBody()?['workspaceId']"
                                 },
                                 "host": {
-                                    "triggerName": "manual",
+                                    "triggerName": "triage",
                                     "workflow": {
                                         "id": "[parameters('RelatedAlertsPlaybook_ResourceId')]"
                                     }
@@ -235,7 +235,7 @@
                                     "WorkspaceId": "@triggerBody()?['workspaceId']"
                                 },
                                 "host": {
-                                    "triggerName": "manual",
+                                    "triggerName": "triage",
                                     "workflow": {
                                         "id": "[parameters('UEBAInsightsPlaybook_ResourceId')]"
                                     }
