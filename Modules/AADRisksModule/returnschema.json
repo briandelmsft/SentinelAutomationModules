@@ -29,11 +29,11 @@
                 "properties": {
                     "UserPrincipalName": {
                         "type": "string",
-                        "description": "UserPrincipalName"
+                        "description": "UserPrincipalName for the current entity"
                     },
                     "UserID": {
                         "type": "string",
-                        "description": "Azure AD object Id"
+                        "description": "Azure AD object id for the current entity"
                     },
                     "UserRiskLevel": {
                         "type": "string",
