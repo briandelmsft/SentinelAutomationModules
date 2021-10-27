@@ -9,26 +9,30 @@
                 "description": "The automation modules you want to deploy"
             }
         },
-	"OOFPlaybookName": {
-		"defaultValue": "Get-OOFDetails",
-		"type": "String"
-	},
-	"RelatedAlertsPlaybookName": {
-		"defaultValue": "Get-RelatedAlerts",
-		"type": "String"
-	},
-	"UEBAPlaybookName": {
-		"defaultValue": "Get-UEBAInsights",
-		"type": "String"
-	},
-	"WatchlistPlaybookName": {
-		"defaultValue": "Get-WatchlistInsights",
-		"type": "String"
-	},
-	"MDEPlaybookName": {
-		"defaultValue": "Get-MDEUsersDevicesRiskScore",
-		"type": "String"
-	},
+        "OOFPlaybookName": {
+            "defaultValue": "Get-OOFDetails",
+            "type": "String"
+        },
+        "RelatedAlertsPlaybookName": {
+            "defaultValue": "Get-RelatedAlerts",
+            "type": "String"
+        },
+        "UEBAPlaybookName": {
+            "defaultValue": "Get-UEBAInsights",
+            "type": "String"
+        },
+        "WatchlistPlaybookName": {
+            "defaultValue": "Get-WatchlistInsights",
+            "type": "String"
+        },
+        "MDEPlaybookName": {
+            "defaultValue": "Get-MDEUsersDevicesRiskScore",
+            "type": "String"
+        },
+        "AADRisksPlaybookName": {
+            "defaultValue": "Get-AADUserRisksInfo",
+            "type": "String"
+        },
         "MCASPlaybookName": {
             "defaultValue": "Get-MCASInvestigationScore",
             "type": "String"
@@ -49,15 +53,16 @@
             "defaultValue": false,
             "type": "bool"
         }
-	},
-    "variables": {  
-	"OOFTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/OOFModule/azuredeploy.json",
+    },
+    "variables": {
+        "OOFTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/OOFModule/azuredeploy.json",
         "RelatedAlertsTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/RelatedAlerts/azuredeploy.json",
         "UEBATemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/UEBAModule/azuredeploy.json",
-	"MCASTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/MCASModule/azuredeploy.json",
-	"MDETemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/MDEModule/azuredeploy.json",
-    "WatchlistTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/WatchlistModule/azuredeploy.json",
-	"SampleTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Samples/azuredeploy.json"
+        "MCASTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/MCASModule/azuredeploy.json",
+        "MDETemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/MDEModule/azuredeploy.json",
+        "AADTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/AADRisksModule/azuredeploy.json",
+        "WatchlistTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/WatchlistModule/azuredeploy.json",
+        "SampleTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Samples/azuredeploy.json"
     },
     "resources": [
         {
@@ -72,7 +77,7 @@
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
-					"PlaybookName": { 
+                    "PlaybookName": {
                         "value": "[parameters('OOFPlaybookName')]"
                     }
                 }
@@ -90,8 +95,26 @@
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
-					"PlaybookName": { 
+                    "PlaybookName": {
                         "value": "[parameters('WatchlistPlaybookName')]"
+                    }
+                }
+            }
+        },
+        {
+            "condition": "[contains(parameters('enableModulesKind'), 'AADModule')]",
+            "apiVersion": "2019-10-01",
+            "name": "AADTemplate",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[variables('AADTemplate')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "PlaybookName": {
+                        "value": "[parameters('AADRisksPlaybookName')]"
                     }
                 }
             }
@@ -108,13 +131,13 @@
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
-		            "PlaybookName": { 
+                    "PlaybookName": {
                         "value": "[parameters('MCASPlaybookName')]"
                     },
-		            "API KEY": { 
+                    "API KEY": {
                         "value": "[parameters('MCAS API KEY')]"
                     },
-		            "MCAS API URL": { 
+                    "MCAS API URL": {
                         "value": "[parameters('MCAS API URL')]"
                     }
                 }
@@ -132,7 +155,7 @@
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
-					"PlaybookName": { 
+                    "PlaybookName": {
                         "value": "[parameters('UEBAPlaybookName')]"
                     }
                 }
@@ -150,7 +173,7 @@
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
-					"PlaybookName": { 
+                    "PlaybookName": {
                         "value": "[parameters('MDEPlaybookName')]"
                     }
                 }
@@ -168,7 +191,7 @@
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
-					"PlaybookName": {
+                    "PlaybookName": {
                         "value": "[parameters('RelatedAlertsPlaybookName')]"
                     }
                 }
@@ -181,8 +204,8 @@
             "type": "Microsoft.Resources/deployments",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', 'OOFTemplate')]",
-		"[resourceId('Microsoft.Resources/deployments', 'RelatedAlertsTemplate')]",
-		"[resourceId('Microsoft.Resources/deployments', 'UEBATemplate')]"
+                "[resourceId('Microsoft.Resources/deployments', 'RelatedAlertsTemplate')]",
+                "[resourceId('Microsoft.Resources/deployments', 'UEBATemplate')]"
             ],
             "properties": {
                 "mode": "incremental",
@@ -191,16 +214,16 @@
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
-		    "PlaybookName": { 
+                    "PlaybookName": {
                         "value": "[parameters('SamplePlaybookName')]"
                     },
-		    "OOFPlaybook_ResourceId": { 
+                    "OOFPlaybook_ResourceId": {
                         "value": "[reference('OOFTemplate').outputs.resourceID.value]"
                     },
-		    "RelatedAlertsPlaybook_ResourceId": { 
+                    "RelatedAlertsPlaybook_ResourceId": {
                         "value": "[reference('RelatedAlertsTemplate').outputs.resourceID.value]"
                     },
-		    "UEBAInsightsPlaybook_ResourceId": { 
+                    "UEBAInsightsPlaybook_ResourceId": {
                         "value": "[reference('UEBATemplate').outputs.resourceID.value]"
                     }
                 }

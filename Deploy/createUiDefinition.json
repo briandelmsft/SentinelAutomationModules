@@ -45,6 +45,10 @@
                         "constraints": {
                             "allowedValues": [
                                 {
+                                    "label": "Azure AD Risks Module",
+                                    "value": "AADModule"
+                                },
+                                {
                                     "label": "Out of Office Module",
                                     "value": "OOFModule"
                                 },
@@ -72,6 +76,16 @@
                             "required": true
                         },
                         "visible": true
+                    },
+                    {
+                        "name": "AADRisksPlaybookName",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Azure AD Risks Playbook Name",
+                        "placeholder": "",
+                        "defaultValue": "Get-AADUserRisksInfo",
+                        "toolTip": "",
+                        "constraints": {},
+                        "visible": "[if(contains(steps('automationModules').enableModulesKind,'AADModule'), true, false)]"
                     },
                     {
                         "name": "OOFPlaybookName",
@@ -180,6 +194,7 @@
             "OOFPlaybookName": "[steps('automationModules').OOFPlaybookName]",
             "RelatedAlertsPlaybookName": "[steps('automationModules').RelatedAlertsPlaybookName]",
             "UEBAPlaybookName": "[steps('automationModules').UEBAPlaybookName]",
+            "AADRisksPlaybookName": "[steps('automationModules').AADRisksPlaybookName]",
             "MDEPlaybookName": "[steps('automationModules').MDEPlaybookName]",
             "MCASPlaybookName": "[steps('automationModules').MCASPlaybookName]",
             "WatchlistPlaybookName": "[steps('automationModules').WatchlistPlaybookName]",
