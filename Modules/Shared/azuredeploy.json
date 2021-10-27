@@ -1,0 +1,403 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "PlaybookName": {
+            "defaultValue": "Enrich-Entities",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2017-07-01",
+            "name": "[parameters('PlaybookName')]",
+            "location": "[resourceGroup().location]",
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "state": "Enabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {},
+                    "triggers": {
+                        "manual": {
+                            "type": "Request",
+                            "kind": "Http",
+                            "inputs": {
+                                "schema": {
+                                    "properties": {
+                                        "Entities": {
+                                            "type": "array"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "actions": {
+                        "Compose": {
+                            "runAfter": {
+                                "For_each_account": [
+                                    "Succeeded",
+                                    "Failed"
+                                ],
+                                "For_each_host": [
+                                    "Succeeded",
+                                    "Failed"
+                                ],
+                                "For_each_ip": [
+                                    "Succeeded",
+                                    "Failed"
+                                ]
+                            },
+                            "type": "Compose",
+                            "inputs": {
+                                "Accounts": "@variables('AccountsArray')",
+                                "AccountsAllValid": "@equals(length(variables('AccountsArray')), length(body('Filter_array_-_Accounts')))",
+                                "AccountsInput": "@length(body('Filter_array_-_Accounts'))",
+                                "AccountsValid": "@length(variables('AccountsArray'))",
+                                "Hosts": "@variables('HostArray')",
+                                "HostsAllValid": "@equals(length(body('Filter_array_-_Hosts')), length(variables('HostArray')))",
+                                "HostsInput": "@length(body('Filter_array_-_Hosts'))",
+                                "HostsValid": "@length(variables('HostArray'))",
+                                "IPs": "@variables('IPArray')",
+                                "IPsAllValid": "@equals(length(body('Filter_array_-_IPs')), length(variables('IPArray')))",
+                                "IPsInput": "@length(body('Filter_array_-_IPs'))",
+                                "IPsValid": "@length(variables('IPArray'))"
+                            }
+                        },
+                        "Filter_array_-_Accounts": {
+                            "runAfter": {},
+                            "type": "Query",
+                            "inputs": {
+                                "from": "@triggerBody()?['Entities']",
+                                "where": "@equals(toLower(item()['kind']), 'account')"
+                            }
+                        },
+                        "Filter_array_-_Hosts": {
+                            "runAfter": {},
+                            "type": "Query",
+                            "inputs": {
+                                "from": "@triggerBody()?['Entities']",
+                                "where": "@equals(toLower(item()['kind']), 'host')"
+                            }
+                        },
+                        "Filter_array_-_IPs": {
+                            "runAfter": {},
+                            "type": "Query",
+                            "inputs": {
+                                "from": "@triggerBody()?['Entities']",
+                                "where": "@equals(toLower(item()['kind']), 'ip')"
+                            }
+                        },
+                        "For_each_account": {
+                            "foreach": "@body('Select_Accounts')",
+                            "actions": {
+                                "Switch": {
+                                    "runAfter": {},
+                                    "cases": {
+                                        "Case_-_AADId": {
+                                            "case": "AADId",
+                                            "actions": {
+                                                "Append_AccountsArray_-_AADId": {
+                                                    "runAfter": {
+                                                        "HTTP_-_AADId": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "AppendToArrayVariable",
+                                                    "inputs": {
+                                                        "name": "AccountsArray",
+                                                        "value": "@body('HTTP_-_AADId')['value'][0]"
+                                                    }
+                                                },
+                                                "HTTP_-_AADId": {
+                                                    "runAfter": {},
+                                                    "type": "Http",
+                                                    "inputs": {
+                                                        "authentication": {
+                                                            "audience": "https://graph.microsoft.com",
+                                                            "type": "ManagedServiceIdentity"
+                                                        },
+                                                        "method": "GET",
+                                                        "uri": "https://graph.microsoft.com/v1.0/users?$filter=(id%20eq%20'@{item()['aadUserId']}')&$select=userPrincipalName,id,onPremisesSecurityIdentifier,onPremisesDistinguishedName,onPremisesDomainName,onPremisesSamAccountName"
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "Case_-_DistinguishedName": {
+                                            "case": "DistinguishedName",
+                                            "actions": {
+                                                "Append_AccountsArray_-_DistinguishedName": {
+                                                    "runAfter": {
+                                                        "HTTP_-_DistinguishedName": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "AppendToArrayVariable",
+                                                    "inputs": {
+                                                        "name": "AccountsArray",
+                                                        "value": "@body('HTTP_-_DistinguishedName')['value'][0]"
+                                                    }
+                                                },
+                                                "HTTP_-_DistinguishedName": {
+                                                    "runAfter": {},
+                                                    "type": "Http",
+                                                    "inputs": {
+                                                        "authentication": {
+                                                            "audience": "https://graph.microsoft.com",
+                                                            "type": "ManagedServiceIdentity"
+                                                        },
+                                                        "method": "GET",
+                                                        "uri": "https://graph.microsoft.com/beta/users?$filter=(onPremisesDistinguishedName%20eq%20'@{item()['accountName']}')&$select=userPrincipalName,id,onPremisesSecurityIdentifier,onPremisesDistinguishedName,onPremisesDomainName,onPremisesSamAccountName"
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "Case_-_ObjectSid": {
+                                            "case": "ObjectSid",
+                                            "actions": {
+                                                "Append_to_AccountsArray_-_ObjectSid": {
+                                                    "runAfter": {
+                                                        "HTTP_-_ObjectSid": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "AppendToArrayVariable",
+                                                    "inputs": {
+                                                        "name": "AccountsArray",
+                                                        "value": "@body('HTTP_-_ObjectSid')['value'][0]"
+                                                    }
+                                                },
+                                                "HTTP_-_ObjectSid": {
+                                                    "runAfter": {},
+                                                    "type": "Http",
+                                                    "inputs": {
+                                                        "authentication": {
+                                                            "audience": "https://graph.microsoft.com",
+                                                            "type": "ManagedServiceIdentity"
+                                                        },
+                                                        "method": "GET",
+                                                        "uri": "https://graph.microsoft.com/v1.0/users?$filter=(onPremisesSecurityIdentifier%20eq%20'@{item()['sid']}')&$select=userPrincipalName,id,onPremisesSecurityIdentifier,onPremisesDistinguishedName,onPremisesDomainName,onPremisesSamAccountName"
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "Case_-_SamAccountName": {
+                                            "case": "SamAccountName",
+                                            "actions": {
+                                                "Append_to_AccountsArray_-_SamAccountName": {
+                                                    "runAfter": {
+                                                        "HTTP_-_SamAccountName": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "AppendToArrayVariable",
+                                                    "inputs": {
+                                                        "name": "AccountsArray",
+                                                        "value": "@body('HTTP_-_SamAccountName')['value'][0]"
+                                                    }
+                                                },
+                                                "HTTP_-_SamAccountName": {
+                                                    "runAfter": {},
+                                                    "type": "Http",
+                                                    "inputs": {
+                                                        "authentication": {
+                                                            "audience": "https://graph.microsoft.com",
+                                                            "type": "ManagedServiceIdentity"
+                                                        },
+                                                        "method": "GET",
+                                                        "uri": "https://graph.microsoft.com/beta/users?$filter=onPremisesSamAccountName%20in%20('@{item()['accountName']}')&$select=userPrincipalName,id,onPremisesSecurityIdentifier,onPremisesDistinguishedName,onPremisesDomainName,onPremisesSamAccountName"
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "Case_-_UPN": {
+                                            "case": "UPN",
+                                            "actions": {
+                                                "Append_to_AccountsArray_-_UPN": {
+                                                    "runAfter": {
+                                                        "HTTP_-_UPN": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "AppendToArrayVariable",
+                                                    "inputs": {
+                                                        "name": "AccountsArray",
+                                                        "value": "@body('HTTP_-_UPN')['value'][0]"
+                                                    }
+                                                },
+                                                "HTTP_-_UPN": {
+                                                    "runAfter": {},
+                                                    "type": "Http",
+                                                    "inputs": {
+                                                        "authentication": {
+                                                            "audience": "https://graph.microsoft.com",
+                                                            "type": "ManagedServiceIdentity"
+                                                        },
+                                                        "method": "GET",
+                                                        "uri": "https://graph.microsoft.com/v1.0/users?$filter=(userPrincipalName%20eq%20'@{concat(item()['accountName'], '@', item()['upnSuffix'])}')&$select=userPrincipalName,id,onPremisesSecurityIdentifier,onPremisesDistinguishedName,onPremisesDomainName,onPremisesSamAccountName"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "default": {
+                                        "actions": {}
+                                    },
+                                    "expression": "@item()['accountType']",
+                                    "type": "Switch"
+                                }
+                            },
+                            "runAfter": {
+                                "Initialize_AccountsArray": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Foreach"
+                        },
+                        "For_each_host": {
+                            "foreach": "@body('Filter_array_-_Hosts')",
+                            "actions": {
+                                "Append_to_array_variable": {
+                                    "runAfter": {},
+                                    "type": "AppendToArrayVariable",
+                                    "inputs": {
+                                        "name": "HostArray",
+                                        "value": {
+                                            "DnsDomain": "@{item()['properties']['dnsDomain']}",
+                                            "FQDN": "@{concat(item()['properties']['hostName'], '.', item()['properties']['dnsDomain'])}",
+                                            "Hostname": "@{item()['properties']['hostName']}"
+                                        }
+                                    }
+                                }
+                            },
+                            "runAfter": {
+                                "Initialize_HostArray": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Foreach"
+                        },
+                        "For_each_ip": {
+                            "foreach": "@body('Filter_array_-_IPs')",
+                            "actions": {
+                                "Append_to_IPArray": {
+                                    "runAfter": {},
+                                    "type": "AppendToArrayVariable",
+                                    "inputs": {
+                                        "name": "IPArray",
+                                        "value": {
+                                            "Address": "@{items('For_each_ip')['properties']['address']}"
+                                        }
+                                    }
+                                }
+                            },
+                            "runAfter": {
+                                "Initialize_IPArray": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Foreach"
+                        },
+                        "Initialize_AccountsArray": {
+                            "runAfter": {
+                                "Select_Accounts": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "AccountsArray",
+                                        "type": "array",
+                                        "value": []
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_HostArray": {
+                            "runAfter": {
+                                "Filter_array_-_Hosts": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "HostArray",
+                                        "type": "array",
+                                        "value": []
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_IPArray": {
+                            "runAfter": {
+                                "Filter_array_-_IPs": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "IPArray",
+                                        "type": "array",
+                                        "value": []
+                                    }
+                                ]
+                            }
+                        },
+                        "Response": {
+                            "runAfter": {
+                                "Compose": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Response",
+                            "kind": "Http",
+                            "inputs": {
+                                "body": "@outputs('Compose')",
+                                "statusCode": 200
+                            }
+                        },
+                        "Select_Accounts": {
+                            "runAfter": {
+                                "Filter_array_-_Accounts": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Select",
+                            "inputs": {
+                                "from": "@body('Filter_array_-_Accounts')",
+                                "select": {
+                                    "aadUserId": "@item()['properties']?['aadUserId']",
+                                    "accountName": "@item()['properties']?['accountName']",
+                                    "accountType": "@if(not(empty(item()['properties']?['upnSuffix'])), 'UPN', if(not(empty(item()['properties']?['aadUserId'])), 'AADId', if(not(empty(item()['properties']?['sid'])), 'ObjectSid', if(not(empty(item()['properties']?['ntDomain'])), 'SamAccountName', if(contains(item()['properties']?['accountName'], ',DC='), 'DistinguishedName', 'Unknown')))))",
+                                    "sid": "@item()['properties']?['sid']",
+                                    "upnSuffix": "@item()['properties']?['upnSuffix']"
+                                }
+                            }
+                        }
+                    },
+                    "outputs": {}
+                },
+                "parameters": {}
+            }
+        }
+    ],
+    "outputs": {
+        "resourceID": {
+            "type": "string",
+            "value": "[resourceId('Microsoft.Logic/workflows', parameters('PlaybookName'))]"
+        }
+    }
+}
