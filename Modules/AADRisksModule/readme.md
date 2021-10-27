@@ -11,7 +11,7 @@ This module will retrieve the level of risk of the user in Azure AD Identity Pro
 
 ## Trigger Parameters
 
-Trigger name: **triage**.
+Trigger name: **triage**
 
 |Parameter|Expected Values|Description|
 |---|---|---|
