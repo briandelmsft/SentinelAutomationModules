@@ -35,8 +35,8 @@ Trigger name: **triage**
 |FailedMFATotalCount|Returns the total MFA fraud reports in the AuditLogs table for all entities (returns 0 if no Account entities were found)|
 |RiskyIPTotalCount|Returns the total of IP addresses in the SigninLogs also found in your Threat Intelligence table for all entities (returns 0 if no Account entities were found)|
 |DetailedResults|An array containing the details for each entity|
-|UserPrincipalName|An array containing the details for each entity|
-|UserId|An array containing the details for each entity|
+|UserPrincipalName|The UserPrincipalName for the current entity|
+|UserId|The Azure AD object Id for the current entity|
 |UserRiskLevel|The entity risk level found in Azure AD Identity Protection|
 |FailedMFACount|Total of failed MFA request in the SigninLogs table for the current entity|
 |MFAFraudCount|Total of MFA fraud reports in the AuditLogs table for the current entity|
