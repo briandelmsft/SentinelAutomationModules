@@ -40,10 +40,14 @@
                         "label": "Select Automation Modules to onboard",
                         "placeholder": "",
                         "multiselect": true,
-                        "defaultValue": "MDE Module, UEBA Module",
+                        "defaultValue": "",
                         "toolTip": "Select the Automation modules you would like to deploy.",
                         "constraints": {
                             "allowedValues": [
+                                {
+                                    "label": "Azure AD Risks Module",
+                                    "value": "AADModule"
+                                },
                                 {
                                     "label": "Out of Office Module",
                                     "value": "OOFModule"
@@ -63,11 +67,25 @@
                                 {
                                     "label": "MCAS Module",
                                     "value": "MCASModule"
+                                },
+                                {
+                                    "label": "Watchlist Module",
+                                    "value": "WatchlistModule"
                                 }
                             ],
                             "required": true
                         },
                         "visible": true
+                    },
+                    {
+                        "name": "AADRisksPlaybookName",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Azure AD Risks Playbook Name",
+                        "placeholder": "",
+                        "defaultValue": "Get-AADUserRisksInfo",
+                        "toolTip": "",
+                        "constraints": {},
+                        "visible": "[if(contains(steps('automationModules').enableModulesKind,'AADModule'), true, false)]"
                     },
                     {
                         "name": "OOFPlaybookName",
@@ -108,6 +126,16 @@
                         "toolTip": "",
                         "constraints": {},
                         "visible": "[if(contains(steps('automationModules').enableModulesKind,'MDEModule'), true, false)]"
+                    },
+                    {
+                        "name": "WatchlistPlaybookName",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Watchlist Playbook Name",
+                        "placeholder": "",
+                        "defaultValue": "Get-WatchlistInsights",
+                        "toolTip": "",
+                        "constraints": {},
+                        "visible": "[if(contains(steps('automationModules').enableModulesKind,'WatchlistModule'), true, false)]"
                     },
                     {
                         "name": "MCASPlaybookName",
@@ -166,8 +194,10 @@
             "OOFPlaybookName": "[steps('automationModules').OOFPlaybookName]",
             "RelatedAlertsPlaybookName": "[steps('automationModules').RelatedAlertsPlaybookName]",
             "UEBAPlaybookName": "[steps('automationModules').UEBAPlaybookName]",
+            "AADRisksPlaybookName": "[steps('automationModules').AADRisksPlaybookName]",
             "MDEPlaybookName": "[steps('automationModules').MDEPlaybookName]",
             "MCASPlaybookName": "[steps('automationModules').MCASPlaybookName]",
+            "WatchlistPlaybookName": "[steps('automationModules').WatchlistPlaybookName]",
             "MCAS API KEY": "[steps('automationModules').MCASAPIKEY]",
             "MCAS API URL": "[steps('automationModules').MCASAPIURL]",
             "DeploySamplePlaybook": "[steps('automationModules').DeploySamplePlaybook]",
