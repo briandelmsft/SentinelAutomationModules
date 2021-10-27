@@ -193,14 +193,26 @@
                                             "actions": {
                                                 "Append_to_AccountsArray_-_SamAccountName": {
                                                     "runAfter": {
-                                                        "HTTP_-_SamAccountName": [
+                                                        "Filter_array": [
                                                             "Succeeded"
                                                         ]
                                                     },
                                                     "type": "AppendToArrayVariable",
                                                     "inputs": {
                                                         "name": "AccountsArray",
-                                                        "value": "@body('HTTP_-_SamAccountName')['value'][0]"
+                                                        "value": "@body('Filter_array')[0]"
+                                                    }
+                                                },
+                                                "Filter_array": {
+                                                    "runAfter": {
+                                                        "HTTP_-_SamAccountName": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "Query",
+                                                    "inputs": {
+                                                        "from": "@body('HTTP_-_SamAccountName')['value']",
+                                                        "where": "@and(equals(item()['onPremisesSamAccountName'], items('For_each_account')['accountName']),equals(toUpper(split(item()['onPremisesDomainName'], '.')[0]), items('For_each_account')['ntDomain']))"
                                                     }
                                                 },
                                                 "HTTP_-_SamAccountName": {
@@ -212,7 +224,7 @@
                                                             "type": "ManagedServiceIdentity"
                                                         },
                                                         "method": "GET",
-                                                        "uri": "https://graph.microsoft.com/beta/users?$filter=onPremisesSamAccountName%20in%20('@{item()['accountName']}')&$select=userPrincipalName,id,onPremisesSecurityIdentifier,onPremisesDistinguishedName,onPremisesDomainName,onPremisesSamAccountName"
+                                                        "uri": "https://graph.microsoft.com/beta/users?$filter=mailNickname%20eq%20'@{items('For_each_account')['accountName']}'%20or%20startswith(onPremisesUserPrincipalName,'@{item()['accountName']}')&$select=userPrincipalName,id,onPremisesSecurityIdentifier,onPremisesDistinguishedName,onPremisesDomainName,onPremisesSamAccountName"
                                                     }
                                                 }
                                             }
@@ -382,6 +394,7 @@
                                     "aadUserId": "@item()['properties']?['aadUserId']",
                                     "accountName": "@item()['properties']?['accountName']",
                                     "accountType": "@if(not(empty(item()['properties']?['upnSuffix'])), 'UPN', if(not(empty(item()['properties']?['aadUserId'])), 'AADId', if(not(empty(item()['properties']?['sid'])), 'ObjectSid', if(not(empty(item()['properties']?['ntDomain'])), 'SamAccountName', if(contains(item()['properties']?['accountName'], ',DC='), 'DistinguishedName', 'Unknown')))))",
+                                    "ntDomain": "@item()['properties']?['ntDomain']",
                                     "sid": "@item()['properties']?['sid']",
                                     "upnSuffix": "@item()['properties']?['upnSuffix']"
                                 }
