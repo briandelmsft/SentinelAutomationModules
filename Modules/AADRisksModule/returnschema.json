@@ -1,43 +1,59 @@
-﻿{
+{
     "type": "object",
     "properties": {
+        "AnalyzedEntities": {
+            "type": "integer",
+            "description": "Number of entities analyzed"
+        },
         "HighestRiskyUser": {
-            "type": "string"
+            "type": "string",
+            "description": "Highest risk level found for all the entities"
         },
         "RiskyIPTotalCount": {
-            "type": "integer"
+            "type": "integer",
+            "description": "Total of signins from IPs found in TI for all entities"
         },
         "FailedMFATotalCount": {
-            "type": "integer"
+            "type": "integer",
+            "description": "Total of failed MFA found in TI for all entities"
         },
         "MFAFraudTotalCount": {
-            "type": "integer"
+            "type": "integer",
+            "description": "Total of MFA fraud reported for all entities"
         },
-        "PerUser": {
+        "DetailedResults": {
             "type": "array",
+            "description": "An array of details per user",
             "items": {
                 "type": "object",
                 "properties": {
                     "UserPrincipalName": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "UserPrincipalName"
                     },
                     "UserID": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Azure AD object Id"
                     },
                     "UserRiskLevel": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "User's risk level in Identity Protection"
                     },
                     "RiskyIPCount": {
-                        "type": "integer"
+                        "type": "integer",
+                        "description": "Total of signins from IPs found in TI for the current entity"
                     },
                     "RiskyIPList": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "The list of IPs found in TI for the current entity"
                     },
                     "FailedMFACount": {
-                        "type": "integer"
+                        "type": "integer",
+                        "description": "Total of failed MFA found in TI for the current entity"
                     },
                     "MFAFraudCount": {
-                        "type": "integer"
+                        "type": "integer",
+                        "description": "Total of MFA fraud reported for the current entity"
                     }
                 }
             }
