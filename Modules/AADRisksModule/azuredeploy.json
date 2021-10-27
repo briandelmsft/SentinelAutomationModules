@@ -1,0 +1,916 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "PlaybookName": {
+            "defaultValue": "Get-AADUserRisksInfo",
+            "type": "String"
+        }
+    },
+    "variables": {
+        "AzureSentinelConnectionName":"[concat('azuresentinel-', parameters('PlaybookName'))]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[variables('AzureSentinelConnectionName')]",
+            "location": "[resourceGroup().location]",
+            "kind": "V1",
+            "properties": {
+                "displayName": "[variables('AzureSentinelConnectionName')]",
+                "customParameterValues": {},
+                "parameterValueType": "Alternative",
+                "api": {
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azuresentinel')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2017-07-01",
+            "name": "[parameters('PlaybookName')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/connections', variables('AzureSentinelConnectionName'))]"
+            ],
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "state": "Enabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {},
+                            "type": "Object"
+                        }
+                    },
+                    "triggers": {
+                        "triage": {
+                            "type": "Request",
+                            "kind": "Http",
+                            "inputs": {
+                                "schema": {
+                                    "properties": {
+                                        "AddIncidentComments": {
+                                            "title": "Add comments to the incident",
+                                            "type": "boolean"
+                                        },
+                                        "Entities": {
+                                            "description": "Click here and select the Entities object from the Dynamic content menu",
+                                            "type": "array"
+                                        },
+                                        "IncidentARMId": {
+                                            "description": "Click here and select the Incident ARM ID object from the Dynamic content menu",
+                                            "title": "Incident ARM ID",
+                                            "type": "string"
+                                        },
+                                        "LookbackInDays": {
+                                            "description": "Enter a value between 1 and 90",
+                                            "maximum": 90,
+                                            "minimum": 1,
+                                            "title": "Lookback period in days",
+                                            "type": "integer"
+                                        },
+                                        "MFAFailureLookup": {
+                                            "title": "Look for failed MFA attempts",
+                                            "type": "boolean"
+                                        },
+                                        "MFAFraudLookup": {
+                                            "title": "Look for MFA Fraud reports",
+                                            "type": "boolean"
+                                        },
+                                        "TIIPLookup": {
+                                            "title": "Look for Azure AD Sign-in from IPs in TI",
+                                            "type": "boolean"
+                                        },
+                                        "WorkspaceId": {
+                                            "description": "Click here and select the Workspace ID object from the Dynamic content menu",
+                                            "title": "Worskpace ID",
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            },
+                            "operationOptions": "EnableSchemaValidation"
+                        }
+                    },
+                    "actions": {
+                        "Compose_HighestRiskyUser": {
+                            "runAfter": {
+                                "Condition_-_Add_comment_to_the_incident": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Compose",
+                            "inputs": "@if(contains(variables('HighestRiskyUserTemp'),'high'),'high',if(contains(variables('HighestRiskyUserTemp'),'medium'),'medium',if(contains(variables('HighestRiskyUserTemp'),'low'),'low',if(contains(variables('HighestRiskyUserTemp'),'hidden'),'hidden',if(contains(variables('HighestRiskyUserTemp'),'none'),'none','unknown')))))"
+                        },
+                        "Compose_response": {
+                            "runAfter": {
+                                "Compose_HighestRiskyUser": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Compose",
+                            "inputs": {
+                                "AnalyzedEntities": "@variables('EntitiesAnalyzedCount')",
+                                "DetailedResults": "@variables('PerUserTemp')",
+                                "FailedMFATotalCount": "@variables('FailedMFATotalCount')",
+                                "HighestRiskyUser": "@{outputs('Compose_HighestRiskyUser')}",
+                                "MFAFraudTotalCount": "@variables('MFAFraudTotalCount')",
+                                "RiskyIPTotalCount": "@variables('RiskyIPTotalCount')"
+                            }
+                        },
+                        "Condition_-_Add_comment_to_the_incident": {
+                            "actions": {
+                                "Add_comment_to_incident": {
+                                    "runAfter": {
+                                        "Create_HTML_table": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "ApiConnection",
+                                    "inputs": {
+                                        "body": {
+                                            "incidentArmId": "@triggerBody()?['IncidentARMId']",
+                                            "message": "<p>@{outputs('Compose_comment_header')}@{body('Create_HTML_table')}</p>"
+                                        },
+                                        "host": {
+                                            "connection": {
+                                                "name": "@parameters('$connections')['azuresentinel']['connectionId']"
+                                            }
+                                        },
+                                        "method": "post",
+                                        "path": "/Incidents/Comment"
+                                    }
+                                },
+                                "Compose_comment_header": {
+                                    "runAfter": {},
+                                    "type": "Compose",
+                                    "inputs": "<ul>\n<li>Loopback Period for SignIns and Audit: @{triggerBody()?['LookbackInDays']}d</li>\n<li>Highest user's risk level: @{if(contains(variables('HighestRiskyUserTemp'),'high'),'high',if(contains(variables('HighestRiskyUserTemp'),'medium'),'medium',if(contains(variables('HighestRiskyUserTemp'),'low'),'low',if(contains(variables('HighestRiskyUserTemp'),'hidden'),'hidden',if(contains(variables('HighestRiskyUserTemp'),'none'),'none','unknown')))))}</li>\n<li>Total risky IP in Threat Intelligence: @{variables('RiskyIPTotalCount')}</li>\n<li>Total MFA Fraud reports: @{variables('MFAFraudTotalCount')}</li>\n<li>Total Failed MFA count: @{variables('FailedMFATotalCount')}</li>\n</ul>\nPer user details:\n"
+                                },
+                                "Create_HTML_table": {
+                                    "runAfter": {
+                                        "Compose_comment_header": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Table",
+                                    "inputs": {
+                                        "format": "HTML",
+                                        "from": "@variables('PerUserTemp')"
+                                    }
+                                }
+                            },
+                            "runAfter": {
+                                "For_each_Account": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "expression": {
+                                "and": [
+                                    {
+                                        "equals": [
+                                            "@triggerBody()?['AddIncidentComments']",
+                                            "@true"
+                                        ]
+                                    }
+                                ]
+                            },
+                            "type": "If"
+                        },
+                        "Condition_-_Check_for_Account_Entities": {
+                            "actions": {
+                                "Response_-_No_Account_Entities": {
+                                    "runAfter": {},
+                                    "type": "Response",
+                                    "kind": "Http",
+                                    "inputs": {
+                                        "body": {
+                                            "AnalyzedEntities": 0,
+                                            "DetailedResults": [],
+                                            "FailedMFATotalCount": 0,
+                                            "HighestRiskyUser": "unknown",
+                                            "MFAFraudTotalCount": 0,
+                                            "RiskyIPTotalCount": 0
+                                        },
+                                        "schema": {
+                                            "properties": {
+                                                "AnalyzedEntities": {
+                                                    "description": "Number of entities analyzed",
+                                                    "type": "integer"
+                                                },
+                                                "DetailedResults": {
+                                                    "description": "An array of details per user",
+                                                    "items": {
+                                                        "properties": {
+                                                            "FailedMFACount": {
+                                                                "description": "Total of failed MFA found in TI for the current entity",
+                                                                "type": "integer"
+                                                            },
+                                                            "MFAFraudCount": {
+                                                                "description": "Total of MFA fraud reported for the current entity",
+                                                                "type": "integer"
+                                                            },
+                                                            "RiskyIPCount": {
+                                                                "description": "Total of signins from IPs found in TI for the current entity",
+                                                                "type": "integer"
+                                                            },
+                                                            "RiskyIPList": {
+                                                                "description": "The list of IPs found in TI for the current entity",
+                                                                "type": "string"
+                                                            },
+                                                            "UserID": {
+                                                                "description": "Azure AD object id for the current entity",
+                                                                "type": "string"
+                                                            },
+                                                            "UserPrincipalName": {
+                                                                "description": "UserPrincipalName for the current entity",
+                                                                "type": "string"
+                                                            },
+                                                            "UserRiskLevel": {
+                                                                "description": "User's risk level in Identity Protection",
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "type": "array"
+                                                },
+                                                "FailedMFATotalCount": {
+                                                    "description": "Total of failed MFA found in TI for all entities",
+                                                    "type": "integer"
+                                                },
+                                                "HighestRiskyUser": {
+                                                    "description": "Highest risk level found for all the entities",
+                                                    "type": "string"
+                                                },
+                                                "MFAFraudTotalCount": {
+                                                    "description": "Total of MFA fraud reported for all entities",
+                                                    "type": "integer"
+                                                },
+                                                "RiskyIPTotalCount": {
+                                                    "description": "Total of signins from IPs found in TI for all entities",
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "statusCode": 200
+                                    }
+                                },
+                                "Terminate": {
+                                    "runAfter": {
+                                        "Response_-_No_Account_Entities": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Terminate",
+                                    "inputs": {
+                                        "runStatus": "Succeeded"
+                                    }
+                                }
+                            },
+                            "runAfter": {
+                                "Filter_array_-_Entities": [
+                                    "Succeeded",
+                                    "Failed"
+                                ]
+                            },
+                            "expression": {
+                                "and": [
+                                    {
+                                        "equals": [
+                                            "@length(coalesce(body('Filter_array_-_Entities'),''))",
+                                            0
+                                        ]
+                                    }
+                                ]
+                            },
+                            "type": "If"
+                        },
+                        "Filter_array_-_Entities": {
+                            "runAfter": {
+                                "Initialize_variable_EntitiesAnalyzedCount": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Query",
+                            "inputs": {
+                                "from": "@triggerBody()?['Entities']",
+                                "where": "@equals(item()['kind'], 'Account')"
+                            }
+                        },
+                        "For_each_Account": {
+                            "foreach": "@body('Filter_array_-_Entities')",
+                            "actions": {
+                                "Append_to_array_PerUserTemp": {
+                                    "runAfter": {
+                                        "Compose_PerUser_entry": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "AppendToArrayVariable",
+                                    "inputs": {
+                                        "name": "PerUserTemp",
+                                        "value": "@outputs('Compose_PerUser_entry')"
+                                    }
+                                },
+                                "Compose_PerUser_entry": {
+                                    "runAfter": {
+                                        "Compose_UserId": [
+                                            "Succeeded"
+                                        ],
+                                        "Condition_-_Check_count_for_TI_": [
+                                            "Succeeded"
+                                        ],
+                                        "Condition_-_Check_count_for_failed_MFA": [
+                                            "Succeeded"
+                                        ],
+                                        "Condition_-_check_count_for_MFA_fraud": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Compose",
+                                    "inputs": {
+                                        "FailedMFACount": "@coalesce(body('Select_failed_MFA_results')?[0]['Count'],0)",
+                                        "MFAFraudCount": "@coalesce(body('Select_MFA_fraud_results')?[0]['Count'],0)",
+                                        "RiskyIPCount": "@coalesce(body('Select_TI_results')?[0]['Count'],0)",
+                                        "RiskyIPList": "@{coalesce(body('Select_TI_results')?[0]['IPs'],'')}",
+                                        "UserId": "@{outputs('Compose_UserId')}",
+                                        "UserPrincipalName": "@{outputs('Compose_the_UPN')}",
+                                        "UserRiskLevel": "@coalesce(body('HTTP_-_Lookup_User_Risk')?['riskLevel'],'unknown')"
+                                    }
+                                },
+                                "Compose_UserId": {
+                                    "runAfter": {
+                                        "Condition_-_Check_if_we_found_the_ID": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Compose",
+                                    "inputs": "@coalesce(body('HTTP_-_Lookup_User_Risk')?['id'],items('For_each_Account')['properties']?['aadUserid'],'unknown')"
+                                },
+                                "Compose_the_UPN": {
+                                    "runAfter": {
+                                        "Increment_variable_EntitiesAnalyzedCount": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Compose",
+                                    "inputs": "@concat(item()['properties']['accountName'],'@',item()['properties']['upnSuffix'])"
+                                },
+                                "Condition_-_Check_count_for_TI_": {
+                                    "actions": {
+                                        "Increment_variable_RiskyIPTotalCount": {
+                                            "runAfter": {
+                                                "Select_TI_results": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "IncrementVariable",
+                                            "inputs": {
+                                                "name": "RiskyIPTotalCount",
+                                                "value": "@body('Select_TI_results')[0]['Count']"
+                                            }
+                                        },
+                                        "Select_TI_results": {
+                                            "runAfter": {},
+                                            "type": "Select",
+                                            "inputs": {
+                                                "from": "@body('HTTP_-_Lookup_TI_for_the_Users_IPs')['tables'][0]['rows']",
+                                                "select": {
+                                                    "@{body('HTTP_-_Lookup_TI_for_the_Users_IPs')['tables'][0]['columns'][0]['name']}": "@item()[0]",
+                                                    "@{body('HTTP_-_Lookup_TI_for_the_Users_IPs')['tables'][0]['columns'][1]['name']}": "@item()[1]",
+                                                    "@{body('HTTP_-_Lookup_TI_for_the_Users_IPs')['tables'][0]['columns'][2]['name']}": "@item()[2]"
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "runAfter": {
+                                        "Condition_-_TI_lookup": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "expression": {
+                                        "and": [
+                                            {
+                                                "greater": [
+                                                    "@length(coalesce(body('HTTP_-_Lookup_TI_for_the_Users_IPs')?['tables'][0]['rows'],''))",
+                                                    0
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    "type": "If"
+                                },
+                                "Condition_-_Check_count_for_failed_MFA": {
+                                    "actions": {
+                                        "Increment_variable_FailedMFACount": {
+                                            "runAfter": {
+                                                "Select_failed_MFA_results": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "IncrementVariable",
+                                            "inputs": {
+                                                "name": "FailedMFATotalCount",
+                                                "value": "@body('Select_failed_MFA_results')[0]['Count']"
+                                            }
+                                        },
+                                        "Select_failed_MFA_results": {
+                                            "runAfter": {},
+                                            "type": "Select",
+                                            "inputs": {
+                                                "from": "@body('HTTP_-_Lookup_for_failed_MFA')['tables'][0]['rows']",
+                                                "select": {
+                                                    "@{body('HTTP_-_Lookup_for_failed_MFA')['tables'][0]['columns'][0]['name']}": "@item()[0]",
+                                                    "@{body('HTTP_-_Lookup_for_failed_MFA')['tables'][0]['columns'][1]['name']}": "@item()[1]"
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "runAfter": {
+                                        "Condition_-_Failed_MFA_lookup": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "expression": {
+                                        "and": [
+                                            {
+                                                "greater": [
+                                                    "@length(coalesce(body('HTTP_-_Lookup_for_failed_MFA')?['tables'][0]['rows'],''))",
+                                                    0
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    "type": "If"
+                                },
+                                "Condition_-_Check_if_we_found_the_ID": {
+                                    "actions": {
+                                        "Append_to_array_HighestRiskyUserTemp": {
+                                            "runAfter": {
+                                                "HTTP_-_Lookup_User_Risk": [
+                                                    "Succeeded",
+                                                    "Failed"
+                                                ]
+                                            },
+                                            "type": "AppendToArrayVariable",
+                                            "inputs": {
+                                                "name": "HighestRiskyUserTemp",
+                                                "value": "@coalesce(body('HTTP_-_Lookup_User_Risk')?['riskLevel'],'unknown')"
+                                            }
+                                        },
+                                        "HTTP_-_Lookup_User_Risk": {
+                                            "runAfter": {},
+                                            "type": "Http",
+                                            "inputs": {
+                                                "authentication": {
+                                                    "audience": "https://graph.microsoft.com/",
+                                                    "type": "ManagedServiceIdentity"
+                                                },
+                                                "method": "GET",
+                                                "uri": "https://graph.microsoft.com/v1.0/identityProtection/riskyUsers/@{body('HTTP_-_Lookup_User_ID')['id']}"
+                                            }
+                                        }
+                                    },
+                                    "runAfter": {
+                                        "HTTP_-_Lookup_User_ID": [
+                                            "Succeeded",
+                                            "Failed"
+                                        ]
+                                    },
+                                    "expression": {
+                                        "and": [
+                                            {
+                                                "equals": [
+                                                    "@contains(body('HTTP_-_Lookup_User_ID'),'id')",
+                                                    "@true"
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    "type": "If"
+                                },
+                                "Condition_-_Failed_MFA_lookup": {
+                                    "actions": {
+                                        "Compose_-_KQL_for_Failed_MFA": {
+                                            "runAfter": {},
+                                            "type": "Compose",
+                                            "inputs": "SigninLogs\n| where ResultType == \"500121\"\n| where UserPrincipalName =~ \"@{outputs('Compose_the_UPN')}\"\n| summarize Count=count() by UserPrincipalName"
+                                        },
+                                        "HTTP_-_Lookup_for_failed_MFA": {
+                                            "runAfter": {
+                                                "Compose_-_KQL_for_Failed_MFA": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "Http",
+                                            "inputs": {
+                                                "authentication": {
+                                                    "audience": "https://api.loganalytics.io/",
+                                                    "type": "ManagedServiceIdentity"
+                                                },
+                                                "body": {
+                                                    "query": "@{outputs('Compose_-_KQL_for_Failed_MFA')}",
+                                                    "timespan": "P@{triggerBody()?['LookbackInDays']}D"
+                                                },
+                                                "method": "POST",
+                                                "uri": "https://api.loganalytics.io/v1/workspaces/@{triggerBody()?['WorkspaceId']}/query"
+                                            }
+                                        }
+                                    },
+                                    "runAfter": {
+                                        "Compose_the_UPN": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "expression": {
+                                        "and": [
+                                            {
+                                                "equals": [
+                                                    "@triggerBody()?['MFAFailureLookup']",
+                                                    "@true"
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    "type": "If"
+                                },
+                                "Condition_-_MFA_Fraud": {
+                                    "actions": {
+                                        "Compose_-_KQL_for_MFA_fraud": {
+                                            "runAfter": {},
+                                            "type": "Compose",
+                                            "inputs": "AuditLogs \n| where OperationName == \"Fraud reported - user is blocked for MFA\"\n| where ResultDescription == \"Successfully reported fraud\"\n| extend UserPrincipalName = tostring(parse_json(tostring(InitiatedBy.user)).userPrincipalName)\n| where UserPrincipalName =~ \"@{outputs('Compose_the_UPN')}\"\n| summarize Count=count() by UserPrincipalName"
+                                        },
+                                        "HTTP_-_Lookup_for_MFA_fraud": {
+                                            "runAfter": {
+                                                "Compose_-_KQL_for_MFA_fraud": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "Http",
+                                            "inputs": {
+                                                "authentication": {
+                                                    "audience": "https://api.loganalytics.io",
+                                                    "type": "ManagedServiceIdentity"
+                                                },
+                                                "body": {
+                                                    "query": "@{outputs('Compose_-_KQL_for_MFA_fraud')}",
+                                                    "timespan": "P@{triggerBody()?['LookbackInDays']}D"
+                                                },
+                                                "method": "POST",
+                                                "uri": "https://api.loganalytics.io/v1/workspaces/@{triggerBody()?['WorkspaceId']}/query"
+                                            }
+                                        }
+                                    },
+                                    "runAfter": {
+                                        "Compose_the_UPN": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "expression": {
+                                        "and": [
+                                            {
+                                                "equals": [
+                                                    "@triggerBody()?['MFAFraudLookup']",
+                                                    "@true"
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    "type": "If"
+                                },
+                                "Condition_-_TI_lookup": {
+                                    "actions": {
+                                        "Compose_-_KQL_filter_for_TI": {
+                                            "runAfter": {},
+                                            "type": "Compose",
+                                            "inputs": "SigninLogs\n| where UserPrincipalName =~ \"@{outputs('Compose_the_UPN')}\"\n| distinct UserPrincipalName, IPAddress\n| join kind=leftouter (\nThreatIntelligenceIndicator\n| where TimeGenerated > ago( 14d )\n| where Active == true\n| summarize arg_max(TimeGenerated, *) by IndicatorId\n| extend IPAddress = coalesce(NetworkIP, NetworkSourceIP, NetworkDestinationIP)\n) on IPAddress\n| summarize Count = count(), IPList = make_set(IPAddress) by UserPrincipalName\n| extend IPs = strcat_array(IPList, \", \")\n| project UserPrincipalName, Count, IPs"
+                                        },
+                                        "HTTP_-_Lookup_TI_for_the_Users_IPs": {
+                                            "runAfter": {
+                                                "Compose_-_KQL_filter_for_TI": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "Http",
+                                            "inputs": {
+                                                "authentication": {
+                                                    "audience": "https://api.loganalytics.io/",
+                                                    "type": "ManagedServiceIdentity"
+                                                },
+                                                "body": {
+                                                    "query": "@{outputs('Compose_-_KQL_filter_for_TI')}",
+                                                    "timespan": "P@{triggerBody()?['LookbackInDays']}D"
+                                                },
+                                                "method": "POST",
+                                                "uri": "https://api.loganalytics.io/v1/workspaces/@{triggerBody()?['WorkspaceId']}/query"
+                                            }
+                                        }
+                                    },
+                                    "runAfter": {
+                                        "Compose_the_UPN": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "expression": {
+                                        "and": [
+                                            {
+                                                "equals": [
+                                                    "@triggerBody()?['TIIPLookup']",
+                                                    "@true"
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    "type": "If"
+                                },
+                                "Condition_-_check_count_for_MFA_fraud": {
+                                    "actions": {
+                                        "Increment_variable_MFAFraudTotalCount": {
+                                            "runAfter": {
+                                                "Select_MFA_fraud_results": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "IncrementVariable",
+                                            "inputs": {
+                                                "name": "MFAFraudTotalCount",
+                                                "value": "@body('Select_MFA_fraud_results')[0]['Count']"
+                                            }
+                                        },
+                                        "Select_MFA_fraud_results": {
+                                            "runAfter": {},
+                                            "type": "Select",
+                                            "inputs": {
+                                                "from": "@body('HTTP_-_Lookup_for_MFA_fraud')['tables'][0]['rows']",
+                                                "select": {
+                                                    "@{body('HTTP_-_Lookup_for_MFA_fraud')['tables'][0]['columns'][0]['name']}": "@item()[0]",
+                                                    "@{body('HTTP_-_Lookup_for_MFA_fraud')['tables'][0]['columns'][1]['name']}": "@item()[1]"
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "runAfter": {
+                                        "Condition_-_MFA_Fraud": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "expression": {
+                                        "and": [
+                                            {
+                                                "greater": [
+                                                    "@length(coalesce(body('HTTP_-_Lookup_for_MFA_fraud')?['tables'][0]['rows'],''))",
+                                                    0
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    "type": "If"
+                                },
+                                "HTTP_-_Lookup_User_ID": {
+                                    "runAfter": {
+                                        "Compose_the_UPN": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Http",
+                                    "inputs": {
+                                        "authentication": {
+                                            "audience": "https://graph.microsoft.com/",
+                                            "type": "ManagedServiceIdentity"
+                                        },
+                                        "method": "GET",
+                                        "uri": "https://graph.microsoft.com/v1.0/users/@{outputs('Compose_the_UPN')}"
+                                    }
+                                },
+                                "Increment_variable_EntitiesAnalyzedCount": {
+                                    "runAfter": {},
+                                    "type": "IncrementVariable",
+                                    "inputs": {
+                                        "name": "EntitiesAnalyzedCount",
+                                        "value": 1
+                                    }
+                                }
+                            },
+                            "runAfter": {
+                                "Condition_-_Check_for_Account_Entities": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Foreach",
+                            "runtimeConfiguration": {
+                                "concurrency": {
+                                    "repetitions": 1
+                                }
+                            }
+                        },
+                        "Initialize_variable_EntitiesAnalyzedCount": {
+                            "runAfter": {
+                                "Initialize_variable_PerUserTemp": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "EntitiesAnalyzedCount",
+                                        "type": "integer",
+                                        "value": 0
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_variable_FailedMFATotalCount": {
+                            "runAfter": {},
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "FailedMFATotalCount",
+                                        "type": "integer",
+                                        "value": 0
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_variable_HighestRiskyUserTemp": {
+                            "runAfter": {
+                                "Initialize_variable_RiskyIPTotalCount": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "HighestRiskyUserTemp",
+                                        "type": "array",
+                                        "value": []
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_variable_MFAFraudTotalCount": {
+                            "runAfter": {
+                                "Initialize_variable_FailedMFATotalCount": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "MFAFraudTotalCount",
+                                        "type": "integer",
+                                        "value": 0
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_variable_PerUserTemp": {
+                            "runAfter": {
+                                "Initialize_variable_HighestRiskyUserTemp": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "PerUserTemp",
+                                        "type": "array",
+                                        "value": []
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_variable_RiskyIPTotalCount": {
+                            "runAfter": {
+                                "Initialize_variable_MFAFraudTotalCount": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "RiskyIPTotalCount",
+                                        "type": "integer",
+                                        "value": 0
+                                    }
+                                ]
+                            }
+                        },
+                        "Response": {
+                            "runAfter": {
+                                "Compose_response": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Response",
+                            "kind": "Http",
+                            "inputs": {
+                                "body": "@outputs('Compose_response')",
+                                "schema": {
+                                    "properties": {
+                                        "AnalyzedEntities": {
+                                            "description": "Number of entities analyzed",
+                                            "type": "integer"
+                                        },
+                                        "DetailedResults": {
+                                            "description": "An array of details per user",
+                                            "items": {
+                                                "properties": {
+                                                    "FailedMFACount": {
+                                                        "description": "Total of failed MFA found in TI for the current entity",
+                                                        "type": "integer"
+                                                    },
+                                                    "MFAFraudCount": {
+                                                        "description": "Total of MFA fraud reported for the current entity",
+                                                        "type": "integer"
+                                                    },
+                                                    "RiskyIPCount": {
+                                                        "description": "Total of signins from IPs found in TI for the current entity",
+                                                        "type": "integer"
+                                                    },
+                                                    "RiskyIPList": {
+                                                        "description": "The list of IPs found in TI for the current entity",
+                                                        "type": "string"
+                                                    },
+                                                    "UserID": {
+                                                        "description": "Azure AD object id for the current entity",
+                                                        "type": "string"
+                                                    },
+                                                    "UserPrincipalName": {
+                                                        "description": "UserPrincipalName for the current entity",
+                                                        "type": "string"
+                                                    },
+                                                    "UserRiskLevel": {
+                                                        "description": "User's risk level in Identity Protection",
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            },
+                                            "type": "array"
+                                        },
+                                        "FailedMFATotalCount": {
+                                            "description": "Total of failed MFA found in TI for all entities",
+                                            "type": "integer"
+                                        },
+                                        "HighestRiskyUser": {
+                                            "description": "Highest risk level found for all the entities",
+                                            "type": "string"
+                                        },
+                                        "MFAFraudTotalCount": {
+                                            "description": "Total of MFA fraud reported for all entities",
+                                            "type": "integer"
+                                        },
+                                        "RiskyIPTotalCount": {
+                                            "description": "Total of signins from IPs found in TI for all entities",
+                                            "type": "integer"
+                                        }
+                                    },
+                                    "type": "object"
+                                },
+                                "statusCode": 200
+                            }
+                        }
+                    },
+                    "outputs": {}
+                },
+                "parameters": {
+                    "$connections": {
+                        "value": {
+                            "azuresentinel_1": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('AzureSentinelConnectionName'))]",
+                                "connectionName": "azuresentinel",
+                                "connectionProperties": {
+                                    "authentication": {
+                                        "type": "ManagedServiceIdentity"
+                                    }
+                                },
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azuresentinel')]"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ],
+    "outputs": {
+        "resourceID": {
+            "type": "string",
+            "value": "[resourceId('Microsoft.Logic/workflows', parameters('PlaybookName'))]"
+        }
+    }
+}
