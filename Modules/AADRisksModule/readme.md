@@ -84,4 +84,4 @@ Trigger name: **triage**
 * Grant the Logic app managed identity access to the Log Analytics API application permissions Data.Read (GrantPermissions.ps1)
 * Grant the Logic app managed identity access to the Microsoft Graph application permissions User.Read.All (GrantPermissions.ps1)
 * Grant the Logic app managed identity access to the Microsoft Graph application permissions IdentityRiskyUser.Read.All (GrantPermissions.ps1)
-* Grant the Logic app Azure Sentinel Responder RBAC role on the resource group containing Azure Sentinel
+* Grant the Logic app Azure Sentinel Responder RBAC role on the resource group containing Azure Sentinel (GrantPermissions.ps1)
