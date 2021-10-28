@@ -32,6 +32,9 @@
                                     "properties": {
                                         "Entities": {
                                             "type": "array"
+                                        },
+                                        "IncidentARMId": {
+                                            "type": "string"
                                         }
                                     },
                                     "type": "object"
@@ -282,8 +285,8 @@
                                     "inputs": {
                                         "name": "HostArray",
                                         "value": {
-                                            "DnsDomain": "@{item()['properties']['dnsDomain']}",
-                                            "FQDN": "@{concat(item()['properties']['hostName'], '.', item()['properties']['dnsDomain'])}",
+                                            "DnsDomain": "@{item()['properties']?['dnsDomain']}",
+                                            "FQDN": "@{concat(item()['properties']['hostName'], '.', item()['properties']?['dnsDomain'])}",
                                             "Hostname": "@{item()['properties']['hostName']}"
                                         }
                                     }
@@ -300,13 +303,34 @@
                             "foreach": "@body('Filter_array_-_IPs')",
                             "actions": {
                                 "Append_to_IPArray": {
-                                    "runAfter": {},
+                                    "runAfter": {
+                                        "HTTP_-_Get_Geo_Data": [
+                                            "Succeeded"
+                                        ]
+                                    },
                                     "type": "AppendToArrayVariable",
                                     "inputs": {
                                         "name": "IPArray",
                                         "value": {
-                                            "Address": "@{items('For_each_ip')['properties']['address']}"
+                                            "Address": "@{items('For_each_ip')['properties']['address']}",
+                                            "GeoData": "@body('HTTP_-_Get_Geo_Data')"
                                         }
+                                    }
+                                },
+                                "HTTP_-_Get_Geo_Data": {
+                                    "runAfter": {},
+                                    "type": "Http",
+                                    "inputs": {
+                                        "authentication": {
+                                            "audience": "https://management.azure.com",
+                                            "type": "ManagedServiceIdentity"
+                                        },
+                                        "method": "GET",
+                                        "queries": {
+                                            "api-version": "2019-01-01-preview",
+                                            "ipaddress": "@{items('For_each_ip')['properties']['address']}"
+                                        },
+                                        "uri": "https://management.azure.com@{split(triggerBody()?['IncidentARMId'], '/providers/')[0]}/providers/Microsoft.SecurityInsights/enrichment/ip/geodata/"
                                     }
                                 }
                             },
