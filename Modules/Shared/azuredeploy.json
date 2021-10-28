@@ -131,7 +131,7 @@
                                                             "type": "ManagedServiceIdentity"
                                                         },
                                                         "method": "GET",
-                                                        "uri": "https://graph.microsoft.com/v1.0/users?$filter=(id%20eq%20'@{item()['aadUserId']}')&$select=userPrincipalName,id,onPremisesSecurityIdentifier,onPremisesDistinguishedName,onPremisesDomainName,onPremisesSamAccountName"
+                                                        "uri": "https://graph.microsoft.com/v1.0/users?$filter=(id%20eq%20'@{items('For_each_account')['aadUserId']}')&$select=@{variables('SelectProperties')}"
                                                     }
                                                 }
                                             }
@@ -160,7 +160,7 @@
                                                             "type": "ManagedServiceIdentity"
                                                         },
                                                         "method": "GET",
-                                                        "uri": "https://graph.microsoft.com/beta/users?$filter=(onPremisesDistinguishedName%20eq%20'@{item()['accountName']}')&$select=userPrincipalName,id,onPremisesSecurityIdentifier,onPremisesDistinguishedName,onPremisesDomainName,onPremisesSamAccountName"
+                                                        "uri": "https://graph.microsoft.com/beta/users?$filter=(onPremisesDistinguishedName%20eq%20'@{items('For_each_account')['accountName']}')&$select=@{variables('SelectProperties')}"
                                                     }
                                                 }
                                             }
@@ -189,7 +189,7 @@
                                                             "type": "ManagedServiceIdentity"
                                                         },
                                                         "method": "GET",
-                                                        "uri": "https://graph.microsoft.com/v1.0/users?$filter=(onPremisesSecurityIdentifier%20eq%20'@{item()['sid']}')&$select=userPrincipalName,id,onPremisesSecurityIdentifier,onPremisesDistinguishedName,onPremisesDomainName,onPremisesSamAccountName"
+                                                        "uri": "https://graph.microsoft.com/v1.0/users?$filter=(onPremisesSecurityIdentifier%20eq%20'@{items('For_each_account')['sid']}')&$select=@{variables('SelectProperties')}"
                                                     }
                                                 }
                                             }
@@ -230,7 +230,7 @@
                                                             "type": "ManagedServiceIdentity"
                                                         },
                                                         "method": "GET",
-                                                        "uri": "https://graph.microsoft.com/beta/users?$filter=mailNickname%20eq%20'@{items('For_each_account')['accountName']}'%20or%20startswith(onPremisesUserPrincipalName,'@{item()['accountName']}')&$select=userPrincipalName,id,onPremisesSecurityIdentifier,onPremisesDistinguishedName,onPremisesDomainName,onPremisesSamAccountName"
+                                                        "uri": "https://graph.microsoft.com/beta/users?$filter=mailNickname%20eq%20'@{items('For_each_account')['accountName']}'%20or%20startswith(onPremisesUserPrincipalName,'@{items('For_each_account')['accountName']}')&$select=@{variables('SelectProperties')}"
                                                     }
                                                 }
                                             }
@@ -259,7 +259,7 @@
                                                             "type": "ManagedServiceIdentity"
                                                         },
                                                         "method": "GET",
-                                                        "uri": "https://graph.microsoft.com/v1.0/users?$filter=(userPrincipalName%20eq%20'@{concat(item()['accountName'], '@', item()['upnSuffix'])}')&$select=userPrincipalName,id,onPremisesSecurityIdentifier,onPremisesDistinguishedName,onPremisesDomainName,onPremisesSamAccountName"
+                                                        "uri": "https://graph.microsoft.com/v1.0/users?$filter=(userPrincipalName%20eq%20'@{concat(item()['accountName'], '@', item()['upnSuffix'])}')&$select=@{variables('SelectProperties')}"
                                                     }
                                                 }
                                             }
@@ -273,7 +273,7 @@
                                 }
                             },
                             "runAfter": {
-                                "Initialize_AccountsArray": [
+                                "Initialize_Select_Properties": [
                                     "Succeeded"
                                 ]
                             },
@@ -422,6 +422,23 @@
                                         "name": "IPArray",
                                         "type": "array",
                                         "value": []
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_Select_Properties": {
+                            "runAfter": {
+                                "Initialize_AccountsArray": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "SelectProperties",
+                                        "type": "string",
+                                        "value": "userPrincipalName,id,onPremisesSecurityIdentifier,onPremisesDistinguishedName,onPremisesDomainName,onPremisesSamAccountName,onPremisesSyncEnabled,mail,city,state,country,department,jobTitle,officeLocation"
                                     }
                                 ]
                             }
