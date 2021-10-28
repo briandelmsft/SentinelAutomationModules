@@ -10,3 +10,4 @@ This module is called by other modules to process entity data and enrich the res
 ## Post Deployment
 
 * Grant the Logic app managed identity access to the Microsoft Graph application permissions User.Read.All (GrantPermissions.ps1)
+* Grant the Logic app Azure Sentinel Responder RBAC role on the resource group containing Azure Sentinel (GrantPermissions.ps1)

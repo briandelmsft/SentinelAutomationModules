@@ -3,10 +3,13 @@
 
 $TenantID=""  #Add your AAD Tenant Id
 
-$OOFLogicAppName="Enrich-Entities"                #Name of the OOF Logic App
+$SharedLogicAppName="Enrich-Entities" #Name of the Shared Logic App
+$AzureSubscriptionId = "" #Azure Subscrition Id of Sentinel Subscription
+$SentinelResourceGroupName = "" #Resource Group Name of Sentinel
 
 Connect-AzureAD -TenantId $TenantID
-
+Login-AzAccount
+Set-AzContext -Subscription $AzureSubscriptionId
 function Set-APIPermissions ($MSIName, $AppId, $PermissionName) {
     $MSI = Get-AppIds -AppName $MSIName
     Start-Sleep -Seconds 2
@@ -19,5 +22,11 @@ function Get-AppIds ($AppName) {
     Get-AzureADServicePrincipal -Filter "displayName eq '$AppName'"
 }
 
+function Set-RBACPermissions ($MSIName, $Role) {
+    $MSI = Get-AppIds -AppName $MSIName
+    New-AzRoleAssignment -ApplicationId $MSI.AppId -Scope "/subscriptions/$($AzureSubscriptionId)/resourceGroups/$($SentinelResourceGroupName)" -RoleDefinitionName $Role
+}
+
 #Enrich-Entities
-Set-APIPermissions -MSIName $OOFLogicAppName -AppId "00000003-0000-0000-c000-000000000000" -PermissionName "User.Read.All"
+Set-APIPermissions -MSIName $SharedLogicAppName -AppId "00000003-0000-0000-c000-000000000000" -PermissionName "User.Read.All"
+Set-RBACPermissions -MSIName $SharedLogicAppName -Role "Azure Sentinel Responder"
