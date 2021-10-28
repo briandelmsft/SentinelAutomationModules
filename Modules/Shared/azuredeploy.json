@@ -30,6 +30,9 @@
                             "inputs": {
                                 "schema": {
                                     "properties": {
+                                        "EnrichIPsWithGeoData": {
+                                            "type": "boolean"
+                                        },
                                         "Entities": {
                                             "type": "array"
                                         },
@@ -302,36 +305,67 @@
                         "For_each_ip": {
                             "foreach": "@body('Filter_array_-_IPs')",
                             "actions": {
-                                "Append_to_IPArray": {
-                                    "runAfter": {
-                                        "HTTP_-_Get_Geo_Data": [
-                                            "Succeeded"
+                                "Condition": {
+                                    "actions": {
+                                        "Append_to_IPArray_With_GeoData": {
+                                            "runAfter": {
+                                                "HTTP_-_Get_Geo_Data": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "AppendToArrayVariable",
+                                            "inputs": {
+                                                "name": "IPArray",
+                                                "value": {
+                                                    "Address": "@{items('For_each_ip')['properties']['address']}",
+                                                    "GeoData": "@body('HTTP_-_Get_Geo_Data')"
+                                                }
+                                            }
+                                        },
+                                        "HTTP_-_Get_Geo_Data": {
+                                            "runAfter": {},
+                                            "type": "Http",
+                                            "inputs": {
+                                                "authentication": {
+                                                    "audience": "https://management.azure.com",
+                                                    "type": "ManagedServiceIdentity"
+                                                },
+                                                "method": "GET",
+                                                "queries": {
+                                                    "api-version": "2019-01-01-preview",
+                                                    "ipaddress": "@{items('For_each_ip')['properties']['address']}"
+                                                },
+                                                "uri": "https://management.azure.com@{split(triggerBody()?['IncidentARMId'], '/providers/')[0]}/providers/Microsoft.SecurityInsights/enrichment/ip/geodata/"
+                                            }
+                                        }
+                                    },
+                                    "runAfter": {},
+                                    "else": {
+                                        "actions": {
+                                            "Append_to_IPArray_Without_GeoData": {
+                                                "runAfter": {},
+                                                "type": "AppendToArrayVariable",
+                                                "inputs": {
+                                                    "name": "IPArray",
+                                                    "value": {
+                                                        "Address": "@{items('For_each_ip')['properties']['address']}",
+                                                        "GeoData": {}
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "expression": {
+                                        "and": [
+                                            {
+                                                "equals": [
+                                                    "@triggerBody()?['EnrichIPsWithGeoData']",
+                                                    true
+                                                ]
+                                            }
                                         ]
                                     },
-                                    "type": "AppendToArrayVariable",
-                                    "inputs": {
-                                        "name": "IPArray",
-                                        "value": {
-                                            "Address": "@{items('For_each_ip')['properties']['address']}",
-                                            "GeoData": "@body('HTTP_-_Get_Geo_Data')"
-                                        }
-                                    }
-                                },
-                                "HTTP_-_Get_Geo_Data": {
-                                    "runAfter": {},
-                                    "type": "Http",
-                                    "inputs": {
-                                        "authentication": {
-                                            "audience": "https://management.azure.com",
-                                            "type": "ManagedServiceIdentity"
-                                        },
-                                        "method": "GET",
-                                        "queries": {
-                                            "api-version": "2019-01-01-preview",
-                                            "ipaddress": "@{items('For_each_ip')['properties']['address']}"
-                                        },
-                                        "uri": "https://management.azure.com@{split(triggerBody()?['IncidentARMId'], '/providers/')[0]}/providers/Microsoft.SecurityInsights/enrichment/ip/geodata/"
-                                    }
+                                    "type": "If"
                                 }
                             },
                             "runAfter": {
