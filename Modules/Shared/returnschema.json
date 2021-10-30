@@ -1,0 +1,225 @@
+{
+    "type": "object",
+    "properties": {
+        "Accounts": {
+            "type": "array",
+            "description": "Array of User Accounts",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "userPrincipalName": {
+                        "description": "Array property in Accounts array"
+                    },
+                    "id": {
+                        "description": "Array property in Accounts array"
+                    },
+                    "onPremisesSecurityIdentifier": {
+                        "description": "Array property in Accounts array"
+                    },
+                    "onPremisesDistinguishedName": {
+                        "description": "Array property in Accounts array"
+                    },
+                    "onPremisesDomainName": {
+                        "description": "Array property in Accounts array"
+                    },
+                    "onPremisesSamAccountName": {
+                        "description": "Array property in Accounts array"
+                    },
+                    "onPremisesSyncEnabled": {
+                        "description": "Array property in Accounts array"
+                    },
+                    "mail": {
+                        "description": "Array property in Accounts array"
+                    },
+                    "city": {
+                        "description": "Array property in Accounts array"
+                    },
+                    "state": {
+                        "description": "Array property in Accounts array"
+                    },
+                    "country": {
+                        "description": "Array property in Accounts array"
+                    },
+                    "department": {
+                        "description": "Array property in Accounts array"
+                    },
+                    "jobTitle": {
+                        "description": "Array property in Accounts array"
+                    },
+                    "officeLocation": {
+                        "description": "Array property in Accounts array"
+                    },
+                    "manager": {
+                        "type": "object",
+                        "description": "Array property in Accounts array",
+                        "properties": {
+                            "@@odata.type": {
+                                "description": "Array property in Accounts array manager object"
+                            },
+                            "userPrincipalName": {
+                                "description": "Array property in Accounts array manager object"
+                            },
+                            "mail": {
+                                "description": "Array property in Accounts array manager object"
+                            },
+                            "id": {
+                                "description": "Array property in Accounts array manager object"
+                            }
+                        }
+                    },
+                    "AssignedRoles": {
+                        "type": "array",
+                        "description": "Array of assigned roles in Accounts array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "Role": {
+                                    "description": "Array property in AssignedRoles array"
+                                }
+                            },
+                            "required": []
+                        }
+                    }
+                },
+                "required": []
+            }
+        },
+        "AccountsAllValid": {
+            "type": "boolean",
+            "description": "True if all accounts were successfully processed"
+        },
+        "AccountsInput": {
+            "type": "integer",
+            "description": "Sum of accounts input into enrichment module"
+        },
+        "AccountsValid": {
+            "type": "integer",
+            "description": "Sum of accounts successfully processed"
+        },
+        "EntitiesAllValid": {
+            "type": "boolean",
+            "description": "True if all entities were successfully processed"
+        },
+        "EntitiesInput": {
+            "type": "integer",
+            "description": "Sum of all entities input into enrichment module"
+        },
+        "EntitiesValid": {
+            "type": "integer",
+            "description": "Sum of all entities successfully processed"
+        },
+        "Hosts": {
+            "type": "array",
+            "description": "Array of Hosts",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "DnsDomain": {
+                        "description": "Array property in Hosts array"
+                    },
+                    "FQDN": {
+                        "description": "Array property in Hosts array"
+                    },
+                    "Hostname": {
+                        "description": "Array property in Hosts array"
+                    }
+                },
+                "required": []
+            }
+        },
+        "HostsAllValid": {
+            "description": "True if all Hosts were successfully processed",
+            "type": "boolean"
+        },
+        "HostsInput": {
+            "description": "Sum of Hosts input into enrichment module",
+            "type": "integer"
+        },
+        "HostsValid": {
+            "description": "Sum of Hosts successfully processed",
+            "type": "integer"
+        },
+        "IPs": {
+            "type": "array",
+            "description": "Array of IP Addresses",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "Address": {
+                        "description": "Array property in IPs array"
+                    },
+                    "GeoData": {
+                        "type": "object",
+                        "description": "Array object in IPs array",
+                        "properties": {
+                            "asn": {
+                                "description": "Array property in IPs array GeoData object"
+                            },
+                            "carrier": {
+                                "description": "Array property in IPs array GeoData object"
+                            },
+                            "city": {
+                                "description": "Array property in IPs array GeoData object"
+                            },
+                            "cityCf": {
+                                "description": "Array property in IPs array GeoData object"
+                            },
+                            "continent": {
+                                "description": "Array property in IPs array GeoData object"
+                            },
+                            "country": {
+                                "description": "Array property in IPs array GeoData object"
+                            },
+                            "countryCf": {
+                                "description": "Array property in IPs array GeoData object"
+                            },
+                            "ipAddr": {
+                                "description": "Array property in IPs array GeoData object"
+                            },
+                            "ipRoutingType": {
+                                "description": "Array property in IPs array GeoData object"
+                            },
+                            "latitude": {
+                                "description": "Array property in IPs array GeoData object"
+                            },
+                            "longitude": {
+                                "description": "Array property in IPs array GeoData object"
+                            },
+                            "organization": {
+                                "description": "Array property in IPs array GeoData object"
+                            },
+                            "organizationType": {
+                                "description": "Array property in IPs array GeoData object"
+                            },
+                            "region": {
+                                "description": "Array property in IPs array GeoData object"
+                            },
+                            "state": {
+                                "description": "Array property in IPs array GeoData object"
+                            },
+                            "stateCf": {
+                                "description": "Array property in IPs array GeoData object"
+                            },
+                            "stateCode": {
+                                "description": "Array property in IPs array GeoData object"
+                            }
+                        }
+                    }
+                },
+                "required": []
+            }
+        },
+        "IPsAllValid": {
+            "description": "True if all IPs were successfully processed",
+            "type": "boolean"
+        },
+        "IPsInput": {
+            "description": "Sum of IPs input into enrichment module",
+            "type": "integer"
+        },
+        "IPsValid": {
+            "description": "Sum of IPs successfully processed",
+            "type": "integer"
+        }
+    }
+}
