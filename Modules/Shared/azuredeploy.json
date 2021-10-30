@@ -67,6 +67,9 @@
                                 "AccountsAllValid": "@equals(length(variables('AccountsArray')), length(body('Filter_array_-_Accounts')))",
                                 "AccountsInput": "@length(body('Filter_array_-_Accounts'))",
                                 "AccountsValid": "@length(variables('AccountsArray'))",
+                                "EntitiesAllValid": "@and(and(equals(length(variables('AccountsArray')), length(body('Filter_array_-_Accounts'))),equals(length(body('Filter_array_-_Hosts')), length(variables('HostArray')))),equals(length(body('Filter_array_-_IPs')), length(variables('IPArray'))))",
+                                "EntitiesInput": "@add(add(length(body('Filter_array_-_Accounts')),length(body('Filter_array_-_Hosts'))),length(body('Filter_array_-_IPs')))",
+                                "EntitiesValid": "@add(add(length(variables('AccountsArray')),length(variables('HostArray'))),length(variables('IPArray')))",
                                 "Hosts": "@variables('HostArray')",
                                 "HostsAllValid": "@equals(length(body('Filter_array_-_Hosts')), length(variables('HostArray')))",
                                 "HostsInput": "@length(body('Filter_array_-_Hosts'))",
@@ -104,24 +107,63 @@
                         "For_each_account": {
                             "foreach": "@body('Select_Accounts')",
                             "actions": {
+                                "Append_to_AccountArray": {
+                                    "runAfter": {
+                                        "Compose_User": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "AppendToArrayVariable",
+                                    "inputs": {
+                                        "name": "AccountsArray",
+                                        "value": "@outputs('Compose_User')"
+                                    }
+                                },
+                                "Compose_User": {
+                                    "runAfter": {
+                                        "Select_Roles": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Compose",
+                                    "inputs": "@addProperty(coalesce(body('HTTP_-_UPN')?['value'][0],body('HTTP_-_AADId')?['value'][0],body('HTTP_-_ObjectSid')?['value'][0],body('HTTP_-_SamAccountName')?['value'][0],body('HTTP_-_DistinguishedName')?['value'][0]), 'AssignedRoles', body('Select_Roles'))"
+                                },
+                                "HTTP_-_Roles": {
+                                    "runAfter": {
+                                        "Switch": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Http",
+                                    "inputs": {
+                                        "authentication": {
+                                            "audience": "https://graph.microsoft.com",
+                                            "type": "ManagedServiceIdentity"
+                                        },
+                                        "method": "GET",
+                                        "uri": "https://graph.microsoft.com/v1.0/roleManagement/directory/roleAssignments?$filter=principalId%20eq%20'@{coalesce(body('HTTP_-_UPN')?['value'][0]['id'],body('HTTP_-_AADId')?['value'][0]['id'],body('HTTP_-_ObjectSid')?['value'][0]['id'],body('HTTP_-_SamAccountName')?['value'][0]['id'],body('HTTP_-_DistinguishedName')?['value'][0]['id'])}'&$expand=roleDefinition"
+                                    }
+                                },
+                                "Select_Roles": {
+                                    "runAfter": {
+                                        "HTTP_-_Roles": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Select",
+                                    "inputs": {
+                                        "from": "@body('HTTP_-_Roles')['value']",
+                                        "select": {
+                                            "Role": "@item()['roleDefinition']['displayName']"
+                                        }
+                                    }
+                                },
                                 "Switch": {
                                     "runAfter": {},
                                     "cases": {
                                         "Case_-_AADId": {
                                             "case": "AADId",
                                             "actions": {
-                                                "Append_AccountsArray_-_AADId": {
-                                                    "runAfter": {
-                                                        "HTTP_-_AADId": [
-                                                            "Succeeded"
-                                                        ]
-                                                    },
-                                                    "type": "AppendToArrayVariable",
-                                                    "inputs": {
-                                                        "name": "AccountsArray",
-                                                        "value": "@body('HTTP_-_AADId')['value'][0]"
-                                                    }
-                                                },
                                                 "HTTP_-_AADId": {
                                                     "runAfter": {},
                                                     "type": "Http",
@@ -139,18 +181,6 @@
                                         "Case_-_DistinguishedName": {
                                             "case": "DistinguishedName",
                                             "actions": {
-                                                "Append_AccountsArray_-_DistinguishedName": {
-                                                    "runAfter": {
-                                                        "HTTP_-_DistinguishedName": [
-                                                            "Succeeded"
-                                                        ]
-                                                    },
-                                                    "type": "AppendToArrayVariable",
-                                                    "inputs": {
-                                                        "name": "AccountsArray",
-                                                        "value": "@body('HTTP_-_DistinguishedName')['value'][0]"
-                                                    }
-                                                },
                                                 "HTTP_-_DistinguishedName": {
                                                     "runAfter": {},
                                                     "type": "Http",
@@ -168,18 +198,6 @@
                                         "Case_-_ObjectSid": {
                                             "case": "ObjectSid",
                                             "actions": {
-                                                "Append_to_AccountsArray_-_ObjectSid": {
-                                                    "runAfter": {
-                                                        "HTTP_-_ObjectSid": [
-                                                            "Succeeded"
-                                                        ]
-                                                    },
-                                                    "type": "AppendToArrayVariable",
-                                                    "inputs": {
-                                                        "name": "AccountsArray",
-                                                        "value": "@body('HTTP_-_ObjectSid')['value'][0]"
-                                                    }
-                                                },
                                                 "HTTP_-_ObjectSid": {
                                                     "runAfter": {},
                                                     "type": "Http",
@@ -197,18 +215,6 @@
                                         "Case_-_SamAccountName": {
                                             "case": "SamAccountName",
                                             "actions": {
-                                                "Append_to_AccountsArray_-_SamAccountName": {
-                                                    "runAfter": {
-                                                        "Filter_array": [
-                                                            "Succeeded"
-                                                        ]
-                                                    },
-                                                    "type": "AppendToArrayVariable",
-                                                    "inputs": {
-                                                        "name": "AccountsArray",
-                                                        "value": "@body('Filter_array')[0]"
-                                                    }
-                                                },
                                                 "Filter_array": {
                                                     "runAfter": {
                                                         "HTTP_-_SamAccountName": [
@@ -238,18 +244,6 @@
                                         "Case_-_UPN": {
                                             "case": "UPN",
                                             "actions": {
-                                                "Append_to_AccountsArray_-_UPN": {
-                                                    "runAfter": {
-                                                        "HTTP_-_UPN": [
-                                                            "Succeeded"
-                                                        ]
-                                                    },
-                                                    "type": "AppendToArrayVariable",
-                                                    "inputs": {
-                                                        "name": "AccountsArray",
-                                                        "value": "@body('HTTP_-_UPN')['value'][0]"
-                                                    }
-                                                },
                                                 "HTTP_-_UPN": {
                                                     "runAfter": {},
                                                     "type": "Http",
@@ -438,7 +432,7 @@
                                     {
                                         "name": "SelectProperties",
                                         "type": "string",
-                                        "value": "userPrincipalName,id,onPremisesSecurityIdentifier,onPremisesDistinguishedName,onPremisesDomainName,onPremisesSamAccountName,onPremisesSyncEnabled,mail,city,state,country,department,jobTitle,officeLocation"
+                                        "value": "userPrincipalName,id,onPremisesSecurityIdentifier,onPremisesDistinguishedName,onPremisesDomainName,onPremisesSamAccountName,onPremisesSyncEnabled,mail,city,state,country,department,jobTitle,officeLocation&$expand=manager($select=userPrincipalName,mail,id)"
                                     }
                                 ]
                             }
