@@ -28,6 +28,9 @@
                     "onPremisesSyncEnabled": {
                         "description": "Array property in Accounts array"
                     },
+                    "accountEnabled": {
+                        "description": "Array property in Accounts array"
+                    },
                     "mail": {
                         "description": "Array property in Accounts array"
                     },

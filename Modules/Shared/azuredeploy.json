@@ -432,7 +432,7 @@
                                     {
                                         "name": "SelectProperties",
                                         "type": "string",
-                                        "value": "userPrincipalName,id,onPremisesSecurityIdentifier,onPremisesDistinguishedName,onPremisesDomainName,onPremisesSamAccountName,onPremisesSyncEnabled,mail,city,state,country,department,jobTitle,officeLocation&$expand=manager($select=userPrincipalName,mail,id)"
+                                        "value": "userPrincipalName,id,onPremisesSecurityIdentifier,onPremisesDistinguishedName,onPremisesDomainName,onPremisesSamAccountName,onPremisesSyncEnabled,mail,city,state,country,department,jobTitle,officeLocation,accountEnabled&$expand=manager($select=userPrincipalName,mail,id)"
                                     }
                                 ]
                             }
