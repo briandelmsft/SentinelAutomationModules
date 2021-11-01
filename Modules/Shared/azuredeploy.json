@@ -24,7 +24,7 @@
                     "contentVersion": "1.0.0.0",
                     "parameters": {},
                     "triggers": {
-                        "manual": {
+                        "enrich": {
                             "type": "Request",
                             "kind": "Http",
                             "inputs": {
@@ -34,9 +34,15 @@
                                             "type": "boolean"
                                         },
                                         "Entities": {
+                                            "description": "Click here and select the Entities object from the Dynamic content menu",
                                             "type": "array"
                                         },
                                         "IncidentARMId": {
+                                            "description": "Click here and select the Incident ARM ID object from the Dynamic content menu",
+                                            "type": "string"
+                                        },
+                                        "WorkspaceId": {
+                                            "description": "Click here and select the Workspace ID object from the Dynamic content menu",
                                             "type": "string"
                                         }
                                     },
@@ -77,7 +83,9 @@
                                 "IPs": "@variables('IPArray')",
                                 "IPsAllValid": "@equals(length(body('Filter_array_-_IPs')), length(variables('IPArray')))",
                                 "IPsInput": "@length(body('Filter_array_-_IPs'))",
-                                "IPsValid": "@length(variables('IPArray'))"
+                                "IPsValid": "@length(variables('IPArray'))",
+                                "IncidentARMId": "@triggerBody()?['IncidentARMId']",
+                                "WorkspaceId": "@triggerBody()?['WorkspaceId']"
                             }
                         },
                         "Filter_array_-_Accounts": {

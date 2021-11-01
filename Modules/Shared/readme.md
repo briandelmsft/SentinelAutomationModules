@@ -1,7 +1,7 @@
 # Shared Modules
 
 ## Description
-This module is called by other modules to process entity data and enrich the results.
+This module is called to prepare the Azure Sentinel Entities and enrich them with additional information for subsequent calls to other automation modules.
 
 ## Quick Deployment
 
