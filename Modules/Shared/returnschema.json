@@ -223,6 +223,14 @@
         "IPsValid": {
             "description": "Sum of IPs successfully processed",
             "type": "integer"
+        },
+        "IncidentARMId": {
+            "description": "The ARM Id of the Azure Sentinel Incident",
+            "type": "string"
+        },
+        "WorkspaceId": {
+            "description": "The Log Analytics Workspace Id of the Azure Sentinel Incident",
+            "type": "string"
         }
     }
 }
