@@ -74,6 +74,24 @@
                         "type": "object",
                         "description": "Object containing Raw unenriched entity data in Accounts array",
                         "properties": {
+                            "accountName": {
+                                "description": "accountName from RawEntity object in Accounts array"
+                            },
+                            "upnSuffix": {
+                                "description": "upnSuffix from RawEntity object in Accounts array"
+                            },
+                            "isDomainJoined": {
+                                "description": "isDomainJoined from RawEntity object in Accounts array"
+                            },
+                            "displayName": {
+                                "description": "dislayName from RawEntity object in Accounts array"
+                            },
+                            "friendlyName": {
+                                "description": "friendlyName from RawEntity object in Accounts array"
+                            },
+                            "sid": {
+                                "description": "sid from RawEntity object in Accounts array"
+                            }
                         }
                     },
                     "AssignedRoles": {
@@ -120,6 +138,18 @@
                         "type": "object",
                         "description": "Object containing Raw unenriched entity data in Hosts array",
                         "properties": {
+                            "dnsDomain": {
+                                "description": "dnsDomain from RawEntity object in Hosts array"
+                            },
+                            "hostName": {
+                                "description": "hostName from RawEntity object in Hosts array"
+                            },
+                            "netBiosName": {
+                                "description": "netBiosName from RawEntity object in Hosts array"
+                            },
+                            "friendlyName": {
+                                "description": "friendlyName from RawEntity object in Hosts array"
+                            }
                         }
                     }
                 },
@@ -143,6 +173,12 @@
                         "type": "object",
                         "description": "Object containing Raw unenriched entity data in IPs array",
                         "properties": {
+                            "address": {
+                                "description": "address from RawEntity object in IPs array"
+                            },
+                            "friendlyName": {
+                                "description": "friendlyName from RawEntity object in IPs array"
+                            }
                         }
                     },
                     "GeoData": {
