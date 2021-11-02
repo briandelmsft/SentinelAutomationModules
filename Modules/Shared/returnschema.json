@@ -70,6 +70,12 @@
                             }
                         }
                     },
+                    "RawEntity": {
+                        "type": "object",
+                        "description": "Object containing Raw unenriched entity data in Accounts array",
+                        "properties": {
+                        }
+                    },
                     "AssignedRoles": {
                         "type": "array",
                         "description": "Array of assigned roles in Accounts array",
@@ -87,29 +93,13 @@
                 "required": []
             }
         },
-        "AccountsAllValid": {
-            "type": "boolean",
-            "description": "True if all accounts were successfully processed"
-        },
-        "AccountsInput": {
+        "AccountsCount": {
             "type": "integer",
-            "description": "Sum of accounts input into enrichment module"
+            "description": "Count of accounts processed by module"
         },
-        "AccountsValid": {
+        "EntitiesCount": {
             "type": "integer",
-            "description": "Sum of accounts successfully processed"
-        },
-        "EntitiesAllValid": {
-            "type": "boolean",
-            "description": "True if all entities were successfully processed"
-        },
-        "EntitiesInput": {
-            "type": "integer",
-            "description": "Sum of all entities input into enrichment module"
-        },
-        "EntitiesValid": {
-            "type": "integer",
-            "description": "Sum of all entities successfully processed"
+            "description": "Count of all entities processed by enrichment module"
         },
         "Hosts": {
             "type": "array",
@@ -125,21 +115,19 @@
                     },
                     "Hostname": {
                         "description": "Array property in Hosts array"
+                    },
+                    "RawEntity": {
+                        "type": "object",
+                        "description": "Object containing Raw unenriched entity data in Hosts array",
+                        "properties": {
+                        }
                     }
                 },
                 "required": []
             }
         },
-        "HostsAllValid": {
-            "description": "True if all Hosts were successfully processed",
-            "type": "boolean"
-        },
-        "HostsInput": {
-            "description": "Sum of Hosts input into enrichment module",
-            "type": "integer"
-        },
-        "HostsValid": {
-            "description": "Sum of Hosts successfully processed",
+        "HostsCount": {
+            "description": "Count of Hosts processed by module",
             "type": "integer"
         },
         "IPs": {
@@ -150,6 +138,12 @@
                 "properties": {
                     "Address": {
                         "description": "Array property in IPs array"
+                    },
+                    "RawEntity": {
+                        "type": "object",
+                        "description": "Object containing Raw unenriched entity data in IPs array",
+                        "properties": {
+                        }
                     },
                     "GeoData": {
                         "type": "object",
@@ -212,16 +206,8 @@
                 "required": []
             }
         },
-        "IPsAllValid": {
-            "description": "True if all IPs were successfully processed",
-            "type": "boolean"
-        },
-        "IPsInput": {
-            "description": "Sum of IPs input into enrichment module",
-            "type": "integer"
-        },
-        "IPsValid": {
-            "description": "Sum of IPs successfully processed",
+        "IPsCount": {
+            "description": "Count of IPs processed by module",
             "type": "integer"
         },
         "IncidentARMId": {
