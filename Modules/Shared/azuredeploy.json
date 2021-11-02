@@ -70,20 +70,12 @@
                             "type": "Compose",
                             "inputs": {
                                 "Accounts": "@variables('AccountsArray')",
-                                "AccountsAllValid": "@equals(length(variables('AccountsArray')), length(body('Filter_array_-_Accounts')))",
-                                "AccountsInput": "@length(body('Filter_array_-_Accounts'))",
-                                "AccountsValid": "@length(variables('AccountsArray'))",
-                                "EntitiesAllValid": "@and(and(equals(length(variables('AccountsArray')), length(body('Filter_array_-_Accounts'))),equals(length(body('Filter_array_-_Hosts')), length(variables('HostArray')))),equals(length(body('Filter_array_-_IPs')), length(variables('IPArray'))))",
-                                "EntitiesInput": "@add(add(length(body('Filter_array_-_Accounts')),length(body('Filter_array_-_Hosts'))),length(body('Filter_array_-_IPs')))",
-                                "EntitiesValid": "@add(add(length(variables('AccountsArray')),length(variables('HostArray'))),length(variables('IPArray')))",
+                                "AccountsCount": "@length(variables('AccountsArray'))",
+                                "EntitiesCount": "@add(add(length(body('Filter_array_-_Accounts')),length(body('Filter_array_-_Hosts'))),length(body('Filter_array_-_IPs')))",
                                 "Hosts": "@variables('HostArray')",
-                                "HostsAllValid": "@equals(length(body('Filter_array_-_Hosts')), length(variables('HostArray')))",
-                                "HostsInput": "@length(body('Filter_array_-_Hosts'))",
-                                "HostsValid": "@length(variables('HostArray'))",
+                                "HostsCount": "@length(variables('HostArray'))",
                                 "IPs": "@variables('IPArray')",
-                                "IPsAllValid": "@equals(length(body('Filter_array_-_IPs')), length(variables('IPArray')))",
-                                "IPsInput": "@length(body('Filter_array_-_IPs'))",
-                                "IPsValid": "@length(variables('IPArray'))",
+                                "IPsCount": "@length(variables('IPArray'))",
                                 "IncidentARMId": "@triggerBody()?['IncidentARMId']",
                                 "WorkspaceId": "@triggerBody()?['WorkspaceId']"
                             }
@@ -117,14 +109,26 @@
                             "actions": {
                                 "Append_to_AccountArray": {
                                     "runAfter": {
-                                        "Compose_User": [
+                                        "Compose_User_2": [
                                             "Succeeded"
                                         ]
                                     },
                                     "type": "AppendToArrayVariable",
                                     "inputs": {
                                         "name": "AccountsArray",
-                                        "value": "@outputs('Compose_User')"
+                                        "value": "@outputs('Compose_User_2')"
+                                    }
+                                },
+                                "Append_to_AccountArray_Unenriched": {
+                                    "runAfter": {
+                                        "Compose_User_Unenriched": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "AppendToArrayVariable",
+                                    "inputs": {
+                                        "name": "AccountsArray",
+                                        "value": "@outputs('Compose_User_Unenriched')"
                                     }
                                 },
                                 "Compose_User": {
@@ -135,6 +139,27 @@
                                     },
                                     "type": "Compose",
                                     "inputs": "@addProperty(coalesce(body('HTTP_-_UPN')?['value'][0],body('HTTP_-_AADId')?['value'][0],body('HTTP_-_ObjectSid')?['value'][0],body('HTTP_-_SamAccountName')?['value'][0],body('HTTP_-_DistinguishedName')?['value'][0]), 'AssignedRoles', body('Select_Roles'))"
+                                },
+                                "Compose_User_2": {
+                                    "runAfter": {
+                                        "Compose_User": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Compose",
+                                    "inputs": "@addProperty(outputs('Compose_User'), 'RawEntity', item()['RawEntity'])"
+                                },
+                                "Compose_User_Unenriched": {
+                                    "runAfter": {
+                                        "HTTP_-_Roles": [
+                                            "Skipped",
+                                            "Failed"
+                                        ]
+                                    },
+                                    "type": "Compose",
+                                    "inputs": {
+                                        "RawEntity": "@item()['RawEntity']"
+                                    }
                                 },
                                 "HTTP_-_Roles": {
                                     "runAfter": {
@@ -290,9 +315,10 @@
                                     "inputs": {
                                         "name": "HostArray",
                                         "value": {
-                                            "DnsDomain": "@{item()['properties']?['dnsDomain']}",
-                                            "FQDN": "@{concat(item()['properties']['hostName'], '.', item()['properties']?['dnsDomain'])}",
-                                            "Hostname": "@{item()['properties']['hostName']}"
+                                            "DnsDomain": "@{items('For_each_host')['properties']?['dnsDomain']}",
+                                            "FQDN": "@{concat(item()['properties']?['hostName'], '.', item()['properties']?['dnsDomain'])}",
+                                            "Hostname": "@{items('For_each_host')['properties']?['hostName']}",
+                                            "RawEntity": "@item()['properties']"
                                         }
                                     }
                                 }
@@ -320,7 +346,8 @@
                                                 "name": "IPArray",
                                                 "value": {
                                                     "Address": "@{items('For_each_ip')['properties']['address']}",
-                                                    "GeoData": "@body('HTTP_-_Get_Geo_Data')"
+                                                    "GeoData": "@body('HTTP_-_Get_Geo_Data')",
+                                                    "RawEntity": "@item()['properties']"
                                                 }
                                             }
                                         },
@@ -351,7 +378,8 @@
                                                     "name": "IPArray",
                                                     "value": {
                                                         "Address": "@{items('For_each_ip')['properties']['address']}",
-                                                        "GeoData": {}
+                                                        "GeoData": {},
+                                                        "RawEntity": "@items('For_each_ip')['properties']"
                                                     }
                                                 }
                                             }
@@ -468,6 +496,7 @@
                             "inputs": {
                                 "from": "@body('Filter_array_-_Accounts')",
                                 "select": {
+                                    "RawEntity": "@item()['properties']",
                                     "aadUserId": "@item()['properties']?['aadUserId']",
                                     "accountName": "@item()['properties']?['accountName']",
                                     "accountType": "@if(not(empty(item()['properties']?['upnSuffix'])), 'UPN', if(not(empty(item()['properties']?['aadUserId'])), 'AADId', if(not(empty(item()['properties']?['sid'])), 'ObjectSid', if(not(empty(item()['properties']?['ntDomain'])), 'SamAccountName', if(contains(item()['properties']?['accountName'], ',DC='), 'DistinguishedName', 'Unknown')))))",
