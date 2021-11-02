@@ -5,7 +5,7 @@ $TenantID=""  #Add your AAD Tenant Id
 $AzureSubscriptionId = "" #Azure Subscrition Id of Sentinel Subscription
 $SentinelResourceGroupName = "" #Resource Group Name of Sentinel
 
-$MDELogicAppName="Get-MDEUsersDevicesRiskScore"  #Name of the MDE Logic App
+$MDELogicAppName="Get-MDEInsights"  #Name of the MDE Logic App
 
 Connect-AzureAD -TenantId $TenantID
 Login-AzAccount
