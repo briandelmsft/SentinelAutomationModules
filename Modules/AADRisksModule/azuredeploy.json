@@ -172,21 +172,53 @@
                                         "schema": {
                                             "properties": {
                                                 "AnalyzedEntities": {
+                                                    "description": "Number of entities analyzed",
                                                     "type": "integer"
                                                 },
                                                 "DetailedResults": {
+                                                    "description": "An array of details per user",
+                                                    "items": {
+                                                        "properties": {
+                                                            "UserFailedMFACount": {
+                                                                "type": "integer"
+                                                            },
+                                                            "UserId": {
+                                                                "type": "string"
+                                                            },
+                                                            "UserMFAFraudsCount": {
+                                                                "type": "integer"
+                                                            },
+                                                            "UserPrincipalName": {
+                                                                "type": "string"
+                                                            },
+                                                            "UserRiskLevel": {
+                                                                "type": "string"
+                                                            },
+                                                            "UserRiskyIPCount": {
+                                                                "type": "integer"
+                                                            },
+                                                            "UserRiskyIPList": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
                                                     "type": "array"
                                                 },
                                                 "FailedMFATotalCount": {
+                                                    "description": "Total of failed MFA found in TI for all entities",
                                                     "type": "integer"
                                                 },
-                                                "HighestRiskyLevel": {
-                                                    "type": "integer"
+                                                "HighestRiskLevel": {
+                                                    "description": "Highest risk level found for all the entities",
+                                                    "type": "string"
                                                 },
                                                 "MFAFraudTotalCount": {
+                                                    "description": "Total of MFA fraud reported for all entities",
                                                     "type": "integer"
                                                 },
                                                 "RiskyIPTotalCount": {
+                                                    "description": "Total of signins from IPs found in TI for all entities",
                                                     "type": "integer"
                                                 }
                                             },
@@ -595,6 +627,61 @@
                             "kind": "Http",
                             "inputs": {
                                 "body": "@outputs('Compose_response')",
+                                "schema": {
+                                    "properties": {
+                                        "AnalyzedEntities": {
+                                            "description": "Number of entities analyzed",
+                                            "type": "integer"
+                                        },
+                                        "DetailedResults": {
+                                            "description": "An array of details per user",
+                                            "items": {
+                                                "properties": {
+                                                    "UserFailedMFACount": {
+                                                        "type": "integer"
+                                                    },
+                                                    "UserId": {
+                                                        "type": "string"
+                                                    },
+                                                    "UserMFAFraudsCount": {
+                                                        "type": "integer"
+                                                    },
+                                                    "UserPrincipalName": {
+                                                        "type": "string"
+                                                    },
+                                                    "UserRiskLevel": {
+                                                        "type": "string"
+                                                    },
+                                                    "UserRiskyIPCount": {
+                                                        "type": "integer"
+                                                    },
+                                                    "UserRiskyIPList": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            },
+                                            "type": "array"
+                                        },
+                                        "FailedMFATotalCount": {
+                                            "description": "Total of failed MFA found in TI for all entities",
+                                            "type": "integer"
+                                        },
+                                        "HighestRiskLevel": {
+                                            "description": "Highest risk level found for all the entities",
+                                            "type": "string"
+                                        },
+                                        "MFAFraudTotalCount": {
+                                            "description": "Total of MFA fraud reported for all entities",
+                                            "type": "integer"
+                                        },
+                                        "RiskyIPTotalCount": {
+                                            "description": "Total of signins from IPs found in TI for all entities",
+                                            "type": "integer"
+                                        }
+                                    },
+                                    "type": "object"
+                                },
                                 "statusCode": 200
                             }
                         }
