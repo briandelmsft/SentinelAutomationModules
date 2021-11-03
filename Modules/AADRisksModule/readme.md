@@ -1,13 +1,13 @@
 # Get-AADUserRisksInfo
 
 ## Description
-This module will retrieve the level of risk of the user in Azure AD Identity Protection as well as the following information is requested:
-* Number of IP addresses matching an entry in your threat intelligence in the SigninLogs table
-* Number of MFA fraud report
-* Number of MFA failure (the user denied the MFA request or the MFA request timed out)
+This module will retrieve the level of risk of the users in Azure AD Identity Protection as well as the following information is requested:
+* Number of IP addresses matching an entry in your threat intelligence in the SigninLogs table for the specified entities
+* Number of MFA fraud report for the specified entities
+* Number of MFA failure (the user denied the MFA request or the MFA request timed out) for the specified entities
 
 ## Suported Entity Types
-* Account
+* Accounts
 
 ## Trigger Parameters
 
