@@ -115,6 +115,32 @@
             "type": "integer",
             "description": "Count of accounts processed by module"
         },
+        "Domains": {
+            "type": "array",
+            "description": "Array of Domains",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "RawEntity": {
+                        "type": "object",
+                        "description": "Object containing Raw unenriched entity data in Domains array",
+                        "properties": {
+                            "domainName": {
+                                "description": "domainName from RawEntity object in Domains array"
+                            },
+                            "friendlyName": {
+                                "description": "friendlyName from RawEntity object in Domains array"
+                            }
+                        }
+                    }
+                },
+                "required": []
+            }
+        },
+        "DomainsCount": {
+            "description": "Count of Domains processed by module",
+            "type": "integer"
+        },
         "EntitiesCount": {
             "type": "integer",
             "description": "Count of all entities processed by enrichment module"
@@ -155,6 +181,64 @@
                 },
                 "required": []
             }
+        },
+        "FileHashes": {
+            "type": "array",
+            "description": "Array of FileHashes",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "RawEntity": {
+                        "type": "object",
+                        "description": "Object containing Raw unenriched entity data in FileHashes array",
+                        "properties": {
+                            "hashValue": {
+                                "description": "hashValue from RawEntity object in FileHashes array"
+                            },
+                            "algorithm": {
+                                "description": "algorithm from RawEntity object in FileHashes array"
+                            },
+                            "friendlyName": {
+                                "description": "friendlyName from RawEntity object in FileHashes array"
+                            }
+                        }
+                    }
+                },
+                "required": []
+            }
+        },
+        "FileHashesCount": {
+            "description": "Count of File Hashes processed by module",
+            "type": "integer"
+        },
+        "Files": {
+            "type": "array",
+            "description": "Array of Files",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "RawEntity": {
+                        "type": "object",
+                        "description": "Object containing Raw unenriched entity data in Files array",
+                        "properties": {
+                            "directory": {
+                                "description": "directory from RawEntity object in Files array"
+                            },
+                            "fileName": {
+                                "description": "fileName from RawEntity object in Files array"
+                            },
+                            "friendlyName": {
+                                "description": "friendlyName from RawEntity object in Files array"
+                            }
+                        }
+                    }
+                },
+                "required": []
+            }
+        },
+        "FilesCount": {
+            "description": "Count of Files processed by module",
+            "type": "integer"
         },
         "HostsCount": {
             "description": "Count of Hosts processed by module",
@@ -249,6 +333,32 @@
         "IncidentARMId": {
             "description": "The ARM Id of the Azure Sentinel Incident",
             "type": "string"
+        },
+        "URLs": {
+            "type": "array",
+            "description": "Array of URLs",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "RawEntity": {
+                        "type": "object",
+                        "description": "Object containing Raw unenriched entity data in URLs array",
+                        "properties": {
+                            "url": {
+                                "description": "url from RawEntity object in URLs array"
+                            },
+                            "friendlyName": {
+                                "description": "friendlyName from RawEntity object in URLs array"
+                            }
+                        }
+                    }
+                },
+                "required": []
+            }
+        },
+        "URLsCount": {
+            "description": "Count of URLs processed by module",
+            "type": "integer"
         },
         "WorkspaceId": {
             "description": "The Log Analytics Workspace Id of the Azure Sentinel Incident",

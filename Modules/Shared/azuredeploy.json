@@ -54,6 +54,22 @@
                     "actions": {
                         "Compose": {
                             "runAfter": {
+                                "For_each_Domain": [
+                                    "Succeeded",
+                                    "Failed"
+                                ],
+                                "For_each_FIleHash": [
+                                    "Succeeded",
+                                    "Failed"
+                                ],
+                                "For_each_File": [
+                                    "Succeeded",
+                                    "Failed"
+                                ],
+                                "For_each_URL": [
+                                    "Succeeded",
+                                    "Failed"
+                                ],
                                 "For_each_account": [
                                     "Succeeded",
                                     "Failed"
@@ -71,12 +87,20 @@
                             "inputs": {
                                 "Accounts": "@variables('AccountsArray')",
                                 "AccountsCount": "@length(variables('AccountsArray'))",
-                                "EntitiesCount": "@add(add(length(body('Filter_array_-_Accounts')),length(body('Filter_array_-_Hosts'))),length(body('Filter_array_-_IPs')))",
+                                "Domains": "@variables('DomainArray')",
+                                "DomainsCount": "@length(variables('DomainArray'))",
+                                "EntitiesCount": "@add(add(add(length(variables('AccountsArray')),length(variables('DomainArray'))),add(length(variables('FileArray')),length(variables('FileHashArray')))),add(add(length(variables('HostArray')),length(variables('IPArray'))),length(variables('URLArray'))))",
+                                "FileHashes": "@variables('FileHashArray')",
+                                "FileHashesCount": "@length(variables('FileHashArray'))",
+                                "Files": "@variables('FileArray')",
+                                "FilesCount": "@length(variables('FileArray'))",
                                 "Hosts": "@variables('HostArray')",
                                 "HostsCount": "@length(variables('HostArray'))",
                                 "IPs": "@variables('IPArray')",
                                 "IPsCount": "@length(variables('IPArray'))",
                                 "IncidentARMId": "@triggerBody()?['IncidentARMId']",
+                                "URLs": "@variables('URLArray')",
+                                "URLsCount": "@length(variables('URLArray'))",
                                 "WorkspaceId": "@triggerBody()?['WorkspaceId']"
                             }
                         },
@@ -86,6 +110,30 @@
                             "inputs": {
                                 "from": "@triggerBody()?['Entities']",
                                 "where": "@equals(toLower(item()['kind']), 'account')"
+                            }
+                        },
+                        "Filter_array_-_Domains": {
+                            "runAfter": {},
+                            "type": "Query",
+                            "inputs": {
+                                "from": "@triggerBody()?['Entities']",
+                                "where": "@equals(toLower(item()['kind']), 'dnsresolution')"
+                            }
+                        },
+                        "Filter_array_-_File_Hashes": {
+                            "runAfter": {},
+                            "type": "Query",
+                            "inputs": {
+                                "from": "@triggerBody()?['Entities']",
+                                "where": "@equals(toLower(item()['kind']), 'filehash')"
+                            }
+                        },
+                        "Filter_array_-_Files": {
+                            "runAfter": {},
+                            "type": "Query",
+                            "inputs": {
+                                "from": "@triggerBody()?['Entities']",
+                                "where": "@equals(toLower(item()['kind']), 'file')"
                             }
                         },
                         "Filter_array_-_Hosts": {
@@ -103,6 +151,98 @@
                                 "from": "@triggerBody()?['Entities']",
                                 "where": "@equals(toLower(item()['kind']), 'ip')"
                             }
+                        },
+                        "Filter_array_-_URLs": {
+                            "runAfter": {},
+                            "type": "Query",
+                            "inputs": {
+                                "from": "@triggerBody()?['Entities']",
+                                "where": "@equals(toLower(item()['kind']), 'url')"
+                            }
+                        },
+                        "For_each_Domain": {
+                            "foreach": "@body('Filter_array_-_Domains')",
+                            "actions": {
+                                "Append_to_DomainArray": {
+                                    "runAfter": {},
+                                    "type": "AppendToArrayVariable",
+                                    "inputs": {
+                                        "name": "DomainArray",
+                                        "value": {
+                                            "RawEntity": "@item()['properties']"
+                                        }
+                                    }
+                                }
+                            },
+                            "runAfter": {
+                                "Initialize_DomainArray": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Foreach"
+                        },
+                        "For_each_FIleHash": {
+                            "foreach": "@body('Filter_array_-_File_Hashes')",
+                            "actions": {
+                                "Append_to_FileHashArray": {
+                                    "runAfter": {},
+                                    "type": "AppendToArrayVariable",
+                                    "inputs": {
+                                        "name": "FileHashArray",
+                                        "value": {
+                                            "RawEntity": "@items('For_each_FIleHash')['properties']"
+                                        }
+                                    }
+                                }
+                            },
+                            "runAfter": {
+                                "Initialize_FileHashArray": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Foreach"
+                        },
+                        "For_each_File": {
+                            "foreach": "@body('Filter_array_-_Files')",
+                            "actions": {
+                                "Append_to_FileArray": {
+                                    "runAfter": {},
+                                    "type": "AppendToArrayVariable",
+                                    "inputs": {
+                                        "name": "FileArray",
+                                        "value": {
+                                            "RawEntity": "@items('For_each_File')['properties']"
+                                        }
+                                    }
+                                }
+                            },
+                            "runAfter": {
+                                "Initialize_FileArray": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Foreach"
+                        },
+                        "For_each_URL": {
+                            "foreach": "@body('Filter_array_-_URLs')",
+                            "actions": {
+                                "Append_to_URLArray": {
+                                    "runAfter": {},
+                                    "type": "AppendToArrayVariable",
+                                    "inputs": {
+                                        "name": "URLArray",
+                                        "value": {
+                                            "RawEntity": "@items('For_each_URL')['properties']"
+                                        }
+                                    }
+                                }
+                            },
+                            "runAfter": {
+                                "Initialize_URLArray": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Foreach"
                         },
                         "For_each_account": {
                             "foreach": "@body('Select_Accounts')",
@@ -422,6 +562,57 @@
                                 ]
                             }
                         },
+                        "Initialize_DomainArray": {
+                            "runAfter": {
+                                "Filter_array_-_Domains": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "DomainArray",
+                                        "type": "array",
+                                        "value": []
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_FileArray": {
+                            "runAfter": {
+                                "Filter_array_-_Files": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "FileArray",
+                                        "type": "array",
+                                        "value": []
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_FileHashArray": {
+                            "runAfter": {
+                                "Filter_array_-_File_Hashes": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "FileHashArray",
+                                        "type": "array",
+                                        "value": []
+                                    }
+                                ]
+                            }
+                        },
                         "Initialize_HostArray": {
                             "runAfter": {
                                 "Filter_array_-_Hosts": [
@@ -469,6 +660,23 @@
                                         "name": "SelectProperties",
                                         "type": "string",
                                         "value": "userPrincipalName,id,onPremisesSecurityIdentifier,onPremisesDistinguishedName,onPremisesDomainName,onPremisesSamAccountName,onPremisesSyncEnabled,mail,city,state,country,department,jobTitle,officeLocation,accountEnabled&$expand=manager($select=userPrincipalName,mail,id)"
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_URLArray": {
+                            "runAfter": {
+                                "Filter_array_-_URLs": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "URLArray",
+                                        "type": "array",
+                                        "value": []
                                     }
                                 ]
                             }
