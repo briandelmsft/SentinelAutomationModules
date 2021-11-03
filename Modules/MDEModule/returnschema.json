@@ -1,45 +1,80 @@
 ﻿{
-    "type": "object",
     "properties": {
-        "HighestScore": {
+        "AnalyzedEntities": {
+            "description": "Number of entities parsed by the module",
+            "type": "integer"
+        },
+        "DetailedResults": {
+            "properties": {
+                "Accounts": {
+                    "description": "Array of accounts and associated devices",
+                    "items": {
+                        "properties": {
+                            "UserDevices": {
+                                "type": "array"
+                            },
+                            "UserHighestExposureLevel": {
+                                "type": "string"
+                            },
+                            "UserHighestRiskScore": {
+                                "type": "string"
+                            },
+                            "UserId": {
+                                "type": "string"
+                            },
+                            "UserPrincipalName": {
+                                "type": "string"
+                            },
+                            "UserSid": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [],
+                        "type": "object"
+                    },
+                    "type": "array"
+                },
+                "IPs": {
+                    "description": "Array of IPs and associated devices",
+                    "items": {
+                        "properties": {
+                            "Address": {
+                                "type": "string"
+                            },
+                            "IPDevices": {
+                                "type": "array"
+                            },
+                            "IPHighestExposureLevel": {
+                                "type": "string"
+                            },
+                            "IPHighestRiskScore": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [],
+                        "type": "object"
+                    },
+                    "type": "array"
+                }
+            },
+            "type": "object"
+        },
+        "IPsHighestExposureLevel": {
+            "description": "Highest exposure level found on devices for all IPs",
             "type": "string"
         },
-        "PerUserScore": {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "properties": {
-                    "UserPrincipalName": {
-                        "type": "string"
-                    },
-                    "UserId": {
-                        "type": "string"
-                    },
-                    "UserSid": {
-                        "type": "string"
-                    },
-                    "UserHighestScore": {
-                        "type": "string"
-                    },
-                    "UserDevices": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "properties": {
-                                "DeviceName": {
-                                    "type": "string"
-                                },
-                                "DeviceId": {
-                                    "type": "string"
-                                },
-                                "DeviceRiskScore": {
-                                    "type": "string"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+        "IPsHighestRiskScore": {
+            "description": "Highest risk score found on devices for all IPs",
+            "type": "string"
+        },
+        "UsersHighestExposureLevel": {
+            "description": "Highest exposure level found on devices for all accounts",
+            "type": "string"
+        },
+        "UsersHighestRiskScore": {
+            "description": "Highest risk score found for on devices all accounts",
+            "type": "string"
         }
-    }
+    },
+    "type": "object"
 }
