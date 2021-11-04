@@ -5,7 +5,7 @@ $TenantID=""  #Add your AAD Tenant Id
 $AzureSubscriptionId = "" #Azure Subscrition Id of Sentinel Subscription
 $SentinelResourceGroupName = "" #Resource Group Name of Sentinel
 
-$MDELogicAppName="Get-FileInsights"  #Name of the MDE Logic App
+$FileLogicAppName="Get-FileInsights"  #Name of the FileInsight Logic App
 
 Connect-AzureAD -TenantId $TenantID
 Login-AzAccount
@@ -29,5 +29,5 @@ function Set-RBACPermissions ($MSIName, $Role) {
 }
 
 #FileInsights
-Set-APIPermissions -MSIName $MDELogicAppName -AppId "8ee8fdad-f234-4243-8f3b-15c294843740" -PermissionName "AdvancedHunting.Read.All"
-Set-RBACPermissions -MSIName $MDELogicAppName -Role "Azure Sentinel Responder"
+Set-APIPermissions -MSIName $FileLogicAppName -AppId "8ee8fdad-f234-4243-8f3b-15c294843740" -PermissionName "AdvancedHunting.Read.All"
+Set-RBACPermissions -MSIName $FileLogicAppName -Role "Azure Sentinel Responder"
