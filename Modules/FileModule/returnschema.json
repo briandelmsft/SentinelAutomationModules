@@ -1,0 +1,90 @@
+﻿{
+    "properties": {
+        "AnalyzedEntities": {
+            "type": "integer",
+            "description": "Number of entities analyzed"
+        },
+        "EntitiesAttachmentCount": {
+            "type": "integer",
+            "description": "Number of times the entities were found in email attachements"
+        },
+        "HashesInvalidSignatureCount": {
+            "type": "integer",
+            "description": "Number of hashes of files with no or invalid signatures found"
+        },
+        "HashesLinkedToThreatCount": {
+            "type": "integer",
+            "description": "Number of hashes of files linked with a known threat found"
+        },
+        "HashesNotMicrosoftSignedCount": {
+            "type": "integer",
+            "description": "Number of hashes of files not signed by Microsoft found"
+        },
+        "MaximumGlobalPrevalence": {
+            "type": "integer",
+            "description": "Highest global prevalence score found"
+        }, 
+        "MinimumGlobalPrevalence": {
+            "type": "integer",
+            "description": "Lowest global prevalence score found"
+        },
+        "HashesThreatList": {
+            "type": "array",
+            "description" : "List of known threat for hashes parsed witht the function FileProfile()",
+            "items": {}
+        },        
+        "DetailedResults": {
+            "description" : "Array of detailed results for files and hashes" ,
+            "items": {
+                "properties": {
+                    "EmailAttachmentCount": {
+                        "type": "integer"
+                    },
+                    "EmailAttachmentFileSize": {
+                        "type": "integer"
+                    },
+                    "EmailAttachmentFirstSeen": {
+                        "type": "string"
+                    },
+                    "EmailAttachmentLastSeen": {
+                        "type": "string"
+                    },
+                    "FileName": {
+                        "type": "string"
+                    },
+                    "GlobalFirstSeen": {
+                        "type": "string"
+                    },
+                    "GlobalLastSeen": {
+                        "type": "string"
+                    },
+                    "GlobalPrevalence": {
+                        "type": "integer"
+                    },
+                    "IsCertificateValid": {
+                        "type": "integer"
+                    },
+                    "MD5": {
+                        "type": "string"
+                    },
+                    "Publisher": {
+                        "type": "string"
+                    },
+                    "SHA1": {
+                        "type": "string"
+                    },
+                    "SHA256": {
+                        "type": "string"
+                    },
+                    "SignatureState": {
+                        "type": "string"
+                    },
+                    "ThreatName": {
+                        "type": "string"
+                    }
+                }
+            },
+            "type": "array"
+        }
+    }
+}
