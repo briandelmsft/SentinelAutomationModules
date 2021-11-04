@@ -3,7 +3,7 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "PlaybookName": {
-            "defaultValue": "Enrich-Entities",
+            "defaultValue": "Base-Module",
             "type": "String"
         }
     },
