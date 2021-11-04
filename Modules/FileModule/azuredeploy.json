@@ -84,7 +84,7 @@
                                 "AnalyzedEntities": "@add(length(variables('FileHashResults')),length(variables('FileResults')))",
                                 "DetailedResults": "@union(variables('FileHashResults'),variables('FileResults'))",
                                 "EntitiesAttachmentCount": "@variables('EntitiesAttachmentCount')",
-                                "HashedInvalidSignatureCount": "@variables('HashedInvalidSignatureCount')",
+                                "HashesInvalidSignatureCount": "@variables('HashesInvalidSignatureCount')",
                                 "HashesLinkedToThreatCount": "@variables('HashesLinkedToThreatCount')",
                                 "HashesNotMicrosoftSignedCount": "@variables('HashesNotMicrosoftSignedCount')",
                                 "HashesThreatList": "@variables('HashesThreatList')",
@@ -104,7 +104,7 @@
                                     "inputs": {
                                         "body": {
                                             "incidentArmId": "@{triggerBody()?['Entities']['IncidentARMId']}",
-                                            "message": "<p>Analyzed entities: @{outputs('Compose_response')['AnalyzedEntities']}<br>\nMaximum Global Prevalence: @{outputs('Compose_response')['MaximumGlobalPrevalence']}<br>\nMinimum Global Prevalence: @{outputs('Compose_response')['MinimumGlobalPrevalence']}<br>\nNumber of files found in email attachments: @{outputs('Compose_response')['EntitiesAttachmentCount']}<br>\nNumber of hashes for files not signed by Microsoft: @{outputs('Compose_response')['HashesNotMicrosoftSignedCount']}<br>\nNumber of hashes with no or invalid signatures: @{outputs('Compose_response')['HashedInvalidSignatureCount']}<br>\nNumber of hashes linked to known threats: @{outputs('Compose_response')['HashesLinkedToThreatCount']}<br>\nList of these threats: @{if(equals(length(variables('HashesThreatList')),0),'No threats found',body('Create_HTML_table_for_threats'))}<br>\nDetails for files: @{if(equals(length(variables('FileResults')),0),'No attachment files found',body('Create_HTML_table_for_files'))}<br>\nDetails for hashes: @{if(equals(length(variables('FileHashResults')),0),'No hashes found',body('Create_HTML_table_for_hashes'))}<br>\n<br>\n</p>"
+                                            "message": "<p>Analyzed entities: @{outputs('Compose_response')['AnalyzedEntities']}<br>\nMaximum Global Prevalence: @{outputs('Compose_response')['MaximumGlobalPrevalence']}<br>\nMinimum Global Prevalence: @{outputs('Compose_response')['MinimumGlobalPrevalence']}<br>\nNumber of files found in email attachments: @{outputs('Compose_response')['EntitiesAttachmentCount']}<br>\nNumber of hashes for files not signed by Microsoft: @{outputs('Compose_response')['HashesNotMicrosoftSignedCount']}<br>\nNumber of hashes with no or invalid signatures: @{outputs('Compose_response')['HashesInvalidSignatureCount']}<br>\nNumber of hashes linked to known threats: @{outputs('Compose_response')['HashesLinkedToThreatCount']}<br>\nList of these threats: @{if(equals(length(variables('HashesThreatList')),0),'No threats found',body('Create_HTML_table_for_threats'))}<br>\nDetails for files: @{if(equals(length(variables('FileResults')),0),'No attachment files found',body('Create_HTML_table_for_files'))}<br>\nDetails for hashes: @{if(equals(length(variables('FileHashResults')),0),'No hashes found',body('Create_HTML_table_for_hashes'))}<br>\n<br>\n</p>"
                                         },
                                         "host": {
                                             "connection": {
@@ -198,7 +198,7 @@
                                             "AnalyzedEntities": 0,
                                             "DetailedResults": [],
                                             "EntitiesAttachmentCount": 0,
-                                            "HashedInvalidSignatureCount": 0,
+                                            "HashesInvalidSignatureCount": 0,
                                             "HashesLinkedToThreatCount": 0,
                                             "HashesNotMicrosoftSignedCount": 0,
                                             "HashesThreatList": [],
@@ -207,222 +207,93 @@
                                         },
                                         "schema": {
                                             "properties": {
-                                                "properties": {
-                                                    "properties": {
-                                                        "AnalyzedEntities": {
-                                                            "properties": {
-                                                                "type": {
-                                                                    "type": "string"
-                                                                }
-                                                            },
-                                                            "type": "object"
-                                                        },
-                                                        "DetailedResults": {
-                                                            "properties": {
-                                                                "items": {
-                                                                    "properties": {
-                                                                        "properties": {
-                                                                            "properties": {
-                                                                                "EmailAttachmentCount": {
-                                                                                    "properties": {
-                                                                                        "type": {
-                                                                                            "type": "string"
-                                                                                        }
-                                                                                    },
-                                                                                    "type": "object"
-                                                                                },
-                                                                                "EmailAttachmentFileSize": {
-                                                                                    "properties": {
-                                                                                        "type": {
-                                                                                            "type": "string"
-                                                                                        }
-                                                                                    },
-                                                                                    "type": "object"
-                                                                                },
-                                                                                "EmailAttachmentFirstSeen": {
-                                                                                    "properties": {
-                                                                                        "type": {
-                                                                                            "type": "string"
-                                                                                        }
-                                                                                    },
-                                                                                    "type": "object"
-                                                                                },
-                                                                                "EmailAttachmentLastSeen": {
-                                                                                    "properties": {
-                                                                                        "type": {
-                                                                                            "type": "string"
-                                                                                        }
-                                                                                    },
-                                                                                    "type": "object"
-                                                                                },
-                                                                                "FileName": {
-                                                                                    "properties": {
-                                                                                        "type": {
-                                                                                            "type": "string"
-                                                                                        }
-                                                                                    },
-                                                                                    "type": "object"
-                                                                                },
-                                                                                "GlobalFirstSeen": {
-                                                                                    "properties": {
-                                                                                        "type": {
-                                                                                            "type": "string"
-                                                                                        }
-                                                                                    },
-                                                                                    "type": "object"
-                                                                                },
-                                                                                "GlobalLastSeen": {
-                                                                                    "properties": {
-                                                                                        "type": {
-                                                                                            "type": "string"
-                                                                                        }
-                                                                                    },
-                                                                                    "type": "object"
-                                                                                },
-                                                                                "GlobalPrevalence": {
-                                                                                    "properties": {
-                                                                                        "type": {
-                                                                                            "type": "string"
-                                                                                        }
-                                                                                    },
-                                                                                    "type": "object"
-                                                                                },
-                                                                                "IsCertificateValid": {
-                                                                                    "properties": {
-                                                                                        "type": {
-                                                                                            "type": "string"
-                                                                                        }
-                                                                                    },
-                                                                                    "type": "object"
-                                                                                },
-                                                                                "MD5": {
-                                                                                    "properties": {
-                                                                                        "type": {
-                                                                                            "type": "string"
-                                                                                        }
-                                                                                    },
-                                                                                    "type": "object"
-                                                                                },
-                                                                                "Publisher": {
-                                                                                    "properties": {
-                                                                                        "type": {
-                                                                                            "type": "string"
-                                                                                        }
-                                                                                    },
-                                                                                    "type": "object"
-                                                                                },
-                                                                                "SHA1": {
-                                                                                    "properties": {
-                                                                                        "type": {
-                                                                                            "type": "string"
-                                                                                        }
-                                                                                    },
-                                                                                    "type": "object"
-                                                                                },
-                                                                                "SHA256": {
-                                                                                    "properties": {
-                                                                                        "type": {
-                                                                                            "type": "string"
-                                                                                        }
-                                                                                    },
-                                                                                    "type": "object"
-                                                                                },
-                                                                                "SignatureState": {
-                                                                                    "properties": {
-                                                                                        "type": {
-                                                                                            "type": "string"
-                                                                                        }
-                                                                                    },
-                                                                                    "type": "object"
-                                                                                },
-                                                                                "ThreatName": {
-                                                                                    "properties": {
-                                                                                        "type": {
-                                                                                            "type": "string"
-                                                                                        }
-                                                                                    },
-                                                                                    "type": "object"
-                                                                                }
-                                                                            },
-                                                                            "type": "object"
-                                                                        },
-                                                                        "type": {
-                                                                            "type": "string"
-                                                                        }
-                                                                    },
-                                                                    "type": "object"
-                                                                },
-                                                                "type": {
-                                                                    "type": "string"
-                                                                }
-                                                            },
-                                                            "type": "object"
-                                                        },
-                                                        "EntitiesAttachmentCount": {
-                                                            "properties": {
-                                                                "type": {
-                                                                    "type": "string"
-                                                                }
-                                                            },
-                                                            "type": "object"
-                                                        },
-                                                        "HashedInvalidSignatureCount": {
-                                                            "properties": {
-                                                                "type": {
-                                                                    "type": "string"
-                                                                }
-                                                            },
-                                                            "type": "object"
-                                                        },
-                                                        "HashesLinkedToThreatCount": {
-                                                            "properties": {
-                                                                "type": {
-                                                                    "type": "string"
-                                                                }
-                                                            },
-                                                            "type": "object"
-                                                        },
-                                                        "HashesNotMicrosoftSignedCount": {
-                                                            "properties": {
-                                                                "type": {
-                                                                    "type": "string"
-                                                                }
-                                                            },
-                                                            "type": "object"
-                                                        },
-                                                        "HashesThreatList": {
-                                                            "properties": {
-                                                                "type": {
-                                                                    "type": "string"
-                                                                }
-                                                            },
-                                                            "type": "object"
-                                                        },
-                                                        "MaximumGlobalPrevalence": {
-                                                            "properties": {
-                                                                "type": {
-                                                                    "type": "string"
-                                                                }
-                                                            },
-                                                            "type": "object"
-                                                        },
-                                                        "MinimumGlobalPrevalence": {
-                                                            "properties": {
-                                                                "type": {
-                                                                    "type": "string"
-                                                                }
-                                                            },
-                                                            "type": "object"
-                                                        }
-                                                    },
-                                                    "type": "object"
-                                                },
-                                                "type": {
-                                                    "type": "string"
-                                                }
+                                            "AnalyzedEntities": {
+                                                "type": "integer",
+                                                "description": "Number of entities analyzed"
                                             },
-                                            "type": "object"
-                                        },
+                                            "EntitiesAttachmentCount": {
+                                                "type": "integer",
+                                                "description": "Number of times the entities were found in email attachements"
+                                            },
+                                            "HashesInvalidSignatureCount": {
+                                                "type": "integer",
+                                                "description": "Number of hashes of files with no or invalid signatures found"
+                                            },
+                                            "HashesLinkedToThreatCount": {
+                                                "type": "integer",
+                                                "description": "Number of hashes of files linked with a known threat found"
+                                            },
+                                            "HashesNotMicrosoftSignedCount": {
+                                                "type": "integer",
+                                                "description": "Number of hashes of files not signed by Microsoft found"
+                                            },
+                                            "MaximumGlobalPrevalence": {
+                                                "type": "integer",
+                                                "description": "Highest global prevalence score found"
+                                            }, 
+                                            "MinimumGlobalPrevalence": {
+                                                "type": "integer",
+                                                "description": "Lowest global prevalence score found"
+                                            },
+                                            "HashesThreatList": {
+                                                "type": "array",
+                                                "items": {}
+                                            },        
+                                            "DetailedResults": {
+                                                "description" : "Array of detailed results for files and hashes" ,
+                                                "items": {
+                                                    "properties": {
+                                                        "EmailAttachmentCount": {
+                                                            "type": "integer"
+                                                        },
+                                                        "EmailAttachmentFileSize": {
+                                                            "type": "integer"
+                                                        },
+                                                        "EmailAttachmentFirstSeen": {
+                                                            "type": "string"
+                                                        },
+                                                        "EmailAttachmentLastSeen": {
+                                                            "type": "string"
+                                                        },
+                                                        "FileName": {
+                                                            "type": "string"
+                                                        },
+                                                        "GlobalFirstSeen": {
+                                                            "type": "string"
+                                                        },
+                                                        "GlobalLastSeen": {
+                                                            "type": "string"
+                                                        },
+                                                        "GlobalPrevalence": {
+                                                            "type": "integer"
+                                                        },
+                                                        "IsCertificateValid": {
+                                                            "type": "integer"
+                                                        },
+                                                        "MD5": {
+                                                            "type": "string"
+                                                        },
+                                                        "Publisher": {
+                                                            "type": "string"
+                                                        },
+                                                        "SHA1": {
+                                                            "type": "string"
+                                                        },
+                                                        "SHA256": {
+                                                            "type": "string"
+                                                        },
+                                                        "SignatureState": {
+                                                            "type": "string"
+                                                        },
+                                                        "ThreatName": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                },
+                                                "type": "array"
+                                            }
+                                        }
+                                    },
                                         "statusCode": 200
                                     }
                                 },
@@ -481,7 +352,7 @@
                                     "type": "Compose",
                                     "inputs": {
                                         "EmailAttachmentCount": "@coalesce(body('HTTP_query_the_EmailAttachmentInfo_table_with_files')?['Results']?[0]?['Count'],0)",
-                                        "EmailAttachmentFileSize": "@{coalesce(body('HTTP_query_the_EmailAttachmentInfo_table_with_files')?['Results']?[0]?['FileSize'],'')}",
+                                        "EmailAttachmentFileSize": "@{coalesce(body('HTTP_query_the_EmailAttachmentInfo_table_with_files')?['Results']?[0]?['FileSize'],0)}",
                                         "EmailAttachmentFirstSeen": "@{coalesce(body('HTTP_query_the_EmailAttachmentInfo_table_with_files')?['Results']?[0]?['FirstSeen'],null)}",
                                         "EmailAttachmentLastSeen": "@{coalesce(body('HTTP_query_the_EmailAttachmentInfo_table_with_files')?['Results']?[0]?['LastSeen'],null)}",
                                         "FileName": "@{items('For_each_File')['RawEntity']['friendlyName']}"
@@ -601,7 +472,7 @@
                                     "type": "Compose",
                                     "inputs": {
                                         "EmailAttachmentCount": "@coalesce(body('HTTP_query_the_EmailAttachmentInfo_table_with_hashes')?['Results']?[0]?['Count'],0)",
-                                        "EmailAttachmentFileSize": "@{coalesce(body('HTTP_query_the_EmailAttachmentInfo_table_with_hashes')?['Results']?[0]?['FileSize'],'')}",
+                                        "EmailAttachmentFileSize": "@{coalesce(body('HTTP_query_the_EmailAttachmentInfo_table_with_hashes')?['Results']?[0]?['FileSize'],0)}",
                                         "EmailAttachmentFirstSeen": "@{coalesce(body('HTTP_query_the_EmailAttachmentInfo_table_with_hashes')?['Results']?[0]?['FirstSeen'],null)}",
                                         "EmailAttachmentLastSeen": "@{coalesce(body('HTTP_query_the_EmailAttachmentInfo_table_with_hashes')?['Results']?[0]?['LastSeen'],null)}",
                                         "FileName": "@{coalesce(body('HTTP_query_the_EmailAttachmentInfo_table_with_hashes')?['Results']?[0]?['FileName'],null)}",
@@ -706,7 +577,7 @@
                                         "value": "@outputs('Compose_DetailedResults_entry_for_hashes')['EmailAttachmentCount']"
                                     }
                                 },
-                                "Increment_variable_HashedInvalidSignatureCount": {
+                                "Increment_variable_HashesInvalidSignatureCount": {
                                     "runAfter": {
                                         "Append_to_array_FileHashResults": [
                                             "Succeeded"
@@ -714,7 +585,7 @@
                                     },
                                     "type": "IncrementVariable",
                                     "inputs": {
-                                        "name": "HashedInvalidSignatureCount",
+                                        "name": "HashesInvalidSignatureCount",
                                         "value": "@if(equals(body('HTTP_invoke_the_FileProfile_function')?['Results']?[0]?['SignatureState'],'SignedValid'),0,1)"
                                     }
                                 },
@@ -752,7 +623,7 @@
                         },
                         "Initialize_variable_EntitiesAttachmentCount": {
                             "runAfter": {
-                                "Initialize_variable_HashedInvalidSignatureCount": [
+                                "Initialize_variable_HashesInvalidSignatureCount": [
                                     "Succeeded"
                                 ]
                             },
@@ -818,7 +689,7 @@
                                 ]
                             }
                         },
-                        "Initialize_variable_HashedInvalidSignatureCount": {
+                        "Initialize_variable_HashesInvalidSignatureCount": {
                             "runAfter": {
                                 "Initialize_variable_HashesNotMicrosoftSignedCount": [
                                     "Succeeded"
@@ -828,7 +699,7 @@
                             "inputs": {
                                 "variables": [
                                     {
-                                        "name": "HashedInvalidSignatureCount",
+                                        "name": "HashesInvalidSignatureCount",
                                         "type": "integer",
                                         "value": 0
                                     }
@@ -898,222 +769,93 @@
                                 "body": "@outputs('Compose_response')",
                                 "schema": {
                                     "properties": {
-                                        "properties": {
-                                            "properties": {
-                                                "AnalyzedEntities": {
-                                                    "properties": {
-                                                        "type": {
-                                                            "type": "string"
-                                                        }
-                                                    },
-                                                    "type": "object"
-                                                },
-                                                "DetailedResults": {
-                                                    "properties": {
-                                                        "items": {
-                                                            "properties": {
-                                                                "properties": {
-                                                                    "properties": {
-                                                                        "EmailAttachmentCount": {
-                                                                            "properties": {
-                                                                                "type": {
-                                                                                    "type": "string"
-                                                                                }
-                                                                            },
-                                                                            "type": "object"
-                                                                        },
-                                                                        "EmailAttachmentFileSize": {
-                                                                            "properties": {
-                                                                                "type": {
-                                                                                    "type": "string"
-                                                                                }
-                                                                            },
-                                                                            "type": "object"
-                                                                        },
-                                                                        "EmailAttachmentFirstSeen": {
-                                                                            "properties": {
-                                                                                "type": {
-                                                                                    "type": "string"
-                                                                                }
-                                                                            },
-                                                                            "type": "object"
-                                                                        },
-                                                                        "EmailAttachmentLastSeen": {
-                                                                            "properties": {
-                                                                                "type": {
-                                                                                    "type": "string"
-                                                                                }
-                                                                            },
-                                                                            "type": "object"
-                                                                        },
-                                                                        "FileName": {
-                                                                            "properties": {
-                                                                                "type": {
-                                                                                    "type": "string"
-                                                                                }
-                                                                            },
-                                                                            "type": "object"
-                                                                        },
-                                                                        "GlobalFirstSeen": {
-                                                                            "properties": {
-                                                                                "type": {
-                                                                                    "type": "string"
-                                                                                }
-                                                                            },
-                                                                            "type": "object"
-                                                                        },
-                                                                        "GlobalLastSeen": {
-                                                                            "properties": {
-                                                                                "type": {
-                                                                                    "type": "string"
-                                                                                }
-                                                                            },
-                                                                            "type": "object"
-                                                                        },
-                                                                        "GlobalPrevalence": {
-                                                                            "properties": {
-                                                                                "type": {
-                                                                                    "type": "string"
-                                                                                }
-                                                                            },
-                                                                            "type": "object"
-                                                                        },
-                                                                        "IsCertificateValid": {
-                                                                            "properties": {
-                                                                                "type": {
-                                                                                    "type": "string"
-                                                                                }
-                                                                            },
-                                                                            "type": "object"
-                                                                        },
-                                                                        "MD5": {
-                                                                            "properties": {
-                                                                                "type": {
-                                                                                    "type": "string"
-                                                                                }
-                                                                            },
-                                                                            "type": "object"
-                                                                        },
-                                                                        "Publisher": {
-                                                                            "properties": {
-                                                                                "type": {
-                                                                                    "type": "string"
-                                                                                }
-                                                                            },
-                                                                            "type": "object"
-                                                                        },
-                                                                        "SHA1": {
-                                                                            "properties": {
-                                                                                "type": {
-                                                                                    "type": "string"
-                                                                                }
-                                                                            },
-                                                                            "type": "object"
-                                                                        },
-                                                                        "SHA256": {
-                                                                            "properties": {
-                                                                                "type": {
-                                                                                    "type": "string"
-                                                                                }
-                                                                            },
-                                                                            "type": "object"
-                                                                        },
-                                                                        "SignatureState": {
-                                                                            "properties": {
-                                                                                "type": {
-                                                                                    "type": "string"
-                                                                                }
-                                                                            },
-                                                                            "type": "object"
-                                                                        },
-                                                                        "ThreatName": {
-                                                                            "properties": {
-                                                                                "type": {
-                                                                                    "type": "string"
-                                                                                }
-                                                                            },
-                                                                            "type": "object"
-                                                                        }
-                                                                    },
-                                                                    "type": "object"
-                                                                },
-                                                                "type": {
-                                                                    "type": "string"
-                                                                }
-                                                            },
-                                                            "type": "object"
-                                                        },
-                                                        "type": {
-                                                            "type": "string"
-                                                        }
-                                                    },
-                                                    "type": "object"
-                                                },
-                                                "EntitiesAttachmentCount": {
-                                                    "properties": {
-                                                        "type": {
-                                                            "type": "string"
-                                                        }
-                                                    },
-                                                    "type": "object"
-                                                },
-                                                "HashedInvalidSignatureCount": {
-                                                    "properties": {
-                                                        "type": {
-                                                            "type": "string"
-                                                        }
-                                                    },
-                                                    "type": "object"
-                                                },
-                                                "HashesLinkedToThreatCount": {
-                                                    "properties": {
-                                                        "type": {
-                                                            "type": "string"
-                                                        }
-                                                    },
-                                                    "type": "object"
-                                                },
-                                                "HashesNotMicrosoftSignedCount": {
-                                                    "properties": {
-                                                        "type": {
-                                                            "type": "string"
-                                                        }
-                                                    },
-                                                    "type": "object"
-                                                },
-                                                "HashesThreatList": {
-                                                    "properties": {
-                                                        "type": {
-                                                            "type": "string"
-                                                        }
-                                                    },
-                                                    "type": "object"
-                                                },
-                                                "MaximumGlobalPrevalence": {
-                                                    "properties": {
-                                                        "type": {
-                                                            "type": "string"
-                                                        }
-                                                    },
-                                                    "type": "object"
-                                                },
-                                                "MinimumGlobalPrevalence": {
-                                                    "properties": {
-                                                        "type": {
-                                                            "type": "string"
-                                                        }
-                                                    },
-                                                    "type": "object"
-                                                }
+                                            "AnalyzedEntities": {
+                                                "type": "integer",
+                                                "description": "Number of entities analyzed"
                                             },
-                                            "type": "object"
-                                        },
-                                        "type": {
-                                            "type": "string"
+                                            "EntitiesAttachmentCount": {
+                                                "type": "integer",
+                                                "description": "Number of times the entities were found in email attachements"
+                                            },
+                                            "HashesInvalidSignatureCount": {
+                                                "type": "integer",
+                                                "description": "Number of hashes of files with no or invalid signatures found"
+                                            },
+                                            "HashesLinkedToThreatCount": {
+                                                "type": "integer",
+                                                "description": "Number of hashes of files linked with a known threat found"
+                                            },
+                                            "HashesNotMicrosoftSignedCount": {
+                                                "type": "integer",
+                                                "description": "Number of hashes of files not signed by Microsoft found"
+                                            },
+                                            "MaximumGlobalPrevalence": {
+                                                "type": "integer",
+                                                "description": "Highest global prevalence score found"
+                                            }, 
+                                            "MinimumGlobalPrevalence": {
+                                                "type": "integer",
+                                                "description": "Lowest global prevalence score found"
+                                            },
+                                            "HashesThreatList": {
+                                                "type": "array",
+                                                "items": {}
+                                            },        
+                                            "DetailedResults": {
+                                                "description" : "Array of detailed results for files and hashes" ,
+                                                "items": {
+                                                    "properties": {
+                                                        "EmailAttachmentCount": {
+                                                            "type": "integer"
+                                                        },
+                                                        "EmailAttachmentFileSize": {
+                                                            "type": "integer"
+                                                        },
+                                                        "EmailAttachmentFirstSeen": {
+                                                            "type": "string"
+                                                        },
+                                                        "EmailAttachmentLastSeen": {
+                                                            "type": "string"
+                                                        },
+                                                        "FileName": {
+                                                            "type": "string"
+                                                        },
+                                                        "GlobalFirstSeen": {
+                                                            "type": "string"
+                                                        },
+                                                        "GlobalLastSeen": {
+                                                            "type": "string"
+                                                        },
+                                                        "GlobalPrevalence": {
+                                                            "type": "integer"
+                                                        },
+                                                        "IsCertificateValid": {
+                                                            "type": "integer"
+                                                        },
+                                                        "MD5": {
+                                                            "type": "string"
+                                                        },
+                                                        "Publisher": {
+                                                            "type": "string"
+                                                        },
+                                                        "SHA1": {
+                                                            "type": "string"
+                                                        },
+                                                        "SHA256": {
+                                                            "type": "string"
+                                                        },
+                                                        "SignatureState": {
+                                                            "type": "string"
+                                                        },
+                                                        "ThreatName": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                },
+                                                "type": "array"
+                                            }
                                         }
                                     },
-                                    "type": "object"
-                                },
                                 "statusCode": 200
                             }
                         }
