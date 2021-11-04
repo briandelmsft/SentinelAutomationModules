@@ -70,6 +70,30 @@
                             }
                         }
                     },
+                    "RawEntity": {
+                        "type": "object",
+                        "description": "Object containing Raw unenriched entity data in Accounts array",
+                        "properties": {
+                            "accountName": {
+                                "description": "accountName from RawEntity object in Accounts array"
+                            },
+                            "upnSuffix": {
+                                "description": "upnSuffix from RawEntity object in Accounts array"
+                            },
+                            "isDomainJoined": {
+                                "description": "isDomainJoined from RawEntity object in Accounts array"
+                            },
+                            "displayName": {
+                                "description": "dislayName from RawEntity object in Accounts array"
+                            },
+                            "friendlyName": {
+                                "description": "friendlyName from RawEntity object in Accounts array"
+                            },
+                            "sid": {
+                                "description": "sid from RawEntity object in Accounts array"
+                            }
+                        }
+                    },
                     "AssignedRoles": {
                         "type": "array",
                         "description": "Array of assigned roles in Accounts array",
@@ -87,29 +111,39 @@
                 "required": []
             }
         },
-        "AccountsAllValid": {
-            "type": "boolean",
-            "description": "True if all accounts were successfully processed"
-        },
-        "AccountsInput": {
+        "AccountsCount": {
             "type": "integer",
-            "description": "Sum of accounts input into enrichment module"
+            "description": "Count of accounts processed by module"
         },
-        "AccountsValid": {
+        "Domains": {
+            "type": "array",
+            "description": "Array of Domains",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "RawEntity": {
+                        "type": "object",
+                        "description": "Object containing Raw unenriched entity data in Domains array",
+                        "properties": {
+                            "domainName": {
+                                "description": "domainName from RawEntity object in Domains array"
+                            },
+                            "friendlyName": {
+                                "description": "friendlyName from RawEntity object in Domains array"
+                            }
+                        }
+                    }
+                },
+                "required": []
+            }
+        },
+        "DomainsCount": {
+            "description": "Count of Domains processed by module",
+            "type": "integer"
+        },
+        "EntitiesCount": {
             "type": "integer",
-            "description": "Sum of accounts successfully processed"
-        },
-        "EntitiesAllValid": {
-            "type": "boolean",
-            "description": "True if all entities were successfully processed"
-        },
-        "EntitiesInput": {
-            "type": "integer",
-            "description": "Sum of all entities input into enrichment module"
-        },
-        "EntitiesValid": {
-            "type": "integer",
-            "description": "Sum of all entities successfully processed"
+            "description": "Count of all entities processed by enrichment module"
         },
         "Hosts": {
             "type": "array",
@@ -125,21 +159,89 @@
                     },
                     "Hostname": {
                         "description": "Array property in Hosts array"
+                    },
+                    "RawEntity": {
+                        "type": "object",
+                        "description": "Object containing Raw unenriched entity data in Hosts array",
+                        "properties": {
+                            "dnsDomain": {
+                                "description": "dnsDomain from RawEntity object in Hosts array"
+                            },
+                            "hostName": {
+                                "description": "hostName from RawEntity object in Hosts array"
+                            },
+                            "netBiosName": {
+                                "description": "netBiosName from RawEntity object in Hosts array"
+                            },
+                            "friendlyName": {
+                                "description": "friendlyName from RawEntity object in Hosts array"
+                            }
+                        }
                     }
                 },
                 "required": []
             }
         },
-        "HostsAllValid": {
-            "description": "True if all Hosts were successfully processed",
-            "type": "boolean"
+        "FileHashes": {
+            "type": "array",
+            "description": "Array of FileHashes",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "RawEntity": {
+                        "type": "object",
+                        "description": "Object containing Raw unenriched entity data in FileHashes array",
+                        "properties": {
+                            "hashValue": {
+                                "description": "hashValue from RawEntity object in FileHashes array"
+                            },
+                            "algorithm": {
+                                "description": "algorithm from RawEntity object in FileHashes array"
+                            },
+                            "friendlyName": {
+                                "description": "friendlyName from RawEntity object in FileHashes array"
+                            }
+                        }
+                    }
+                },
+                "required": []
+            }
         },
-        "HostsInput": {
-            "description": "Sum of Hosts input into enrichment module",
+        "FileHashesCount": {
+            "description": "Count of File Hashes processed by module",
             "type": "integer"
         },
-        "HostsValid": {
-            "description": "Sum of Hosts successfully processed",
+        "Files": {
+            "type": "array",
+            "description": "Array of Files",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "RawEntity": {
+                        "type": "object",
+                        "description": "Object containing Raw unenriched entity data in Files array",
+                        "properties": {
+                            "directory": {
+                                "description": "directory from RawEntity object in Files array"
+                            },
+                            "fileName": {
+                                "description": "fileName from RawEntity object in Files array"
+                            },
+                            "friendlyName": {
+                                "description": "friendlyName from RawEntity object in Files array"
+                            }
+                        }
+                    }
+                },
+                "required": []
+            }
+        },
+        "FilesCount": {
+            "description": "Count of Files processed by module",
+            "type": "integer"
+        },
+        "HostsCount": {
+            "description": "Count of Hosts processed by module",
             "type": "integer"
         },
         "IPs": {
@@ -150,6 +252,18 @@
                 "properties": {
                     "Address": {
                         "description": "Array property in IPs array"
+                    },
+                    "RawEntity": {
+                        "type": "object",
+                        "description": "Object containing Raw unenriched entity data in IPs array",
+                        "properties": {
+                            "address": {
+                                "description": "address from RawEntity object in IPs array"
+                            },
+                            "friendlyName": {
+                                "description": "friendlyName from RawEntity object in IPs array"
+                            }
+                        }
                     },
                     "GeoData": {
                         "type": "object",
@@ -212,21 +326,39 @@
                 "required": []
             }
         },
-        "IPsAllValid": {
-            "description": "True if all IPs were successfully processed",
-            "type": "boolean"
-        },
-        "IPsInput": {
-            "description": "Sum of IPs input into enrichment module",
-            "type": "integer"
-        },
-        "IPsValid": {
-            "description": "Sum of IPs successfully processed",
+        "IPsCount": {
+            "description": "Count of IPs processed by module",
             "type": "integer"
         },
         "IncidentARMId": {
             "description": "The ARM Id of the Azure Sentinel Incident",
             "type": "string"
+        },
+        "URLs": {
+            "type": "array",
+            "description": "Array of URLs",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "RawEntity": {
+                        "type": "object",
+                        "description": "Object containing Raw unenriched entity data in URLs array",
+                        "properties": {
+                            "url": {
+                                "description": "url from RawEntity object in URLs array"
+                            },
+                            "friendlyName": {
+                                "description": "friendlyName from RawEntity object in URLs array"
+                            }
+                        }
+                    }
+                },
+                "required": []
+            }
+        },
+        "URLsCount": {
+            "description": "Count of URLs processed by module",
+            "type": "integer"
         },
         "WorkspaceId": {
             "description": "The Log Analytics Workspace Id of the Azure Sentinel Incident",
