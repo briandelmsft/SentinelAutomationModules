@@ -30,6 +30,7 @@
         },
         "HashesThreatList": {
             "type": "array",
+            "description" : "List of known threat for hashes parsed witht the function FileProfile()",
             "items": {}
         },        
         "DetailedResults": {
