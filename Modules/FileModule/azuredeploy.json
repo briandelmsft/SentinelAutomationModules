@@ -70,11 +70,6 @@
                         }
                     },
                     "actions": {
-                        "Compose": {
-                            "runAfter": {},
-                            "type": "Compose",
-                            "inputs": "temp"
-                        },
                         "Compose_response": {
                             "runAfter": {
                                 "For_each_File": [
@@ -443,11 +438,7 @@
                                     }
                                 }
                             },
-                            "runAfter": {
-                                "Compose": [
-                                    "Succeeded"
-                                ]
-                            },
+                            "runAfter": {},
                             "expression": {
                                 "and": [
                                     {
