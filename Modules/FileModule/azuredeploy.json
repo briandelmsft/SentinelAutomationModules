@@ -51,6 +51,7 @@
                     "triggers": {
                         "triage": {
                             "type": "Request",
+                            "operationOptions": "EnableSchemaValidation",
                             "kind": "Http",
                             "inputs": {
                                 "schema": {
