@@ -73,23 +73,7 @@
                         "Compose": {
                             "runAfter": {},
                             "type": "Compose",
-                            "inputs": {
-                                "Files": [
-                                    {
-                                        "FileName": "mtt_Demo.docm",
-                                        "FileSHA256": "097500580650d3d2098626cbc3f45dce7778f8858ddbbeeefac2c3e5f19d01ba"
-                                    },
-                                    {
-                                        "FileName": null,
-                                        "FileSHA256": "cd17118028e5a76fe3c92f60ee752eef8101946139ebf29277ef3e2fd21116c9"
-                                    },
-                                    {
-                                        "FileName": "Weekly digest Microsoft service updates",
-                                        "FileSHA256": null
-                                    }
-                                ],
-                                "FilesCount": 3
-                            }
+                            "inputs": "temp"
                         },
                         "Compose_response": {
                             "runAfter": {
