@@ -2,10 +2,10 @@
 #  Install-Module -Name Az -Repository PSGallery -Force  # Install the module (You need admin on the machine)
 
 $TenantID=""  #Add your AAD Tenant Id
-
-$SharedLogicAppName="Enrich-Entities" #Name of the Shared Logic App
 $AzureSubscriptionId = "" #Azure Subscrition Id of Sentinel Subscription
 $SentinelResourceGroupName = "" #Resource Group Name of Sentinel
+
+$SharedLogicAppName="Base-Module" #Name of the Shared Logic App
 
 Connect-AzureAD -TenantId $TenantID
 Login-AzAccount

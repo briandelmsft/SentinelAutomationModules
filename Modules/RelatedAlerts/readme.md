@@ -1,7 +1,7 @@
 # Get-RelatedAlerts
 
 ## Description
-This module will check the incidient entities to see if there are any other alerts on the same entities.
+This module will check the incidient entities to see if there are any other alerts about those same entities.
 
 ## Suported Entity Types
 * Account
@@ -17,9 +17,7 @@ This module will check the incidient entities to see if there are any other aler
 |CheckHostEntityMatches|Yes/No|When set to yes, the module will look for related alerts based on the Host entity type|
 |CheckIPEntityMatches|Yes/No|When set to yes, the module will look for related alerts based on the IP entity type|
 |Entities|Entities (dynamic content)|This should be selected from the Dynamic content of the incident creation rule trigger|
-|IncidentARMId|Incident ARM ID (dynamic content)|This should be selected from the Dynamic content of the incident creation rule trigger|
 |LookbackInDays|1-90|This defines how far back to look through the SecurityAlert tables in Sentinel|
-|WorkspaceId|Workspace ID (dynamic content)|This should be selected from the Dynamic content of the incident creation rule trigger|
 
 ## Return Properties
 
