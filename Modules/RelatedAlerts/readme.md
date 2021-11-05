@@ -16,7 +16,7 @@ This module will check the incidient entities to see if there are any other aler
 |CheckAccountEntityMatches|Yes/No|When set to yes, the module will look for related alerts based on the Account entity type|
 |CheckHostEntityMatches|Yes/No|When set to yes, the module will look for related alerts based on the Host entity type|
 |CheckIPEntityMatches|Yes/No|When set to yes, the module will look for related alerts based on the IP entity type|
-|Entities|Entities (dynamic content)|This should be selected from the Dynamic content of the incident creation rule trigger|
+|Base Module Body|Body (dynamic content)|The Body should be selected from the Dynamic content of the Base-Module response|
 |LookbackInDays|1-90|This defines how far back to look through the SecurityAlert tables in Sentinel|
 
 ## Return Properties
