@@ -23,6 +23,15 @@
                     },
                     "ProviderName": {
                         "type": "string"
+                    },
+                    "AccountEntityMatch": {
+                        "type": "boolean"
+                    },
+                    "IPEntityMatch": {
+                        "type": "boolean"
+                    },
+                    "HostEntityMatch": {
+                        "type": "boolean"
                     }
                 }
             }
@@ -31,6 +40,24 @@
             "type": "integer"
         },
         "RelatedAlertsFound": {
+            "type": "boolean"
+        },
+        "RelatedHostAlertsCount": {
+            "type": "integer"
+        },
+        "RelatedHostAlertsFound": {
+            "type": "boolean"
+        },
+        "RelatedIPAlertsCount": {
+            "type": "integer"
+        },
+        "RelatedIPAlertsFound": {
+            "type": "boolean"
+        },
+        "RelatedAccountAlertsCount": {
+            "type": "integer"
+        },
+        "RelatedAccountAlertsFound": {
             "type": "boolean"
         }
     }
