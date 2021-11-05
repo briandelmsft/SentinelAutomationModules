@@ -1,43 +1,35 @@
-﻿      {
+﻿{
     "type": "object",
     "properties": {
-        "countAboveThrehold": {
-            "type": "integer"
+        "AboveThreholdCount": {
+            "type": "integer",
+            "description": "Number of accounts foud above the specified threshold"
         },
-        "maxScore": {
-            "type": "integer"
+        "AnalyzedEntities": {
+            "type": "integer",
+            "description": "Number of entities analyzed"
         },
-        "perUser": {
+        "DetailedResults": {
             "type": "array",
+            "description": "An array of users with their score" ,
             "items": {
                 "type": "object",
                 "properties": {
-                    "currentScore": {
+                    "ThreatScore": {
                         "type": "integer"
                     },
-                    "status": {
+                    "UserId": {
                         "type": "string"
                     },
-                    "userId": {
-                        "type": "string"
-                    },
-                    "userLink": {
-                        "type": "string"
-                    },
-                    "userPrincipalName": {
+                    "UserPrincipalName": {
                         "type": "string"
                     }
-                },
-                "required": [
-                    "status",
-                    "userId",
-                    "userLink",
-                    "userPrincipalName"
-                ]
+                }
             }
         },
-        "scoreThreshold": {
-            "type": "integer"
+        "MaximumScore": {
+            "type": "integer",
+            "description": "Maximum score found for all entities"
         }
     }
 }

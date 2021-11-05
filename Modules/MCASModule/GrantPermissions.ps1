@@ -29,5 +29,4 @@ function Set-RBACPermissions ($MSIName, $Role) {
 }
 
 #MCAS
-Set-APIPermissions -MSIName $MCASLogicAppName -AppId "00000003-0000-0000-c000-000000000000" -PermissionName "User.Read.All"
 Set-RBACPermissions -MSIName $MCASLogicAppName -Role "Azure Sentinel Responder"
