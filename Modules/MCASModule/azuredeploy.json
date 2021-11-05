@@ -127,74 +127,30 @@
             },
             "properties": {
                 "state": "Enabled",
-                "definition": {
+                    "definition": {
                     "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
-                    "contentVersion": "1.0.0.0",
-                    "parameters": {
-                        "$connections": {
-                            "defaultValue": {},
-                            "type": "Object"
-                        }
-                    },
-                    "triggers": {
-                        "triage": {
-                            "type": "Request",
-                            "kind": "Http",
-                            "inputs": {
-                                "schema": {
-                                    "properties": {
-                                        "AddIncidentComments": {
-                                            "title": "Add comments to the incident",
-                                            "type": "boolean"
-                                        },
-                                        "Entities": {
-                                            "description": "Click here and select the Entities object from the Dynamic content menu",
-                                            "type": "array"
-                                        },
-                                        "IncidentARMId": {
-                                            "description": "Click here and select the Incident ARM ID object from the Dynamic content menu",
-                                            "title": "Incident ARM ID",
-                                            "type": "string"
-                                        },
-                                        "ScoreThreshold": {
-                                            "title": "Investigation Score Threshold",
-                                            "description": "Type the minimum investigation Score",
-                                            "type": "integer"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
                     "actions": {
                         "Compose_final_response": {
+                            "inputs": {
+                                "AboveThreholdCount": "@length(body('Filter_scores_above_the_threshold'))",
+                                "AnalyzedEntities": "@length(variables('DetailedResults'))",
+                                "DetailedResults": "@variables('DetailedResults')",
+                                "MaximumScore": "@max(variables('Scores'))"
+                            },
                             "runAfter": {
                                 "Filter_scores_above_the_threshold": [
                                     "Succeeded"
                                 ]
                             },
-                            "type": "Compose",
-                            "inputs": {
-                                "countAboveThrehold": "@length(body('Filter_scores_above_the_threshold'))",
-                                "maxScore": "@max(variables('Scores'))",
-                                "perUser": "@variables('DetailedResults')",
-                                "scoreThreshold": "@triggerBody()?['ScoreThreshold']"
-                            }
+                            "type": "Compose"
                         },
                         "Condition_-_Check_if_comment_is_required": {
                             "actions": {
                                 "Add_MCAS_score_in_a_comment": {
-                                    "runAfter": {
-                                        "Create_HTML_table_for_comment": [
-                                            "Succeeded"
-                                        ]
-                                    },
-                                    "type": "ApiConnection",
                                     "inputs": {
                                         "body": {
                                             "incidentArmId": "@triggerBody()?['IncidentARMId']",
-                                            "message": "<p><strong>MCAS Users' investigation priority scores: </strong><strong>@{replace(replace(body('Create_HTML_table_for_comment'), '&lt;', '<'), '&gt;', '>')}</strong></p>"
+                                            "message": "<p>MCAS Users' investigation priority scores per user: @{body('Create_HTML_table_for_comment')}</p>"
                                         },
                                         "host": {
                                             "connection": {
@@ -203,21 +159,22 @@
                                         },
                                         "method": "post",
                                         "path": "/Incidents/Comment"
-                                    }
+                                    },
+                                    "runAfter": {
+                                        "Create_HTML_table_for_comment": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "ApiConnection"
                                 },
                                 "Create_HTML_table_for_comment": {
-                                    "runAfter": {},
-                                    "type": "Table",
                                     "inputs": {
                                         "format": "HTML",
                                         "from": "@variables('DetailedResults')"
-                                    }
+                                    },
+                                    "runAfter": {},
+                                    "type": "Table"
                                 }
-                            },
-                            "runAfter": {
-                                "Compose_final_response": [
-                                    "Succeeded"
-                                ]
                             },
                             "expression": {
                                 "and": [
@@ -229,138 +186,149 @@
                                     }
                                 ]
                             },
+                            "runAfter": {
+                                "Compose_final_response": [
+                                    "Succeeded"
+                                ]
+                            },
                             "type": "If"
                         },
                         "Condition_-_Terminate_if_no_accounts": {
                             "actions": {
                                 "Response_-_No_Account_Entities": {
-                                    "runAfter": {},
-                                    "type": "Response",
-                                    "kind": "Http",
                                     "inputs": {
                                         "body": {
-                                            "countUnderThrehold": 0,
-                                            "maxScore": 0,
-                                            "scoreThreshold": "@triggerBody()?['ScoreThreshold']"
+                                            "AnalyzedEntities": 0,
+                                            "DetailedResults": [],
+                                            "MaximumScore": 0,
+                                            "UnderThreholdCount": 0
+                                        },
+                                        "schema": {
+                                            "properties": {
+                                                "AboveThreholdCount": {
+                                                    "type": "integer"
+                                                },
+                                                "AnalyzedEntities": {
+                                                    "type": "integer"
+                                                },
+                                                "DetailedResults": {
+                                                    "items": {
+                                                        "properties": {
+                                                            "ThreatScore": {
+                                                                "type": "integer"
+                                                            },
+                                                            "UserId": {
+                                                                "type": "string"
+                                                            },
+                                                            "UserPrincipalName": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "type": "array"
+                                                },
+                                                "MaximumScore": {
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "type": "object"
                                         },
                                         "statusCode": 200
-                                    }
+                                    },
+                                    "kind": "Http",
+                                    "runAfter": {},
+                                    "type": "Response"
                                 },
                                 "Terminate": {
+                                    "inputs": {
+                                        "runStatus": "Succeeded"
+                                    },
                                     "runAfter": {
                                         "Response_-_No_Account_Entities": [
                                             "Succeeded"
                                         ]
                                     },
-                                    "type": "Terminate",
-                                    "inputs": {
-                                        "runStatus": "Succeeded"
-                                    }
+                                    "type": "Terminate"
                                 }
-                            },
-                            "runAfter": {
-                                "Filter_array_-_Get_only_accounts": [
-                                    "Succeeded"
-                                ]
                             },
                             "expression": {
                                 "and": [
                                     {
                                         "equals": [
-                                            "@length(body('Filter_array_-_Get_only_Accounts'))",
+                                            "@triggerBody()?['Entities']['AccountsCount']",
                                             0
                                         ]
                                     }
                                 ]
                             },
-                            "type": "If"
-                        },
-                        "Filter_array_-_Get_only_accounts": {
                             "runAfter": {
-                                "Get_MCAS_API_secret": [
+                                "Initialize_DetailedResults": [
                                     "Succeeded"
                                 ]
                             },
-                            "type": "Query",
+                            "type": "If"
+                        },
+                        "Filter_array_-_Get_only_accounts_with_id": {
                             "inputs": {
-                                "from": "@triggerBody()?['Entities']",
-                                "where": "@equals(item()['kind'], 'Account')"
-                            }
+                                "from": "@triggerBody()?['Entities']['Accounts']",
+                                "where": "@greater(length(coalesce(item()?['id'], '')), 0)"
+                            },
+                            "runAfter": {
+                                "Condition_-_Terminate_if_no_accounts": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Query"
                         },
                         "Filter_scores_above_the_threshold": {
+                            "inputs": {
+                                "from": "@variables('Scores')",
+                                "where": "@greater(item(), triggerBody()?['ScoreThreshold'])"
+                            },
                             "runAfter": {
                                 "For_each_account": [
                                     "Succeeded"
                                 ]
                             },
-                            "type": "Query",
-                            "inputs": {
-                                "from": "@variables('Scores')",
-                                "where": "@greater(item(), triggerBody()?['ScoreThreshold'])"
-                            }
+                            "type": "Query"
                         },
                         "For_each_account": {
-                            "foreach": "@body('Filter_array_-_Get_only_accounts')",
                             "actions": {
-                                "Compose_MCAS_user_link": {
-                                    "runAfter": {
-                                        "Condition_-_aadUserId_check": [
-                                            "Succeeded"
-                                        ]
+                                "Compose_PkUser": {
+                                    "inputs": {
+                                        "id": "@{items('For_each_account')['id']}",
+                                        "inst": 0,
+                                        "saas": 11161
                                     },
-                                    "type": "Compose",
-                                    "inputs": "@concat(split(variables('MCAS_API_URL'),'.')[0],'.portal.cloudappsecurity.com/#/users/',base64(variables('PkUser')))"
+                                    "runAfter": {},
+                                    "type": "Compose"
                                 },
                                 "Condition_-_Check_MCAS_API_Results": {
                                     "actions": {
                                         "Update_DetailedResults_array": {
+                                            "inputs": {
+                                                "name": "DetailedResults",
+                                                "value": {
+                                                    "ThreatScore": "@coalesce(body('HTTP_-_MCAS_API_Call')['threatScore'],0)",
+                                                    "UserId": "@{items('For_each_account')['id']}",
+                                                    "UserPrincipalName": "@{coalesce(item()?['UserPrincipalName'],null)}"
+                                                }
+                                            },
                                             "runAfter": {
                                                 "Update_Scores_array": [
                                                     "Succeeded"
                                                 ]
                                             },
-                                            "type": "AppendToArrayVariable",
-                                            "inputs": {
-                                                "name": "DetailedResults",
-                                                "value": {
-                                                    "currentScore": "@body('HTTP_-_MCAS_API_Call')['threatScore']",
-                                                    "status": "Found",
-                                                    "userId": "@{body('HTTP_-_MCAS_API_Call')['id']}",
-                                                    "userLink": "<a href=@{outputs('Compose_MCAS_user_link')}>Link</a>",
-                                                    "userPrincipalName": "@{concat(item()['properties']['accountName'],'@',item()['properties']['upnSuffix'])}"
-                                                }
-                                            }
+                                            "type": "AppendToArrayVariable"
                                         },
                                         "Update_Scores_array": {
-                                            "runAfter": {},
-                                            "type": "AppendToArrayVariable",
                                             "inputs": {
                                                 "name": "Scores",
-                                                "value": "@body('HTTP_-_MCAS_API_Call')['threatScore']"
-                                            }
-                                        }
-                                    },
-                                    "runAfter": {
-                                        "HTTP_-_MCAS_API_Call": [
-                                            "Succeeded",
-                                            "Failed"
-                                        ]
-                                    },
-                                    "else": {
-                                        "actions": {
-                                            "Append_to_array_variable": {
-                                                "runAfter": {},
-                                                "type": "AppendToArrayVariable",
-                                                "inputs": {
-                                                    "name": "DetailedResults",
-                                                    "value": {
-                                                        "status": "Score not found in MCAS",
-                                                        "userId": "@{body('HTTP_-_MCAS_API_Call')['id']}",
-                                                        "userLink": "<a href=@{outputs('Compose_MCAS_user_link')}>Link</a>",
-                                                        "userPrincipalName": "@{concat(item()['properties']['accountName'],'@',item()['properties']['upnSuffix'])}"
-                                                    }
-                                                }
-                                            }
+                                                "value": "@coalesce(body('HTTP_-_MCAS_API_Call')['threatScore'],0)"
+                                            },
+                                            "runAfter": {},
+                                            "type": "AppendToArrayVariable"
                                         }
                                     },
                                     "expression": {
@@ -370,106 +338,41 @@
                                                     "@outputs('HTTP_-_MCAS_API_Call')['statusCode']",
                                                     200
                                                 ]
-                                            },
-                                            {
-                                                "not": {
-                                                    "equals": [
-                                                        "@body('HTTP_-_MCAS_API_Call')['threatScore']",
-                                                        "@null"
-                                                    ]
-                                                }
                                             }
                                         ]
                                     },
-                                    "type": "If"
-                                },
-                                "Condition_-_aadUserId_check": {
-                                    "actions": {
-                                        "Set_PkUser_variable_directly": {
-                                            "runAfter": {},
-                                            "type": "SetVariable",
-                                            "inputs": {
-                                                "name": "PkUser",
-                                                "value": "{\"id\":\"@{items('For_each_account')['properties']['aadUserId']}\",\"saas\":11161,\"inst\":0}"
-                                            }
-                                        }
-                                    },
-                                    "runAfter": {},
-                                    "else": {
-                                        "actions": {
-                                            "HTTP_-_Get_User_ID": {
-                                                "runAfter": {},
-                                                "type": "Http",
-                                                "inputs": {
-                                                    "authentication": {
-                                                        "audience": "https://graph.microsoft.com/",
-                                                        "type": "ManagedServiceIdentity"
-                                                    },
-                                                    "method": "GET",
-                                                    "uri": "https://graph.microsoft.com/v1.0/users/@{concat(item()['properties']['accountName'],'@',item()['properties']['upnSuffix'])}"
-                                                }
-                                            },
-                                            "Set_PkUser_from_AAD": {
-                                                "runAfter": {
-                                                    "HTTP_-_Get_User_ID": [
-                                                        "Succeeded"
-                                                    ]
-                                                },
-                                                "type": "SetVariable",
-                                                "inputs": {
-                                                    "name": "PkUser",
-                                                    "value": "{\"id\":\"@{body('HTTP_-_Get_User_ID')['id']}\",\"saas\":11161,\"inst\":0}"
-                                                }
-                                            }
-                                        }
-                                    },
-                                    "expression": {
-                                        "and": [
-                                            {
-                                                "greater": [
-                                                    "@length(item()['properties']['aadUserId'])",
-                                                    0
-                                                ]
-                                            }
+                                    "runAfter": {
+                                        "HTTP_-_MCAS_API_Call": [
+                                            "Succeeded"
                                         ]
                                     },
                                     "type": "If"
                                 },
                                 "HTTP_-_MCAS_API_Call": {
-                                    "runAfter": {
-                                        "Compose_MCAS_user_link": [
-                                            "Succeeded"
-                                        ]
-                                    },
-                                    "type": "Http",
                                     "inputs": {
                                         "headers": {
                                             "Authorization": "Token @{body('Get_MCAS_API_secret')?['value']}"
                                         },
                                         "method": "GET",
-                                        "uri": "@{variables('MCAS_API_URL')}/v1/entities/@{base64(variables('PkUser'))}/"
-                                    }
+                                        "uri": "@{variables('MCAS_API_URL')}/api/v1/entities/@{base64(outputs('Compose_PkUser'))}/"
+                                    },
+                                    "runAfter": {
+                                        "Compose_PkUser": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Http"
                                 }
                             },
+                            "foreach": "@body('Filter_array_-_Get_only_accounts_with_id')",
                             "runAfter": {
-                                "Condition_-_Terminate_if_no_accounts": [
+                                "Filter_array_-_Get_only_accounts_with_id": [
                                     "Succeeded"
                                 ]
                             },
-                            "type": "Foreach",
-                            "runtimeConfiguration": {
-                                "concurrency": {
-                                    "repetitions": 1
-                                }
-                            }
+                            "type": "Foreach"
                         },
                         "Get_MCAS_API_secret": {
-                            "runAfter": {
-                                "Initialize_DetailedResults": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "ApiConnection",
                             "inputs": {
                                 "host": {
                                     "connection": {
@@ -479,21 +382,21 @@
                                 "method": "get",
                                 "path": "/secrets/@{encodeURIComponent('MCASAPIKey')}/value"
                             },
+                            "runAfter": {
+                                "Initialize_MCAS_API_URL": [
+                                    "Succeeded"
+                                ]
+                            },
                             "runtimeConfiguration": {
                                 "secureData": {
                                     "properties": [
                                         "outputs"
                                     ]
                                 }
-                            }
+                            },
+                            "type": "ApiConnection"
                         },
                         "Initialize_DetailedResults": {
-                            "runAfter": {
-                                "Initialize_Scores_array": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "InitializeVariable",
                             "inputs": {
                                 "variables": [
                                     {
@@ -502,7 +405,13 @@
                                         "value": []
                                     }
                                 ]
-                            }
+                            },
+                            "runAfter": {
+                                "Initialize_Scores_array": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable"
                         },
                         "Initialize_MCAS_API_URL": {
                             "runAfter": {},
@@ -517,54 +426,104 @@
                                 ]
                             }
                         },
-                        "Initialize_Pk_data_for_MCAP_API_Call": {
-                            "runAfter": {
-                                "Initialize_MCAS_API_URL": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "InitializeVariable",
-                            "inputs": {
-                                "variables": [
-                                    {
-                                        "name": "PkUser",
-                                        "type": "string"
-                                    }
-                                ]
-                            }
-                        },
                         "Initialize_Scores_array": {
-                            "runAfter": {
-                                "Initialize_Pk_data_for_MCAP_API_Call": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "InitializeVariable",
                             "inputs": {
                                 "variables": [
                                     {
                                         "name": "Scores",
                                         "type": "array",
-                                        "value": []
+                                        "value": [
+                                            0
+                                        ]
                                     }
                                 ]
-                            }
+                            },
+                            "runAfter": {
+                                "Get_MCAS_API_secret": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable"
                         },
                         "Return_final_response": {
+                            "inputs": {
+                                "body": "@outputs('Compose_final_response')",
+                                "schema": {
+                                    "properties": {
+                                        "AboveThreholdCount": {
+                                            "type": "integer"
+                                        },
+                                        "AnalyzedEntities": {
+                                            "type": "integer"
+                                        },
+                                        "DetailedResults": {
+                                            "items": {
+                                                "properties": {
+                                                    "ThreatScore": {
+                                                        "type": "integer"
+                                                    },
+                                                    "UserId": {
+                                                        "type": "string"
+                                                    },
+                                                    "UserPrincipalName": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            },
+                                            "type": "array"
+                                        },
+                                        "MaximumScore": {
+                                            "type": "integer"
+                                        }
+                                    },
+                                    "type": "object"
+                                },
+                                "statusCode": 200
+                            },
+                            "kind": "Http",
                             "runAfter": {
                                 "Condition_-_Check_if_comment_is_required": [
                                     "Succeeded"
                                 ]
                             },
-                            "type": "Response",
-                            "kind": "Http",
-                            "inputs": {
-                                "body": "@outputs('Compose_final_response')",
-                                "statusCode": 200
-                            }
+                            "type": "Response"
                         }
                     },
-                    "outputs": {}
+                    "contentVersion": "1.0.0.0",
+                    "outputs": {},
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {},
+                            "type": "Object"
+                        }
+                    },
+                    "triggers": {
+                        "triage": {
+                            "inputs": {
+                                "schema": {
+                                    "properties": {
+                                        "AddIncidentComments": {
+                                            "title": "Add comments to the incident",
+                                            "type": "boolean"
+                                        },
+                                        "Entities": {
+                                            "description": "Click here and select the Entities object from the Dynamic content menu",
+                                            "type": "array"
+                                        },
+                                        "ScoreThreshold": {
+                                            "description": "Type the minimum investigation Score",
+                                            "title": "Investigation Score Threshold",
+                                            "type": "integer"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            },
+                            "kind": "Http",
+                            "type": "Request"
+                        }
+                    }
                 },
                 "parameters": {
                     "$connections": {
