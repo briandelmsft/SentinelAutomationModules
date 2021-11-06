@@ -1,7 +1,7 @@
 # Get-WatchlistInsights
 
 ## Description
-This module will check the incident entities to see if there are any matches on a specified watchlist in Azure Sentinel
+This module will check the incident entities to see if there are any matches on a specified watchlist in Microsoft Sentinel
 
 ## Suported Entity Types
 * Account (UPN)
@@ -12,20 +12,19 @@ This module will check the incident entities to see if there are any matches on 
 |Parameter|Expected Values|Description|
 |---|---|---|
 |AddIncidentComments|Yes/No|When set to yes, the results of the query will be added to the Sentinel Incident Comments|
-|Entities|Entities (dynamic content)|This should be selected from the Dynamic content of the incident creation rule trigger|
-|IncidentARMId|Incident ARM ID (dynamic content)|This should be selected from the Dynamic content of the incident creation rule trigger|
+|Base Module Body|Body (dynamic content)|The Body should be selected from the Dynamic content of the Base-Module response|
 |WatchlistKey|ColumnName|The column name of the watchlist to match with the entity data, such as the UPN or IP Address |
 |WatchlistKeyDataType|upn, ip, or cidr|The type of data in the WatchlistKey column.  Use CIDR if the WactchlistKey contains subnets using CIDR notation|
 |WatchlistName|Sentinel Watchlist name|This defines how far back to look through the UEBA tables in Sentinel|
-|WorkspaceId|Workspace Id (dynamic content)|This should be selected from the Dynamic content of the incident creation rule trigger|
 
 ## Return Properties
 
 |Property|Description|
 |---|---|
 |DetailedResults|An Array of detailed results from each item that was checked against the watchlist|
-|OnWatchlist|true/false, if item is on the Watchlist|
-|Status|Success/Failure, if the watchlist check was successful|
+|EntitiesAnalyzedCount|Count of entities checked against the watchlist|
+|EntitiesOnWatchlist|True if any entities were found on the watchlist|
+|EntitiesOnWatchlistCount|Count of entities found on the watchlist|
 |WatchListName|Name of the watchlist that was queried|
 
 
@@ -36,12 +35,13 @@ This module will check the incident entities to see if there are any matches on 
   "DetailedResults": [
     {
       "OnWatchlist": false,
-      "EntityData": "111.222.111.222"
+      "EntityData": "40.126.28.11"
     }
   ],
-  "OnWatchlist": false,
-  "Status": "Success",
-  "WatchListName": "IP"
+  "EntitiesAnalyzedCount": 1,
+  "EntitiesOnWatchlist": false,
+  "EntitiesOnWatchlistCount": 0,
+  "WatchlistName": "TrustedNetworks"
 }
 ```
 

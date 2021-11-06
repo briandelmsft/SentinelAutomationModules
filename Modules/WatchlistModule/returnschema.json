@@ -2,26 +2,36 @@
     "type": "object",
     "properties": {
         "DetailedResults": {
+            "description": "Array of detailed per entity results",
             "type": "array",
             "items": {
                 "type": "object",
                 "properties": {
                     "OnWatchlist": {
+                        "description": "Watchlist status per entity in array",
                         "type": "boolean"
                     },
                     "EntityData": {
+                        "description": "Entity data per entity in array",
                         "type": "string"
                     }
                 }
             }
         },
-        "OnWatchlist": {
+        "EntitiesAnalyzedCount": {
+            "description": "Total number of entities checked against the Watchlist",
+            "type": "integer"
+        },
+        "EntitiesOnWatchlist": {
+            "description": "Returns true if any entities are on Watchlist, otherwise false",
             "type": "boolean"
         },
-        "Status": {
-            "type": "string"
+        "EntitiesOnWatchlistCount": {
+            "description": "Total number of entities found on the Watchlist",
+            "type": "integer"
         },
-        "WatchListName": {
+        "WatchlistName": {
+            "description": "Name of the Watchlist that was analyzed",
             "type": "string"
         }
     }
