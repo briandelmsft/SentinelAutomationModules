@@ -86,4 +86,4 @@ This module will return the risk score and exposure level from Microsoft Defende
 
 * Grant the Logic app managed identity access to the Microsoft Graph application permissions User.Read.All (GrantPermissions.ps1)
 * Grant the Logic app managed identity access to the Microsoft Defender API permissions Machine.Read.All and AdvancedQuery.Read.All (GrantPermissions.ps1)
-* Grant the Logic app Azure Sentinel Responder RBAC role on the resource group containing Azure Sentinel (GrantPermissions.ps1)
+* Grant the Logic app Microsoft Sentinel Responder RBAC role on the resource group containing Microsoft Sentinel (GrantPermissions.ps1)

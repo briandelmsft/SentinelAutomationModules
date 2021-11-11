@@ -135,4 +135,3 @@ The base module must be called before any other modules in this solution.  It pe
 ## Post Deployment
 
 * Grant the Logic app managed identity access to the Microsoft Graph application permissions User.Read.All and RoleManagement.Read.Directory (GrantPermissions.ps1)
-* Grant the Logic app Azure Sentinel Responder RBAC role on the resource group containing Azure Sentinel (GrantPermissions.ps1)

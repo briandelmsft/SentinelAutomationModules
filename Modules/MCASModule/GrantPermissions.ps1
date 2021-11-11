@@ -29,4 +29,4 @@ function Set-RBACPermissions ($MSIName, $Role) {
 }
 
 #MCAS
-Set-RBACPermissions -MSIName $MCASLogicAppName -Role "Azure Sentinel Responder"
+Set-RBACPermissions -MSIName $MCASLogicAppName -Role "Microsoft Sentinel Responder"
