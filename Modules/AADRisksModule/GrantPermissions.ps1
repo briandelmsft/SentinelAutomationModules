@@ -32,4 +32,4 @@ function Set-RBACPermissions ($MSIName, $Role) {
 Set-APIPermissions -MSIName $RelatedAlertsLogicAppName -AppId "ca7f3f0b-7d91-482c-8e09-c5d840d0eac5" -PermissionName "Data.Read"
 Set-APIPermissions -MSIName $RelatedAlertsLogicAppName -AppId "00000003-0000-0000-c000-000000000000" -PermissionName "User.Read.All"
 Set-APIPermissions -MSIName $RelatedAlertsLogicAppName -AppId "00000003-0000-0000-c000-000000000000" -PermissionName "IdentityRiskyUser.Read.All"
-Set-RBACPermissions -MSIName $RelatedAlertsLogicAppName -Role "Azure Sentinel Responder"
+Set-RBACPermissions -MSIName $RelatedAlertsLogicAppName -Role "Microsoft Sentinel Responder"

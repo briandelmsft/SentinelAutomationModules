@@ -30,4 +30,4 @@ function Set-RBACPermissions ($MSIName, $Role) {
 
 #OOF
 Set-APIPermissions -MSIName $OOFLogicAppName -AppId "00000003-0000-0000-c000-000000000000" -PermissionName "MailboxSettings.Read"
-Set-RBACPermissions -MSIName $OOFLogicAppName -Role "Azure Sentinel Responder"
+Set-RBACPermissions -MSIName $OOFLogicAppName -Role "Microsoft Sentinel Responder"

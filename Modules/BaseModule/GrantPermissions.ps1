@@ -30,4 +30,3 @@ function Set-RBACPermissions ($MSIName, $Role) {
 #Enrich-Entities
 Set-APIPermissions -MSIName $SharedLogicAppName -AppId "00000003-0000-0000-c000-000000000000" -PermissionName "User.Read.All"
 Set-APIPermissions -MSIName $SharedLogicAppName -AppId "00000003-0000-0000-c000-000000000000" -PermissionName "RoleManagement.Read.Directory"
-Set-RBACPermissions -MSIName $SharedLogicAppName -Role "Azure Sentinel Responder"
