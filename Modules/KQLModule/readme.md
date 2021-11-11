@@ -5,7 +5,6 @@ This module allows you to run custom KQL queries against Microsoft Sentinel or M
 
 ## Suported Entity Types
 * Account
-* Host
 * IP Address
 
 ## Trigger Parameters
@@ -16,6 +15,42 @@ This module allows you to run custom KQL queries against Microsoft Sentinel or M
 |KQL Query|The KQL Query you wish to execute|
 |LookbackInDays|1-90|This defines how far back to look back in the data, note this is limited to 30 days for Microsoft 365 Advanced Hunting|
 |RunQueryAgainst|Sentinel/M365|This defines if the KQL query will run against the Microsoft Sentinel data or the M365 Defender Advanced Hunting data|
+
+### Building your KQL Query
+---
+
+In your KQL query you will have access to 2 tables built from the entity data of your Sentinel Incident.  You can use these tables through join or where clauses in your query to locate the results you are looking for.
+
+The entity tables available to you are:
+
+***accountEntities***
+
+|UserPrincipalName|SamAccountName|ObjectSID|AADUserId|ManagerUPN|
+|---|---|---|---|---|
+|user@contoso.com|user|S-1-5-21-565368899-1117343155-2447612341-32656|f4ab0870-413b-4716-845c-426821fc9e96|manager@contoso.com|
+
+***ipEntities***
+
+|IPAddress|Latitude|Longitude|Country|State|
+|---|---|---|---|---|
+|40.126.28.11|41.811|-87.600|united states|illinois|
+
+These tables can be used in your KQL queries in any way you like.  For example, if you wanted to check if any of the users in your Incident have failed to login to Azure AD due to a bad password more than 10 times, you could write a query like this:
+
+```
+accountEntities
+| join kind=inner (SigninLogs | where ResultType == 50126 | summarize FailureCount=count() by UserPrincipalName | where FailureCount >= 10) on UserPrincipalName
+```
+
+If you would prefer to use a where statement instead of a join, the following query would produce a similar result:
+
+```
+let UPNs = accountEntities | project UserPrincipalName;
+SigninLogs
+| where UserPrincipalName in (UPNs) and ResultType == 50126
+| summarize FailureCount=count() by UserPrincipalName
+| where FailureCount >= 10
+```
 
 ## Return Properties
 
@@ -29,14 +64,9 @@ This module allows you to run custom KQL queries against Microsoft Sentinel or M
 
 ```
 {
-  "DetailedResults": [
-    {
-        "TBD": "TBD"
-    }
-  ],
+  "DetailedResults": [[]],
   "ResultsCount": 1,
-  "RelatedAccountAlertsFound": true,
-
+  "ResultsFound": true,
 }
 ```
 
