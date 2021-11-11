@@ -31,3 +31,4 @@ function Set-RBACPermissions ($MSIName, $Role) {
 #RelatedAlerts
 Set-APIPermissions -MSIName $RelatedAlertsLogicAppName -AppId "ca7f3f0b-7d91-482c-8e09-c5d840d0eac5" -PermissionName "Data.Read"
 Set-APIPermissions -MSIName $RelatedAlertsLogicAppName -AppId "8ee8fdad-f234-4243-8f3b-15c294843740" -PermissionName "AdvancedHunting.Read.All"
+Set-RBACPermissions -MSIName $RelatedAlertsLogicAppName -Role "Microsoft Sentinel Responder"

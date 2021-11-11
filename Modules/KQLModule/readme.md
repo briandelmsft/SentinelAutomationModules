@@ -42,9 +42,10 @@ This module allows you to run custom KQL queries against Microsoft Sentinel or M
 
 ## Quick Deployment
 
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fbriandelmsft%2FSentinelAutomationModules%2Fmain%2FModules%2FKQLModule%2Fazuredeploy.json)
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fbriandelmsft%2FSentinelAutomationModules%2Fkql_module%2FModules%2FKQLModule%2Fazuredeploy.json)
 
 ## Post Deployment
 
 * Grant the Logic app managed identity access to the Log Analytics API application permissions Data.Read (GrantPermissions.ps1)
 * Grant the Logic app managed identity access to the Microsoft 365 Security API permissions AdvancedHunting.Read.All (GrantPermissions.ps1)
+* Grant the Logic app Microsoft Sentinel Responder RBAC role on the resource group containing Microsoft Sentinel (GrantPermissions.ps1)
