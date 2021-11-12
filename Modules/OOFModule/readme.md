@@ -1,7 +1,7 @@
 # Get-OOFDetails
 
 ## Description
-This module will check the incidient entities to see if a user is out of the office.
+This module will check the incidient entities to see if a user has configured Automatic Replies on their Office 365 mailbox.
 
 ## Suported Entity Types
 * Account
@@ -17,8 +17,12 @@ This module will check the incidient entities to see if a user is out of the off
 
 |Property|Description|
 |---|---|
-|OverallOOFStatus|Returns an overall status.  If all user entities are in the same Out of Office state then it will return enabled or disabled.  If the user entities are in different states it will return inconsistent|
-|PerUserStatus|An array of OOFStatus by UPN|
+|AllUsersInOffice|true/false if all checked users have Automatic Replies disabled|
+|AllUsersOutOfOffice|true/false if all checked users have Automatic Replies enabled|
+|DetailedResults|An array of Automatic Reply information for by user|
+|UsersInOffice|Integer representing number of users with Automatic Replies disabled|
+|UsersOutOfOffice|Integer representing number of users with Automatic Replies enabled|
+|UsersUnknown|Integer representing number of users with an unknown Automatic Replies status, this could be due to the user not having a mailbox in Office 365 or other issues|
 
 ## Sample Return
 
