@@ -93,7 +93,7 @@ SigninLogs
       "Result2Column5Name": "Column5Value"
     }
   ],
-  "ResultsCount": 1,
+  "ResultsCount": 2,
   "ResultsFound": true,
 }
 ```
