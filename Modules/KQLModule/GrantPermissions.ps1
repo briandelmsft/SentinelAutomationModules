@@ -5,7 +5,7 @@ $TenantID=""  #Add your AAD Tenant Id
 $AzureSubscriptionId = "" #Azure Subscrition Id of Sentinel Subscription
 $SentinelResourceGroupName = "" #Resource Group Name of Sentinel
 
-$KQLLogicAppName="Run-KQLQuery"   #Name of the Related Alerts Logic App
+$KQLLogicAppName="Run-KQLQuery"   #Name of the KQL Logic App
 
 Connect-AzureAD -TenantId $TenantID
 Login-AzAccount

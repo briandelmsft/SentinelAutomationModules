@@ -5,7 +5,7 @@ $TenantID=""  #Add your AAD Tenant Id
 $AzureSubscriptionId = "" #Azure Subscrition Id of Sentinel Subscription
 $SentinelResourceGroupName = "" #Resource Group Name of Sentinel
 
-$AADLogicAppName="Get-AADUserRisksInfo"   #Name of the Related Alerts Logic App
+$AADLogicAppName="Get-AADUserRisksInfo"   #Name of the AAD Risks Logic App
 
 Connect-AzureAD -TenantId $TenantID
 Login-AzAccount

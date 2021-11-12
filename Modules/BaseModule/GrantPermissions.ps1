@@ -5,7 +5,7 @@ $TenantID=""  #Add your AAD Tenant Id
 $AzureSubscriptionId = "" #Azure Subscrition Id of Sentinel Subscription
 $SentinelResourceGroupName = "" #Resource Group Name of Sentinel
 
-$BaseLogicAppName="Base-Module" #Name of the Shared Logic App
+$BaseLogicAppName="Base-Module" #Name of the Base Module Logic App
 
 Connect-AzureAD -TenantId $TenantID
 Login-AzAccount
