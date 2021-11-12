@@ -5,7 +5,7 @@ $TenantID=""  #Add your AAD Tenant Id
 $AzureSubscriptionId = "" #Azure Subscrition Id of Sentinel Subscription
 $SentinelResourceGroupName = "" #Resource Group Name of Sentinel
 
-$RelatedAlertsLogicAppName="Get-AADUserRisksInfo"   #Name of the Related Alerts Logic App
+$AADLogicAppName="Get-AADUserRisksInfo"   #Name of the Related Alerts Logic App
 
 Connect-AzureAD -TenantId $TenantID
 Login-AzAccount
@@ -29,7 +29,7 @@ function Set-RBACPermissions ($MSIName, $Role) {
 }
 
 #AADRisksModule
-Set-APIPermissions -MSIName $RelatedAlertsLogicAppName -AppId "ca7f3f0b-7d91-482c-8e09-c5d840d0eac5" -PermissionName "Data.Read"
-Set-APIPermissions -MSIName $RelatedAlertsLogicAppName -AppId "00000003-0000-0000-c000-000000000000" -PermissionName "User.Read.All"
-Set-APIPermissions -MSIName $RelatedAlertsLogicAppName -AppId "00000003-0000-0000-c000-000000000000" -PermissionName "IdentityRiskyUser.Read.All"
-Set-RBACPermissions -MSIName $RelatedAlertsLogicAppName -Role "Microsoft Sentinel Responder"
+Set-APIPermissions -MSIName $AADLogicAppName -AppId "ca7f3f0b-7d91-482c-8e09-c5d840d0eac5" -PermissionName "Data.Read"
+Set-APIPermissions -MSIName $AADLogicAppName -AppId "00000003-0000-0000-c000-000000000000" -PermissionName "User.Read.All"
+Set-APIPermissions -MSIName $AADLogicAppName -AppId "00000003-0000-0000-c000-000000000000" -PermissionName "IdentityRiskyUser.Read.All"
+Set-RBACPermissions -MSIName $AADLogicAppName -Role "Microsoft Sentinel Responder"

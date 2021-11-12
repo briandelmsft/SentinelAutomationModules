@@ -5,7 +5,7 @@ $TenantID=""  #Add your AAD Tenant Id
 $AzureSubscriptionId = "" #Azure Subscrition Id of Sentinel Subscription
 $SentinelResourceGroupName = "" #Resource Group Name of Sentinel
 
-$SharedLogicAppName="Base-Module" #Name of the Shared Logic App
+$BaseLogicAppName="Base-Module" #Name of the Shared Logic App
 
 Connect-AzureAD -TenantId $TenantID
 Login-AzAccount
@@ -27,6 +27,6 @@ function Set-RBACPermissions ($MSIName, $Role) {
     New-AzRoleAssignment -ApplicationId $MSI.AppId -Scope "/subscriptions/$($AzureSubscriptionId)/resourceGroups/$($SentinelResourceGroupName)" -RoleDefinitionName $Role
 }
 
-#Enrich-Entities
-Set-APIPermissions -MSIName $SharedLogicAppName -AppId "00000003-0000-0000-c000-000000000000" -PermissionName "User.Read.All"
-Set-APIPermissions -MSIName $SharedLogicAppName -AppId "00000003-0000-0000-c000-000000000000" -PermissionName "RoleManagement.Read.Directory"
+#Base-Module
+Set-APIPermissions -MSIName $BaseLogicAppName -AppId "00000003-0000-0000-c000-000000000000" -PermissionName "User.Read.All"
+Set-APIPermissions -MSIName $BaseLogicAppName -AppId "00000003-0000-0000-c000-000000000000" -PermissionName "RoleManagement.Read.Directory"
