@@ -24,17 +24,19 @@ This module will check the incidient entities to see if a user is out of the off
 
 ```
 {
-  "OverallOOFStatus": "disabled",
-  "PerUserStatus": [
+  "AllUsersInOffice": true,
+  "AllUsersOutOfOffice": false,
+  "DetailedResults": [
     {
+      "ExternalMessage": "",
+      "InternalMessage": "",
       "OOFStatus": "disabled",
       "UPN": "user1@contoso.com"
-    },
-    {
-      "OOFStatus": "disabled",
-      "UPN": "user2@contoso.com"
     }
-  ]
+  ],
+  "UsersInOffice": 1,
+  "UsersOutOfOffice": 0,
+  "UsersUnknown": 0
 }
 ```
 

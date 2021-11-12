@@ -1,22 +1,44 @@
 {
     "type": "object",
     "properties": {
-        "OverallOOFStatus": {
-            "type": "string"
+        "AllUsersInOffice": {
+            "description": "true/false if All users are in the Office (Automatic Replies disabled)"
         },
-        "PerUserStatus": {
+        "AllUsersOutOfOffice": {
+            "description": "true/false if All users are in the Office (Automatic Replies disabled)"
+        },
+        "DetailedResults": {
             "type": "array",
             "items": {
                 "type": "object",
                 "properties": {
+                    "ExternalMessage": {
+                        "description": "External Automatic Replies Message content in DetailedResults array"
+                    },
+                    "InternalMessage": {
+                        "description": "Internal Automatic Replies Message content in DetailedResults array"
+                    },
                     "OOFStatus": {
-                        "type": "string"
+                        "description": "enabled/disabled/unknown Automatic Replies status in DetailedResults array"
                     },
                     "UPN": {
-                        "type": "string"
+                        "description": "UPN of the user in DetailedResults array"
                     }
-                }
+                },
+                "required": []
             }
+        },
+        "UsersInOffice": {
+            "description": "Number of users with no Automatic Reply message enabled",
+            "type": "integer"
+        },
+        "UsersOutOfOffice": {
+            "description": "Number of users with an Automatic Reply message enabled",
+            "type": "integer"
+        },
+        "UsersUnknown": {
+            "description": "Number of users where the Automatic Reply status could not be determiend",
+            "type": "integer"
         }
     }
 }
