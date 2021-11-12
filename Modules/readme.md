@@ -40,7 +40,7 @@ The Out Of Office module takes user entity data and determines if the user has a
 
 ### Microsoft Sentinel Related Alerts
 
-The Related Alerts module takes the incident entity data and determines if other alerts about those same entities exist in Azure Sentinel within a specified timeframe.
+The Related Alerts module takes the incident entity data and determines if other alerts about those same entities exist in Microsoft Sentinel within a specified timeframe.
 
 ### Microsoft Sentinel User Entity Behavior Analytics
 
@@ -48,4 +48,4 @@ The UEBA module allows you to take user entity data and lookup those users in th
 
 ### Microsoft Sentinel Watchlists
 
-The Azure Sentinel Watchlists module allows you to compare entity data from an incident against a watchlist to determine if that entity is present.  This supports watchlists containing columns with UserPrincipalNames, IP Addresses, or CIDR address blocks.
+The Microsoft Sentinel Watchlists module allows you to compare entity data from an incident against a watchlist to determine if that entity is present.  This supports watchlists containing columns with UserPrincipalNames, IP Addresses, or CIDR address blocks.

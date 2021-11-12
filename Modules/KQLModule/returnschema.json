@@ -1,0 +1,14 @@
+{
+    "type": "object",
+    "properties": {
+        "DetailedResults": {
+            "type": "array"
+        },
+        "RelultsCount": {
+            "type": "integer"
+        },
+        "ResultsFound": {
+            "type": "boolean"
+        }
+    }
+}

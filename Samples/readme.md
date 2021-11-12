@@ -9,4 +9,4 @@ This Playbook shows an example of how to use multiple automation modules togethe
 
 ## Post Deployment
 
-* Grant the Logic app Azure Sentinel Responder RBAC role on the resource group containing Azure Sentinel
+* Grant the Logic app Microsoft Sentinel Responder RBAC role on the resource group containing Microsoft Sentinel

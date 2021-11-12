@@ -35,27 +35,27 @@ function Set-RBACPermissions ($MSIName, $Role) {
 
 #UEBA
 Set-APIPermissions -MSIName $UEBALogicAppName -AppId "ca7f3f0b-7d91-482c-8e09-c5d840d0eac5" -PermissionName "Data.Read"
-Set-RBACPermissions -MSIName $UEBALogicAppName -Role "Azure Sentinel Responder"
+Set-RBACPermissions -MSIName $UEBALogicAppName -Role "Microsoft Sentinel Responder"
 
 #OOF
 Set-APIPermissions -MSIName $OOFLogicAppName -AppId "00000003-0000-0000-c000-000000000000" -PermissionName "MailboxSettings.Read"
-Set-RBACPermissions -MSIName $OOFLogicAppName -Role "Azure Sentinel Responder"
+Set-RBACPermissions -MSIName $OOFLogicAppName -Role "Microsoft Sentinel Responder"
 
 #RelatedAlerts
 Set-APIPermissions -MSIName $RelatedAlertsLogicAppName -AppId "ca7f3f0b-7d91-482c-8e09-c5d840d0eac5" -PermissionName "Data.Read"
-Set-RBACPermissions -MSIName $RelatedAlertsLogicAppName -Role "Azure Sentinel Responder"
+Set-RBACPermissions -MSIName $RelatedAlertsLogicAppName -Role "Microsoft Sentinel Responder"
 
 #MDE
 Set-APIPermissions -MSIName $MDELogicAppName -AppId "00000003-0000-0000-c000-000000000000" -PermissionName "User.Read.All"
 Set-APIPermissions -MSIName $MDELogicAppName -AppId "fc780465-2017-40d4-a0c5-307022471b92" -PermissionName "AdvancedQuery.Read.All"
 Set-APIPermissions -MSIName $MDELogicAppName -AppId "fc780465-2017-40d4-a0c5-307022471b92" -PermissionName "Machine.Read.All"
-Set-RBACPermissions -MSIName $MDELogicAppName -Role "Azure Sentinel Responder"
+Set-RBACPermissions -MSIName $MDELogicAppName -Role "Microsoft Sentinel Responder"
 
 #MCAS
 Set-APIPermissions -MSIName $MCASLogicAppName -AppId "00000003-0000-0000-c000-000000000000" -PermissionName "User.Read.All"
-Set-RBACPermissions -MSIName $MCASLogicAppName -Role "Azure Sentinel Responder"
+Set-RBACPermissions -MSIName $MCASLogicAppName -Role "Microsoft Sentinel Responder"
 
 #Watchlists
 Set-APIPermissions -MSIName $WatchlistLogicAppName -AppId "ca7f3f0b-7d91-482c-8e09-c5d840d0eac5" -PermissionName "Data.Read"
-Set-RBACPermissions -MSIName $WatchlistLogicAppName -Role "Azure Sentinel Responder"
+Set-RBACPermissions -MSIName $WatchlistLogicAppName -Role "Microsoft Sentinel Responder"
 

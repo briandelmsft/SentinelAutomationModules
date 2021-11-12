@@ -30,4 +30,4 @@ function Set-RBACPermissions ($MSIName, $Role) {
 
 #FileInsights
 Set-APIPermissions -MSIName $FileLogicAppName -AppId "8ee8fdad-f234-4243-8f3b-15c294843740" -PermissionName "AdvancedHunting.Read.All"
-Set-RBACPermissions -MSIName $FileLogicAppName -Role "Azure Sentinel Responder"
+Set-RBACPermissions -MSIName $FileLogicAppName -Role "Microsoft Sentinel Responder"

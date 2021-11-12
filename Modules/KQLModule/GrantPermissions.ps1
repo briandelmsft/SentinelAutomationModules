@@ -5,11 +5,12 @@ $TenantID=""  #Add your AAD Tenant Id
 $AzureSubscriptionId = "" #Azure Subscrition Id of Sentinel Subscription
 $SentinelResourceGroupName = "" #Resource Group Name of Sentinel
 
-$SharedLogicAppName="Base-Module" #Name of the Shared Logic App
+$RelatedAlertsLogicAppName="Run-KQLQuery"   #Name of the Related Alerts Logic App
 
 Connect-AzureAD -TenantId $TenantID
 Login-AzAccount
 Set-AzContext -Subscription $AzureSubscriptionId
+
 function Set-APIPermissions ($MSIName, $AppId, $PermissionName) {
     $MSI = Get-AppIds -AppName $MSIName
     Start-Sleep -Seconds 2
@@ -27,6 +28,7 @@ function Set-RBACPermissions ($MSIName, $Role) {
     New-AzRoleAssignment -ApplicationId $MSI.AppId -Scope "/subscriptions/$($AzureSubscriptionId)/resourceGroups/$($SentinelResourceGroupName)" -RoleDefinitionName $Role
 }
 
-#Enrich-Entities
-Set-APIPermissions -MSIName $SharedLogicAppName -AppId "00000003-0000-0000-c000-000000000000" -PermissionName "User.Read.All"
-Set-APIPermissions -MSIName $SharedLogicAppName -AppId "00000003-0000-0000-c000-000000000000" -PermissionName "RoleManagement.Read.Directory"
+#RelatedAlerts
+Set-APIPermissions -MSIName $RelatedAlertsLogicAppName -AppId "ca7f3f0b-7d91-482c-8e09-c5d840d0eac5" -PermissionName "Data.Read"
+Set-APIPermissions -MSIName $RelatedAlertsLogicAppName -AppId "8ee8fdad-f234-4243-8f3b-15c294843740" -PermissionName "AdvancedHunting.Read.All"
+Set-RBACPermissions -MSIName $RelatedAlertsLogicAppName -Role "Microsoft Sentinel Responder"
