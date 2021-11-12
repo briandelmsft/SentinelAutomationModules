@@ -4,12 +4,27 @@ Automation Modules make it easier to perform routine tasks by using a common set
 
 ## Available Modules
 
+* Base
+* Azure Active Directory Risks
+* File Insights
 * Microsoft Cloud App Security
 * Microsoft Defender for Endpoint
 * Office 365 Out of Office
 * Microsoft Sentinel Related Alerts
 * Microsoft Sentinel User Entity Behavior Analytics
 * Microsoft Sentinel Watchlists
+
+### Base Module
+
+The Base module processes incident data and prepares it for consumption by other modules.  This includes enriching entity data with Azure AD lookups and IP data with Geo location information.
+
+### Azure Active Directory Risks
+
+Module Description
+
+### File Insights
+
+Module Description
 
 ### Microsoft Cloud App Security
 

@@ -11,8 +11,7 @@ This module will check the incidient entities to see if a user is out of the off
 |Parameter|Expected Values|Description|
 |---|---|---|
 |AddIncidentComments|Yes/No|When set to yes, the results of the query will be added to the Sentinel Incident Comments|
-|Entities|Entities (dynamic content)|This should be selected from the Dynamic content of the incident creation rule trigger|
-|IncidentARMId|Incident ARM ID (dynamic content)|This should be selected from the Dynamic content of the incident creation rule trigger|
+|Base Module Body|Body (dynamic content)|The Body should be selected from the Dynamic content of the Base-Module response|
 
 ## Return Properties
 
@@ -25,17 +24,19 @@ This module will check the incidient entities to see if a user is out of the off
 
 ```
 {
-  "OverallOOFStatus": "disabled",
-  "PerUserStatus": [
+  "AllUsersInOffice": true,
+  "AllUsersOutOfOffice": false,
+  "DetailedResults": [
     {
+      "ExternalMessage": "",
+      "InternalMessage": "",
       "OOFStatus": "disabled",
       "UPN": "user1@contoso.com"
-    },
-    {
-      "OOFStatus": "disabled",
-      "UPN": "user2@contoso.com"
     }
-  ]
+  ],
+  "UsersInOffice": 1,
+  "UsersOutOfOffice": 0,
+  "UsersUnknown": 0
 }
 ```
 
