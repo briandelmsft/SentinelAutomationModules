@@ -52,6 +52,18 @@
         "DeploySamplePlaybook": {
             "defaultValue": false,
             "type": "bool"
+        },
+        "FilePlaybookName": {
+            "defaultValue": "Get-FileInsights",
+            "type": "String"
+        },
+        "KQLPlaybookName": {
+            "defaultValue": "Run-KQLQuery",
+            "type": "String"
+        },
+        "BasePlaybookName": {
+            "defaultValue": "Base-Module",
+            "type": "String"
         }
     },
     "variables": {
@@ -62,9 +74,65 @@
         "MDETemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/MDEModule/azuredeploy.json",
         "AADTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/AADRisksModule/azuredeploy.json",
         "WatchlistTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/WatchlistModule/azuredeploy.json",
+        "FileTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/FileModule/azuredeploy.json",
+        "KQLTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/KQLModule/azuredeploy.json",
+        "BaseTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/BaseModule/azuredeploy.json",
         "SampleTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Samples/azuredeploy.json"
     },
     "resources": [
+        {
+            "apiVersion": "2019-10-01",
+            "name": "BaseTemplate",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[variables('BaseTemplate')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "PlaybookName": {
+                        "value": "[parameters('BasePlaybookName')]"
+                    }
+                }
+            }
+        },
+        {
+            "condition": "[contains(parameters('enableModulesKind'), 'KQLModule')]",
+            "apiVersion": "2019-10-01",
+            "name": "KQLTemplate",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[variables('KQLTemplate')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "PlaybookName": {
+                        "value": "[parameters('KQLPlaybookName')]"
+                    }
+                }
+            }
+        },
+        {
+            "condition": "[contains(parameters('enableModulesKind'), 'FileModule')]",
+            "apiVersion": "2019-10-01",
+            "name": "FileTemplate",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[variables('FileTemplate')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "PlaybookName": {
+                        "value": "[parameters('FilePlaybookName')]"
+                    }
+                }
+            }
+        },
         {
             "condition": "[contains(parameters('enableModulesKind'), 'OOFModule')]",
             "apiVersion": "2019-10-01",
@@ -205,7 +273,8 @@
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', 'OOFTemplate')]",
                 "[resourceId('Microsoft.Resources/deployments', 'RelatedAlertsTemplate')]",
-                "[resourceId('Microsoft.Resources/deployments', 'UEBATemplate')]"
+                "[resourceId('Microsoft.Resources/deployments', 'UEBATemplate')]",
+                "[resourceId('Microsoft.Resources/deployments', 'BaseTemplate')]"
             ],
             "properties": {
                 "mode": "incremental",
