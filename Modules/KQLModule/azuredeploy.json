@@ -442,7 +442,7 @@
                                         "Compose_-_M365_Query": {
                                             "runAfter": {},
                                             "type": "Compose",
-                                            "inputs": "let entityData = '@{body('Parse_JSON')?['IPs']}';\nlet incidentEntities = datatable(temp:string)['']\n| extend Entities = parse_json(entityData)\n| project-away temp\n| mv-expand todynamic(Entities)\n| project EntityData=tostring(coalesce(Entities.Address, Entities.RawEntity.address));\nincidentEntities\n| evaluate ipv4_lookup(_GetWatchlist('@{triggerBody()?['WatchlistName']}'), EntityData, @{triggerBody()?['WatchlistKey']}, true)\n| extend OnWatchlist = iff(isempty(_DTItemId), false, true)\n| project OnWatchlist, EntityData"
+                                            "inputs": "let accountData = '@{body('Parse_JSON')?['Accounts']}';\nlet ipData = '@{body('Parse_JSON')?['IPs']}';\nlet accountEntities = datatable(temp:string)['']\n| extend Entities = parse_json(accountData)\n| mv-expand todynamic(Entities)\n| project UserPrincipalName = tostring(Entities.userPrincipalName), SamAccountName = tostring(Entities.onPremisesSamAccountName), ObjectSID = tostring(Entities.onPremisesSecurityIdentifier), AADUserId = tostring(Entities.id), ManagerUPN = tostring(Entities.manager.userPrincipalName);\nlet ipEntities = datatable(temp:string)['']\n| extend Entities = parse_json(ipData)\n| mv-expand todynamic(Entities)\n| project IPAddress = tostring(Entities.Address), Latitude = todecimal(Entities.GeoData.latitude), Longitude = todecimal(Entities.GeoData.longitude), Country=tostring(Entities.GeoData.country), State=tostring(Entities.GeoData.state);\n@{triggerBody()?['KQLQuery']}"
                                         },
                                         "HTTP_-_M365": {
                                             "runAfter": {
@@ -464,6 +464,23 @@
                                                     "Content-Type": "application/json"
                                                 },
                                                 "uri": "https://api.security.microsoft.com/api/advancedhunting/run"
+                                            }
+                                        },
+                                        "Response_-_M365": {
+                                            "runAfter": {
+                                                "HTTP_-_M365": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "Response",
+                                            "kind": "Http",
+                                            "inputs": {
+                                                "body": {
+                                                    "DetailedResults": "@body('HTTP_-_M365')['Results']",
+                                                    "ResultsCount": "@length(body('HTTP_-_M365')['Results'])",
+                                                    "ResultsFound": "@greater(length(body('HTTP_-_M365')['Results']),0)"
+                                                },
+                                                "statusCode": 200
                                             }
                                         }
                                     }
@@ -496,9 +513,9 @@
                                                 "uri": "https://api.loganalytics.io/v1/workspaces/@{body('Parse_JSON')?['WorkspaceId']}/query"
                                             }
                                         },
-                                        "Response": {
+                                        "Response_-_Sentinel": {
                                             "runAfter": {
-                                                "HTTP_-_Sentinel": [
+                                                "Select": [
                                                     "Succeeded"
                                                 ]
                                             },
@@ -506,11 +523,29 @@
                                             "kind": "Http",
                                             "inputs": {
                                                 "body": {
-                                                    "DetailedResults": "@body('HTTP_-_Sentinel')['tables'][0]['rows']",
+                                                    "DetailedResults": "@body('Select')",
                                                     "ResultsCount": "@length(body('HTTP_-_Sentinel')['tables'][0]['rows'])",
                                                     "ResultsFound": "@greater(length(body('HTTP_-_Sentinel')['tables'][0]['rows']),0)"
                                                 },
                                                 "statusCode": 200
+                                            }
+                                        },
+                                        "Select": {
+                                            "runAfter": {
+                                                "HTTP_-_Sentinel": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "Select",
+                                            "inputs": {
+                                                "from": "@body('HTTP_-_Sentinel')['tables'][0]['rows']",
+                                                "select": {
+                                                    "@{coalesce(body('HTTP_-_Sentinel')['tables'][0]['columns']?[0]?['name'],'NoColumn1Name')}": "@item()?[0]",
+                                                    "@{coalesce(body('HTTP_-_Sentinel')['tables'][0]['columns']?[1]?['name'],'NoColumn2Name')}": "@item()?[1]",
+                                                    "@{coalesce(body('HTTP_-_Sentinel')['tables'][0]['columns']?[2]?['name'],'NoColumn3Name')}": "@item()?[2]",
+                                                    "@{coalesce(body('HTTP_-_Sentinel')['tables'][0]['columns']?[3]?['name'],'NoColumn4Name')}": "@item()?[3]",
+                                                    "@{coalesce(body('HTTP_-_Sentinel')['tables'][0]['columns']?[4]?['name'],'NoColumn5Name')}": "@item()?[4]"
+                                                }
                                             }
                                         }
                                     }

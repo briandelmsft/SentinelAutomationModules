@@ -16,12 +16,25 @@ This module allows you to run custom KQL queries against Microsoft Sentinel or M
 |LookbackInDays|1-90|This defines how far back to look back in the data, note this is limited to 30 days for Microsoft 365 Advanced Hunting|
 |RunQueryAgainst|Sentinel/M365|This defines if the KQL query will run against the Microsoft Sentinel data or the M365 Defender Advanced Hunting data|
 
-### Building your KQL Query
----
+## Building your KQL Query
 
 In your KQL query you will have access to 2 tables built from the entity data of your Sentinel Incident.  You can use these tables through join or where clauses in your query to locate the results you are looking for.
 
-The entity tables available to you are:
+### Sentinel Query Special Considerations
+
+* When querying against Microsoft Sentinel only the first 5 columns of data will be returned in the DetailedResults array.  You can use project or summarize statements to limit your return to the columns you are most interested in.
+* If you need your query to assess multiple time ranges, for example comparing the last day of data to the last week of data, ensure to set the LookbackInDays to the larger time window and incoroporate the more granular time windows through filter in your KQL query.
+
+### M365 Query Special Considerations
+
+* When querying Microsoft 365 Security advanced hunting the LookbackInDays parameter is ignored.  To limit your query to a specific time period please include a time filter in your KQL query syntax such as:
+
+```
+DeviceLogonEvents
+| where Timestamp > ago(7d)
+```
+
+### The following entity tables are available to you in both Sentinel and M365 Queries
 
 ***accountEntities***
 
@@ -64,7 +77,22 @@ SigninLogs
 
 ```
 {
-  "DetailedResults": [[]],
+  "DetailedResults": [
+    {
+      "Result1Column1Name": "Column1Value",
+      "Result1Column2Name": "Column2Value",
+      "Result1Column3Name": "Column3Value",
+      "Resul1tColumn4Name": "Column4Value",
+      "Result1Column5Name": "Column5Value"
+    },
+    {
+      "Result2Column1Name": "Column1Value",
+      "Result2Column2Name": "Column2Value",
+      "Result2Column3Name": "Column3Value",
+      "Resul12Column4Name": "Column4Value",
+      "Result2Column5Name": "Column5Value"
+    }
+  ],
   "ResultsCount": 1,
   "ResultsFound": true,
 }
@@ -72,7 +100,7 @@ SigninLogs
 
 ## Quick Deployment
 
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fbriandelmsft%2FSentinelAutomationModules%2Fkql_module%2FModules%2FKQLModule%2Fazuredeploy.json)
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fbriandelmsft%2FSentinelAutomationModules%2Fmain%2FModules%2FKQLModule%2Fazuredeploy.json)
 
 ## Post Deployment
 
