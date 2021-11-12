@@ -46,7 +46,7 @@ DeviceLogonEvents
 
 |IPAddress|Latitude|Longitude|Country|State|
 |---|---|---|---|---|
-|40.126.28.11|41.811|-87.600|united states|illinois|
+|40.82.187.199|43.64280|-79.38705|canada|ontario|
 
 These tables can be used in your KQL queries in any way you like.  For example, if you wanted to check if any of the users in your Incident have failed to login to Azure AD due to a bad password more than 10 times, you could write a query like this:
 
