@@ -11,8 +11,7 @@ This module will check the incident account entities to see if there are any Use
 |Parameter|Expected Values|Description|
 |---|---|---|
 |AddIncidentComments|Yes/No|When set to yes, the results of the query will be added to the Sentinel Incident Comments|
-|Entities|Entities (dynamic content)|This should be selected from the Dynamic content of the incident creation rule trigger|
-|IncidentARMId|Incident ARM ID (dynamic content)|This should be selected from the Dynamic content of the incident creation rule trigger|
+|Base Module Body|Body (dynamic content)|The Body should be selected from the Dynamic content of the Base-Module response|
 |LookbackInDays|1-90|This defines how far back to look through the UEBA tables in Sentinel|
 |MinimumInvestigationPriority|1-10|Only BehaviourAnalytics records with an InvestirgationPriority of >= this value will be considered|
 
@@ -24,8 +23,8 @@ This module will check the incident account entities to see if there are any Use
 |AllEntityInvestigationPriorityAverage|Average investigation priority of all related BehaviorAnalytics records|
 |AllEntityInvestigationPriorityMax|Maximum investigation priority of all related BehaviorAnalytics records|
 |AllEntityInvestigationPrioritySum|Sum of investigation priority of all related BehaviorAnalytics records|
+|DetailedResults|An array of UEBA investigration priority values by UserPrincipalName|
 |InvestigationPrioritiesFound|true if any investigation priorities are found in all related BehaviorAnalytics records, otherwise false|
-|PerUserStatus|An array of UEBA investigration priority values by UserPrincipalName|
 
 ## Sample Return
 
@@ -35,8 +34,7 @@ This module will check the incident account entities to see if there are any Use
   "AllEntityInvestigationPriorityAverage": 4.031073446327683,
   "AllEntityInvestigationPriorityMax": 5,
   "AllEntityInvestigationPrioritySum": 899,
-  "InvestigationPrioritiesFound": true,
-  "PerUserStatus": [
+  "DetailedResults": [
     {
       "InvestigationPrioritySum": 180,
       "InvestigationPriorityAverage": 4,
@@ -51,7 +49,8 @@ This module will check the incident account entities to see if there are any Use
       "EventCount": 177,
       "UserPrincipalName": "user2@contoso.com"
     }
-  ]
+  ],
+  "InvestigationPrioritiesFound": true,
 }
 ```
 
