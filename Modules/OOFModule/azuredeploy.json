@@ -101,8 +101,8 @@
                                     "kind": "Http",
                                     "inputs": {
                                         "body": {
-                                            "AllUsersInOffice": null,
-                                            "AllUsersOutOfOffice": null,
+                                            "AllUsersInOffice": false,
+                                            "AllUsersOutOfOffice": false,
                                             "DetailedResults": [],
                                             "UsersInOffice": 0,
                                             "UsersOutOfOffice": 0,
