@@ -2,38 +2,49 @@
     "type": "object",
     "properties": {
         "AllEntityEventCount": {
+            "description": "Count of all UEBA Priorities found at or above threshold",
             "type": "integer"
         },
         "AllEntityInvestigationPriorityAverage": {
+            "description": "Average priority of all UEBA Priorities found at or above threshold",
             "type": "number"
         },
         "AllEntityInvestigationPriorityMax": {
+            "description": "Maximum priority of all UEBA Priorities found at or above threshold",
             "type": "integer"
         },
         "AllEntityInvestigationPrioritySum": {
+            "description": "Sum of priority of all UEBA Priorities found at or above threshold",
             "type": "integer"
         },
         "InvestigationPrioritiesFound": {
+            "description": "true/false if any UEBA Priorities were found at or above threshold",
             "type": "boolean"
         },
-        "PerUserStatus": {
+        "DetailedResults": {
+            "description": "Array of per user detailed results",
             "type": "array",
             "items": {
                 "type": "object",
                 "properties": {
                     "InvestigationPrioritySum": {
+                        "description": "Sum of priority of all UEBA Priorities found at or above threshold in DetailedResults array",
                         "type": "integer"
                     },
                     "InvestigationPriorityAverage": {
+                        "description": "Average priority of all UEBA Priorities found at or above threshold in DetailedResults array",
                         "type": "integer"
                     },
                     "InvestigationPriorityMax": {
+                        "description": "Maximum priority of all UEBA Priorities found at or above threshold in DetailedResults array",
                         "type": "integer"
                     },
                     "EventCount": {
+                        "description": "Count of all UEBA Priorities found at or above threshold in DetailedResults array",
                         "type": "integer"
                     },
                     "UserPrincipalName": {
+                        "description": "UPN of user in DetailedResults array",
                         "type": "string"
                     }
                 }
