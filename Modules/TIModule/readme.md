@@ -15,10 +15,10 @@ This module will check the incident entities to see if there is corresponding th
 |---|---|---|
 |AddIncidentComments|Yes/No|When set to yes, the results of the query will be added to the Sentinel Incident Comments|
 |Base Module Body|Body (dynamic content)|The Body should be selected from the Dynamic content of the Base-Module response|
-|CheckDomains|Check Domain Entities for Threat Intelligence Matches|
-|CheckFileHashes|Check File Hash Entities for Theat Intelligence Matches|
-|CheckIPs|Check IP Entities for Threat Intelligence Matches|
-|CheckURLs|Check URL Entities for Threat Intelligence Matches|
+|CheckDomains|Yes/No|Check Domain Entities for Threat Intelligence Matches|
+|CheckFileHashes|Yes/No|Check File Hash Entities for Theat Intelligence Matches|
+|CheckIPs|Yes/No|Check IP Entities for Threat Intelligence Matches|
+|CheckURLs|Yes/No|Check URL Entities for Threat Intelligence Matches|
 |LookbackInDays|1-90|This defines how far back to look through the ThreatIntelligenceIndicators table in Sentinel|
 
 ## Return Properties
