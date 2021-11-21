@@ -49,6 +49,22 @@
                                     "value": "AADModule"
                                 },
                                 {
+                                    "label": "File Module",
+                                    "value": "FileModule"
+                                },
+                                {
+                                    "label": "KQL Module",
+                                    "value": "KQLModule"
+                                },
+                                {
+                                    "label": "MCAS Module",
+                                    "value": "MCASModule"
+                                },
+                                {
+                                    "label": "MDE Module",
+                                    "value": "MDEModule"
+                                },
+                                {
                                     "label": "Out of Office Module",
                                     "value": "OOFModule"
                                 },
@@ -57,16 +73,12 @@
                                     "value": "RelatedAlerts"
                                 },
                                 {
+                                    "label": "Threat Intelligence Module",
+                                    "value": "TIModule"
+                                },
+                                {
                                     "label": "UEBA Module",
                                     "value": "UEBAModule"
-                                },
-                                {
-                                    "label": "MDE Module",
-                                    "value": "MDEModule"
-                                },
-                                {
-                                    "label": "MCAS Module",
-                                    "value": "MCASModule"
                                 },
                                 {
                                     "label": "Watchlist Module",
@@ -78,6 +90,15 @@
                         "visible": true
                     },
                     {
+                        "name": "BasePlaybookName",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Base Playbook Name",
+                        "placeholder": "",
+                        "defaultValue": "Base-Module",
+                        "toolTip": "",
+                        "constraints": {}
+                    },
+                    {
                         "name": "AADRisksPlaybookName",
                         "type": "Microsoft.Common.TextBox",
                         "label": "Azure AD Risks Playbook Name",
@@ -86,6 +107,26 @@
                         "toolTip": "",
                         "constraints": {},
                         "visible": "[if(contains(steps('automationModules').enableModulesKind,'AADModule'), true, false)]"
+                    },
+                    {
+                        "name": "FilePlaybookName",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "File Playbook Name",
+                        "placeholder": "",
+                        "defaultValue": "Get-FileInsights",
+                        "toolTip": "",
+                        "constraints": {},
+                        "visible": "[if(contains(steps('automationModules').enableModulesKind,'FileModule'), true, false)]"
+                    },
+                    {
+                        "name": "KQLPlaybookName",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "KQL Playbook Name",
+                        "placeholder": "",
+                        "defaultValue": "Run-KQLQuery",
+                        "toolTip": "",
+                        "constraints": {},
+                        "visible": "[if(contains(steps('automationModules').enableModulesKind,'KQLModule'), true, false)]"
                     },
                     {
                         "name": "OOFPlaybookName",
@@ -106,6 +147,16 @@
                         "toolTip": "",
                         "constraints": {},
                         "visible": "[if(contains(steps('automationModules').enableModulesKind,'RelatedAlerts'), true, false)]"
+                    },
+                    {
+                        "name": "TIPlaybookName",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Threat Intelligence Playbook Name",
+                        "placeholder": "",
+                        "defaultValue": "Get-ThreatIntel",
+                        "toolTip": "",
+                        "constraints": {},
+                        "visible": "[if(contains(steps('automationModules').enableModulesKind,'TIModule'), true, false)]"
                     },
                     {
                         "name": "UEBAPlaybookName",
@@ -193,7 +244,11 @@
             "enableModulesKind": "[steps('automationModules').enableModulesKind]",
             "OOFPlaybookName": "[steps('automationModules').OOFPlaybookName]",
             "RelatedAlertsPlaybookName": "[steps('automationModules').RelatedAlertsPlaybookName]",
+            "TIPlaybookName": "[steps('automationModules').TIPlaybookName]",
             "UEBAPlaybookName": "[steps('automationModules').UEBAPlaybookName]",
+            "FilePlaybookName": "[steps('automationModules').FilePlaybookName]",
+            "KQLPlaybookName": "[steps('automationModules').KQLPlaybookName]",
+            "BasePlaybookName": "[steps('automationModules').BasePlaybookName]",
             "AADRisksPlaybookName": "[steps('automationModules').AADRisksPlaybookName]",
             "MDEPlaybookName": "[steps('automationModules').MDEPlaybookName]",
             "MCASPlaybookName": "[steps('automationModules').MCASPlaybookName]",

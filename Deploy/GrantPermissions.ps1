@@ -5,11 +5,16 @@ $TenantID=""  #Add your AAD Tenant Id
 $AzureSubscriptionId = "" #Azure Subscrition Id of Sentinel Subscription
 $SentinelResourceGroupName = "" #Resource Group Name of Sentinel
 
+$AADLogicAppName="Get-AADUserRisksInfo"          #Name of the AAD Risks Logic App
+$BaseLogicAppName="Base-Module"                  #Name of the Base Module
+$FileLogicAppName="Get-FileInsights"             #Name of the FileInsights Logic App
+$KQLLogicAppName="Run-KQLQuery"                  #Name of the KQL Query Logic App
 $UEBALogicAppName="Get-UEBAInsights"             #Name of the UEBA Logic App
 $OOFLogicAppName="Get-OOFDetails"                #Name of the OOF Logic App
 $MDELogicAppName="Get-MDEUsersDevicesRiskScore"  #Name of the MDE Logic App
 $MCASLogicAppName="Get-MCASInvestigationScore"   #Name of the MCAS Logic App
 $RelatedAlertsLogicAppName="Get-RelatedAlerts"   #Name of the Related Alerts Logic App
+$TILogicAppName="Get-ThreatIntel"                #Name of the TI Logic App
 $WatchlistLogicAppName="Get-WatchlistInsights"   #Name of the Watchlists Logic App
 
 Connect-AzureAD -TenantId $TenantID
@@ -59,3 +64,25 @@ Set-RBACPermissions -MSIName $MCASLogicAppName -Role "Microsoft Sentinel Respond
 Set-APIPermissions -MSIName $WatchlistLogicAppName -AppId "ca7f3f0b-7d91-482c-8e09-c5d840d0eac5" -PermissionName "Data.Read"
 Set-RBACPermissions -MSIName $WatchlistLogicAppName -Role "Microsoft Sentinel Responder"
 
+#Base module
+Set-APIPermissions -MSIName $BaseLogicAppName -AppId "00000003-0000-0000-c000-000000000000" -PermissionName "User.Read.All"
+Set-APIPermissions -MSIName $BaseLogicAppName -AppId "00000003-0000-0000-c000-000000000000" -PermissionName "RoleManagement.Read.Directory"
+
+#File module
+Set-APIPermissions -MSIName $FileLogicAppName -AppId "8ee8fdad-f234-4243-8f3b-15c294843740" -PermissionName "AdvancedHunting.Read.All"
+Set-RBACPermissions -MSIName $FileLogicAppName -Role "Microsoft Sentinel Responder"
+
+#KQL module
+Set-APIPermissions -MSIName $KQLLogicAppName -AppId "ca7f3f0b-7d91-482c-8e09-c5d840d0eac5" -PermissionName "Data.Read"
+Set-APIPermissions -MSIName $KQLLogicAppName -AppId "8ee8fdad-f234-4243-8f3b-15c294843740" -PermissionName "AdvancedHunting.Read.All"
+Set-RBACPermissions -MSIName $KQLLogicAppName -Role "Microsoft Sentinel Responder"
+
+#AADRisksModule
+Set-APIPermissions -MSIName $AADLogicAppName -AppId "ca7f3f0b-7d91-482c-8e09-c5d840d0eac5" -PermissionName "Data.Read"
+Set-APIPermissions -MSIName $AADLogicAppName -AppId "00000003-0000-0000-c000-000000000000" -PermissionName "User.Read.All"
+Set-APIPermissions -MSIName $AADLogicAppName -AppId "00000003-0000-0000-c000-000000000000" -PermissionName "IdentityRiskyUser.Read.All"
+Set-RBACPermissions -MSIName $AADLogicAppName -Role "Microsoft Sentinel Responder"
+
+#TI
+Set-APIPermissions -MSIName $TILogicAppName -AppId "ca7f3f0b-7d91-482c-8e09-c5d840d0eac5" -PermissionName "Data.Read"
+Set-RBACPermissions -MSIName $TILogicAppName -Role "Microsoft Sentinel Responder"
