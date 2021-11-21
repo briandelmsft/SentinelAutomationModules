@@ -73,6 +73,10 @@
                                     "value": "RelatedAlerts"
                                 },
                                 {
+                                    "label": "Threat Intelligence Module",
+                                    "value": "TIModule"
+                                },
+                                {
                                     "label": "UEBA Module",
                                     "value": "UEBAModule"
                                 },
@@ -143,6 +147,16 @@
                         "toolTip": "",
                         "constraints": {},
                         "visible": "[if(contains(steps('automationModules').enableModulesKind,'RelatedAlerts'), true, false)]"
+                    },
+                    {
+                        "name": "TIPlaybookName",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Threat Intelligence Playbook Name",
+                        "placeholder": "",
+                        "defaultValue": "Get-ThreatIntel",
+                        "toolTip": "",
+                        "constraints": {},
+                        "visible": "[if(contains(steps('automationModules').enableModulesKind,'TIModule'), true, false)]"
                     },
                     {
                         "name": "UEBAPlaybookName",
@@ -230,6 +244,7 @@
             "enableModulesKind": "[steps('automationModules').enableModulesKind]",
             "OOFPlaybookName": "[steps('automationModules').OOFPlaybookName]",
             "RelatedAlertsPlaybookName": "[steps('automationModules').RelatedAlertsPlaybookName]",
+            "TIPlaybookName": "[steps('automationModules').TIPlaybookName]",
             "UEBAPlaybookName": "[steps('automationModules').UEBAPlaybookName]",
             "FilePlaybookName": "[steps('automationModules').FilePlaybookName]",
             "KQLPlaybookName": "[steps('automationModules').KQLPlaybookName]",

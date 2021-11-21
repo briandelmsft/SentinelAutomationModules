@@ -33,6 +33,10 @@
             "defaultValue": "Get-AADUserRisksInfo",
             "type": "String"
         },
+        "TIPlaybookName": {
+            "defaultValue": "Get-ThreatIntel",
+            "type": "String"
+        },
         "MCASPlaybookName": {
             "defaultValue": "Get-MCASInvestigationScore",
             "type": "String"
@@ -76,6 +80,7 @@
         "WatchlistTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/WatchlistModule/azuredeploy.json",
         "FileTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/FileModule/azuredeploy.json",
         "KQLTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/KQLModule/azuredeploy.json",
+        "TITemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/TIModule/azuredeploy.json",
         "BaseTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/BaseModule/azuredeploy.json",
         "SampleTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Samples/azuredeploy.json"
     },
@@ -111,6 +116,24 @@
                 "parameters": {
                     "PlaybookName": {
                         "value": "[parameters('KQLPlaybookName')]"
+                    }
+                }
+            }
+        },
+        {
+            "condition": "[contains(parameters('enableModulesKind'), 'TIModule')]",
+            "apiVersion": "2019-10-01",
+            "name": "TITemplate",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[variables('TITemplate')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "PlaybookName": {
+                        "value": "[parameters('TIPlaybookName')]"
                     }
                 }
             }
