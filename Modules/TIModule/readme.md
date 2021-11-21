@@ -25,14 +25,67 @@ This module will check the incident entities to see if there is corresponding th
 
 |Property|Description|
 |---|---|
-|TBD||
-|DetailedResults|An array of Threat Intelligence data|
-
+|AnyTIFound|true/false if any Threat Intelligence was found for any indicator type|
+|DetailedResults|An array of Threat Intelligence that was matched with the incident entities|
+|DomainEntitiesCount|Count of Domain Entities in Incident|
+|DomainEntitiesWithTI|Count of Domain Entities with Threat Intelligence matches|
+|DomainTIFound|true/false if Domain Threat Intelligence was found|
+|FileHashEntitiesCount|Count of FileHash Entities in Incident|
+|FileHashEntitiesWithTI|Count of FileHash Entities with Threat Intelligence matches|
+|FileHashTIFound|true/false if FIleHash Threat Intelligence was found|
+|IPEntitiesCount|Count of IP Entities in Incident|
+|IPEntitiesWithTI|Count of IP Entities with Threat Intelligence matches|
+|IPTIFound|true/false if IP Threat Intelligence was found|
+|URLEntitiesCount|Count of URL Entities in Incident|
+|URLEntitiesWithTI|Count of URL Entities with Threat Intelligence matches|
+|URLTIFound|true/false if URL Threat Intelligence was found|
 
 ## Sample Return
 
 ```
 {
+  "AnyTIFound": true,
+  "DetailedResults": [
+    {
+      "TIType": "IP",
+      "TIData": "40.126.28.11",
+      "SourceSystem": "Azure Sentinel",
+      "Description": "TestingOnly Benign IP",
+      "ThreatType": "benign",
+      "ConfidenceScore": 0,
+      "IndicatorId": "73F782D74E5A8D0A144076FCEF875D2ED16A59EBC15E1A0053D9BEFBB7C35F8D"
+    },
+    {
+      "TIType": "URL",
+      "TIData": "https://www.contoso.com/folder/index.aspx",
+      "SourceSystem": "Azure Sentinel",
+      "Description": "TestingOnly-BenignUrl",
+      "ThreatType": "benign",
+      "ConfidenceScore": 0,
+      "IndicatorId": "6090F19551C4B7C7B5F7DEE6B1FC79B4457B3ACD6928313A860815190BC160D6"
+    },
+    {
+      "TIType": "Domain",
+      "TIData": "contoso.com",
+      "SourceSystem": "Azure Sentinel",
+      "Description": "BenignThreat-Testing only",
+      "ThreatType": "benign",
+      "ConfidenceScore": 0,
+      "IndicatorId": "EAB98E3ED850F21B5F23905E905B0338FC37B11D82428741F15F4505E9BDF9DA"
+    }
+  ],
+  "DomainEntitiesCount": 1,
+  "DomainEntitiesWithTI": 1,
+  "DomainTIFound": true,
+  "FileHashEntitiesCount": 1,
+  "FileHashEntitiesWithTI": 0,
+  "FileHashTIFound": false,
+  "IPEntitiesCount": 1,
+  "IPEntitiesWithTI": 1,
+  "IPTIFound": true,
+  "URLEntitiesCount": 1,
+  "URLEntitiesWithTI": 1,
+  "URLTIFound": true
 }
 ```
 
