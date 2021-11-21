@@ -1,0 +1,88 @@
+{
+    "type": "object",
+    "properties": {
+        "AnyTIFound": {
+            "description": "true if any TI matches were found for any entity type",
+            "type": "boolean"
+        },
+        "DetailedResults": {
+            "description": "Array of matching Threat Intelligence data",
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "TIType": {
+                        "description": "TI indicator Type in DetailedResults array"
+                    },
+                    "TIData": {
+                        "description": "TI indicator data in DetailedResults array"
+                    },
+                    "SourceSystem": {
+                        "description": "TI Source System in DetailedResults array"
+                    },
+                    "Description": {
+                        "description": "TI indicator description in DetailedResults array"
+                    },
+                    "ThreatType": {
+                        "description": "TI threat type in DetailedResults array"
+                    },
+                    "ConfidenceScore": {
+                        "description": "TI confidence score in DetailedResults array"
+                    },
+                    "IndicatorId": {
+                        "description": "TI indicator Id in DetailedResults array"
+                    }
+                },
+                "required": []
+            }
+        },
+        "DomainEntitiesCount": {
+            "description": "Count of Domain Entities in Incident",
+            "type": "integer"
+        },
+        "DomainEntitiesWithTI": {
+            "description": "Count of Domain Entities in Incident with matching Threat Intelligence",
+            "type": "integer"
+        },
+        "DomainTIFound": {
+            "description": "true if any TI matches were found for Domain entity type",
+            "type": "boolean"
+        },
+        "FileHashEntitiesCount": {
+            "description": "Count of FileHash Entities in Incident",
+            "type": "integer"
+        },
+        "FileHashEntitiesWithTI": {
+            "description": "Count of FileHash Entities in Incident with matching Threat Intelligence",
+            "type": "integer"
+        },
+        "FileHashTIFound": {
+            "description": "true if any TI matches were found for FileHash entity type",
+            "type": "boolean"
+        },
+        "IPEntitiesCount": {
+            "description": "Count of IP Entities in Incident",
+            "type": "integer"
+        },
+        "IPEntitiesWithTI": {
+            "description": "Count of IP Entities in Incident with matching Threat Intelligence",
+            "type": "integer"
+        },
+        "IPTIFound": {
+            "description": "true if any TI matches were found for IP entity type",
+            "type": "boolean"
+        },
+        "URLEntitiesCount": {
+            "description": "Count of URL Entities in Incident",
+            "type": "integer"
+        },
+        "URLEntitiesWithTI": {
+            "description": "Count of URL Entities in Incident with matching Threat Intelligence",
+            "type": "integer"
+        },
+        "URLTIFound": {
+            "description": "true if any TI matches were found for URL entity type",
+            "type": "boolean"
+        }
+    }
+}
