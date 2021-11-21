@@ -14,6 +14,7 @@ $OOFLogicAppName="Get-OOFDetails"                #Name of the OOF Logic App
 $MDELogicAppName="Get-MDEUsersDevicesRiskScore"  #Name of the MDE Logic App
 $MCASLogicAppName="Get-MCASInvestigationScore"   #Name of the MCAS Logic App
 $RelatedAlertsLogicAppName="Get-RelatedAlerts"   #Name of the Related Alerts Logic App
+$TILogicAppName="Get-ThreatIntel"                #Name of the TI Logic App
 $WatchlistLogicAppName="Get-WatchlistInsights"   #Name of the Watchlists Logic App
 
 Connect-AzureAD -TenantId $TenantID
@@ -81,3 +82,7 @@ Set-APIPermissions -MSIName $AADLogicAppName -AppId "ca7f3f0b-7d91-482c-8e09-c5d
 Set-APIPermissions -MSIName $AADLogicAppName -AppId "00000003-0000-0000-c000-000000000000" -PermissionName "User.Read.All"
 Set-APIPermissions -MSIName $AADLogicAppName -AppId "00000003-0000-0000-c000-000000000000" -PermissionName "IdentityRiskyUser.Read.All"
 Set-RBACPermissions -MSIName $AADLogicAppName -Role "Microsoft Sentinel Responder"
+
+#TI
+Set-APIPermissions -MSIName $TILogicAppName -AppId "ca7f3f0b-7d91-482c-8e09-c5d840d0eac5" -PermissionName "Data.Read"
+Set-RBACPermissions -MSIName $TILogicAppName -Role "Microsoft Sentinel Responder"
