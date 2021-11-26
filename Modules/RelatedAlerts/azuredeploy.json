@@ -103,7 +103,7 @@
                                             "type": "ApiConnection",
                                             "inputs": {
                                                 "body": {
-                                                    "incidentArmId": "@triggerBody()?['IncidentARMId']",
+                                                    "incidentArmId": "@body('Parse_JSON')?['IncidentARMId']",
                                                     "message": "<p>There were @{length(body('HTTP')['tables'][0]['rows'])} related alerts found.<br>\n<br>\n@{body('Create_HTML_table')}<br>\n<br>\n</p>"
                                                 },
                                                 "host": {
