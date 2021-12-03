@@ -475,6 +475,23 @@
                             "actions": {
                                 "Condition": {
                                     "actions": {
+                                        "Append_to_IPArray_-_Geo_Failure": {
+                                            "runAfter": {
+                                                "HTTP_-_Get_Geo_Data": [
+                                                    "TimedOut",
+                                                    "Failed"
+                                                ]
+                                            },
+                                            "type": "AppendToArrayVariable",
+                                            "inputs": {
+                                                "name": "IPArray",
+                                                "value": {
+                                                    "Address": "@{items('For_each_ip')['properties']['address']}",
+                                                    "GeoData": {},
+                                                    "RawEntity": "@items('For_each_ip')['properties']"
+                                                }
+                                            }
+                                        },
                                         "Append_to_IPArray_With_GeoData": {
                                             "runAfter": {
                                                 "HTTP_-_Get_Geo_Data": [
@@ -487,7 +504,7 @@
                                                 "value": {
                                                     "Address": "@{items('For_each_ip')['properties']['address']}",
                                                     "GeoData": "@body('HTTP_-_Get_Geo_Data')",
-                                                    "RawEntity": "@item()['properties']"
+                                                    "RawEntity": "@items('For_each_ip')['properties']"
                                                 }
                                             }
                                         },
