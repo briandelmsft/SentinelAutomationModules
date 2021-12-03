@@ -67,6 +67,7 @@ Set-RBACPermissions -MSIName $WatchlistLogicAppName -Role "Microsoft Sentinel Re
 #Base module
 Set-APIPermissions -MSIName $BaseLogicAppName -AppId "00000003-0000-0000-c000-000000000000" -PermissionName "User.Read.All"
 Set-APIPermissions -MSIName $BaseLogicAppName -AppId "00000003-0000-0000-c000-000000000000" -PermissionName "RoleManagement.Read.Directory"
+Set-RBACPermissions -MSIName $BaseLogicAppName -Role "Microsoft Sentinel Responder"
 
 #File module
 Set-APIPermissions -MSIName $FileLogicAppName -AppId "8ee8fdad-f234-4243-8f3b-15c294843740" -PermissionName "AdvancedHunting.Read.All"
