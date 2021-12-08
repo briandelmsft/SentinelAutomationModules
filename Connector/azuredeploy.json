@@ -1,0 +1,835 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "STATCoordinatorPlaybookName": {
+            "defaultValue": "STAT-Coordinator",
+            "type": "String"
+        },        
+        "CustomConnectorName": {
+            "defaultValue": "SentinelTriageAssistant",
+            "type": "String"
+        },
+        "CustomConnectorDislayName": {
+            "defaultValue": "Sentinel Triage AssistanT - STAT",
+            "type": "String"
+        },
+        "BaseModule_resourceid": {
+            "metadata": {
+                "description": "Resource Id of the Base Module Playbook"
+            },
+            "defaultValue": "/subscriptions/<subscriptionId>/resourceGroups/<resourceGroupName>/providers/Microsoft.Logic/workflows/<BaseModuleName>",
+            "type": "String"
+        },
+        "OOFModule_resourceid": {
+            "metadata": {
+                "description": "Resource Id of the OOF Module Playbook"
+            },
+            "defaultValue": "/subscriptions/<subscriptionId>/resourceGroups/<resourceGroupName>/providers/Microsoft.Logic/workflows/<OOFModuleName>",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Web/customApis",
+            "apiVersion": "2016-06-01",
+            "name": "[parameters('CustomConnectorName')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Logic/workflows', parameters('STATCoordinatorPlaybookName'))]"
+            ],
+            "properties": {
+                "connectionParameters": {},
+                "capabilities": [],
+                "description": "The Microsoft Sentinel Triage assistance is an automation toolkit to simplify the construction of automation to analyze Sentinel Incidents",
+                "displayName": "[parameters('CustomConnectorDislayName')]",
+                "iconUri": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACsAAAAtCAYAAAA3BJLdAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAMjSURBVFhH7Zk/TFNRFMa/tg8BkWr8E0uRyGAwOki0NVYTBhIlGISFGnVgrC5EGk1IGBwkMQw6NG7tggtxMDqoiYspEAZJoAZFISAJJFpsGLTUaqDQ1nfvuy20lL7b0vdqTX/JyT3f477ycbjv9N5WExVBgaBlY0FQNKsUCWvW7/djYmKCqdxiMplQWVnJVJYQszEGBweJcUVibGyM/ZbsKdxlMDQ0hMbGRpr79h+j404x/Jijo1hZmM1mmmfL/1HZby9eoaKigubZEgwGUdPeRvNcVHZbs4FAgI47Ra/X01EVs2+CWvjWaUoxCMDlPRGmJNLNiZm12WwwGo0058FisaC5uZkpCVmzt30CPqxoaE6oL4visWGTM5F0c2JmM6WrqwsOh4MpieLbrVKoYpYsKd5oaGhgd21F1ixZe8O1a/FIXq8Enjkr12z4U3smbYTfjbPZqcnLMtC1X0HpUxd23bvLrvCRF7PammrozpuhOXmcXeFDVbOkoiX2W9CeM1GtOVJFNQkeZM2Sht/v3wiik+GZQxCsbdQYqSqBVDjnZp/4dfHYzqzcHEJ0ehaRUQ8iX72SXg5IWgweZM3mklDvI6xctyH8/DXVkalZqknwoKrZnZIXs2sOJ+2rqzdusit8qLJFzOS1WlpaMDIyknIjI27mlIcY6OjogNvthtcrPVzJdHd3Y2BgAJOTk+zKVrgqG7r/UHySvzCVHtJLhavS6YDwtvoEHevq6rC4uEhPD6kgR/WZmRncWZrHp3Ao+y0ieWrDo+NcEfV+Z3dJXCgpp3Fw/itOrYbjOjlKP07Rn+s1OnbnVrgqu/7sJRYWfHD/3thgE4y7BWg3/bn1unUYLKfjTZ/Qe7iWZfI0NTXhwef3GJ6bTVlZ7gesnzb8xH+ExVDGMomLQgiXhFWmJDI5KTidTrhcLng8nuJJQVWKZpWiaFYpCsrstn22p6eHjjGmUY5Rf4gpiaNVBxD+tcwUcPbQXuz7ucSURF9fH8vkaW1tpT2WvC2n6rOqffKdaYhmmasNEipLvk+w2+1M5Rer1YrOzk6mJBLM/usUu4FSFJBZ4C9uB2sPxMPD5QAAAABJRU5ErkJggg==",
+                "swagger": {
+                    "swagger": "2.0",
+                    "info": {
+                        "version": "1.0.0",
+                        "title": "STAT",
+                        "description": "STAT"
+                    },
+                    "host": "[string(split(split(listCallbackUrl(resourceId('Microsoft.Logic/workflows/triggers', parameters('STATCoordinatorPlaybookName'), 'manual'), '2017-07-01').value, ':443')[0], '//')[1])]",
+                    "basePath": "/",
+                    "schemes": [
+                        "https"
+                    ],
+                    "consumes": [],
+                    "produces": [
+                        "application/json"
+                    ],
+                    "paths": {
+                        "[concat(string(split(split(listCallbackUrl(resourceId('Microsoft.Logic/workflows/triggers', parameters('STATCoordinatorPlaybookName'), 'manual'), '2017-07-01').value, ':443')[1],'?')[0]), '/func/base')]": {
+                            "post": {
+                                "summary": "Base Module",
+                                "description": "Sentinel Triage AssistanT Base Module enriches entities in the Sentinel Incidient to provide additional data for analysis",
+                                "operationId": "BaseModule",
+                                "parameters": [
+                                    {
+                                        "name": "api-version",
+                                        "default": "2016-10-01",
+                                        "in": "query",
+                                        "type": "string",
+                                        "required": true,
+                                        "x-ms-visibility": "internal"
+                                    },
+                                    {
+                                        "name": "sp",
+                                        "default": "/triggers/manual/run",
+                                        "in": "query",
+                                        "type": "string",
+                                        "required": true,
+                                        "x-ms-visibility": "internal"
+                                    },
+                                    {
+                                        "name": "sv",
+                                        "default": "1.0",
+                                        "in": "query",
+                                        "type": "string",
+                                        "required": true,
+                                        "x-ms-visibility": "internal"
+                                    },
+                                    {
+                                        "name": "sig",
+                                        "default": "[string(split(listCallbackUrl(resourceId('Microsoft.Logic/workflows/triggers', parameters('STATCoordinatorPlaybookName'), 'manual'), '2017-07-01').value, 'sig=')[1])]",
+                                        "in": "query",
+                                        "type": "string",
+                                        "required": true,
+                                        "x-ms-visibility": "internal"
+                                    },
+                                    {
+                                        "name": "body",
+                                        "in": "body",
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "EnrichIPsWithGeoData": {
+                                                    "type": "boolean",
+                                                    "description": "EnrichIPsWithGeoData",
+                                                    "title": "",
+                                                    "enum": [
+                                                        "",
+                                                        true,
+                                                        false
+                                                    ]
+                                                },
+                                                "Entities": {
+                                                    "type": "string",
+                                                    "description": "Entities",
+                                                    "title": "",
+                                                    "x-ms-visibility": "important"
+                                                },
+                                                "IncidentARMId": {
+                                                    "type": "string",
+                                                    "description": "IncidentARMId",
+                                                    "title": "",
+                                                    "x-ms-visibility": "important"
+                                                },
+                                                "WorkspaceId": {
+                                                    "type": "string",
+                                                    "description": "WorkspaceId",
+                                                    "title": "",
+                                                    "x-ms-visibility": "important"
+                                                }
+                                            },
+                                            "default": {
+                                                "EnrichIPsWithGeoData": true,
+                                                "Entities": [],
+                                                "IncidentARMId": "",
+                                                "WorkspaceId": "abc"
+                                            },
+                                            "required": [
+                                                "EnrichIPsWithGeoData",
+                                                "IncidentARMId",
+                                                "WorkspaceId",
+                                                "Entities"
+                                            ]
+                                        },
+                                        "required": true
+                                    }
+                                ],
+                                "responses": {
+                                    "default": {
+                                        "description": "default",
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "Accounts": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "RawEntity": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "accountName": {
+                                                                        "type": "string",
+                                                                        "description": "accountName"
+                                                                    },
+                                                                    "upnSuffix": {
+                                                                        "type": "string",
+                                                                        "description": "upnSuffix"
+                                                                    },
+                                                                    "isDomainJoined": {
+                                                                        "type": "boolean",
+                                                                        "description": "isDomainJoined"
+                                                                    },
+                                                                    "displayName": {
+                                                                        "type": "string",
+                                                                        "description": "displayName"
+                                                                    },
+                                                                    "friendlyName": {
+                                                                        "type": "string",
+                                                                        "description": "friendlyName"
+                                                                    },
+                                                                    "ntDomain": {
+                                                                        "type": "string",
+                                                                        "description": "ntDomain"
+                                                                    },
+                                                                    "sid": {
+                                                                        "type": "string",
+                                                                        "description": "sid"
+                                                                    },
+                                                                    "aadTenantId": {
+                                                                        "type": "string",
+                                                                        "description": "aadTenantId"
+                                                                    },
+                                                                    "aadUserId": {
+                                                                        "type": "string",
+                                                                        "description": "aadUserId"
+                                                                    },
+                                                                    "dnsDomain": {
+                                                                        "type": "string",
+                                                                        "description": "dnsDomain"
+                                                                    },
+                                                                    "additionalData": {
+                                                                        "type": "object",
+                                                                        "properties": {
+                                                                            "TransitiveGroupsMembership": {
+                                                                                "type": "array",
+                                                                                "items": {
+                                                                                    "type": "string"
+                                                                                },
+                                                                                "description": "TransitiveGroupsMembership"
+                                                                            },
+                                                                            "OnPremisesDistinguishedName": {
+                                                                                "type": "string",
+                                                                                "description": "OnPremisesDistinguishedName"
+                                                                            },
+                                                                            "SyncFromAad": {
+                                                                                "type": "string",
+                                                                                "description": "SyncFromAad"
+                                                                            },
+                                                                            "MailAddress": {
+                                                                                "type": "string",
+                                                                                "description": "MailAddress"
+                                                                            },
+                                                                            "IsDeleted": {
+                                                                                "type": "string",
+                                                                                "description": "IsDeleted"
+                                                                            },
+                                                                            "IsEnabled": {
+                                                                                "type": "string",
+                                                                                "description": "IsEnabled"
+                                                                            },
+                                                                            "ManagerName": {
+                                                                                "type": "string",
+                                                                                "description": "ManagerName"
+                                                                            },
+                                                                            "GivenName": {
+                                                                                "type": "string",
+                                                                                "description": "GivenName"
+                                                                            },
+                                                                            "UserType": {
+                                                                                "type": "string",
+                                                                                "description": "UserType"
+                                                                            },
+                                                                            "Sources": {
+                                                                                "type": "array",
+                                                                                "items": {
+                                                                                    "type": "string"
+                                                                                },
+                                                                                "description": "Sources"
+                                                                            },
+                                                                            "UpnName": {
+                                                                                "type": "string",
+                                                                                "description": "UpnName"
+                                                                            }
+                                                                        },
+                                                                        "description": "additionalData"
+                                                                    }
+                                                                },
+                                                                "description": "RawEntity"
+                                                            },
+                                                            "userPrincipalName": {
+                                                                "type": "string",
+                                                                "description": "userPrincipalName"
+                                                            },
+                                                            "id": {
+                                                                "type": "string",
+                                                                "description": "id"
+                                                            },
+                                                            "onPremisesSecurityIdentifier": {
+                                                                "type": "string",
+                                                                "description": "onPremisesSecurityIdentifier"
+                                                            },
+                                                            "onPremisesDistinguishedName": {
+                                                                "type": "string",
+                                                                "description": "onPremisesDistinguishedName"
+                                                            },
+                                                            "onPremisesDomainName": {
+                                                                "type": "string",
+                                                                "description": "onPremisesDomainName"
+                                                            },
+                                                            "onPremisesSamAccountName": {
+                                                                "type": "string",
+                                                                "description": "onPremisesSamAccountName"
+                                                            },
+                                                            "onPremisesSyncEnabled": {
+                                                                "type": "boolean",
+                                                                "description": "onPremisesSyncEnabled"
+                                                            },
+                                                            "mail": {
+                                                                "type": "string",
+                                                                "description": "mail"
+                                                            },
+                                                            "city": {
+                                                                "type": "string",
+                                                                "description": "city"
+                                                            },
+                                                            "state": {
+                                                                "type": "string",
+                                                                "description": "state"
+                                                            },
+                                                            "country": {
+                                                                "type": "string",
+                                                                "description": "country"
+                                                            },
+                                                            "department": {
+                                                                "type": "string",
+                                                                "description": "department"
+                                                            },
+                                                            "jobTitle": {
+                                                                "type": "string",
+                                                                "description": "jobTitle"
+                                                            },
+                                                            "officeLocation": {
+                                                                "type": "string",
+                                                                "description": "officeLocation"
+                                                            },
+                                                            "accountEnabled": {
+                                                                "type": "boolean",
+                                                                "description": "accountEnabled"
+                                                            },
+                                                            "manager": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "@odata.type": {
+                                                                        "type": "string",
+                                                                        "description": "@odata.type"
+                                                                    },
+                                                                    "userPrincipalName": {
+                                                                        "type": "string",
+                                                                        "description": "userPrincipalName"
+                                                                    },
+                                                                    "mail": {
+                                                                        "type": "string",
+                                                                        "description": "mail"
+                                                                    },
+                                                                    "id": {
+                                                                        "type": "string",
+                                                                        "description": "id"
+                                                                    }
+                                                                },
+                                                                "description": "manager"
+                                                            },
+                                                            "AssignedRoles": {
+                                                                "type": "array",
+                                                                "items": {},
+                                                                "description": "AssignedRoles"
+                                                            }
+                                                        }
+                                                    },
+                                                    "description": "Accounts"
+                                                },
+                                                "AccountsCount": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "AccountsCount"
+                                                },
+                                                "Domains": {
+                                                    "type": "array",
+                                                    "items": {},
+                                                    "description": "Domains"
+                                                },
+                                                "DomainsCount": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "DomainsCount"
+                                                },
+                                                "EntitiesCount": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "EntitiesCount"
+                                                },
+                                                "FileHashes": {
+                                                    "type": "array",
+                                                    "items": {},
+                                                    "description": "FileHashes"
+                                                },
+                                                "FileHashesCount": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "FileHashesCount"
+                                                },
+                                                "Files": {
+                                                    "type": "array",
+                                                    "items": {},
+                                                    "description": "Files"
+                                                },
+                                                "FilesCount": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "FilesCount"
+                                                },
+                                                "Hosts": {
+                                                    "type": "array",
+                                                    "items": {},
+                                                    "description": "Hosts"
+                                                },
+                                                "HostsCount": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "HostsCount"
+                                                },
+                                                "IPs": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "Address": {
+                                                                "type": "string",
+                                                                "description": "Address"
+                                                            },
+                                                            "GeoData": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "asn": {
+                                                                        "type": "string",
+                                                                        "description": "asn"
+                                                                    },
+                                                                    "carrier": {
+                                                                        "type": "string",
+                                                                        "description": "carrier"
+                                                                    },
+                                                                    "city": {
+                                                                        "type": "string",
+                                                                        "description": "city"
+                                                                    },
+                                                                    "cityCf": {
+                                                                        "type": "integer",
+                                                                        "format": "int32",
+                                                                        "description": "cityCf"
+                                                                    },
+                                                                    "continent": {
+                                                                        "type": "string",
+                                                                        "description": "continent"
+                                                                    },
+                                                                    "country": {
+                                                                        "type": "string",
+                                                                        "description": "country"
+                                                                    },
+                                                                    "countryCf": {
+                                                                        "type": "integer",
+                                                                        "format": "int32",
+                                                                        "description": "countryCf"
+                                                                    },
+                                                                    "ipAddr": {
+                                                                        "type": "string",
+                                                                        "description": "ipAddr"
+                                                                    },
+                                                                    "ipRoutingType": {
+                                                                        "type": "string",
+                                                                        "description": "ipRoutingType"
+                                                                    },
+                                                                    "latitude": {
+                                                                        "type": "string",
+                                                                        "description": "latitude"
+                                                                    },
+                                                                    "longitude": {
+                                                                        "type": "string",
+                                                                        "description": "longitude"
+                                                                    },
+                                                                    "organization": {
+                                                                        "type": "string",
+                                                                        "description": "organization"
+                                                                    },
+                                                                    "organizationType": {
+                                                                        "type": "string",
+                                                                        "description": "organizationType"
+                                                                    },
+                                                                    "region": {
+                                                                        "type": "string",
+                                                                        "description": "region"
+                                                                    },
+                                                                    "state": {
+                                                                        "type": "string",
+                                                                        "description": "state"
+                                                                    },
+                                                                    "stateCf": {
+                                                                        "type": "integer",
+                                                                        "format": "int32",
+                                                                        "description": "stateCf"
+                                                                    },
+                                                                    "stateCode": {
+                                                                        "type": "string",
+                                                                        "description": "stateCode"
+                                                                    }
+                                                                },
+                                                                "description": "GeoData"
+                                                            },
+                                                            "RawEntity": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "address": {
+                                                                        "type": "string",
+                                                                        "description": "address"
+                                                                    },
+                                                                    "friendlyName": {
+                                                                        "type": "string",
+                                                                        "description": "friendlyName"
+                                                                    }
+                                                                },
+                                                                "description": "RawEntity"
+                                                            }
+                                                        }
+                                                    },
+                                                    "description": "IPs"
+                                                },
+                                                "IPsCount": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "IPsCount"
+                                                },
+                                                "IncidentARMId": {
+                                                    "type": "string",
+                                                    "description": "IncidentARMId"
+                                                },
+                                                "URLs": {
+                                                    "type": "array",
+                                                    "items": {},
+                                                    "description": "URLs"
+                                                },
+                                                "URLsCount": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "URLsCount"
+                                                },
+                                                "WorkspaceId": {
+                                                    "type": "string",
+                                                    "description": "WorkspaceId"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "[concat(string(split(split(listCallbackUrl(resourceId('Microsoft.Logic/workflows/triggers', parameters('STATCoordinatorPlaybookName'), 'manual'), '2017-07-01').value, ':443')[1],'?')[0]), '/func/oofmodule')]": {
+                            "post": {
+                                "summary": "Out of Office Module",
+                                "description": "Sentinel Triage AssistanT Module for determining if user entities are out of the office.",
+                                "operationId": "OOFModule",
+                                "parameters": [
+                                    {
+                                        "name": "api-version",
+                                        "default": "2016-10-01",
+                                        "in": "query",
+                                        "type": "string",
+                                        "required": true,
+                                        "x-ms-visibility": "internal"
+                                    },
+                                    {
+                                        "name": "sp",
+                                        "default": "/triggers/manual/run",
+                                        "in": "query",
+                                        "type": "string",
+                                        "required": true,
+                                        "x-ms-visibility": "internal"
+                                    },
+                                    {
+                                        "name": "sv",
+                                        "default": "1.0",
+                                        "in": "query",
+                                        "type": "string",
+                                        "required": true,
+                                        "x-ms-visibility": "internal"
+                                    },
+                                    {
+                                        "name": "sig",
+                                        "default": "[string(split(listCallbackUrl(resourceId('Microsoft.Logic/workflows/triggers', parameters('STATCoordinatorPlaybookName'), 'manual'), '2017-07-01').value, 'sig=')[1])]",
+                                        "in": "query",
+                                        "type": "string",
+                                        "required": true,
+                                        "x-ms-visibility": "internal"
+                                    },
+                                    {
+                                        "name": "body",
+                                        "in": "body",
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "AddIncidentComments": {
+                                                    "type": "boolean",
+                                                    "description": "Add Comments to Microsoft Sentinel Incident",
+                                                    "title": "",
+                                                    "enum": [
+                                                        true,
+                                                        false
+                                                    ]
+                                                },
+                                                "BaseModuleBody": {
+                                                    "type": "string",
+                                                    "description": "Body from STAT Base Module",
+                                                    "title": "",
+                                                    "x-ms-visibility": "important"
+                                                }
+                                            },
+                                            "default": {
+                                                "AddIncidentComments": true,
+                                                "Entities": ""
+                                            },
+                                            "required": [
+                                                "AddIncidentComments",
+                                                "BaseModuleBody"
+                                            ]
+                                        },
+                                        "required": true
+                                    }
+                                ],
+                                "responses": {
+                                    "default": {
+                                        "description": "default",
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "AllUsersInOffice": {
+                                                    "type": "boolean",
+                                                    "description": "true if All users are in the office"
+                                                },
+                                                "AllUsersOutOfOffice": {
+                                                    "type": "boolean",
+                                                    "description": "true if All users are out of the office"
+                                                },
+                                                "DetailedResults": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "ExternalMessage": {
+                                                                "type": "string",
+                                                                "description": "External Out of Office message in DetailedResults array"
+                                                            },
+                                                            "InternalMessage": {
+                                                                "type": "string",
+                                                                "description": "Internal Out of Office message in DetailedResults array"
+                                                            },
+                                                            "OOFStatus": {
+                                                                "type": "string",
+                                                                "description": "Out of Office status in DetailedResults array"
+                                                            },
+                                                            "UPN": {
+                                                                "type": "string",
+                                                                "description": "UserPrincipalName in DetailedResults array"
+                                                            }
+                                                        }
+                                                    },
+                                                    "description": "Array of by user DetailedResults"
+                                                },
+                                                "UsersInOffice": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "Count of Users In the Office"
+                                                },
+                                                "UsersOutOfOffice": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "Count of Users Out of the Office"
+                                                },
+                                                "UsersUnknown": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "Count of Users with unknown Out of Office status"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "definitions": {},
+                    "parameters": {},
+                    "responses": {},
+                    "securityDefinitions": {},
+                    "security": [],
+                    "tags": []
+                },
+                "apiType": "Rest",
+                "backendService": {
+                    "serviceUrl": "[string(split(listCallbackUrl(resourceId('Microsoft.Logic/workflows/triggers', parameters('STATCoordinatorPlaybookName'), 'manual'), '2017-07-01').value, ':443')[0])]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2017-07-01",
+            "name": "[parameters('STATCoordinatorPlaybookName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "state": "Enabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {},
+                    "triggers": {
+                        "manual": {
+                            "type": "Request",
+                            "kind": "Http",
+                            "inputs": {
+                                "method": "POST",
+                                "relativePath": "/func/{funcname}",
+                                "schema": {
+                                    "properties": {
+                                        "AddCommentsToIncident": {
+                                            "type": "boolean"
+                                        },
+                                        "BaseModuleBody": {
+                                            "description": "Body of Base Module",
+                                            "type": "string"
+                                        },
+                                        "EnrichIPsWithGeoData": {
+                                            "type": "boolean"
+                                        },
+                                        "Entities": {
+                                            "description": "Click here and select the Entities object from the Dynamic content menu",
+                                            "type": "string"
+                                        },
+                                        "IncidentARMId": {
+                                            "description": "Click here and select the Incident ARM ID object from the Dynamic content menu",
+                                            "type": "string"
+                                        },
+                                        "WorkspaceId": {
+                                            "description": "Click here and select the Workspace ID object from the Dynamic content menu",
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "actions": {
+                        "Switch": {
+                            "runAfter": {},
+                            "cases": {
+                                "Case_-_Base_Module": {
+                                    "case": "base",
+                                    "actions": {
+                                        "Base-Module-b": {
+                                            "runAfter": {},
+                                            "type": "Workflow",
+                                            "inputs": {
+                                                "body": {
+                                                    "EnrichIPsWithGeoData": "@triggerBody()?['EnrichIPsWithGeoData']",
+                                                    "Entities": "@triggerBody()?['Entities']",
+                                                    "IncidentARMId": "@triggerBody()?['IncidentARMId']",
+                                                    "WorkspaceId": "@triggerBody()?['WorkspaceId']"
+                                                },
+                                                "host": {
+                                                    "triggerName": "enrich",
+                                                    "workflow": {
+                                                        "id": "[parameters('BaseModule_resourceid')]"
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "Response": {
+                                            "runAfter": {
+                                                "Base-Module-b": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "Response",
+                                            "kind": "Http",
+                                            "inputs": {
+                                                "body": "@body('Base-Module-b')",
+                                                "statusCode": 200
+                                            }
+                                        }
+                                    }
+                                },
+                                "Case_-_OOF_Module": {
+                                    "case": "oofmodule",
+                                    "actions": {
+                                        "Get-OOFDetails-b": {
+                                            "runAfter": {},
+                                            "type": "Workflow",
+                                            "inputs": {
+                                                "body": {
+                                                    "AddIncidentComments": "@triggerBody()?['AddCommentsToIncident']",
+                                                    "Entities": "@triggerBody()?['BaseModuleBody']"
+                                                },
+                                                "host": {
+                                                    "triggerName": "triage",
+                                                    "workflow": {
+                                                        "id": "[parameters('OOFModule_resourceid')]"
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "Response_2": {
+                                            "runAfter": {
+                                                "Get-OOFDetails-b": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "Response",
+                                            "kind": "Http",
+                                            "inputs": {
+                                                "body": "@body('Get-OOFDetails-b')",
+                                                "statusCode": 200
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "default": {
+                                "actions": {
+                                    "Response_3": {
+                                        "runAfter": {},
+                                        "type": "Response",
+                                        "kind": "Http",
+                                        "inputs": {
+                                            "body": {
+                                                "Error": "Invalid Function Name"
+                                            },
+                                            "statusCode": 200
+                                        }
+                                    }
+                                }
+                            },
+                            "expression": "@triggerOutputs()['relativePathParameters']['funcname']",
+                            "type": "Switch"
+                        }
+                    },
+                    "outputs": {}
+                },
+                "parameters": {}
+            }
+        }
+    ]
+}
