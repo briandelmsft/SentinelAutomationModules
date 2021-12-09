@@ -23,7 +23,7 @@
                 "label": "Deployment Type",
                 "elements": [
                     {
-                        "name": "textBlock1",
+                        "name": "deployTextBlock1",
                         "type": "Microsoft.Common.TextBlock",
                         "visible": true,
                         "options": {
@@ -31,11 +31,19 @@
                         }
                     },
                     {
-                        "name": "textBlock2",
+                        "name": "deployTextBlock2",
                         "type": "Microsoft.Common.TextBlock",
                         "visible": true,
                         "options": {
-                            "text": "Select the type of deployment you want for the Sentinel Triage AssistanT.<br>A <b>standard</b> deployment allows you to deploy or update the entire STAT solution with minimal input.  An <b>advanced</b> deployment allows for additional configuration such as providing customized names to the Logic Apps",
+                            "text": "Select the type of deployment you want for the Sentinel Triage AssistanT"
+                        }
+                    },
+                    {
+                        "name": "deployTextBlock3",
+                        "type": "Microsoft.Common.TextBlock",
+                        "visible": true,
+                        "options": {
+                            "text": "A standard deployment allows you to deploy or update the entire STAT solution with minimal input.  An advanced deployment allows for additional configuration such as providing customized names to the Logic Apps",
                             "link": {
                                 "label": "Learn more",
                                 "uri": "https://github.com/briandelmsft/SentinelAutomationModules/tree/main/Deploy"
