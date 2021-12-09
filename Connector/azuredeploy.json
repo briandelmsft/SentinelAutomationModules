@@ -5,7 +5,7 @@
         "STATCoordinatorPlaybookName": {
             "defaultValue": "STAT-Coordinator",
             "type": "String"
-        },        
+        },
         "CustomConnectorName": {
             "defaultValue": "SentinelTriageAssistant",
             "type": "String"
@@ -26,6 +26,69 @@
                 "description": "Resource Id of the OOF Module Playbook"
             },
             "defaultValue": "/subscriptions/<subscriptionId>/resourceGroups/<resourceGroupName>/providers/Microsoft.Logic/workflows/<OOFModuleName>",
+            "type": "String"
+        },
+        "AADRisks_resourceid": {
+            "metadata": {
+                "description": "Resource Id of the AADRisks Module Playbook"
+            },
+            "defaultValue": "/subscriptions/<subscriptionId>/resourceGroups/<resourceGroupName>/providers/Microsoft.Logic/workflows/<AADRisksModuleName>",
+            "type": "String"
+        },
+        "FileModule_resourceid": {
+            "metadata": {
+                "description": "Resource Id of the File Module Playbook"
+            },
+            "defaultValue": "/subscriptions/<subscriptionId>/resourceGroups/<resourceGroupName>/providers/Microsoft.Logic/workflows/<FileModuleName>",
+            "type": "String"
+        },
+        "KQLModule_resourceid": {
+            "metadata": {
+                "description": "Resource Id of the KQL Module Playbook"
+            },
+            "defaultValue": "/subscriptions/<subscriptionId>/resourceGroups/<resourceGroupName>/providers/Microsoft.Logic/workflows/<KQLModuleName>",
+            "type": "String"
+        },
+        "MCASModule_resourceid": {
+            "metadata": {
+                "description": "Resource Id of the MCAS Module Playbook"
+            },
+            "defaultValue": "/subscriptions/<subscriptionId>/resourceGroups/<resourceGroupName>/providers/Microsoft.Logic/workflows/<MCASModuleName>",
+            "type": "String"
+        },
+        "MDEModule_resourceid": {
+            "metadata": {
+                "description": "Resource Id of the MDE Module Playbook"
+            },
+            "defaultValue": "/subscriptions/<subscriptionId>/resourceGroups/<resourceGroupName>/providers/Microsoft.Logic/workflows/<MDEModuleName>",
+            "type": "String"
+        },
+        "RelatedAlertsModule_resourceid": {
+            "metadata": {
+                "description": "Resource Id of the RelatedAlerts Module Playbook"
+            },
+            "defaultValue": "/subscriptions/<subscriptionId>/resourceGroups/<resourceGroupName>/providers/Microsoft.Logic/workflows/<RelatedAlertsModuleName>",
+            "type": "String"
+        },
+        "ThreatIntelModule_resourceid": {
+            "metadata": {
+                "description": "Resource Id of the TI Module Playbook"
+            },
+            "defaultValue": "/subscriptions/<subscriptionId>/resourceGroups/<resourceGroupName>/providers/Microsoft.Logic/workflows/<TIModuleName>",
+            "type": "String"
+        },
+        "UEBAModule_resourceid": {
+            "metadata": {
+                "description": "Resource Id of the UEBA Module Playbook"
+            },
+            "defaultValue": "/subscriptions/<subscriptionId>/resourceGroups/<resourceGroupName>/providers/Microsoft.Logic/workflows/<UEBAModuleName>",
+            "type": "String"
+        },
+        "WatchlistModule_resourceid": {
+            "metadata": {
+                "description": "Resource Id of the Watchlist Module Playbook"
+            },
+            "defaultValue": "/subscriptions/<subscriptionId>/resourceGroups/<resourceGroupName>/providers/Microsoft.Logic/workflows/<WatchlistModuleName>",
             "type": "String"
         }
     },
@@ -156,6 +219,7 @@
                                         "description": "default",
                                         "schema": {
                                             "type": "object",
+                                            "description": "Base Module Body",
                                             "properties": {
                                                 "Accounts": {
                                                     "type": "array",
@@ -327,10 +391,6 @@
                                                             "manager": {
                                                                 "type": "object",
                                                                 "properties": {
-                                                                    "@odata.type": {
-                                                                        "type": "string",
-                                                                        "description": "@odata.type"
-                                                                    },
                                                                     "userPrincipalName": {
                                                                         "type": "string",
                                                                         "description": "userPrincipalName"
@@ -669,6 +729,1545 @@
                                     }
                                 }
                             }
+                        },
+                        "[concat(string(split(split(listCallbackUrl(resourceId('Microsoft.Logic/workflows/triggers', parameters('STATCoordinatorPlaybookName'), 'manual'), '2017-07-01').value, ':443')[1],'?')[0]), '/func/threatintel')]": {
+                            "post": {
+                                "summary": "Threat Intel Module",
+                                "description": "Sentinel Triage AssistanT Module for determining if incident entities are in Threat Intelligence.",
+                                "operationId": "ThreatIntel",
+                                "parameters": [
+                                    {
+                                        "name": "api-version",
+                                        "default": "2016-10-01",
+                                        "in": "query",
+                                        "type": "string",
+                                        "required": true,
+                                        "x-ms-visibility": "internal"
+                                    },
+                                    {
+                                        "name": "sp",
+                                        "default": "/triggers/manual/run",
+                                        "in": "query",
+                                        "type": "string",
+                                        "required": true,
+                                        "x-ms-visibility": "internal"
+                                    },
+                                    {
+                                        "name": "sv",
+                                        "default": "1.0",
+                                        "in": "query",
+                                        "type": "string",
+                                        "required": true,
+                                        "x-ms-visibility": "internal"
+                                    },
+                                    {
+                                        "name": "sig",
+                                        "default": "[string(split(listCallbackUrl(resourceId('Microsoft.Logic/workflows/triggers', parameters('STATCoordinatorPlaybookName'), 'manual'), '2017-07-01').value, 'sig=')[1])]",
+                                        "in": "query",
+                                        "type": "string",
+                                        "required": true,
+                                        "x-ms-visibility": "internal"
+                                    },
+                                    {
+                                        "name": "body",
+                                        "in": "body",
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "AddIncidentComments": {
+                                                    "type": "boolean",
+                                                    "description": "Add Comments to Microsoft Sentinel Incident",
+                                                    "title": "",
+                                                    "enum": [
+                                                        true,
+                                                        false
+                                                    ]
+                                                },
+                                                "BaseModuleBody": {
+                                                    "type": "string",
+                                                    "description": "Body from STAT Base Module",
+                                                    "title": "",
+                                                    "x-ms-visibility": "important"
+                                                },
+                                                "CheckDomains": {
+                                                    "type": "boolean",
+                                                    "description": "Check Domain entities against Threat Intel",
+                                                    "title": "",
+                                                    "enum": [
+                                                        true,
+                                                        false
+                                                    ]
+                                                },
+                                                "CheckFileHashes": {
+                                                    "type": "boolean",
+                                                    "description": "Check FileHash entities against Threat Intel",
+                                                    "title": "",
+                                                    "enum": [
+                                                        true,
+                                                        false
+                                                    ]
+                                                },
+                                                "CheckIPs": {
+                                                    "type": "boolean",
+                                                    "description": "Check IP entities against Threat Intel",
+                                                    "title": "",
+                                                    "enum": [
+                                                        true,
+                                                        false
+                                                    ]
+                                                },
+                                                "CheckURLs": {
+                                                    "type": "boolean",
+                                                    "description": "Check URL entities against Threat Intel",
+                                                    "title": "",
+                                                    "enum": [
+                                                        true,
+                                                        false
+                                                    ]
+                                                },
+                                                "LookbackInDays": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "Number of days to lookback in Threat Intel for matches",
+                                                    "title": ""
+                                                }
+                                            },
+                                            "default": {
+                                                "AddIncidentComments": true,
+                                                "Entities": ""
+                                            },
+                                            "required": [
+                                                "AddIncidentComments",
+                                                "BaseModuleBody",
+                                                "CheckDomains",
+                                                "CheckFileHashes",
+                                                "CheckIPs",
+                                                "CheckURLs",
+                                                "LookbackInDays"
+                                            ]
+                                        },
+                                        "required": true
+                                    }
+                                ],
+                                "responses": {
+                                    "default": {
+                                        "description": "default",
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "AnyTIFound": {
+                                                    "type": "boolean",
+                                                    "description": "AnyTIFound"
+                                                },
+                                                "DetailedResults": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "TIType": {
+                                                                "type": "string",
+                                                                "description": "TIType"
+                                                            },
+                                                            "TIData": {
+                                                                "type": "string",
+                                                                "description": "TIData"
+                                                            },
+                                                            "SourceSystem": {
+                                                                "type": "string",
+                                                                "description": "SourceSystem"
+                                                            },
+                                                            "Description": {
+                                                                "type": "string",
+                                                                "description": "Description"
+                                                            },
+                                                            "ThreatType": {
+                                                                "type": "string",
+                                                                "description": "ThreatType"
+                                                            },
+                                                            "ConfidenceScore": {
+                                                                "type": "integer",
+                                                                "format": "int32",
+                                                                "description": "ConfidenceScore"
+                                                            },
+                                                            "IndicatorId": {
+                                                                "type": "string",
+                                                                "description": "IndicatorId"
+                                                            }
+                                                        }
+                                                    },
+                                                    "description": "DetailedResults"
+                                                },
+                                                "DomainEntitiesCount": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "DomainEntitiesCount"
+                                                },
+                                                "DomainEntitiesWithTI": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "DomainEntitiesWithTI"
+                                                },
+                                                "DomainTIFound": {
+                                                    "type": "boolean",
+                                                    "description": "DomainTIFound"
+                                                },
+                                                "FileHashEntitiesCount": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "FileHashEntitiesCount"
+                                                },
+                                                "FileHashEntitiesWithTI": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "FileHashEntitiesWithTI"
+                                                },
+                                                "FileHashTIFound": {
+                                                    "type": "boolean",
+                                                    "description": "FileHashTIFound"
+                                                },
+                                                "IPEntitiesCount": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "IPEntitiesCount"
+                                                },
+                                                "IPEntitiesWithTI": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "IPEntitiesWithTI"
+                                                },
+                                                "IPTIFound": {
+                                                    "type": "boolean",
+                                                    "description": "IPTIFound"
+                                                },
+                                                "URLEntitiesCount": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "URLEntitiesCount"
+                                                },
+                                                "URLEntitiesWithTI": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "URLEntitiesWithTI"
+                                                },
+                                                "URLTIFound": {
+                                                    "type": "boolean",
+                                                    "description": "URLTIFound"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "[concat(string(split(split(listCallbackUrl(resourceId('Microsoft.Logic/workflows/triggers', parameters('STATCoordinatorPlaybookName'), 'manual'), '2017-07-01').value, ':443')[1],'?')[0]), '/func/relatedalerts')]": {
+                            "post": {
+                                "summary": "Related Alerts Module",
+                                "description": "Sentinel Triage AssistanT Module for determining if entities have recent related alerts in Sentinel.",
+                                "operationId": "RelatedAlerts",
+                                "parameters": [
+                                    {
+                                        "name": "api-version",
+                                        "default": "2016-10-01",
+                                        "in": "query",
+                                        "type": "string",
+                                        "required": true,
+                                        "x-ms-visibility": "internal"
+                                    },
+                                    {
+                                        "name": "sp",
+                                        "default": "/triggers/manual/run",
+                                        "in": "query",
+                                        "type": "string",
+                                        "required": true,
+                                        "x-ms-visibility": "internal"
+                                    },
+                                    {
+                                        "name": "sv",
+                                        "default": "1.0",
+                                        "in": "query",
+                                        "type": "string",
+                                        "required": true,
+                                        "x-ms-visibility": "internal"
+                                    },
+                                    {
+                                        "name": "sig",
+                                        "default": "[string(split(listCallbackUrl(resourceId('Microsoft.Logic/workflows/triggers', parameters('STATCoordinatorPlaybookName'), 'manual'), '2017-07-01').value, 'sig=')[1])]",
+                                        "in": "query",
+                                        "type": "string",
+                                        "required": true,
+                                        "x-ms-visibility": "internal"
+                                    },
+                                    {
+                                        "name": "body",
+                                        "in": "body",
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "AddIncidentComments": {
+                                                    "type": "boolean",
+                                                    "description": "Add Comments to Microsoft Sentinel Incident",
+                                                    "title": "",
+                                                    "enum": [
+                                                        true,
+                                                        false
+                                                    ]
+                                                },
+                                                "BaseModuleBody": {
+                                                    "type": "string",
+                                                    "description": "Body from STAT Base Module",
+                                                    "title": "",
+                                                    "x-ms-visibility": "important"
+                                                },
+                                                "CheckAccounts": {
+                                                    "type": "boolean",
+                                                    "description": "Check Account entities against recent alerts",
+                                                    "title": "",
+                                                    "enum": [
+                                                        true,
+                                                        false
+                                                    ]
+                                                },
+                                                "CheckHosts": {
+                                                    "type": "boolean",
+                                                    "description": "Check Host entities against recent alerts",
+                                                    "title": "",
+                                                    "enum": [
+                                                        true,
+                                                        false
+                                                    ]
+                                                },
+                                                "CheckIPs": {
+                                                    "type": "boolean",
+                                                    "description": "Check IP entities against recent alerts",
+                                                    "title": "",
+                                                    "enum": [
+                                                        true,
+                                                        false
+                                                    ]
+                                                },
+                                                "LookbackInDays": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "Number of days to lookback in Threat Intel for matches",
+                                                    "title": ""
+                                                }
+                                            },
+                                            "default": {
+                                                "AddIncidentComments": true,
+                                                "Entities": ""
+                                            },
+                                            "required": [
+                                                "AddIncidentComments",
+                                                "BaseModuleBody",
+                                                "CheckAccounts",
+                                                "CheckHosts",
+                                                "CheckIPs",
+                                                "LookbackInDays"
+                                            ]
+                                        },
+                                        "required": true
+                                    }
+                                ],
+                                "responses": {
+                                    "default": {
+                                        "description": "default",
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "DetailedResults": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "StartTime": {
+                                                                "type": "string",
+                                                                "description": "StartTime"
+                                                            },
+                                                            "DisplayName": {
+                                                                "type": "string",
+                                                                "description": "DisplayName"
+                                                            },
+                                                            "AlertName": {
+                                                                "type": "string",
+                                                                "description": "AlertName"
+                                                            },
+                                                            "AlertSeverity": {
+                                                                "type": "string",
+                                                                "description": "AlertSeverity"
+                                                            },
+                                                            "SystemAlertId": {
+                                                                "type": "string",
+                                                                "description": "SystemAlertId"
+                                                            },
+                                                            "ProviderName": {
+                                                                "type": "string",
+                                                                "description": "ProviderName"
+                                                            },
+                                                            "AccountEntityMatch": {
+                                                                "type": "boolean",
+                                                                "description": "AccountEntityMatch"
+                                                            },
+                                                            "IPEntityMatch": {
+                                                                "type": "boolean",
+                                                                "description": "IPEntityMatch"
+                                                            },
+                                                            "HostEntityMatch": {
+                                                                "type": "boolean",
+                                                                "description": "HostEntityMatch"
+                                                            }
+                                                        }
+                                                    },
+                                                    "description": "DetailedResults"
+                                                },
+                                                "RelatedAccountAlertsCount": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "RelatedAccountAlertsCount"
+                                                },
+                                                "RelatedAccountAlertsFound": {
+                                                    "type": "boolean",
+                                                    "description": "RelatedAccountAlertsFound"
+                                                },
+                                                "RelatedAlertsCount": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "RelatedAlertsCount"
+                                                },
+                                                "RelatedAlertsFound": {
+                                                    "type": "boolean",
+                                                    "description": "RelatedAlertsFound"
+                                                },
+                                                "RelatedHostAlertsCount": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "RelatedHostAlertsCount"
+                                                },
+                                                "RelatedHostAlertsFound": {
+                                                    "type": "boolean",
+                                                    "description": "RelatedHostAlertsFound"
+                                                },
+                                                "RelatedIPAlertsCount": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "RelatedIPAlertsCount"
+                                                },
+                                                "RelatedIPAlertsFound": {
+                                                    "type": "boolean",
+                                                    "description": "RelatedIPAlertsFound"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "[concat(string(split(split(listCallbackUrl(resourceId('Microsoft.Logic/workflows/triggers', parameters('STATCoordinatorPlaybookName'), 'manual'), '2017-07-01').value, ':443')[1],'?')[0]), '/func/watchlist')]": {
+                            "post": {
+                                "summary": "Watchlist Module",
+                                "description": "Sentinel Triage AssistanT Module for determining if incident entities are on a Sentinel watchlist.",
+                                "operationId": "WatchlistModule",
+                                "parameters": [
+                                    {
+                                        "name": "api-version",
+                                        "default": "2016-10-01",
+                                        "in": "query",
+                                        "type": "string",
+                                        "required": true,
+                                        "x-ms-visibility": "internal"
+                                    },
+                                    {
+                                        "name": "sp",
+                                        "default": "/triggers/manual/run",
+                                        "in": "query",
+                                        "type": "string",
+                                        "required": true,
+                                        "x-ms-visibility": "internal"
+                                    },
+                                    {
+                                        "name": "sv",
+                                        "default": "1.0",
+                                        "in": "query",
+                                        "type": "string",
+                                        "required": true,
+                                        "x-ms-visibility": "internal"
+                                    },
+                                    {
+                                        "name": "sig",
+                                        "default": "[string(split(listCallbackUrl(resourceId('Microsoft.Logic/workflows/triggers', parameters('STATCoordinatorPlaybookName'), 'manual'), '2017-07-01').value, 'sig=')[1])]",
+                                        "in": "query",
+                                        "type": "string",
+                                        "required": true,
+                                        "x-ms-visibility": "internal"
+                                    },
+                                    {
+                                        "name": "body",
+                                        "in": "body",
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "AddIncidentComments": {
+                                                    "type": "boolean",
+                                                    "description": "Add Comments to Microsoft Sentinel Incident",
+                                                    "title": "",
+                                                    "enum": [
+                                                        true,
+                                                        false
+                                                    ]
+                                                },
+                                                "BaseModuleBody": {
+                                                    "type": "string",
+                                                    "description": "Body from STAT Base Module",
+                                                    "title": "",
+                                                    "x-ms-visibility": "important"
+                                                },
+                                                "WatchlistKey": {
+                                                    "type": "string",
+                                                    "description": "Enter the column name from the watchlist to match to the entity data"
+                                                },
+                                                "WatchlistKeyDataType": {
+                                                    "type": "string",
+                                                    "description": "Enter the format of the data in the WatchlistKey column.  UPN, IP or CIDR.",
+                                                    "enum": [
+                                                        "UPN",
+                                                        "IP",
+                                                        "CIDR"
+                                                    ]
+                                                },
+                                                "WatchlistName": {
+                                                    "type": "string",
+                                                    "description": "Name of the Microsoft Sentinel watchlist"
+                                                }
+                                            },
+                                            "default": {
+                                                "AddIncidentComments": true,
+                                                "Entities": ""
+                                            },
+                                            "required": [
+                                                "AddIncidentComments",
+                                                "BaseModuleBody",
+                                                "WatchlistKey",
+                                                "WatchlistKeyDataType",
+                                                "WatchlistName"
+                                            ]
+                                        },
+                                        "required": true
+                                    }
+                                ],
+                                "responses": {
+                                    "default": {
+                                        "description": "default",
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "DetailedResults": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "OnWatchlist": {
+                                                                "type": "boolean",
+                                                                "description": "OnWatchlist"
+                                                            },
+                                                            "EntityData": {
+                                                                "type": "string",
+                                                                "description": "EntityData"
+                                                            }
+                                                        }
+                                                    },
+                                                    "description": "DetailedResults"
+                                                },
+                                                "EntitiesAnalyzedCount": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "EntitiesAnalyzedCount"
+                                                },
+                                                "EntitiesOnWatchlist": {
+                                                    "type": "boolean",
+                                                    "description": "EntitiesOnWatchlist"
+                                                },
+                                                "EntitiesOnWatchlistCount": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "EntitiesOnWatchlistCount"
+                                                },
+                                                "WatchlistName": {
+                                                    "type": "string",
+                                                    "description": "WatchlistName"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "[concat(string(split(split(listCallbackUrl(resourceId('Microsoft.Logic/workflows/triggers', parameters('STATCoordinatorPlaybookName'), 'manual'), '2017-07-01').value, ':443')[1],'?')[0]), '/func/kql')]": {
+                            "post": {
+                                "summary": "Kusto Query Language (KQL) Module",
+                                "description": "Sentinel Triage AssistanT Module for running custom KQL queries against Microsoft Sentinel or Microsoft 365 Security.",
+                                "operationId": "KQLModule",
+                                "parameters": [
+                                    {
+                                        "name": "api-version",
+                                        "default": "2016-10-01",
+                                        "in": "query",
+                                        "type": "string",
+                                        "required": true,
+                                        "x-ms-visibility": "internal"
+                                    },
+                                    {
+                                        "name": "sp",
+                                        "default": "/triggers/manual/run",
+                                        "in": "query",
+                                        "type": "string",
+                                        "required": true,
+                                        "x-ms-visibility": "internal"
+                                    },
+                                    {
+                                        "name": "sv",
+                                        "default": "1.0",
+                                        "in": "query",
+                                        "type": "string",
+                                        "required": true,
+                                        "x-ms-visibility": "internal"
+                                    },
+                                    {
+                                        "name": "sig",
+                                        "default": "[string(split(listCallbackUrl(resourceId('Microsoft.Logic/workflows/triggers', parameters('STATCoordinatorPlaybookName'), 'manual'), '2017-07-01').value, 'sig=')[1])]",
+                                        "in": "query",
+                                        "type": "string",
+                                        "required": true,
+                                        "x-ms-visibility": "internal"
+                                    },
+                                    {
+                                        "name": "body",
+                                        "in": "body",
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "BaseModuleBody": {
+                                                    "type": "string",
+                                                    "description": "Body from STAT Base Module",
+                                                    "title": "",
+                                                    "x-ms-visibility": "important"
+                                                },
+                                                "KQLQuery": {
+                                                    "type": "string",
+                                                    "description": "Enter the KQL query you want to execute"
+                                                },
+                                                "LookbackInDays": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "Enter the number of days you want to lookback in the KQL Data"
+                                                },
+                                                "RunQueryAgainst": {
+                                                    "type": "string",
+                                                    "description": "Run the KQL Query against Microsoft Sentinel or Microsoft 365 Security",
+                                                    "enum": [
+                                                        "Sentinel",
+                                                        "M365"
+                                                    ]
+                                                }
+                                            },
+                                            "default": {
+                                                "AddIncidentComments": true,
+                                                "Entities": ""
+                                            },
+                                            "required": [
+                                                "BaseModuleBody",
+                                                "KQLQuery",
+                                                "LookbackInDays",
+                                                "RunQueryAgainst"
+                                            ]
+                                        },
+                                        "required": true
+                                    }
+                                ],
+                                "responses": {
+                                    "default": {
+                                        "description": "default",
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "DetailedResults": {
+                                                    "type": "array",
+                                                    "items": {},
+                                                    "description": "DetailedResults"
+                                                },
+                                                "ResultsCount": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "ResultsCount"
+                                                },
+                                                "ResultsFound": {
+                                                    "type": "boolean",
+                                                    "description": "ResultsFound"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "[concat(string(split(split(listCallbackUrl(resourceId('Microsoft.Logic/workflows/triggers', parameters('STATCoordinatorPlaybookName'), 'manual'), '2017-07-01').value, ':443')[1],'?')[0]), '/func/ueba')]": {
+                            "post": {
+                                "summary": "User Entity Behavior Analytics Module",
+                                "description": "Sentinel Triage AssistanT Module for determining if user entities have corresponding investigation priorities in Sentinel UEBA.",
+                                "operationId": "UEBAModule",
+                                "parameters": [
+                                    {
+                                        "name": "api-version",
+                                        "default": "2016-10-01",
+                                        "in": "query",
+                                        "type": "string",
+                                        "required": true,
+                                        "x-ms-visibility": "internal"
+                                    },
+                                    {
+                                        "name": "sp",
+                                        "default": "/triggers/manual/run",
+                                        "in": "query",
+                                        "type": "string",
+                                        "required": true,
+                                        "x-ms-visibility": "internal"
+                                    },
+                                    {
+                                        "name": "sv",
+                                        "default": "1.0",
+                                        "in": "query",
+                                        "type": "string",
+                                        "required": true,
+                                        "x-ms-visibility": "internal"
+                                    },
+                                    {
+                                        "name": "sig",
+                                        "default": "[string(split(listCallbackUrl(resourceId('Microsoft.Logic/workflows/triggers', parameters('STATCoordinatorPlaybookName'), 'manual'), '2017-07-01').value, 'sig=')[1])]",
+                                        "in": "query",
+                                        "type": "string",
+                                        "required": true,
+                                        "x-ms-visibility": "internal"
+                                    },
+                                    {
+                                        "name": "body",
+                                        "in": "body",
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "AddIncidentComments": {
+                                                    "type": "boolean",
+                                                    "description": "Add Comments to Microsoft Sentinel Incident",
+                                                    "title": "",
+                                                    "enum": [
+                                                        true,
+                                                        false
+                                                    ]
+                                                },
+                                                "BaseModuleBody": {
+                                                    "type": "string",
+                                                    "description": "Body from STAT Base Module",
+                                                    "title": "",
+                                                    "x-ms-visibility": "important"
+                                                },
+                                                "LookbackInDays": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "Duration in days to lookback for UEBA Investigation Priorities"
+                                                },
+                                                "MinimumInvestigationPriority": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "minimum": 1,
+                                                    "maximum": 10,
+                                                    "description": "Minimum investigtaion priority to evaluate"
+                                                }
+                                            },
+                                            "default": {
+                                                "AddIncidentComments": true,
+                                                "Entities": ""
+                                            },
+                                            "required": [
+                                                "AddIncidentComments",
+                                                "BaseModuleBody",
+                                                "LookbackInDays",
+                                                "MinimumInvestigationPriority"
+                                            ]
+                                        },
+                                        "required": true
+                                    }
+                                ],
+                                "responses": {
+                                    "default": {
+                                        "description": "default",
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "AllEntityEventCount": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "AllEntityEventCount"
+                                                },
+                                                "AllEntityInvestigationPriorityAverage": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "AllEntityInvestigationPriorityAverage"
+                                                },
+                                                "AllEntityInvestigationPriorityMax": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "AllEntityInvestigationPriorityMax"
+                                                },
+                                                "AllEntityInvestigationPrioritySum": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "AllEntityInvestigationPrioritySum"
+                                                },
+                                                "DetailedResults": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "InvestigationPrioritySum": {
+                                                                "type": "integer",
+                                                                "format": "int32",
+                                                                "description": "InvestigationPrioritySum"
+                                                            },
+                                                            "InvestigationPriorityAverage": {
+                                                                "type": "integer",
+                                                                "format": "int32",
+                                                                "description": "InvestigationPriorityAverage"
+                                                            },
+                                                            "InvestigationPriorityMax": {
+                                                                "type": "integer",
+                                                                "format": "int32",
+                                                                "description": "InvestigationPriorityMax"
+                                                            },
+                                                            "EventCount": {
+                                                                "type": "integer",
+                                                                "format": "int32",
+                                                                "description": "EventCount"
+                                                            },
+                                                            "UserPrincipalName": {
+                                                                "type": "string",
+                                                                "description": "UserPrincipalName"
+                                                            }
+                                                        }
+                                                    },
+                                                    "description": "DetailedResults"
+                                                },
+                                                "InvestigationPrioritiesFound": {
+                                                    "type": "boolean",
+                                                    "description": "InvestigationPrioritiesFound"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "[concat(string(split(split(listCallbackUrl(resourceId('Microsoft.Logic/workflows/triggers', parameters('STATCoordinatorPlaybookName'), 'manual'), '2017-07-01').value, ':443')[1],'?')[0]), '/func/aadrisks')]": {
+                            "post": {
+                                "summary": "AAD Risks Module",
+                                "description": "Sentinel Triage AssistanT Module for determining if user entities have related Azure Active Directory risk data.",
+                                "operationId": "AADRisksModule",
+                                "parameters": [
+                                    {
+                                        "name": "api-version",
+                                        "default": "2016-10-01",
+                                        "in": "query",
+                                        "type": "string",
+                                        "required": true,
+                                        "x-ms-visibility": "internal"
+                                    },
+                                    {
+                                        "name": "sp",
+                                        "default": "/triggers/manual/run",
+                                        "in": "query",
+                                        "type": "string",
+                                        "required": true,
+                                        "x-ms-visibility": "internal"
+                                    },
+                                    {
+                                        "name": "sv",
+                                        "default": "1.0",
+                                        "in": "query",
+                                        "type": "string",
+                                        "required": true,
+                                        "x-ms-visibility": "internal"
+                                    },
+                                    {
+                                        "name": "sig",
+                                        "default": "[string(split(listCallbackUrl(resourceId('Microsoft.Logic/workflows/triggers', parameters('STATCoordinatorPlaybookName'), 'manual'), '2017-07-01').value, 'sig=')[1])]",
+                                        "in": "query",
+                                        "type": "string",
+                                        "required": true,
+                                        "x-ms-visibility": "internal"
+                                    },
+                                    {
+                                        "name": "body",
+                                        "in": "body",
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "AddIncidentComments": {
+                                                    "type": "boolean",
+                                                    "description": "Add Comments to Microsoft Sentinel Incident",
+                                                    "title": "",
+                                                    "enum": [
+                                                        true,
+                                                        false
+                                                    ]
+                                                },
+                                                "BaseModuleBody": {
+                                                    "type": "string",
+                                                    "description": "Body from STAT Base Module",
+                                                    "title": "",
+                                                    "x-ms-visibility": "important"
+                                                },
+                                                "LookbackInDays": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "Duration in days to lookback for AAD Risk data"
+                                                },
+                                                "MFAFailureLookup": {
+                                                    "type": "boolean",
+                                                    "description": "Look for failed MFA attempts",
+                                                    "enum": [
+                                                        true,
+                                                        false
+                                                    ]
+                                                },
+                                                "MFAFraudLookup": {
+                                                    "type": "boolean",
+                                                    "description": "Look for MFA Fraud reports",
+                                                    "enum": [
+                                                        true,
+                                                        false
+                                                    ]
+                                                },
+                                                "TIIPLookup": {
+                                                    "type": "boolean",
+                                                    "description": "Look for IPs in TI",
+                                                    "title": "Look for Signin IPs in TI",
+                                                    "enum": [
+                                                        true,
+                                                        false
+                                                    ]
+                                                }
+                                            },
+                                            "default": {
+                                                "AddIncidentComments": true,
+                                                "Entities": ""
+                                            },
+                                            "required": [
+                                                "AddIncidentComments",
+                                                "BaseModuleBody",
+                                                "LookbackInDays",
+                                                "MFAFailureLookup",
+                                                "MFAFraudLookup",
+                                                "TIIPLookup"
+                                            ]
+                                        },
+                                        "required": true
+                                    }
+                                ],
+                                "responses": {
+                                    "default": {
+                                        "description": "default",
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "AnalyzedEntities": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "AnalyzedEntities"
+                                                },
+                                                "FailedMFATotalCount": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "FailedMFATotalCount"
+                                                },
+                                                "HighestRiskyUser": {
+                                                    "type": "string",
+                                                    "description": "HighestRiskyUser"
+                                                },
+                                                "MFAFraudTotalCount": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "MFAFraudTotalCount"
+                                                },
+                                                "RiskyIPTotalCount": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "RiskyIPTotalCount"
+                                                },
+                                                "DetailedResults": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "UserFailedMFACount": {
+                                                                "type": "integer",
+                                                                "format": "int32",
+                                                                "description": "UserFailedMFACount"
+                                                            },
+                                                            "UserMFAFraudCount": {
+                                                                "type": "integer",
+                                                                "format": "int32",
+                                                                "description": "UserMFAFraudCount"
+                                                            },
+                                                            "UserRiskyIPCount": {
+                                                                "type": "integer",
+                                                                "format": "int32",
+                                                                "description": "UserRiskyIPCount"
+                                                            },
+                                                            "UserRiskyIPList": {
+                                                                "type": "string",
+                                                                "description": "UserRiskyIPList"
+                                                            },
+                                                            "UserId": {
+                                                                "type": "string",
+                                                                "description": "UserId"
+                                                            },
+                                                            "UserPrincipalName": {
+                                                                "type": "string",
+                                                                "description": "UserPrincipalName"
+                                                            },
+                                                            "UserRiskLevel": {
+                                                                "type": "string",
+                                                                "description": "UserRiskLevel"
+                                                            }
+                                                        }
+                                                    },
+                                                    "description": "DetailedResults"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "[concat(string(split(split(listCallbackUrl(resourceId('Microsoft.Logic/workflows/triggers', parameters('STATCoordinatorPlaybookName'), 'manual'), '2017-07-01').value, ':443')[1],'?')[0]), '/func/file')]": {
+                            "post": {
+                                "summary": "File Insights Module",
+                                "description": "Sentinel Triage AssistanT Module for gaining insights into File entities.",
+                                "operationId": "FileModule",
+                                "parameters": [
+                                    {
+                                        "name": "api-version",
+                                        "default": "2016-10-01",
+                                        "in": "query",
+                                        "type": "string",
+                                        "required": true,
+                                        "x-ms-visibility": "internal"
+                                    },
+                                    {
+                                        "name": "sp",
+                                        "default": "/triggers/manual/run",
+                                        "in": "query",
+                                        "type": "string",
+                                        "required": true,
+                                        "x-ms-visibility": "internal"
+                                    },
+                                    {
+                                        "name": "sv",
+                                        "default": "1.0",
+                                        "in": "query",
+                                        "type": "string",
+                                        "required": true,
+                                        "x-ms-visibility": "internal"
+                                    },
+                                    {
+                                        "name": "sig",
+                                        "default": "[string(split(listCallbackUrl(resourceId('Microsoft.Logic/workflows/triggers', parameters('STATCoordinatorPlaybookName'), 'manual'), '2017-07-01').value, 'sig=')[1])]",
+                                        "in": "query",
+                                        "type": "string",
+                                        "required": true,
+                                        "x-ms-visibility": "internal"
+                                    },
+                                    {
+                                        "name": "body",
+                                        "in": "body",
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "AddIncidentComments": {
+                                                    "type": "boolean",
+                                                    "description": "Add Comments to Microsoft Sentinel Incident",
+                                                    "title": "",
+                                                    "enum": [
+                                                        true,
+                                                        false
+                                                    ]
+                                                },
+                                                "BaseModuleBody": {
+                                                    "type": "string",
+                                                    "description": "Body from STAT Base Module",
+                                                    "title": "",
+                                                    "x-ms-visibility": "important"
+                                                }
+                                            },
+                                            "default": {
+                                                "AddIncidentComments": true,
+                                                "Entities": ""
+                                            },
+                                            "required": [
+                                                "AddIncidentComments",
+                                                "BaseModuleBody"
+                                            ]
+                                        },
+                                        "required": true
+                                    }
+                                ],
+                                "responses": {
+                                    "default": {
+                                        "description": "default",
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "AnalyzedEntities": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "AnalyzedEntities"
+                                                },
+                                                "EntitiesAttachmentCount": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "EntitiesAttachmentCount"
+                                                },
+                                                "HashedInvalidSignatureCount": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "HashedInvalidSignatureCount"
+                                                },
+                                                "HashesLinkedToThreatCount": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "HashesLinkedToThreatCount"
+                                                },
+                                                "HashesNotMicrosoftSignedCount": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "HashesNotMicrosoftSignedCount"
+                                                },
+                                                "HashesThreatList": {
+                                                    "type": "array",
+                                                    "items": {},
+                                                    "description": "HashesThreatList"
+                                                },
+                                                "MaximumGlobalPrevalence": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "MaximumGlobalPrevalence"
+                                                },
+                                                "MinimumGlobalPrevalence": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "MinimumGlobalPrevalence"
+                                                },
+                                                "DetailedResults": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "EmailAttachmentCount": {
+                                                                "type": "integer",
+                                                                "format": "int32",
+                                                                "description": "EmailAttachmentCount"
+                                                            },
+                                                            "EmailAttachmentFileSize": {
+                                                                "type": "string",
+                                                                "description": "EmailAttachmentFileSize"
+                                                            },
+                                                            "EmailAttachmentFirstSeen": {
+                                                                "type": "string",
+                                                                "description": "EmailAttachmentFirstSeen"
+                                                            },
+                                                            "EmailAttachmentLastSeen": {
+                                                                "type": "string",
+                                                                "description": "EmailAttachmentLastSeen"
+                                                            },
+                                                            "FileName": {
+                                                                "type": "string",
+                                                                "description": "FileName"
+                                                            },
+                                                            "GlobalFirstSeen": {
+                                                                "type": "string",
+                                                                "description": "GlobalFirstSeen"
+                                                            },
+                                                            "GlobalLastSeen": {
+                                                                "type": "string",
+                                                                "description": "GlobalLastSeen"
+                                                            },
+                                                            "GlobalPrevalence": {
+                                                                "type": "integer",
+                                                                "format": "int32",
+                                                                "description": "GlobalPrevalence"
+                                                            },
+                                                            "IsCertificateValid": {
+                                                                "type": "integer",
+                                                                "format": "int32",
+                                                                "description": "IsCertificateValid"
+                                                            },
+                                                            "MD5": {
+                                                                "type": "string",
+                                                                "description": "MD5"
+                                                            },
+                                                            "Publisher": {
+                                                                "type": "string",
+                                                                "description": "Publisher"
+                                                            },
+                                                            "SHA1": {
+                                                                "type": "string",
+                                                                "description": "SHA1"
+                                                            },
+                                                            "SHA256": {
+                                                                "type": "string",
+                                                                "description": "SHA256"
+                                                            },
+                                                            "SignatureState": {
+                                                                "type": "string",
+                                                                "description": "SignatureState"
+                                                            },
+                                                            "ThreatName": {
+                                                                "type": "string",
+                                                                "description": "ThreatName"
+                                                            }
+                                                        }
+                                                    },
+                                                    "description": "DetailedResults"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "[concat(string(split(split(listCallbackUrl(resourceId('Microsoft.Logic/workflows/triggers', parameters('STATCoordinatorPlaybookName'), 'manual'), '2017-07-01').value, ':443')[1],'?')[0]), '/func/mde')]": {
+                            "post": {
+                                "summary": "Microsoft Defender for Endpoint Module",
+                                "description": "Sentinel Triage AssistanT Module for getting MDE insights into device entities.",
+                                "operationId": "MDEModule",
+                                "parameters": [
+                                    {
+                                        "name": "api-version",
+                                        "default": "2016-10-01",
+                                        "in": "query",
+                                        "type": "string",
+                                        "required": true,
+                                        "x-ms-visibility": "internal"
+                                    },
+                                    {
+                                        "name": "sp",
+                                        "default": "/triggers/manual/run",
+                                        "in": "query",
+                                        "type": "string",
+                                        "required": true,
+                                        "x-ms-visibility": "internal"
+                                    },
+                                    {
+                                        "name": "sv",
+                                        "default": "1.0",
+                                        "in": "query",
+                                        "type": "string",
+                                        "required": true,
+                                        "x-ms-visibility": "internal"
+                                    },
+                                    {
+                                        "name": "sig",
+                                        "default": "[string(split(listCallbackUrl(resourceId('Microsoft.Logic/workflows/triggers', parameters('STATCoordinatorPlaybookName'), 'manual'), '2017-07-01').value, 'sig=')[1])]",
+                                        "in": "query",
+                                        "type": "string",
+                                        "required": true,
+                                        "x-ms-visibility": "internal"
+                                    },
+                                    {
+                                        "name": "body",
+                                        "in": "body",
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "AddIncidentComments": {
+                                                    "type": "boolean",
+                                                    "description": "Add Comments to Microsoft Sentinel Incident",
+                                                    "title": "",
+                                                    "enum": [
+                                                        true,
+                                                        false
+                                                    ]
+                                                },
+                                                "BaseModuleBody": {
+                                                    "type": "string",
+                                                    "description": "Body from STAT Base Module",
+                                                    "title": "",
+                                                    "x-ms-visibility": "important"
+                                                },
+                                                "LookbackInDays": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "minimum": 1,
+                                                    "maximum": 30,
+                                                    "description": "Enter the number of days you want to lookback in MDE data"
+                                                }
+                                            },
+                                            "default": {
+                                                "AddIncidentComments": true,
+                                                "Entities": ""
+                                            },
+                                            "required": [
+                                                "AddIncidentComments",
+                                                "BaseModuleBody",
+                                                "LookbackInDays"
+                                            ]
+                                        },
+                                        "required": true
+                                    }
+                                ],
+                                "responses": {
+                                    "default": {
+                                        "description": "default",
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "AnalyzedEntities": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "AnalyzedEntities"
+                                                },
+                                                "IPsHighestExposureLevel": {
+                                                    "type": "string",
+                                                    "description": "IPsHighestExposureLevel"
+                                                },
+                                                "IPsHighestRiskScore": {
+                                                    "type": "string",
+                                                    "description": "IPsHighestRiskScore"
+                                                },
+                                                "UsersHighestExposureLevel": {
+                                                    "type": "string",
+                                                    "description": "UsersHighestExposureLevel"
+                                                },
+                                                "UsersHighestRiskScore": {
+                                                    "type": "string",
+                                                    "description": "UsersHighestRiskScore"
+                                                },
+                                                "DetailedResults": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "Accounts": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "UserDevices": {
+                                                                        "type": "array",
+                                                                        "items": {
+                                                                            "type": "object",
+                                                                            "properties": {
+                                                                                "id": {
+                                                                                    "type": "string",
+                                                                                    "description": "id"
+                                                                                },
+                                                                                "computerDnsName": {
+                                                                                    "type": "string",
+                                                                                    "description": "computerDnsName"
+                                                                                },
+                                                                                "riskScore": {
+                                                                                    "type": "string",
+                                                                                    "description": "riskScore"
+                                                                                },
+                                                                                "exposureLevel": {
+                                                                                    "type": "string",
+                                                                                    "description": "exposureLevel"
+                                                                                }
+                                                                            }
+                                                                        },
+                                                                        "description": "UserDevices"
+                                                                    },
+                                                                    "UserHighestExposureLevel": {
+                                                                        "type": "string",
+                                                                        "description": "UserHighestExposureLevel"
+                                                                    },
+                                                                    "UserHighestRiskScore": {
+                                                                        "type": "string",
+                                                                        "description": "UserHighestRiskScore"
+                                                                    },
+                                                                    "UserId": {
+                                                                        "type": "string",
+                                                                        "description": "UserId"
+                                                                    },
+                                                                    "UserPrincipalName": {
+                                                                        "type": "string",
+                                                                        "description": "UserPrincipalName"
+                                                                    },
+                                                                    "UserSid": {
+                                                                        "type": "string",
+                                                                        "description": "UserSid"
+                                                                    }
+                                                                }
+                                                            },
+                                                            "description": "Accounts"
+                                                        },
+                                                        "IPs": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "Address": {
+                                                                        "type": "string",
+                                                                        "description": "Address"
+                                                                    },
+                                                                    "IPDevices": {
+                                                                        "type": "array",
+                                                                        "items": {},
+                                                                        "description": "IPDevices"
+                                                                    },
+                                                                    "IPHighestExposureLevel": {
+                                                                        "type": "string",
+                                                                        "description": "IPHighestExposureLevel"
+                                                                    },
+                                                                    "IPHighestRiskScore": {
+                                                                        "type": "string",
+                                                                        "description": "IPHighestRiskScore"
+                                                                    }
+                                                                }
+                                                            },
+                                                            "description": "IPs"
+                                                        }
+                                                    },
+                                                    "description": "DetailedResults"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "[concat(string(split(split(listCallbackUrl(resourceId('Microsoft.Logic/workflows/triggers', parameters('STATCoordinatorPlaybookName'), 'manual'), '2017-07-01').value, ':443')[1],'?')[0]), '/func/mcas')]": {
+                            "post": {
+                                "summary": "Microsoft Defender for Cloud Apps Module",
+                                "description": "Sentinel Triage AssistanT Module for determining if user entities have investigation priorities in Microsoft Defender for Cloud Apps.",
+                                "operationId": "MCASModule",
+                                "parameters": [
+                                    {
+                                        "name": "api-version",
+                                        "default": "2016-10-01",
+                                        "in": "query",
+                                        "type": "string",
+                                        "required": true,
+                                        "x-ms-visibility": "internal"
+                                    },
+                                    {
+                                        "name": "sp",
+                                        "default": "/triggers/manual/run",
+                                        "in": "query",
+                                        "type": "string",
+                                        "required": true,
+                                        "x-ms-visibility": "internal"
+                                    },
+                                    {
+                                        "name": "sv",
+                                        "default": "1.0",
+                                        "in": "query",
+                                        "type": "string",
+                                        "required": true,
+                                        "x-ms-visibility": "internal"
+                                    },
+                                    {
+                                        "name": "sig",
+                                        "default": "[string(split(listCallbackUrl(resourceId('Microsoft.Logic/workflows/triggers', parameters('STATCoordinatorPlaybookName'), 'manual'), '2017-07-01').value, 'sig=')[1])]",
+                                        "in": "query",
+                                        "type": "string",
+                                        "required": true,
+                                        "x-ms-visibility": "internal"
+                                    },
+                                    {
+                                        "name": "body",
+                                        "in": "body",
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "AddIncidentComments": {
+                                                    "type": "boolean",
+                                                    "description": "Add Comments to Microsoft Sentinel Incident",
+                                                    "title": "",
+                                                    "enum": [
+                                                        true,
+                                                        false
+                                                    ]
+                                                },
+                                                "BaseModuleBody": {
+                                                    "type": "string",
+                                                    "description": "Body from STAT Base Module",
+                                                    "title": "",
+                                                    "x-ms-visibility": "important"
+                                                },
+                                                "ScoreThreshold": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "Type the minimum investigation score",
+                                                    "minimum": 1,
+                                                    "maximum": 100
+                                                }
+                                            },
+                                            "default": {
+                                                "AddIncidentComments": true,
+                                                "Entities": ""
+                                            },
+                                            "required": [
+                                                "AddIncidentComments",
+                                                "BaseModuleBody",
+                                                "ScoreThreshold"
+                                            ]
+                                        },
+                                        "required": true
+                                    }
+                                ],
+                                "responses": {
+                                    "default": {
+                                        "description": "default",
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "AboveThreholdCount": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "AboveThreholdCount"
+                                                },
+                                                "AnalyzedEntities": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "AnalyzedEntities"
+                                                },
+                                                "DetailedResults": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "ThreatScore": {
+                                                                "type": "integer",
+                                                                "format": "int32",
+                                                                "description": "ThreatScore"
+                                                            },
+                                                            "UserId": {
+                                                                "type": "string",
+                                                                "description": "UserId"
+                                                            },
+                                                            "UserPrincipalName": {
+                                                                "type": "string",
+                                                                "description": "UserPrincipalName"
+                                                            }
+                                                        }
+                                                    },
+                                                    "description": "DetailedResults"
+                                                },
+                                                "MaximumScore": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "MaximumScore"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
                     },
                     "definitions": {},
@@ -736,10 +2335,51 @@
                         "Switch": {
                             "runAfter": {},
                             "cases": {
+                                "Case_-_AADRisks": {
+                                    "case": "aadrisks",
+                                    "actions": {
+                                        "Get-AADUserRisksInfo": {
+                                            "runAfter": {},
+                                            "type": "Workflow",
+                                            "inputs": {
+                                                "body": {
+                                                    "AddIncidentComments": "@triggerBody()?['AddCommentsToIncident']",
+                                                    "Entities": "@triggerBody()?['BaseModuleBody']",
+                                                    "LookbackInDays": "@triggerBody()?['LookbackInDays']",
+                                                    "MFAFailureLookup": "@triggerBody()?['MFAFailureLookup']",
+                                                    "MFAFraudLookup": "@triggerBody()?['MFAFraudLookup']",
+                                                    "TIIPLookup": "@triggerBody()?['TIIPLookup']"
+                                                },
+                                                "host": {
+                                                    "triggerName": "triage",
+                                                    "workflow": {
+                                                        "id": "[parameters('AADRisks_resourceid')]"
+                                                    }
+                                                },
+                                                "retryPolicy": {
+                                                    "type": "none"
+                                                }
+                                            }
+                                        },
+                                        "Response_9": {
+                                            "runAfter": {
+                                                "Get-AADUserRisksInfo": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "Response",
+                                            "kind": "Http",
+                                            "inputs": {
+                                                "body": "@body('Get-AADUserRisksInfo')",
+                                                "statusCode": 200
+                                            }
+                                        }
+                                    }
+                                },
                                 "Case_-_Base_Module": {
                                     "case": "base",
                                     "actions": {
-                                        "Base-Module-b": {
+                                        "Base-Module": {
                                             "runAfter": {},
                                             "type": "Workflow",
                                             "inputs": {
@@ -754,19 +2394,174 @@
                                                     "workflow": {
                                                         "id": "[parameters('BaseModule_resourceid')]"
                                                     }
+                                                },
+                                                "retryPolicy": {
+                                                    "type": "none"
                                                 }
                                             }
                                         },
                                         "Response": {
                                             "runAfter": {
-                                                "Base-Module-b": [
+                                                "Base-Module": [
                                                     "Succeeded"
                                                 ]
                                             },
                                             "type": "Response",
                                             "kind": "Http",
                                             "inputs": {
-                                                "body": "@body('Base-Module-b')",
+                                                "body": "@body('Base-Module')",
+                                                "statusCode": 200
+                                            }
+                                        }
+                                    }
+                                },
+                                "Case_-_File": {
+                                    "case": "file",
+                                    "actions": {
+                                        "Get-FileInsights": {
+                                            "runAfter": {},
+                                            "type": "Workflow",
+                                            "inputs": {
+                                                "body": {
+                                                    "AddIncidentComments": "@triggerBody()?['AddCommentsToIncident']",
+                                                    "Entities": "@triggerBody()?['BaseModuleBody']"
+                                                },
+                                                "host": {
+                                                    "triggerName": "triage",
+                                                    "workflow": {
+                                                        "id": "[parameters('FileModule_resourceid')]"
+                                                    }
+                                                },
+                                                "retryPolicy": {
+                                                    "type": "none"
+                                                }
+                                            }
+                                        },
+                                        "Response_10": {
+                                            "runAfter": {
+                                                "Get-FileInsights": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "Response",
+                                            "kind": "Http",
+                                            "inputs": {
+                                                "body": "@body('Get-FileInsights')",
+                                                "statusCode": 200
+                                            }
+                                        }
+                                    }
+                                },
+                                "Case_-_KQL": {
+                                    "case": "kql",
+                                    "actions": {
+                                        "Response_7": {
+                                            "runAfter": {
+                                                "Run-KQLQuery": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "Response",
+                                            "kind": "Http",
+                                            "inputs": {
+                                                "body": "@body('Run-KQLQuery')",
+                                                "statusCode": 200
+                                            }
+                                        },
+                                        "Run-KQLQuery": {
+                                            "runAfter": {},
+                                            "type": "Workflow",
+                                            "inputs": {
+                                                "body": {
+                                                    "Entities": "@triggerBody()?['BaseModuleBody']",
+                                                    "KQLQuery": "@triggerBody()?['KQLQuery']",
+                                                    "LookbackInDays": "@triggerBody()?['LookbackInDays']",
+                                                    "RunQueryAgainst": "@triggerBody()?['RunQueryAgainst']"
+                                                },
+                                                "host": {
+                                                    "triggerName": "triage",
+                                                    "workflow": {
+                                                        "id": "[parameters('KQLModule_resourceid')]"
+                                                    }
+                                                },
+                                                "retryPolicy": {
+                                                    "type": "none"
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "Case_-_MCAS": {
+                                    "case": "mcas",
+                                    "actions": {
+                                        "Get-MCASInvestigationScore": {
+                                            "runAfter": {},
+                                            "type": "Workflow",
+                                            "inputs": {
+                                                "body": {
+                                                    "AddIncidentComments": "@triggerBody()?['AddCommentsToIncident']",
+                                                    "Entities": "@triggerBody()?['BaseModuleBody']",
+                                                    "ScoreThreshold": "@triggerBody()?['ScoreThreshold']"
+                                                },
+                                                "host": {
+                                                    "triggerName": "triage",
+                                                    "workflow": {
+                                                        "id": "[parameters('MCASModule_resourceid')]"
+                                                    }
+                                                },
+                                                "retryPolicy": {
+                                                    "type": "none"
+                                                }
+                                            }
+                                        },
+                                        "Response_12": {
+                                            "runAfter": {
+                                                "Get-MCASInvestigationScore": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "Response",
+                                            "kind": "Http",
+                                            "inputs": {
+                                                "body": "@body('Get-MCASInvestigationScore')",
+                                                "statusCode": 200
+                                            }
+                                        }
+                                    }
+                                },
+                                "Case_-_MDE": {
+                                    "case": "mde",
+                                    "actions": {
+                                        "Get-MDEUsersDevicesRiskScore": {
+                                            "runAfter": {},
+                                            "type": "Workflow",
+                                            "inputs": {
+                                                "body": {
+                                                    "AddIncidentComments": "@triggerBody()?['AddCommentsToIncident']",
+                                                    "Entities": "@triggerBody()?['BaseModuleBody']",
+                                                    "LookbackInDays": "@triggerBody()?['LookbackInDays']"
+                                                },
+                                                "host": {
+                                                    "triggerName": "triage",
+                                                    "workflow": {
+                                                        "id": "[parameters('MDEModule_resourceid')]"
+                                                    }
+                                                },
+                                                "retryPolicy": {
+                                                    "type": "none"
+                                                }
+                                            }
+                                        },
+                                        "Response_11": {
+                                            "runAfter": {
+                                                "Get-MDEUsersDevicesRiskScore": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "Response",
+                                            "kind": "Http",
+                                            "inputs": {
+                                                "body": "@body('Get-MDEUsersDevicesRiskScore')",
                                                 "statusCode": 200
                                             }
                                         }
@@ -775,7 +2570,7 @@
                                 "Case_-_OOF_Module": {
                                     "case": "oofmodule",
                                     "actions": {
-                                        "Get-OOFDetails-b": {
+                                        "Get-OOFDetails": {
                                             "runAfter": {},
                                             "type": "Workflow",
                                             "inputs": {
@@ -788,19 +2583,184 @@
                                                     "workflow": {
                                                         "id": "[parameters('OOFModule_resourceid')]"
                                                     }
+                                                },
+                                                "retryPolicy": {
+                                                    "type": "none"
                                                 }
                                             }
                                         },
                                         "Response_2": {
                                             "runAfter": {
-                                                "Get-OOFDetails-b": [
+                                                "Get-OOFDetails": [
                                                     "Succeeded"
                                                 ]
                                             },
                                             "type": "Response",
                                             "kind": "Http",
                                             "inputs": {
-                                                "body": "@body('Get-OOFDetails-b')",
+                                                "body": "@body('Get-OOFDetails')",
+                                                "statusCode": 200
+                                            }
+                                        }
+                                    }
+                                },
+                                "Case_-_Related_Alerts": {
+                                    "case": "relatedalerts",
+                                    "actions": {
+                                        "Get-RelatedAlerts": {
+                                            "runAfter": {},
+                                            "type": "Workflow",
+                                            "inputs": {
+                                                "body": {
+                                                    "AddIncidentComments": "@triggerBody()?['AddCommentsToIncident']",
+                                                    "CheckAccountEntityMatches": "@triggerBody()?['CheckAccounts']",
+                                                    "CheckHostEntityMatches": "@triggerBody()?['CheckHosts']",
+                                                    "CheckIPEntityMatches": "@triggerBody()?['CheckIPs']",
+                                                    "Entities": "@triggerBody()?['BaseModuleBody']",
+                                                    "LookbackInDays": "@triggerBody()?['LookbackInDays']"
+                                                },
+                                                "host": {
+                                                    "triggerName": "triage",
+                                                    "workflow": {
+                                                        "id": "[parameters('RelatedAlertsModule_resourceid')]"
+                                                    }
+                                                },
+                                                "retryPolicy": {
+                                                    "type": "none"
+                                                }
+                                            }
+                                        },
+                                        "Response_5": {
+                                            "runAfter": {
+                                                "Get-RelatedAlerts": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "Response",
+                                            "kind": "Http",
+                                            "inputs": {
+                                                "body": "@body('Get-RelatedAlerts')",
+                                                "statusCode": 200
+                                            }
+                                        }
+                                    }
+                                },
+                                "Case_-_Threat_Intel": {
+                                    "case": "threatintel",
+                                    "actions": {
+                                        "Get-ThreatIntel": {
+                                            "runAfter": {},
+                                            "type": "Workflow",
+                                            "inputs": {
+                                                "body": {
+                                                    "AddIncidentComments": "@triggerBody()?['AddCommentsToIncident']",
+                                                    "CheckDomains": "@triggerBody()?['CheckDomains']",
+                                                    "CheckFileHashes": "@triggerBody()?['CheckFileHashes']",
+                                                    "CheckIPs": "@triggerBody()?['CheckIPs']",
+                                                    "CheckURLs": "@triggerBody()?['CheckURLs']",
+                                                    "Entities": "@triggerBody()?['BaseModuleBody']",
+                                                    "LookbackInDays": "@triggerBody()?['LookbackInDays']"
+                                                },
+                                                "host": {
+                                                    "triggerName": "triage",
+                                                    "workflow": {
+                                                        "id": "[parameters('ThreatIntelModule_resourceid')]"
+                                                    }
+                                                },
+                                                "retryPolicy": {
+                                                    "type": "none"
+                                                }
+                                            }
+                                        },
+                                        "Response_4": {
+                                            "runAfter": {
+                                                "Get-ThreatIntel": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "Response",
+                                            "kind": "Http",
+                                            "inputs": {
+                                                "body": "@body('Get-ThreatIntel')",
+                                                "statusCode": 200
+                                            }
+                                        }
+                                    }
+                                },
+                                "Case_-_UEBA": {
+                                    "case": "ueba",
+                                    "actions": {
+                                        "Get-UEBAInsights": {
+                                            "runAfter": {},
+                                            "type": "Workflow",
+                                            "inputs": {
+                                                "body": {
+                                                    "AddIncidentComments": "@triggerBody()?['AddCommentsToIncident']",
+                                                    "Entities": "@triggerBody()?['BaseModuleBody']",
+                                                    "LookbackInDays": "@triggerBody()?['LookbackInDays']",
+                                                    "MinimumInvestigationPriority": "@triggerBody()?['MinimumInvestigationPriority']"
+                                                },
+                                                "host": {
+                                                    "triggerName": "triage",
+                                                    "workflow": {
+                                                        "id": "[parameters('UEBAModule_resourceid')]"
+                                                    }
+                                                },
+                                                "retryPolicy": {
+                                                    "type": "none"
+                                                }
+                                            }
+                                        },
+                                        "Response_8": {
+                                            "runAfter": {
+                                                "Get-UEBAInsights": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "Response",
+                                            "kind": "Http",
+                                            "inputs": {
+                                                "body": "@body('Get-UEBAInsights')",
+                                                "statusCode": 200
+                                            }
+                                        }
+                                    }
+                                },
+                                "Case_-_Watchlist": {
+                                    "case": "watchlist",
+                                    "actions": {
+                                        "Get-WatchlistInsights": {
+                                            "runAfter": {},
+                                            "type": "Workflow",
+                                            "inputs": {
+                                                "body": {
+                                                    "AddIncidentComments": "@triggerBody()?['AddCommentsToIncident']",
+                                                    "Entities": "@triggerBody()?['BaseModuleBody']",
+                                                    "WatchlistKey": "@triggerBody()?['WatchlistKey']",
+                                                    "WatchlistKeyDataType": "@triggerBody()?['WatchlistKeyDataType']",
+                                                    "WatchlistName": "@triggerBody()?['WatchlistName']"
+                                                },
+                                                "host": {
+                                                    "triggerName": "triage",
+                                                    "workflow": {
+                                                        "id": "[parameters('WatchlistModule_resourceid')]"
+                                                    }
+                                                },
+                                                "retryPolicy": {
+                                                    "type": "none"
+                                                }
+                                            }
+                                        },
+                                        "Response_6": {
+                                            "runAfter": {
+                                                "Get-WatchlistInsights": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "Response",
+                                            "kind": "Http",
+                                            "inputs": {
+                                                "body": "@body('Get-WatchlistInsights')",
                                                 "statusCode": 200
                                             }
                                         }
