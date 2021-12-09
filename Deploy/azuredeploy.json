@@ -81,7 +81,7 @@
             "defaultValue": "SentinelTriageAssistant",
             "type": "String"
         },
-        "CustomConnectorDislayName": {
+        "CustomConnectorDisplayName": {
             "defaultValue": "Sentinel Triage AssistanT - STAT",
             "type": "String"
         }
@@ -370,7 +370,7 @@
                         "value": "[parameters('CustomConnectorName')]"
                     },
                     "CustomConnectorDisplayName": {
-                        "value": "[parameters('CustomConnectorDislayName')]"
+                        "value": "[parameters('CustomConnectorDisplayName')]"
                     },
                     "OOFModule_resourceid": {
                         "value": "[reference('OOFTemplate').outputs.resourceID.value]"

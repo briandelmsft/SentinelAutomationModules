@@ -266,7 +266,7 @@
                         "visible": "[steps('DeployConnector')]"
                     },
                     {
-                        "name": "CustomConnectorDislayName",
+                        "name": "CustomConnectorDisplayName",
                         "type": "Microsoft.Common.TextBox",
                         "label": "Custom Logic Apps Connector Display Name",
                         "placeholder": "",
@@ -297,7 +297,7 @@
             "SamplePlaybookName": "[steps('automationModules').SamplePlaybookName]",
             "STATCoordinatorPlaybookName": "[steps('automationModules').STATCoordinatorPlaybookName]",
             "CustomConnectorName": "[steps('automationModules').CustomConnectorName]",
-            "CustomConnectorDislayName": "[steps('automationModules').CustomConnectorDislayName]",
+            "CustomConnectorDisplayName": "[steps('automationModules').CustomConnectorDisplayName]",
             "DeployConnector": "[steps('automationModules').DeployConnector]",
             "location": "[location()]"
         }
