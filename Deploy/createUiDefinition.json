@@ -6,7 +6,7 @@
         "config": {
             "isWizard": true,
             "basics": {
-                "description": "## Microsoft Sentinel Triage AssistanT (STAT) Deployment\nThe Microsoft Sentinel Triage AssistanT is designed to help build automated triages for Microsoft Sentinel Incidents to optimize the efficiency of your security operations.\nThis deployment will allow you to deploy the necessary resources to use the STAT tool. After deploying this template, ensure to run the [GrantPermissions.ps1](https://github.com/briandelmsft/SentinelAutomationModules/blob/main/Deploy/GrantPermissions.ps1) script to give access to the modules.  It may take up to 15 minutes for the permissions to become effective.",
+                "description": "## Microsoft Sentinel Triage AssistanT (STAT) Deployment\nThe Microsoft Sentinel Triage AssistanT is designed to help build automated triages for Microsoft Sentinel Incidents to optimize the efficiency of your security operations. This deployment will allow you to deploy the necessary resources to use the STAT tool.\n ### Post Deployment \nAfter deploying this template, ensure to run the [GrantPermissions.ps1](https://github.com/briandelmsft/SentinelAutomationModules/blob/main/Deploy/GrantPermissions.ps1) script to grant permissions to the STAT modules.  It may take up to 15 minutes for the permissions to become effective.",
                 "location": {
                     "label": "Location",
                     "toolTip": "Location for all resources",
