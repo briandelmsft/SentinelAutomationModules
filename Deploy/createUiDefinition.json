@@ -253,7 +253,7 @@
                         "defaultValue": "STAT-Coordinator",
                         "toolTip": "",
                         "constraints": {},
-                        "visible": "[steps('DeployConnector')]"
+                        "visible": "[steps('automationModules').DeployConnector]"
                     },
                     {
                         "name": "CustomConnectorName",
@@ -263,7 +263,7 @@
                         "defaultValue": "SentinelTriageAssistant",
                         "toolTip": "",
                         "constraints": {},
-                        "visible": "[steps('DeployConnector')]"
+                        "visible": "[steps('automationModules').DeployConnector]"
                     },
                     {
                         "name": "CustomConnectorDisplayName",
@@ -273,7 +273,7 @@
                         "defaultValue": "Sentinel Triage AssistanT - STAT",
                         "toolTip": "",
                         "constraints": {},
-                        "visible": "[steps('DeployConnector')]"
+                        "visible": "[steps('automationModules').DeployConnector]"
                     }
                 ]
             }
