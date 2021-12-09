@@ -19,6 +19,45 @@
         "basics": [],
         "steps": [
             {
+                "name": "deploymentType",
+                "label": "Deployment Type",
+                "elements": [
+                    {
+                        "name": "textBlock1",
+                        "type": "Microsoft.Common.TextBlock",
+                        "visible": true,
+                        "options": {
+                            "text": "# Placeholder - This page has no function rightnow\n## Deployment Type\nSelect the type of deployment you want for the Sentinel Triage AssistanT.\n|Type|Description|\n|---|---|\n|Standard|A standard deployment allows you to deploy or update the entire STAT solution with minimal input|\n|Advanced|An advanced deployment allows for additional configuration such as providing customized names to the Logic Apps|",
+                            "link": {
+                                "label": "Learn more",
+                                "uri": "https://github.com/briandelmsft/SentinelAutomationModules/tree/main/Deploy"
+                            }
+                        }
+                    },
+                    {
+                        "name": "DeploymentType",
+                        "type": "Microsoft.Common.OptionsGroup",
+                        "label": "Select the deloyment type",
+                        "defaultValue": "Standard (recommended)",
+                        "toolTip": "",
+                        "constraints": {
+                          "allowedValues": [
+                            {
+                              "label": "Standard (recommended)",
+                              "value": "standard"
+                            },
+                            {
+                              "label": "Advanced",
+                              "value": "advanced"
+                            }
+                          ],
+                          "required": true
+                        },
+                        "visible": true
+                    }
+                ]
+            },
+            {
                 "name": "automationModules",
                 "label": "Automation Modules",
                 "elements": [
