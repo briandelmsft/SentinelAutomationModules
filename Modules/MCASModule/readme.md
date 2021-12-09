@@ -56,7 +56,9 @@ You will need to get two information from your Microsoft Cloud App Security port
 This will create a Key Vault storing the API Key in the selected resource group. The Logic App will then retrieve the key to query the MCAS API usign the URL you have specified.
 If you do not perform these tasks before the deployement, you can leave the default value of the ARM template and later modify the variables in the Logic App.
 
-## Quick Deployment
+## Advanced Deployment
+
+Deployment of the Sentinel Triage AssistanT should typically be performed from the [deployment template](/Deploy/readme.md), however in some cases you may wish to deploy an individual module below.
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fbriandelmsft%2FSentinelAutomationModules%2Fmain%2FModules%2FMCASModule%2Fazuredeploy.json)
 
