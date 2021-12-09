@@ -236,6 +236,44 @@
                         "toolTip": "",
                         "constraints": {},
                         "visible": "[and(contains(steps('automationModules').enableModulesKind,'OOFModule'),contains(steps('automationModules').enableModulesKind,'RelatedAlerts'),contains(steps('automationModules').enableModulesKind,'UEBAModule'),steps('automationModules').DeploySamplePlaybook)]"
+                    },
+                    {
+                        "name": "DeployConnector",
+                        "type": "Microsoft.Common.CheckBox",
+                        "label": "Deploy the Logic Apps Custom Connector",
+                        "defaultValue": true,
+                        "toolTip": "",
+                        "constraints": {}
+                    },
+                    {
+                        "name": "STATCoordinatorPlaybookName",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "STAT Coordinator Playbook Name",
+                        "placeholder": "",
+                        "defaultValue": "STAT-Coordinator",
+                        "toolTip": "",
+                        "constraints": {},
+                        "visible": "[steps('DeployConnector')]"
+                    },
+                    {
+                        "name": "CustomConnectorName",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Custom Logic Apps Connector Name",
+                        "placeholder": "",
+                        "defaultValue": "SentinelTriageAssistant",
+                        "toolTip": "",
+                        "constraints": {},
+                        "visible": "[steps('DeployConnector')]"
+                    },
+                    {
+                        "name": "CustomConnectorDislayName",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Custom Logic Apps Connector Display Name",
+                        "placeholder": "",
+                        "defaultValue": "Sentinel Triage AssistanT - STAT",
+                        "toolTip": "",
+                        "constraints": {},
+                        "visible": "[steps('DeployConnector')]"
                     }
                 ]
             }
@@ -257,6 +295,10 @@
             "MCAS API URL": "[steps('automationModules').MCASAPIURL]",
             "DeploySamplePlaybook": "[steps('automationModules').DeploySamplePlaybook]",
             "SamplePlaybookName": "[steps('automationModules').SamplePlaybookName]",
+            "STATCoordinatorPlaybookName": "[steps('automationModules').STATCoordinatorPlaybookName]",
+            "CustomConnectorName": "[steps('automationModules').CustomConnectorName]",
+            "CustomConnectorDislayName": "[steps('automationModules').CustomConnectorDislayName]",
+            "DeployConnector": "[steps('automationModules').DeployConnector]",
             "location": "[location()]"
         }
     }
