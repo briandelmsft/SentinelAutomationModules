@@ -231,43 +231,43 @@
                                                                 "properties": {
                                                                     "accountName": {
                                                                         "type": "string",
-                                                                        "description": "accountName"
+                                                                        "description": "accountName in Accounts array RawEntity"
                                                                     },
                                                                     "upnSuffix": {
                                                                         "type": "string",
-                                                                        "description": "upnSuffix"
+                                                                        "description": "upnSuffix in Accounts array RawEntity"
                                                                     },
                                                                     "isDomainJoined": {
                                                                         "type": "boolean",
-                                                                        "description": "isDomainJoined"
+                                                                        "description": "isDomainJoined in Accounts array RawEntity"
                                                                     },
                                                                     "displayName": {
                                                                         "type": "string",
-                                                                        "description": "displayName"
+                                                                        "description": "displayName in Accounts array RawEntity"
                                                                     },
                                                                     "friendlyName": {
                                                                         "type": "string",
-                                                                        "description": "friendlyName"
+                                                                        "description": "friendlyName in Accounts array RawEntity"
                                                                     },
                                                                     "ntDomain": {
                                                                         "type": "string",
-                                                                        "description": "ntDomain"
+                                                                        "description": "ntDomain in Accounts array RawEntity"
                                                                     },
                                                                     "sid": {
                                                                         "type": "string",
-                                                                        "description": "sid"
+                                                                        "description": "sid in Accounts array RawEntity"
                                                                     },
                                                                     "aadTenantId": {
                                                                         "type": "string",
-                                                                        "description": "aadTenantId"
+                                                                        "description": "aadTenantId in Accounts array RawEntity"
                                                                     },
                                                                     "aadUserId": {
                                                                         "type": "string",
-                                                                        "description": "aadUserId"
+                                                                        "description": "aadUserId in Accounts array RawEntity"
                                                                     },
                                                                     "dnsDomain": {
                                                                         "type": "string",
-                                                                        "description": "dnsDomain"
+                                                                        "description": "dnsDomain in Accounts array RawEntity"
                                                                     },
                                                                     "additionalData": {
                                                                         "type": "object",
@@ -277,193 +277,193 @@
                                                                                 "items": {
                                                                                     "type": "string"
                                                                                 },
-                                                                                "description": "TransitiveGroupsMembership"
+                                                                                "description": "TransitiveGroupsMembership in Accounts array RawEntity"
                                                                             },
                                                                             "OnPremisesDistinguishedName": {
                                                                                 "type": "string",
-                                                                                "description": "OnPremisesDistinguishedName"
+                                                                                "description": "OnPremisesDistinguishedName in Accounts array RawEntity"
                                                                             },
                                                                             "SyncFromAad": {
                                                                                 "type": "string",
-                                                                                "description": "SyncFromAad"
+                                                                                "description": "SyncFromAad in Accounts array RawEntity"
                                                                             },
                                                                             "MailAddress": {
                                                                                 "type": "string",
-                                                                                "description": "MailAddress"
+                                                                                "description": "MailAddress in Accounts array RawEntity"
                                                                             },
                                                                             "IsDeleted": {
                                                                                 "type": "string",
-                                                                                "description": "IsDeleted"
+                                                                                "description": "IsDeleted in Accounts array RawEntity"
                                                                             },
                                                                             "IsEnabled": {
                                                                                 "type": "string",
-                                                                                "description": "IsEnabled"
+                                                                                "description": "IsEnabled in Accounts array RawEntity"
                                                                             },
                                                                             "ManagerName": {
                                                                                 "type": "string",
-                                                                                "description": "ManagerName"
+                                                                                "description": "ManagerName in Accounts array RawEntity"
                                                                             },
                                                                             "GivenName": {
                                                                                 "type": "string",
-                                                                                "description": "GivenName"
+                                                                                "description": "GivenName in Accounts array RawEntity"
                                                                             },
                                                                             "UserType": {
                                                                                 "type": "string",
-                                                                                "description": "UserType"
+                                                                                "description": "UserType in Accounts array RawEntity"
                                                                             },
                                                                             "Sources": {
                                                                                 "type": "array",
                                                                                 "items": {
                                                                                     "type": "string"
                                                                                 },
-                                                                                "description": "Sources"
+                                                                                "description": "Sources in Accounts array RawEntity"
                                                                             },
                                                                             "UpnName": {
                                                                                 "type": "string",
-                                                                                "description": "UpnName"
+                                                                                "description": "UpnName in Accounts array RawEntity"
                                                                             }
                                                                         },
-                                                                        "description": "additionalData"
+                                                                        "description": "additionalData object in Accounts array RawEntity"
                                                                     }
                                                                 },
-                                                                "description": "RawEntity"
+                                                                "description": "RawEntity object in Accounts array"
                                                             },
                                                             "userPrincipalName": {
                                                                 "type": "string",
-                                                                "description": "userPrincipalName"
+                                                                "description": "userPrincipalName in Accounts array"
                                                             },
                                                             "id": {
                                                                 "type": "string",
-                                                                "description": "id"
+                                                                "description": "Userid in Accounts array"
                                                             },
                                                             "onPremisesSecurityIdentifier": {
                                                                 "type": "string",
-                                                                "description": "onPremisesSecurityIdentifier"
+                                                                "description": "onPremisesSecurityIdentifier in Accounts array"
                                                             },
                                                             "onPremisesDistinguishedName": {
                                                                 "type": "string",
-                                                                "description": "onPremisesDistinguishedName"
+                                                                "description": "onPremisesDistinguishedName in Accounts array"
                                                             },
                                                             "onPremisesDomainName": {
                                                                 "type": "string",
-                                                                "description": "onPremisesDomainName"
+                                                                "description": "onPremisesDomainName in Accounts array"
                                                             },
                                                             "onPremisesSamAccountName": {
                                                                 "type": "string",
-                                                                "description": "onPremisesSamAccountName"
+                                                                "description": "onPremisesSamAccountName in Accounts array"
                                                             },
                                                             "onPremisesSyncEnabled": {
                                                                 "type": "boolean",
-                                                                "description": "onPremisesSyncEnabled"
+                                                                "description": "onPremisesSyncEnabled in Accounts array"
                                                             },
                                                             "mail": {
                                                                 "type": "string",
-                                                                "description": "mail"
+                                                                "description": "mail in Accounts array"
                                                             },
                                                             "city": {
                                                                 "type": "string",
-                                                                "description": "city"
+                                                                "description": "city in Accounts array"
                                                             },
                                                             "state": {
                                                                 "type": "string",
-                                                                "description": "state"
+                                                                "description": "state in Accounts array"
                                                             },
                                                             "country": {
                                                                 "type": "string",
-                                                                "description": "country"
+                                                                "description": "country in Accounts array"
                                                             },
                                                             "department": {
                                                                 "type": "string",
-                                                                "description": "department"
+                                                                "description": "department in Accounts array"
                                                             },
                                                             "jobTitle": {
                                                                 "type": "string",
-                                                                "description": "jobTitle"
+                                                                "description": "jobTitle in Accounts array"
                                                             },
                                                             "officeLocation": {
                                                                 "type": "string",
-                                                                "description": "officeLocation"
+                                                                "description": "officeLocation in Accounts array"
                                                             },
                                                             "accountEnabled": {
                                                                 "type": "boolean",
-                                                                "description": "accountEnabled"
+                                                                "description": "accountEnabled in Accounts array"
                                                             },
                                                             "manager": {
                                                                 "type": "object",
                                                                 "properties": {
                                                                     "userPrincipalName": {
                                                                         "type": "string",
-                                                                        "description": "userPrincipalName"
+                                                                        "description": "userPrincipalName of Manager in Accounts array"
                                                                     },
                                                                     "mail": {
                                                                         "type": "string",
-                                                                        "description": "mail"
+                                                                        "description": "mail of Manager in Accounts array"
                                                                     },
                                                                     "id": {
                                                                         "type": "string",
-                                                                        "description": "id"
+                                                                        "description": "Userid of Manager in Accounts array"
                                                                     }
                                                                 },
-                                                                "description": "manager"
+                                                                "description": "manager object in Accounts array"
                                                             },
                                                             "AssignedRoles": {
                                                                 "type": "array",
                                                                 "items": {},
-                                                                "description": "AssignedRoles"
+                                                                "description": "AssignedRoles of user in Accounts array"
                                                             }
                                                         }
                                                     },
-                                                    "description": "Accounts"
+                                                    "description": "Array of Account Entities"
                                                 },
                                                 "AccountsCount": {
                                                     "type": "integer",
                                                     "format": "int32",
-                                                    "description": "AccountsCount"
+                                                    "description": "Count of Account Entities"
                                                 },
                                                 "Domains": {
                                                     "type": "array",
                                                     "items": {},
-                                                    "description": "Domains"
+                                                    "description": "Array of Domain Entities"
                                                 },
                                                 "DomainsCount": {
                                                     "type": "integer",
                                                     "format": "int32",
-                                                    "description": "DomainsCount"
+                                                    "description": "Count of Domain Entities"
                                                 },
                                                 "EntitiesCount": {
                                                     "type": "integer",
                                                     "format": "int32",
-                                                    "description": "EntitiesCount"
+                                                    "description": "Count of all Entities"
                                                 },
                                                 "FileHashes": {
                                                     "type": "array",
                                                     "items": {},
-                                                    "description": "FileHashes"
+                                                    "description": "Array of FileHashes"
                                                 },
                                                 "FileHashesCount": {
                                                     "type": "integer",
                                                     "format": "int32",
-                                                    "description": "FileHashesCount"
+                                                    "description": "Count of FileHashes"
                                                 },
                                                 "Files": {
                                                     "type": "array",
                                                     "items": {},
-                                                    "description": "Files"
+                                                    "description": "Array of File Entities"
                                                 },
                                                 "FilesCount": {
                                                     "type": "integer",
                                                     "format": "int32",
-                                                    "description": "FilesCount"
+                                                    "description": "Count of File Entities"
                                                 },
                                                 "Hosts": {
                                                     "type": "array",
                                                     "items": {},
-                                                    "description": "Hosts"
+                                                    "description": "Array of Host Entities"
                                                 },
                                                 "HostsCount": {
                                                     "type": "integer",
                                                     "format": "int32",
-                                                    "description": "HostsCount"
+                                                    "description": "Count of Host Entities"
                                                 },
                                                 "IPs": {
                                                     "type": "array",
@@ -472,125 +472,125 @@
                                                         "properties": {
                                                             "Address": {
                                                                 "type": "string",
-                                                                "description": "Address"
+                                                                "description": "IP Address in IPs array"
                                                             },
                                                             "GeoData": {
                                                                 "type": "object",
                                                                 "properties": {
                                                                     "asn": {
                                                                         "type": "string",
-                                                                        "description": "asn"
+                                                                        "description": "asn in GeoData object in IPs array"
                                                                     },
                                                                     "carrier": {
                                                                         "type": "string",
-                                                                        "description": "carrier"
+                                                                        "description": "carrier in GeoData object in IPs array"
                                                                     },
                                                                     "city": {
                                                                         "type": "string",
-                                                                        "description": "city"
+                                                                        "description": "city in GeoData object in IPs array"
                                                                     },
                                                                     "cityCf": {
                                                                         "type": "integer",
                                                                         "format": "int32",
-                                                                        "description": "cityCf"
+                                                                        "description": "cityCf in GeoData object in IPs array"
                                                                     },
                                                                     "continent": {
                                                                         "type": "string",
-                                                                        "description": "continent"
+                                                                        "description": "continent in GeoData object in IPs array"
                                                                     },
                                                                     "country": {
                                                                         "type": "string",
-                                                                        "description": "country"
+                                                                        "description": "country in GeoData object in IPs array"
                                                                     },
                                                                     "countryCf": {
                                                                         "type": "integer",
                                                                         "format": "int32",
-                                                                        "description": "countryCf"
+                                                                        "description": "countryCf in GeoData object in IPs array"
                                                                     },
                                                                     "ipAddr": {
                                                                         "type": "string",
-                                                                        "description": "ipAddr"
+                                                                        "description": "IP Address in GeoData object in IPs array"
                                                                     },
                                                                     "ipRoutingType": {
                                                                         "type": "string",
-                                                                        "description": "ipRoutingType"
+                                                                        "description": "ipRoutingType in GeoData object in IPs array"
                                                                     },
                                                                     "latitude": {
                                                                         "type": "string",
-                                                                        "description": "latitude"
+                                                                        "description": "latitude in GeoData object in IPs array"
                                                                     },
                                                                     "longitude": {
                                                                         "type": "string",
-                                                                        "description": "longitude"
+                                                                        "description": "longitude in GeoData object in IPs array"
                                                                     },
                                                                     "organization": {
                                                                         "type": "string",
-                                                                        "description": "organization"
+                                                                        "description": "organization in GeoData object in IPs array"
                                                                     },
                                                                     "organizationType": {
                                                                         "type": "string",
-                                                                        "description": "organizationType"
+                                                                        "description": "organizationType in GeoData object in IPs array"
                                                                     },
                                                                     "region": {
                                                                         "type": "string",
-                                                                        "description": "region"
+                                                                        "description": "region in GeoData object in IPs array"
                                                                     },
                                                                     "state": {
                                                                         "type": "string",
-                                                                        "description": "state"
+                                                                        "description": "state in GeoData object in IPs array"
                                                                     },
                                                                     "stateCf": {
                                                                         "type": "integer",
                                                                         "format": "int32",
-                                                                        "description": "stateCf"
+                                                                        "description": "stateCf in GeoData object in IPs array"
                                                                     },
                                                                     "stateCode": {
                                                                         "type": "string",
-                                                                        "description": "stateCode"
+                                                                        "description": "stateCode in GeoData object in IPs array"
                                                                     }
                                                                 },
-                                                                "description": "GeoData"
+                                                                "description": "GeoData object in IPs array"
                                                             },
                                                             "RawEntity": {
                                                                 "type": "object",
                                                                 "properties": {
                                                                     "address": {
                                                                         "type": "string",
-                                                                        "description": "address"
+                                                                        "description": "address in RawEntity object in IPs array"
                                                                     },
                                                                     "friendlyName": {
                                                                         "type": "string",
-                                                                        "description": "friendlyName"
+                                                                        "description": "friendlyName in RawEntity object in IPs array"
                                                                     }
                                                                 },
-                                                                "description": "RawEntity"
+                                                                "description": "IPAddress RawEntity object"
                                                             }
                                                         }
                                                     },
-                                                    "description": "IPs"
+                                                    "description": "Array of IP Entities"
                                                 },
                                                 "IPsCount": {
                                                     "type": "integer",
                                                     "format": "int32",
-                                                    "description": "IPsCount"
+                                                    "description": "Count of IP Entities"
                                                 },
                                                 "IncidentARMId": {
                                                     "type": "string",
-                                                    "description": "IncidentARMId"
+                                                    "description": "Microsoft Sentinel IncidentARMId"
                                                 },
                                                 "URLs": {
                                                     "type": "array",
                                                     "items": {},
-                                                    "description": "URLs"
+                                                    "description": "Array of URL Entities"
                                                 },
                                                 "URLsCount": {
                                                     "type": "integer",
                                                     "format": "int32",
-                                                    "description": "URLsCount"
+                                                    "description": "Count of URL Entities"
                                                 },
                                                 "WorkspaceId": {
                                                     "type": "string",
-                                                    "description": "WorkspaceId"
+                                                    "description": "Microsoft Sentinel WorkspaceId"
                                                 }
                                             }
                                         }
@@ -857,7 +857,7 @@
                                             "properties": {
                                                 "AnyTIFound": {
                                                     "type": "boolean",
-                                                    "description": "AnyTIFound"
+                                                    "description": "true if any Threat Intelligence is found"
                                                 },
                                                 "DetailedResults": {
                                                     "type": "array",
@@ -866,92 +866,92 @@
                                                         "properties": {
                                                             "TIType": {
                                                                 "type": "string",
-                                                                "description": "TIType"
+                                                                "description": "Threat Intel type in DetailedResults array"
                                                             },
                                                             "TIData": {
                                                                 "type": "string",
-                                                                "description": "TIData"
+                                                                "description": "Threat Intel Data in DetailedResults array"
                                                             },
                                                             "SourceSystem": {
                                                                 "type": "string",
-                                                                "description": "SourceSystem"
+                                                                "description": "Threat Intel SourceSystem in DetailedResults array"
                                                             },
                                                             "Description": {
                                                                 "type": "string",
-                                                                "description": "Description"
+                                                                "description": "Threat Intel Description in DetailedResults array"
                                                             },
                                                             "ThreatType": {
                                                                 "type": "string",
-                                                                "description": "ThreatType"
+                                                                "description": "ThreatType in DetailedResults array"
                                                             },
                                                             "ConfidenceScore": {
                                                                 "type": "integer",
                                                                 "format": "int32",
-                                                                "description": "ConfidenceScore"
+                                                                "description": "ConfidenceScore in DetailedResults array"
                                                             },
                                                             "IndicatorId": {
                                                                 "type": "string",
-                                                                "description": "IndicatorId"
+                                                                "description": "IndicatorId in DetailedResults array"
                                                             }
                                                         }
                                                     },
-                                                    "description": "DetailedResults"
+                                                    "description": "Array of DetailedResults"
                                                 },
                                                 "DomainEntitiesCount": {
                                                     "type": "integer",
                                                     "format": "int32",
-                                                    "description": "DomainEntitiesCount"
+                                                    "description": "Count of Domain Entities"
                                                 },
                                                 "DomainEntitiesWithTI": {
                                                     "type": "integer",
                                                     "format": "int32",
-                                                    "description": "DomainEntitiesWithTI"
+                                                    "description": "Count of Domain Entities with matching TI"
                                                 },
                                                 "DomainTIFound": {
                                                     "type": "boolean",
-                                                    "description": "DomainTIFound"
+                                                    "description": "true if TI found for any Domain Entities"
                                                 },
                                                 "FileHashEntitiesCount": {
                                                     "type": "integer",
                                                     "format": "int32",
-                                                    "description": "FileHashEntitiesCount"
+                                                    "description": "Count of FileHash Entities"
                                                 },
                                                 "FileHashEntitiesWithTI": {
                                                     "type": "integer",
                                                     "format": "int32",
-                                                    "description": "FileHashEntitiesWithTI"
+                                                    "description": "Count of FileHash Entities with matching TI"
                                                 },
                                                 "FileHashTIFound": {
                                                     "type": "boolean",
-                                                    "description": "FileHashTIFound"
+                                                    "description": "true if TI found for any FileHash Entities"
                                                 },
                                                 "IPEntitiesCount": {
                                                     "type": "integer",
                                                     "format": "int32",
-                                                    "description": "IPEntitiesCount"
+                                                    "description": "Count of IP Entities"
                                                 },
                                                 "IPEntitiesWithTI": {
                                                     "type": "integer",
                                                     "format": "int32",
-                                                    "description": "IPEntitiesWithTI"
+                                                    "description": "Count of IP Entities with matching TI"
                                                 },
                                                 "IPTIFound": {
                                                     "type": "boolean",
-                                                    "description": "IPTIFound"
+                                                    "description": "true if TI found for any IP Entities"
                                                 },
                                                 "URLEntitiesCount": {
                                                     "type": "integer",
                                                     "format": "int32",
-                                                    "description": "URLEntitiesCount"
+                                                    "description": "Count of URL Entities"
                                                 },
                                                 "URLEntitiesWithTI": {
                                                     "type": "integer",
                                                     "format": "int32",
-                                                    "description": "URLEntitiesWithTI"
+                                                    "description": "Count of URL entities with matching TI"
                                                 },
                                                 "URLTIFound": {
                                                     "type": "boolean",
-                                                    "description": "URLTIFound"
+                                                    "description": "true if TI found for any URL Entities"
                                                 }
                                             }
                                         }
@@ -1081,79 +1081,79 @@
                                                         "properties": {
                                                             "StartTime": {
                                                                 "type": "string",
-                                                                "description": "StartTime"
+                                                                "description": "StartTime in DetailedResults array"
                                                             },
                                                             "DisplayName": {
                                                                 "type": "string",
-                                                                "description": "DisplayName"
+                                                                "description": "DisplayName in DetailedResults array"
                                                             },
                                                             "AlertName": {
                                                                 "type": "string",
-                                                                "description": "AlertName"
+                                                                "description": "AlertName in DetailedResults array"
                                                             },
                                                             "AlertSeverity": {
                                                                 "type": "string",
-                                                                "description": "AlertSeverity"
+                                                                "description": "AlertSeverity in DetailedResults array"
                                                             },
                                                             "SystemAlertId": {
                                                                 "type": "string",
-                                                                "description": "SystemAlertId"
+                                                                "description": "SystemAlertId in DetailedResults array"
                                                             },
                                                             "ProviderName": {
                                                                 "type": "string",
-                                                                "description": "ProviderName"
+                                                                "description": "ProviderName in DetailedResults array"
                                                             },
                                                             "AccountEntityMatch": {
                                                                 "type": "boolean",
-                                                                "description": "AccountEntityMatch"
+                                                                "description": "AccountEntityMatch in DetailedResults array"
                                                             },
                                                             "IPEntityMatch": {
                                                                 "type": "boolean",
-                                                                "description": "IPEntityMatch"
+                                                                "description": "IPEntityMatch in DetailedResults array"
                                                             },
                                                             "HostEntityMatch": {
                                                                 "type": "boolean",
-                                                                "description": "HostEntityMatch"
+                                                                "description": "HostEntityMatch in DetailedResults array"
                                                             }
                                                         }
                                                     },
-                                                    "description": "DetailedResults"
+                                                    "description": "Array of DetailedResults"
                                                 },
                                                 "RelatedAccountAlertsCount": {
                                                     "type": "integer",
                                                     "format": "int32",
-                                                    "description": "RelatedAccountAlertsCount"
+                                                    "description": "Count of Related Alerts found for Account Entities"
                                                 },
                                                 "RelatedAccountAlertsFound": {
                                                     "type": "boolean",
-                                                    "description": "RelatedAccountAlertsFound"
+                                                    "description": "true if any Related Alerts found for Account Entities"
                                                 },
                                                 "RelatedAlertsCount": {
                                                     "type": "integer",
                                                     "format": "int32",
-                                                    "description": "RelatedAlertsCount"
+                                                    "description": "Count of all Related Alerts found"
                                                 },
                                                 "RelatedAlertsFound": {
                                                     "type": "boolean",
-                                                    "description": "RelatedAlertsFound"
+                                                    "description": "true if any Related Alerts found"
                                                 },
                                                 "RelatedHostAlertsCount": {
                                                     "type": "integer",
                                                     "format": "int32",
-                                                    "description": "RelatedHostAlertsCount"
+                                                    "description": "Count of Related Alerts found for Host Entities"
                                                 },
                                                 "RelatedHostAlertsFound": {
                                                     "type": "boolean",
-                                                    "description": "RelatedHostAlertsFound"
+                                                    "description": "true if any Related Alerts found for Host Entities"
                                                 },
                                                 "RelatedIPAlertsCount": {
                                                     "type": "integer",
                                                     "format": "int32",
-                                                    "description": "RelatedIPAlertsCount"
+                                                    "description": "Count of Related Alerts found for IP Entities"
                                                 },
                                                 "RelatedIPAlertsFound": {
                                                     "type": "boolean",
-                                                    "description": "RelatedIPAlertsFound"
+                                                    "description": "true if any Related Alerts found for IP Entities"
                                                 }
                                             }
                                         }
@@ -1266,33 +1266,33 @@
                                                         "properties": {
                                                             "OnWatchlist": {
                                                                 "type": "boolean",
-                                                                "description": "OnWatchlist"
+                                                                "description": "true if Entity on watchlist in DetailedResults array"
                                                             },
                                                             "EntityData": {
                                                                 "type": "string",
-                                                                "description": "EntityData"
+                                                                "description": "Entity in DetailedResults array"
                                                             }
                                                         }
                                                     },
-                                                    "description": "DetailedResults"
+                                                    "description": "Array of DetailedResults"
                                                 },
                                                 "EntitiesAnalyzedCount": {
                                                     "type": "integer",
                                                     "format": "int32",
-                                                    "description": "EntitiesAnalyzedCount"
+                                                    "description": "Count of Entities Analyzed against watchlist"
                                                 },
                                                 "EntitiesOnWatchlist": {
                                                     "type": "boolean",
-                                                    "description": "EntitiesOnWatchlist"
+                                                    "description": "true if any Entities are on the Watchlist"
                                                 },
                                                 "EntitiesOnWatchlistCount": {
                                                     "type": "integer",
                                                     "format": "int32",
-                                                    "description": "EntitiesOnWatchlistCount"
+                                                    "description": "Count of Entities on Watchlist"
                                                 },
                                                 "WatchlistName": {
                                                     "type": "string",
-                                                    "description": "WatchlistName"
+                                                    "description": "Name of the watchlist evaluated"
                                                 }
                                             }
                                         }
@@ -1391,16 +1391,16 @@
                                                 "DetailedResults": {
                                                     "type": "array",
                                                     "items": {},
-                                                    "description": "DetailedResults"
+                                                    "description": "Array of DetailedResults"
                                                 },
                                                 "ResultsCount": {
                                                     "type": "integer",
                                                     "format": "int32",
-                                                    "description": "ResultsCount"
+                                                    "description": "Count of results"
                                                 },
                                                 "ResultsFound": {
                                                     "type": "boolean",
-                                                    "description": "ResultsFound"
+                                                    "description": "true if any results are found"
                                                 }
                                             }
                                         }
@@ -1503,22 +1503,22 @@
                                                 "AllEntityEventCount": {
                                                     "type": "integer",
                                                     "format": "int32",
-                                                    "description": "AllEntityEventCount"
+                                                    "description": "Total count of all matching Investigation Priorities"
                                                 },
                                                 "AllEntityInvestigationPriorityAverage": {
                                                     "type": "integer",
                                                     "format": "int32",
-                                                    "description": "AllEntityInvestigationPriorityAverage"
+                                                    "description": "Average priority of all matching Investigation Priorities"
                                                 },
                                                 "AllEntityInvestigationPriorityMax": {
                                                     "type": "integer",
                                                     "format": "int32",
-                                                    "description": "AllEntityInvestigationPriorityMax"
+                                                    "description": "Maximum priority of all matching Investigation Priorities"
                                                 },
                                                 "AllEntityInvestigationPrioritySum": {
                                                     "type": "integer",
                                                     "format": "int32",
-                                                    "description": "AllEntityInvestigationPrioritySum"
+                                                    "description": "Sum of priority of all matching Investigation Priorities"
                                                 },
                                                 "DetailedResults": {
                                                     "type": "array",
@@ -1528,34 +1528,34 @@
                                                             "InvestigationPrioritySum": {
                                                                 "type": "integer",
                                                                 "format": "int32",
-                                                                "description": "InvestigationPrioritySum"
+                                                                "description": "Sum of Investigation Priority by user in DetailedResults array"
                                                             },
                                                             "InvestigationPriorityAverage": {
                                                                 "type": "integer",
                                                                 "format": "int32",
-                                                                "description": "InvestigationPriorityAverage"
+                                                                "description": "Average Investigation Priority by user in DetailedResults array"
                                                             },
                                                             "InvestigationPriorityMax": {
                                                                 "type": "integer",
                                                                 "format": "int32",
-                                                                "description": "InvestigationPriorityMax"
+                                                                "description": "Max Investigation Priority by user in DetailedResults array"
                                                             },
                                                             "EventCount": {
                                                                 "type": "integer",
                                                                 "format": "int32",
-                                                                "description": "EventCount"
+                                                                "description": "Count of Investigation Priorities by user in DetailedResults array"
                                                             },
                                                             "UserPrincipalName": {
                                                                 "type": "string",
-                                                                "description": "UserPrincipalName"
+                                                                "description": "UserPrincipalName in DetailedResults array"
                                                             }
                                                         }
                                                     },
-                                                    "description": "DetailedResults"
+                                                    "description": "Array of DetailedResults"
                                                 },
                                                 "InvestigationPrioritiesFound": {
                                                     "type": "boolean",
-                                                    "description": "InvestigationPrioritiesFound"
+                                                    "description": "true if any matching Investigation Priorities are found"
                                                 }
                                             }
                                         }
@@ -1678,12 +1678,12 @@
                                                 "AnalyzedEntities": {
                                                     "type": "integer",
                                                     "format": "int32",
-                                                    "description": "AnalyzedEntities"
+                                                    "description": "Count of Entities analyzed"
                                                 },
                                                 "FailedMFATotalCount": {
                                                     "type": "integer",
                                                     "format": "int32",
-                                                    "description": "FailedMFATotalCount"
+                                                    "description": "Sum of all matching failed MFA attempts"
                                                 },
                                                 "HighestRiskyUser": {
                                                     "type": "string",
@@ -1692,12 +1692,12 @@
                                                 "MFAFraudTotalCount": {
                                                     "type": "integer",
                                                     "format": "int32",
-                                                    "description": "MFAFraudTotalCount"
+                                                    "description": "Sum of all matching fraudulant MFA attempts"
                                                 },
                                                 "RiskyIPTotalCount": {
                                                     "type": "integer",
                                                     "format": "int32",
-                                                    "description": "RiskyIPTotalCount"
+                                                    "description": "Total of all Risky IPs"
                                                 },
                                                 "DetailedResults": {
                                                     "type": "array",
@@ -1707,37 +1707,37 @@
                                                             "UserFailedMFACount": {
                                                                 "type": "integer",
                                                                 "format": "int32",
-                                                                "description": "UserFailedMFACount"
+                                                                "description": "UserFailedMFACount by user in DetailedResults array"
                                                             },
                                                             "UserMFAFraudCount": {
                                                                 "type": "integer",
                                                                 "format": "int32",
-                                                                "description": "UserMFAFraudCount"
+                                                                "description": "UserMFAFraudCount by user in DetailedResults array"
                                                             },
                                                             "UserRiskyIPCount": {
                                                                 "type": "integer",
                                                                 "format": "int32",
-                                                                "description": "UserRiskyIPCount"
+                                                                "description": "UserRiskyIPCount by user in DetailedResults array"
                                                             },
                                                             "UserRiskyIPList": {
                                                                 "type": "string",
-                                                                "description": "UserRiskyIPList"
+                                                                "description": "UserRiskyIPList by user in DetailedResults array"
                                                             },
                                                             "UserId": {
                                                                 "type": "string",
-                                                                "description": "UserId"
+                                                                "description": "UserId in DetailedResults array"
                                                             },
                                                             "UserPrincipalName": {
                                                                 "type": "string",
-                                                                "description": "UserPrincipalName"
+                                                                "description": "UserPrincipalName in DetailedResults array"
                                                             },
                                                             "UserRiskLevel": {
                                                                 "type": "string",
-                                                                "description": "UserRiskLevel"
+                                                                "description": "UserRiskLevel by user in DetailedResults array"
                                                             }
                                                         }
                                                     },
-                                                    "description": "DetailedResults"
+                                                    "description": "Array of DetailedResults"
                                                 }
                                             }
                                         }
@@ -1871,69 +1871,69 @@
                                                             "EmailAttachmentCount": {
                                                                 "type": "integer",
                                                                 "format": "int32",
-                                                                "description": "EmailAttachmentCount"
+                                                                "description": "EmailAttachmentCount in DetailedResults array"
                                                             },
                                                             "EmailAttachmentFileSize": {
                                                                 "type": "string",
-                                                                "description": "EmailAttachmentFileSize"
+                                                                "description": "EmailAttachmentFileSize in DetailedResults array"
                                                             },
                                                             "EmailAttachmentFirstSeen": {
                                                                 "type": "string",
-                                                                "description": "EmailAttachmentFirstSeen"
+                                                                "description": "EmailAttachmentFirstSeen in DetailedResults array"
                                                             },
                                                             "EmailAttachmentLastSeen": {
                                                                 "type": "string",
-                                                                "description": "EmailAttachmentLastSeen"
+                                                                "description": "EmailAttachmentLastSeen in DetailedResults array"
                                                             },
                                                             "FileName": {
                                                                 "type": "string",
-                                                                "description": "FileName"
+                                                                "description": "FileName in DetailedResults array"
                                                             },
                                                             "GlobalFirstSeen": {
                                                                 "type": "string",
-                                                                "description": "GlobalFirstSeen"
+                                                                "description": "GlobalFirstSeen in DetailedResults array"
                                                             },
                                                             "GlobalLastSeen": {
                                                                 "type": "string",
-                                                                "description": "GlobalLastSeen"
+                                                                "description": "GlobalLastSeen in DetailedResults array"
                                                             },
                                                             "GlobalPrevalence": {
                                                                 "type": "integer",
                                                                 "format": "int32",
-                                                                "description": "GlobalPrevalence"
+                                                                "description": "GlobalPrevalence in DetailedResults array"
                                                             },
                                                             "IsCertificateValid": {
                                                                 "type": "integer",
                                                                 "format": "int32",
-                                                                "description": "IsCertificateValid"
+                                                                "description": "IsCertificateValid in DetailedResults array"
                                                             },
                                                             "MD5": {
                                                                 "type": "string",
-                                                                "description": "MD5"
+                                                                "description": "MD5 in DetailedResults array"
                                                             },
                                                             "Publisher": {
                                                                 "type": "string",
-                                                                "description": "Publisher"
+                                                                "description": "Publisher in DetailedResults array"
                                                             },
                                                             "SHA1": {
                                                                 "type": "string",
-                                                                "description": "SHA1"
+                                                                "description": "SHA1 in DetailedResults array"
                                                             },
                                                             "SHA256": {
                                                                 "type": "string",
-                                                                "description": "SHA256"
+                                                                "description": "SHA256 in DetailedResults array"
                                                             },
                                                             "SignatureState": {
                                                                 "type": "string",
-                                                                "description": "SignatureState"
+                                                                "description": "SignatureState in DetailedResults array"
                                                             },
                                                             "ThreatName": {
                                                                 "type": "string",
-                                                                "description": "ThreatName"
+                                                                "description": "ThreatName in DetailedResults array"
                                                             }
                                                         }
                                                     },
-                                                    "description": "DetailedResults"
+                                                    "description": "Array of DetailedResults"
                                                 }
                                             }
                                         }
@@ -2132,7 +2132,7 @@
                                                             "description": "IPs"
                                                         }
                                                     },
-                                                    "description": "DetailedResults"
+                                                    "description": "Array of DetailedResults"
                                                 }
                                             }
                                         }
@@ -2244,19 +2244,19 @@
                                                             "ThreatScore": {
                                                                 "type": "integer",
                                                                 "format": "int32",
-                                                                "description": "ThreatScore"
+                                                                "description": "ThreatScore in DetailedResults array"
                                                             },
                                                             "UserId": {
                                                                 "type": "string",
-                                                                "description": "UserId"
+                                                                "description": "UserId in DetailedResults array"
                                                             },
                                                             "UserPrincipalName": {
                                                                 "type": "string",
-                                                                "description": "UserPrincipalName"
+                                                                "description": "UserPrincipalName in DetailedResults array"
                                                             }
                                                         }
                                                     },
-                                                    "description": "DetailedResults"
+                                                    "description": "Array of DetailedResults"
                                                 },
                                                 "MaximumScore": {
                                                     "type": "integer",
