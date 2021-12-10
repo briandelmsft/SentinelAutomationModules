@@ -128,403 +128,782 @@
             "properties": {
                 "state": "Enabled",
                     "definition": {
-                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
-                    "actions": {
-                        "Compose_final_response": {
-                            "inputs": {
-                                "AboveThreholdCount": "@length(body('Filter_scores_above_the_threshold'))",
-                                "AnalyzedEntities": "@length(variables('DetailedResults'))",
-                                "DetailedResults": "@variables('DetailedResults')",
-                                "MaximumScore": "@max(variables('Scores'))"
-                            },
-                            "runAfter": {
-                                "Filter_scores_above_the_threshold": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "Compose"
-                        },
-                        "Condition_-_Check_if_comment_is_required": {
-                            "actions": {
-                                "Add_MCAS_score_in_a_comment": {
-                                    "inputs": {
-                                        "body": {
-                                            "incidentArmId": "@triggerBody()?['IncidentARMId']",
-                                            "message": "<p>MCAS Users' investigation priority scores per user: @{body('Create_HTML_table_for_comment')}</p>"
-                                        },
-                                        "host": {
-                                            "connection": {
-                                                "name": "@parameters('$connections')['azuresentinel']['connectionId']"
-                                            }
-                                        },
-                                        "method": "post",
-                                        "path": "/Incidents/Comment"
-                                    },
-                                    "runAfter": {
-                                        "Create_HTML_table_for_comment": [
-                                            "Succeeded"
-                                        ]
-                                    },
-                                    "type": "ApiConnection"
-                                },
-                                "Create_HTML_table_for_comment": {
-                                    "inputs": {
-                                        "format": "HTML",
-                                        "from": "@variables('DetailedResults')"
-                                    },
-                                    "runAfter": {},
-                                    "type": "Table"
-                                }
-                            },
-                            "expression": {
-                                "and": [
-                                    {
-                                        "equals": [
-                                            "@triggerBody()?['AddIncidentComments']",
-                                            "@true"
-                                        ]
-                                    }
-                                ]
-                            },
-                            "runAfter": {
-                                "Compose_final_response": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "If"
-                        },
-                        "Condition_-_Terminate_if_no_accounts": {
-                            "actions": {
-                                "Response_-_No_Account_Entities": {
-                                    "inputs": {
-                                        "body": {
-                                            "AnalyzedEntities": 0,
-                                            "DetailedResults": [],
-                                            "MaximumScore": 0,
-                                            "UnderThreholdCount": 0
-                                        },
-                                        "schema": {
-                                            "properties": {
-                                                "AboveThreholdCount": {
-                                                    "type": "integer"
-                                                },
-                                                "AnalyzedEntities": {
-                                                    "type": "integer"
-                                                },
-                                                "DetailedResults": {
-                                                    "items": {
-                                                        "properties": {
-                                                            "ThreatScore": {
-                                                                "type": "integer"
-                                                            },
-                                                            "UserId": {
-                                                                "type": "string"
-                                                            },
-                                                            "UserPrincipalName": {
-                                                                "type": "string"
-                                                            }
-                                                        },
-                                                        "type": "object"
-                                                    },
-                                                    "type": "array"
-                                                },
-                                                "MaximumScore": {
-                                                    "type": "integer"
-                                                }
-                                            },
-                                            "type": "object"
-                                        },
-                                        "statusCode": 200
-                                    },
-                                    "kind": "Http",
-                                    "runAfter": {},
-                                    "type": "Response"
-                                },
-                                "Terminate": {
-                                    "inputs": {
-                                        "runStatus": "Succeeded"
-                                    },
-                                    "runAfter": {
-                                        "Response_-_No_Account_Entities": [
-                                            "Succeeded"
-                                        ]
-                                    },
-                                    "type": "Terminate"
-                                }
-                            },
-                            "expression": {
-                                "and": [
-                                    {
-                                        "equals": [
-                                            "@triggerBody()?['Entities']['AccountsCount']",
-                                            0
-                                        ]
-                                    }
-                                ]
-                            },
-                            "runAfter": {
-                                "Initialize_DetailedResults": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "If"
-                        },
-                        "Filter_array_-_Get_only_accounts_with_id": {
-                            "inputs": {
-                                "from": "@triggerBody()?['Entities']['Accounts']",
-                                "where": "@greater(length(coalesce(item()?['id'], '')), 0)"
-                            },
-                            "runAfter": {
-                                "Condition_-_Terminate_if_no_accounts": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "Query"
-                        },
-                        "Filter_scores_above_the_threshold": {
-                            "inputs": {
-                                "from": "@variables('Scores')",
-                                "where": "@greater(item(), triggerBody()?['ScoreThreshold'])"
-                            },
-                            "runAfter": {
-                                "For_each_account": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "Query"
-                        },
-                        "For_each_account": {
-                            "actions": {
-                                "Compose_PkUser": {
-                                    "inputs": {
-                                        "id": "@{items('For_each_account')['id']}",
-                                        "inst": 0,
-                                        "saas": 11161
-                                    },
-                                    "runAfter": {},
-                                    "type": "Compose"
-                                },
-                                "Condition_-_Check_MCAS_API_Results": {
-                                    "actions": {
-                                        "Update_DetailedResults_array": {
-                                            "inputs": {
-                                                "name": "DetailedResults",
-                                                "value": {
-                                                    "ThreatScore": "@coalesce(body('HTTP_-_MCAS_API_Call')['threatScore'],0)",
-                                                    "UserId": "@{items('For_each_account')['id']}",
-                                                    "UserPrincipalName": "@{coalesce(item()?['UserPrincipalName'],null)}"
-                                                }
-                                            },
-                                            "runAfter": {
-                                                "Update_Scores_array": [
-                                                    "Succeeded"
-                                                ]
-                                            },
-                                            "type": "AppendToArrayVariable"
-                                        },
-                                        "Update_Scores_array": {
-                                            "inputs": {
-                                                "name": "Scores",
-                                                "value": "@coalesce(body('HTTP_-_MCAS_API_Call')['threatScore'],0)"
-                                            },
-                                            "runAfter": {},
-                                            "type": "AppendToArrayVariable"
-                                        }
-                                    },
-                                    "expression": {
-                                        "and": [
-                                            {
-                                                "equals": [
-                                                    "@outputs('HTTP_-_MCAS_API_Call')['statusCode']",
-                                                    200
-                                                ]
-                                            }
-                                        ]
-                                    },
-                                    "runAfter": {
-                                        "HTTP_-_MCAS_API_Call": [
-                                            "Succeeded"
-                                        ]
-                                    },
-                                    "type": "If"
-                                },
-                                "HTTP_-_MCAS_API_Call": {
-                                    "inputs": {
-                                        "headers": {
-                                            "Authorization": "Token @{body('Get_MCAS_API_secret')?['value']}"
-                                        },
-                                        "method": "GET",
-                                        "uri": "@{variables('MCAS_API_URL')}/api/v1/entities/@{base64(outputs('Compose_PkUser'))}/"
-                                    },
-                                    "runAfter": {
-                                        "Compose_PkUser": [
-                                            "Succeeded"
-                                        ]
-                                    },
-                                    "type": "Http"
-                                }
-                            },
-                            "foreach": "@body('Filter_array_-_Get_only_accounts_with_id')",
-                            "runAfter": {
-                                "Filter_array_-_Get_only_accounts_with_id": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "Foreach"
-                        },
-                        "Get_MCAS_API_secret": {
-                            "inputs": {
-                                "host": {
-                                    "connection": {
-                                        "name": "@parameters('$connections')['keyvault']['connectionId']"
-                                    }
-                                },
-                                "method": "get",
-                                "path": "/secrets/@{encodeURIComponent('MCASAPIKey')}/value"
-                            },
-                            "runAfter": {
-                                "Initialize_MCAS_API_URL": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "runtimeConfiguration": {
-                                "secureData": {
-                                    "properties": [
-                                        "outputs"
-                                    ]
-                                }
-                            },
-                            "type": "ApiConnection"
-                        },
-                        "Initialize_DetailedResults": {
-                            "inputs": {
-                                "variables": [
-                                    {
-                                        "name": "DetailedResults",
-                                        "type": "array",
-                                        "value": []
-                                    }
-                                ]
-                            },
-                            "runAfter": {
-                                "Initialize_Scores_array": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "InitializeVariable"
-                        },
-                        "Initialize_MCAS_API_URL": {
-                            "runAfter": {},
-                            "type": "InitializeVariable",
-                            "inputs": {
-                                "variables": [
-                                    {
-                                        "name": "MCAS_API_URL",
-                                        "type": "string",
-                                        "value": "[parameters('MCAS API URL')]"
-                                    }
-                                ]
-                            }
-                        },
-                        "Initialize_Scores_array": {
-                            "inputs": {
-                                "variables": [
-                                    {
-                                        "name": "Scores",
-                                        "type": "array",
-                                        "value": [
-                                            0
-                                        ]
-                                    }
-                                ]
-                            },
-                            "runAfter": {
-                                "Get_MCAS_API_secret": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "InitializeVariable"
-                        },
-                        "Return_final_response": {
-                            "inputs": {
-                                "body": "@outputs('Compose_final_response')",
-                                "schema": {
-                                    "properties": {
-                                        "AboveThreholdCount": {
-                                            "type": "integer"
-                                        },
-                                        "AnalyzedEntities": {
-                                            "type": "integer"
-                                        },
-                                        "DetailedResults": {
-                                            "items": {
-                                                "properties": {
-                                                    "ThreatScore": {
-                                                        "type": "integer"
-                                                    },
-                                                    "UserId": {
-                                                        "type": "string"
-                                                    },
-                                                    "UserPrincipalName": {
-                                                        "type": "string"
-                                                    }
-                                                },
-                                                "type": "object"
-                                            },
-                                            "type": "array"
-                                        },
-                                        "MaximumScore": {
-                                            "type": "integer"
-                                        }
-                                    },
-                                    "type": "object"
-                                },
-                                "statusCode": 200
-                            },
-                            "kind": "Http",
-                            "runAfter": {
-                                "Condition_-_Check_if_comment_is_required": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "Response"
-                        }
-                    },
-                    "contentVersion": "1.0.0.0",
-                    "outputs": {},
-                    "parameters": {
-                        "$connections": {
-                            "defaultValue": {},
-                            "type": "Object"
-                        }
-                    },
-                    "triggers": {
-                        "triage": {
-                            "inputs": {
-                                "schema": {
-                                    "properties": {
-                                        "AddIncidentComments": {
-                                            "title": "Add comments to the incident",
-                                            "type": "boolean"
-                                        },
-                                        "Entities": {
-                                            "description": "Click here and select the Entities object from the Dynamic content menu",
-                                            "type": "array"
-                                        },
-                                        "ScoreThreshold": {
-                                            "description": "Type the minimum investigation Score",
-                                            "title": "Investigation Score Threshold",
-                                            "type": "integer"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            },
-                            "kind": "Http",
-                            "type": "Request"
-                        }
-                    }
-                },
+                      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                      "actions": {
+                          "Compose_final_response": {
+                              "inputs": {
+                                  "AboveThreholdCount": "@length(body('Filter_scores_above_the_threshold'))",
+                                  "AnalyzedEntities": "@length(variables('DetailedResults'))",
+                                  "DetailedResults": "@variables('DetailedResults')",
+                                  "MaximumScore": "@max(variables('Scores'))"
+                              },
+                              "runAfter": {
+                                  "Filter_scores_above_the_threshold": [
+                                      "Succeeded"
+                                  ]
+                              },
+                              "type": "Compose"
+                          },
+                          "Condition_-_Check_if_comment_is_required": {
+                              "actions": {
+                                  "Add_MCAS_score_in_a_comment": {
+                                      "inputs": {
+                                          "body": {
+                                              "incidentArmId": "@triggerBody()?['IncidentARMId']",
+                                              "message": "<p>MCAS Users' investigation priority scores per user: @{body('Create_HTML_table_for_comment')}</p>"
+                                          },
+                                          "host": {
+                                              "connection": {
+                                                  "name": "@parameters('$connections')['azuresentinel']['connectionId']"
+                                              }
+                                          },
+                                          "method": "post",
+                                          "path": "/Incidents/Comment"
+                                      },
+                                      "runAfter": {
+                                          "Create_HTML_table_for_comment": [
+                                              "Succeeded"
+                                          ]
+                                      },
+                                      "type": "ApiConnection"
+                                  },
+                                  "Create_HTML_table_for_comment": {
+                                      "inputs": {
+                                          "format": "HTML",
+                                          "from": "@variables('DetailedResults')"
+                                      },
+                                      "runAfter": {},
+                                      "type": "Table"
+                                  }
+                              },
+                              "expression": {
+                                  "and": [
+                                      {
+                                          "equals": [
+                                              "@triggerBody()?['AddIncidentComments']",
+                                              "@true"
+                                          ]
+                                      }
+                                  ]
+                              },
+                              "runAfter": {
+                                  "Compose_final_response": [
+                                      "Succeeded"
+                                  ]
+                              },
+                              "type": "If"
+                          },
+                          "Condition_-_Terminate_if_no_accounts": {
+                              "actions": {
+                                  "Response_-_No_Account_Entities": {
+                                      "inputs": {
+                                          "body": {
+                                              "AnalyzedEntities": 0,
+                                              "DetailedResults": [],
+                                              "MaximumScore": 0,
+                                              "UnderThreholdCount": 0
+                                          },
+                                          "schema": {
+                                              "properties": {
+                                                  "AboveThreholdCount": {
+                                                      "type": "integer"
+                                                  },
+                                                  "AnalyzedEntities": {
+                                                      "type": "integer"
+                                                  },
+                                                  "DetailedResults": {
+                                                      "items": {
+                                                          "properties": {
+                                                              "ThreatScore": {
+                                                                  "type": "integer"
+                                                              },
+                                                              "UserId": {
+                                                                  "type": "string"
+                                                              },
+                                                              "UserPrincipalName": {
+                                                                  "type": "string"
+                                                              }
+                                                          },
+                                                          "type": "object"
+                                                      },
+                                                      "type": "array"
+                                                  },
+                                                  "MaximumScore": {
+                                                      "type": "integer"
+                                                  }
+                                              },
+                                              "type": "object"
+                                          },
+                                          "statusCode": 200
+                                      },
+                                      "kind": "Http",
+                                      "runAfter": {},
+                                      "type": "Response"
+                                  },
+                                  "Terminate": {
+                                      "inputs": {
+                                          "runStatus": "Succeeded"
+                                      },
+                                      "runAfter": {
+                                          "Response_-_No_Account_Entities": [
+                                              "Succeeded"
+                                          ]
+                                      },
+                                      "type": "Terminate"
+                                  }
+                              },
+                              "expression": {
+                                  "and": [
+                                      {
+                                          "equals": [
+                                              "@body('Parse_Trigger')?['AccountsCount']",
+                                              0
+                                          ]
+                                      }
+                                  ]
+                              },
+                              "runAfter": {
+                                  "Parse_Trigger": [
+                                      "Succeeded"
+                                  ]
+                              },
+                              "type": "If"
+                          },
+                          "Filter_array_-_Get_only_accounts_with_id": {
+                              "inputs": {
+                                  "from": "@body('Parse_Trigger')?['Accounts']",
+                                  "where": "@greater(length(coalesce(item()?['id'], '')), 0)"
+                              },
+                              "runAfter": {
+                                  "Condition_-_Terminate_if_no_accounts": [
+                                      "Succeeded"
+                                  ]
+                              },
+                              "type": "Query"
+                          },
+                          "Filter_scores_above_the_threshold": {
+                              "inputs": {
+                                  "from": "@variables('Scores')",
+                                  "where": "@greater(item(), triggerBody()?['ScoreThreshold'])"
+                              },
+                              "runAfter": {
+                                  "For_each_account": [
+                                      "Succeeded"
+                                  ]
+                              },
+                              "type": "Query"
+                          },
+                          "For_each_account": {
+                              "actions": {
+                                  "Compose_PkUser": {
+                                      "inputs": {
+                                          "id": "@{items('For_each_account')['id']}",
+                                          "inst": 0,
+                                          "saas": 11161
+                                      },
+                                      "runAfter": {},
+                                      "type": "Compose"
+                                  },
+                                  "Condition_-_Check_MCAS_API_Results": {
+                                      "actions": {
+                                          "Update_DetailedResults_array": {
+                                              "inputs": {
+                                                  "name": "DetailedResults",
+                                                  "value": {
+                                                      "ThreatScore": "@coalesce(body('HTTP_-_MCAS_API_Call')['threatScore'],0)",
+                                                      "UserId": "@{items('For_each_account')['id']}",
+                                                      "UserPrincipalName": "@{coalesce(item()?['UserPrincipalName'],null)}"
+                                                  }
+                                              },
+                                              "runAfter": {
+                                                  "Update_Scores_array": [
+                                                      "Succeeded"
+                                                  ]
+                                              },
+                                              "type": "AppendToArrayVariable"
+                                          },
+                                          "Update_Scores_array": {
+                                              "inputs": {
+                                                  "name": "Scores",
+                                                  "value": "@coalesce(body('HTTP_-_MCAS_API_Call')['threatScore'],0)"
+                                              },
+                                              "runAfter": {},
+                                              "type": "AppendToArrayVariable"
+                                          }
+                                      },
+                                      "expression": {
+                                          "and": [
+                                              {
+                                                  "equals": [
+                                                      "@outputs('HTTP_-_MCAS_API_Call')['statusCode']",
+                                                      200
+                                                  ]
+                                              }
+                                          ]
+                                      },
+                                      "runAfter": {
+                                          "HTTP_-_MCAS_API_Call": [
+                                              "Succeeded"
+                                          ]
+                                      },
+                                      "type": "If"
+                                  },
+                                  "HTTP_-_MCAS_API_Call": {
+                                      "inputs": {
+                                          "headers": {
+                                              "Authorization": "Token @{body('Get_MCAS_API_secret')?['value']}"
+                                          },
+                                          "method": "GET",
+                                          "uri": "@{variables('MCAS_API_URL')}/api/v1/entities/@{base64(outputs('Compose_PkUser'))}/"
+                                      },
+                                      "runAfter": {
+                                          "Compose_PkUser": [
+                                              "Succeeded"
+                                          ]
+                                      },
+                                      "type": "Http"
+                                  }
+                              },
+                              "foreach": "@body('Filter_array_-_Get_only_accounts_with_id')",
+                              "runAfter": {
+                                  "Filter_array_-_Get_only_accounts_with_id": [
+                                      "Succeeded"
+                                  ]
+                              },
+                              "type": "Foreach"
+                          },
+                          "Get_MCAS_API_secret": {
+                              "inputs": {
+                                  "host": {
+                                      "connection": {
+                                          "name": "@parameters('$connections')['keyvault']['connectionId']"
+                                      }
+                                  },
+                                  "method": "get",
+                                  "path": "/secrets/@{encodeURIComponent('MCASAPIKey')}/value"
+                              },
+                              "runAfter": {
+                                  "Initialize_MCAS_API_URL": [
+                                      "Succeeded"
+                                  ]
+                              },
+                              "runtimeConfiguration": {
+                                  "secureData": {
+                                      "properties": [
+                                          "outputs"
+                                      ]
+                                  }
+                              },
+                              "type": "ApiConnection"
+                          },
+                          "Initialize_DetailedResults": {
+                              "inputs": {
+                                  "variables": [
+                                      {
+                                          "name": "DetailedResults",
+                                          "type": "array",
+                                          "value": []
+                                      }
+                                  ]
+                              },
+                              "runAfter": {
+                                  "Initialize_Scores_array": [
+                                      "Succeeded"
+                                  ]
+                              },
+                              "type": "InitializeVariable"
+                          },
+                          "Initialize_MCAS_API_URL": {
+                              "inputs": {
+                                  "variables": [
+                                      {
+                                          "name": "MCAS_API_URL",
+                                          "type": "string",
+                                          "value": "[parameters('MCAS API URL')]"
+                                      }
+                                  ]
+                              },
+                              "runAfter": {},
+                              "type": "InitializeVariable"
+                          },
+                          "Initialize_Scores_array": {
+                              "inputs": {
+                                  "variables": [
+                                      {
+                                          "name": "Scores",
+                                          "type": "array",
+                                          "value": [
+                                              0
+                                          ]
+                                      }
+                                  ]
+                              },
+                              "runAfter": {
+                                  "Get_MCAS_API_secret": [
+                                      "Succeeded"
+                                  ]
+                              },
+                              "type": "InitializeVariable"
+                          },
+                          "Parse_Trigger": {
+                              "inputs": {
+                                  "content": "@triggerBody()?['Entities']",
+                                  "schema": {
+                                      "properties": {
+                                          "Accounts": {
+                                              "description": "Array of User Accounts",
+                                              "items": {
+                                                  "properties": {
+                                                      "AssignedRoles": {
+                                                          "description": "Array of assigned roles in Accounts array",
+                                                          "items": {
+                                                              "properties": {
+                                                                  "Role": {
+                                                                      "description": "Array property in AssignedRoles array"
+                                                                  }
+                                                              },
+                                                              "required": [],
+                                                              "type": "object"
+                                                          },
+                                                          "type": "array"
+                                                      },
+                                                      "RawEntity": {
+                                                          "description": "Object containing Raw unenriched entity data in Accounts array",
+                                                          "properties": {
+                                                              "accountName": {
+                                                                  "description": "accountName from RawEntity object in Accounts array"
+                                                              },
+                                                              "displayName": {
+                                                                  "description": "dislayName from RawEntity object in Accounts array"
+                                                              },
+                                                              "friendlyName": {
+                                                                  "description": "friendlyName from RawEntity object in Accounts array"
+                                                              },
+                                                              "isDomainJoined": {
+                                                                  "description": "isDomainJoined from RawEntity object in Accounts array"
+                                                              },
+                                                              "sid": {
+                                                                  "description": "sid from RawEntity object in Accounts array"
+                                                              },
+                                                              "upnSuffix": {
+                                                                  "description": "upnSuffix from RawEntity object in Accounts array"
+                                                              }
+                                                          },
+                                                          "type": "object"
+                                                      },
+                                                      "accountEnabled": {
+                                                          "description": "Array property in Accounts array"
+                                                      },
+                                                      "city": {
+                                                          "description": "Array property in Accounts array"
+                                                      },
+                                                      "country": {
+                                                          "description": "Array property in Accounts array"
+                                                      },
+                                                      "department": {
+                                                          "description": "Array property in Accounts array"
+                                                      },
+                                                      "id": {
+                                                          "description": "Array property in Accounts array"
+                                                      },
+                                                      "jobTitle": {
+                                                          "description": "Array property in Accounts array"
+                                                      },
+                                                      "mail": {
+                                                          "description": "Array property in Accounts array"
+                                                      },
+                                                      "manager": {
+                                                          "description": "Array property in Accounts array",
+                                                          "properties": {
+                                                              "@@odata.type": {
+                                                                  "description": "Array property in Accounts array manager object"
+                                                              },
+                                                              "id": {
+                                                                  "description": "Array property in Accounts array manager object"
+                                                              },
+                                                              "mail": {
+                                                                  "description": "Array property in Accounts array manager object"
+                                                              },
+                                                              "userPrincipalName": {
+                                                                  "description": "Array property in Accounts array manager object"
+                                                              }
+                                                          },
+                                                          "type": "object"
+                                                      },
+                                                      "officeLocation": {
+                                                          "description": "Array property in Accounts array"
+                                                      },
+                                                      "onPremisesDistinguishedName": {
+                                                          "description": "Array property in Accounts array"
+                                                      },
+                                                      "onPremisesDomainName": {
+                                                          "description": "Array property in Accounts array"
+                                                      },
+                                                      "onPremisesSamAccountName": {
+                                                          "description": "Array property in Accounts array"
+                                                      },
+                                                      "onPremisesSecurityIdentifier": {
+                                                          "description": "Array property in Accounts array"
+                                                      },
+                                                      "onPremisesSyncEnabled": {
+                                                          "description": "Array property in Accounts array"
+                                                      },
+                                                      "state": {
+                                                          "description": "Array property in Accounts array"
+                                                      },
+                                                      "userPrincipalName": {
+                                                          "description": "Array property in Accounts array"
+                                                      }
+                                                  },
+                                                  "required": [],
+                                                  "type": "object"
+                                              },
+                                              "type": "array"
+                                          },
+                                          "AccountsCount": {
+                                              "description": "Count of accounts processed by module",
+                                              "type": "integer"
+                                          },
+                                          "Domains": {
+                                              "description": "Array of Domains",
+                                              "items": {
+                                                  "properties": {
+                                                      "RawEntity": {
+                                                          "description": "Object containing Raw unenriched entity data in Domains array",
+                                                          "properties": {
+                                                              "domainName": {
+                                                                  "description": "domainName from RawEntity object in Domains array"
+                                                              },
+                                                              "friendlyName": {
+                                                                  "description": "friendlyName from RawEntity object in Domains array"
+                                                              }
+                                                          },
+                                                          "type": "object"
+                                                      }
+                                                  },
+                                                  "required": [],
+                                                  "type": "object"
+                                              },
+                                              "type": "array"
+                                          },
+                                          "DomainsCount": {
+                                              "description": "Count of Domains processed by module",
+                                              "type": "integer"
+                                          },
+                                          "EntitiesCount": {
+                                              "description": "Count of all entities processed by enrichment module",
+                                              "type": "integer"
+                                          },
+                                          "FileHashes": {
+                                              "description": "Array of FileHashes",
+                                              "items": {
+                                                  "properties": {
+                                                      "RawEntity": {
+                                                          "description": "Object containing Raw unenriched entity data in FileHashes array",
+                                                          "properties": {
+                                                              "algorithm": {
+                                                                  "description": "algorithm from RawEntity object in FileHashes array"
+                                                              },
+                                                              "friendlyName": {
+                                                                  "description": "friendlyName from RawEntity object in FileHashes array"
+                                                              },
+                                                              "hashValue": {
+                                                                  "description": "hashValue from RawEntity object in FileHashes array"
+                                                              }
+                                                          },
+                                                          "type": "object"
+                                                      }
+                                                  },
+                                                  "required": [],
+                                                  "type": "object"
+                                              },
+                                              "type": "array"
+                                          },
+                                          "FileHashesCount": {
+                                              "description": "Count of File Hashes processed by module",
+                                              "type": "integer"
+                                          },
+                                          "Files": {
+                                              "description": "Array of Files",
+                                              "items": {
+                                                  "properties": {
+                                                      "RawEntity": {
+                                                          "description": "Object containing Raw unenriched entity data in Files array",
+                                                          "properties": {
+                                                              "directory": {
+                                                                  "description": "directory from RawEntity object in Files array"
+                                                              },
+                                                              "fileName": {
+                                                                  "description": "fileName from RawEntity object in Files array"
+                                                              },
+                                                              "friendlyName": {
+                                                                  "description": "friendlyName from RawEntity object in Files array"
+                                                              }
+                                                          },
+                                                          "type": "object"
+                                                      }
+                                                  },
+                                                  "required": [],
+                                                  "type": "object"
+                                              },
+                                              "type": "array"
+                                          },
+                                          "FilesCount": {
+                                              "description": "Count of Files processed by module",
+                                              "type": "integer"
+                                          },
+                                          "Hosts": {
+                                              "description": "Array of Hosts",
+                                              "items": {
+                                                  "properties": {
+                                                      "DnsDomain": {
+                                                          "description": "Array property in Hosts array"
+                                                      },
+                                                      "FQDN": {
+                                                          "description": "Array property in Hosts array"
+                                                      },
+                                                      "Hostname": {
+                                                          "description": "Array property in Hosts array"
+                                                      },
+                                                      "RawEntity": {
+                                                          "description": "Object containing Raw unenriched entity data in Hosts array",
+                                                          "properties": {
+                                                              "dnsDomain": {
+                                                                  "description": "dnsDomain from RawEntity object in Hosts array"
+                                                              },
+                                                              "friendlyName": {
+                                                                  "description": "friendlyName from RawEntity object in Hosts array"
+                                                              },
+                                                              "hostName": {
+                                                                  "description": "hostName from RawEntity object in Hosts array"
+                                                              },
+                                                              "netBiosName": {
+                                                                  "description": "netBiosName from RawEntity object in Hosts array"
+                                                              }
+                                                          },
+                                                          "type": "object"
+                                                      }
+                                                  },
+                                                  "required": [],
+                                                  "type": "object"
+                                              },
+                                              "type": "array"
+                                          },
+                                          "HostsCount": {
+                                              "description": "Count of Hosts processed by module",
+                                              "type": "integer"
+                                          },
+                                          "IPs": {
+                                              "description": "Array of IP Addresses",
+                                              "items": {
+                                                  "properties": {
+                                                      "Address": {
+                                                          "description": "Array property in IPs array"
+                                                      },
+                                                      "GeoData": {
+                                                          "description": "Array object in IPs array",
+                                                          "properties": {
+                                                              "asn": {
+                                                                  "description": "Array property in IPs array GeoData object"
+                                                              },
+                                                              "carrier": {
+                                                                  "description": "Array property in IPs array GeoData object"
+                                                              },
+                                                              "city": {
+                                                                  "description": "Array property in IPs array GeoData object"
+                                                              },
+                                                              "cityCf": {
+                                                                  "description": "Array property in IPs array GeoData object"
+                                                              },
+                                                              "continent": {
+                                                                  "description": "Array property in IPs array GeoData object"
+                                                              },
+                                                              "country": {
+                                                                  "description": "Array property in IPs array GeoData object"
+                                                              },
+                                                              "countryCf": {
+                                                                  "description": "Array property in IPs array GeoData object"
+                                                              },
+                                                              "ipAddr": {
+                                                                  "description": "Array property in IPs array GeoData object"
+                                                              },
+                                                              "ipRoutingType": {
+                                                                  "description": "Array property in IPs array GeoData object"
+                                                              },
+                                                              "latitude": {
+                                                                  "description": "Array property in IPs array GeoData object"
+                                                              },
+                                                              "longitude": {
+                                                                  "description": "Array property in IPs array GeoData object"
+                                                              },
+                                                              "organization": {
+                                                                  "description": "Array property in IPs array GeoData object"
+                                                              },
+                                                              "organizationType": {
+                                                                  "description": "Array property in IPs array GeoData object"
+                                                              },
+                                                              "region": {
+                                                                  "description": "Array property in IPs array GeoData object"
+                                                              },
+                                                              "state": {
+                                                                  "description": "Array property in IPs array GeoData object"
+                                                              },
+                                                              "stateCf": {
+                                                                  "description": "Array property in IPs array GeoData object"
+                                                              },
+                                                              "stateCode": {
+                                                                  "description": "Array property in IPs array GeoData object"
+                                                              }
+                                                          },
+                                                          "type": "object"
+                                                      },
+                                                      "RawEntity": {
+                                                          "description": "Object containing Raw unenriched entity data in IPs array",
+                                                          "properties": {
+                                                              "address": {
+                                                                  "description": "address from RawEntity object in IPs array"
+                                                              },
+                                                              "friendlyName": {
+                                                                  "description": "friendlyName from RawEntity object in IPs array"
+                                                              }
+                                                          },
+                                                          "type": "object"
+                                                      }
+                                                  },
+                                                  "required": [],
+                                                  "type": "object"
+                                              },
+                                              "type": "array"
+                                          },
+                                          "IPsCount": {
+                                              "description": "Count of IPs processed by module",
+                                              "type": "integer"
+                                          },
+                                          "IncidentARMId": {
+                                              "description": "The ARM Id of the Azure Sentinel Incident",
+                                              "type": "string"
+                                          },
+                                          "URLs": {
+                                              "description": "Array of URLs",
+                                              "items": {
+                                                  "properties": {
+                                                      "RawEntity": {
+                                                          "description": "Object containing Raw unenriched entity data in URLs array",
+                                                          "properties": {
+                                                              "friendlyName": {
+                                                                  "description": "friendlyName from RawEntity object in URLs array"
+                                                              },
+                                                              "url": {
+                                                                  "description": "url from RawEntity object in URLs array"
+                                                              }
+                                                          },
+                                                          "type": "object"
+                                                      }
+                                                  },
+                                                  "required": [],
+                                                  "type": "object"
+                                              },
+                                              "type": "array"
+                                          },
+                                          "URLsCount": {
+                                              "description": "Count of URLs processed by module",
+                                              "type": "integer"
+                                          },
+                                          "WorkspaceId": {
+                                              "description": "The Log Analytics Workspace Id of the Azure Sentinel Incident",
+                                              "type": "string"
+                                          }
+                                      },
+                                      "type": "object"
+                                  }
+                              },
+                              "runAfter": {
+                                  "Initialize_DetailedResults": [
+                                      "Succeeded"
+                                  ]
+                              },
+                              "type": "ParseJson"
+                          },
+                          "Return_final_response": {
+                              "inputs": {
+                                  "body": "@outputs('Compose_final_response')",
+                                  "schema": {
+                                      "properties": {
+                                          "AboveThreholdCount": {
+                                              "type": "integer"
+                                          },
+                                          "AnalyzedEntities": {
+                                              "type": "integer"
+                                          },
+                                          "DetailedResults": {
+                                              "items": {
+                                                  "properties": {
+                                                      "ThreatScore": {
+                                                          "type": "integer"
+                                                      },
+                                                      "UserId": {
+                                                          "type": "string"
+                                                      },
+                                                      "UserPrincipalName": {
+                                                          "type": "string"
+                                                      }
+                                                  },
+                                                  "type": "object"
+                                              },
+                                              "type": "array"
+                                          },
+                                          "MaximumScore": {
+                                              "type": "integer"
+                                          }
+                                      },
+                                      "type": "object"
+                                  },
+                                  "statusCode": 200
+                              },
+                              "kind": "Http",
+                              "runAfter": {
+                                  "Condition_-_Check_if_comment_is_required": [
+                                      "Succeeded"
+                                  ]
+                              },
+                              "type": "Response"
+                          }
+                      },
+                      "contentVersion": "1.0.0.0",
+                      "outputs": {},
+                      "parameters": {
+                          "$connections": {
+                              "defaultValue": {},
+                              "type": "Object"
+                          }
+                      },
+                      "triggers": {
+                          "triage": {
+                              "inputs": {
+                                  "schema": {
+                                      "properties": {
+                                          "AddIncidentComments": {
+                                              "title": "Add comments to the incident",
+                                              "type": "boolean"
+                                          },
+                                          "Entities": {
+                                              "description": "Click here and select the Entities object from the Dynamic content menu",
+                                              "type": "array"
+                                          },
+                                          "ScoreThreshold": {
+                                              "description": "Type the minimum investigation Score",
+                                              "title": "Investigation Score Threshold",
+                                              "type": "integer"
+                                          }
+                                      },
+                                      "type": "object"
+                                  }
+                              },
+                              "kind": "Http",
+                              "type": "Request"
+                          }
+                      }
+                  },
                 "parameters": {
                     "$connections": {
                         "value": {
