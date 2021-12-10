@@ -2303,7 +2303,7 @@
                                 "relativePath": "/func/{funcname}",
                                 "schema": {
                                     "properties": {
-                                        "AddCommentsToIncident": {
+                                        "AddIncidentComments": {
                                             "type": "boolean"
                                         },
                                         "BaseModuleBody": {
@@ -2343,7 +2343,7 @@
                                             "type": "Workflow",
                                             "inputs": {
                                                 "body": {
-                                                    "AddIncidentComments": "@triggerBody()?['AddCommentsToIncident']",
+                                                    "AddIncidentComments": "@triggerBody()?['AddIncidentComments']",
                                                     "Entities": "@triggerBody()?['BaseModuleBody']",
                                                     "LookbackInDays": "@triggerBody()?['LookbackInDays']",
                                                     "MFAFailureLookup": "@triggerBody()?['MFAFailureLookup']",
@@ -2423,7 +2423,7 @@
                                             "type": "Workflow",
                                             "inputs": {
                                                 "body": {
-                                                    "AddIncidentComments": "@triggerBody()?['AddCommentsToIncident']",
+                                                    "AddIncidentComments": "@triggerBody()?['AddIncidentComments']",
                                                     "Entities": "@triggerBody()?['BaseModuleBody']"
                                                 },
                                                 "host": {
@@ -2499,7 +2499,7 @@
                                             "type": "Workflow",
                                             "inputs": {
                                                 "body": {
-                                                    "AddIncidentComments": "@triggerBody()?['AddCommentsToIncident']",
+                                                    "AddIncidentComments": "@triggerBody()?['AddIncidentComments']",
                                                     "Entities": "@triggerBody()?['BaseModuleBody']",
                                                     "ScoreThreshold": "@triggerBody()?['ScoreThreshold']"
                                                 },
@@ -2537,7 +2537,7 @@
                                             "type": "Workflow",
                                             "inputs": {
                                                 "body": {
-                                                    "AddIncidentComments": "@triggerBody()?['AddCommentsToIncident']",
+                                                    "AddIncidentComments": "@triggerBody()?['AddIncidentComments']",
                                                     "Entities": "@triggerBody()?['BaseModuleBody']",
                                                     "LookbackInDays": "@triggerBody()?['LookbackInDays']"
                                                 },
@@ -2575,7 +2575,7 @@
                                             "type": "Workflow",
                                             "inputs": {
                                                 "body": {
-                                                    "AddIncidentComments": "@triggerBody()?['AddCommentsToIncident']",
+                                                    "AddIncidentComments": "@triggerBody()?['AddIncidentComments']",
                                                     "Entities": "@triggerBody()?['BaseModuleBody']"
                                                 },
                                                 "host": {
@@ -2612,7 +2612,7 @@
                                             "type": "Workflow",
                                             "inputs": {
                                                 "body": {
-                                                    "AddIncidentComments": "@triggerBody()?['AddCommentsToIncident']",
+                                                    "AddIncidentComments": "@triggerBody()?['AddIncidentComments']",
                                                     "CheckAccountEntityMatches": "@triggerBody()?['CheckAccounts']",
                                                     "CheckHostEntityMatches": "@triggerBody()?['CheckHosts']",
                                                     "CheckIPEntityMatches": "@triggerBody()?['CheckIPs']",
@@ -2653,7 +2653,7 @@
                                             "type": "Workflow",
                                             "inputs": {
                                                 "body": {
-                                                    "AddIncidentComments": "@triggerBody()?['AddCommentsToIncident']",
+                                                    "AddIncidentComments": "@triggerBody()?['AddIncidentComments']",
                                                     "CheckDomains": "@triggerBody()?['CheckDomains']",
                                                     "CheckFileHashes": "@triggerBody()?['CheckFileHashes']",
                                                     "CheckIPs": "@triggerBody()?['CheckIPs']",
@@ -2695,7 +2695,7 @@
                                             "type": "Workflow",
                                             "inputs": {
                                                 "body": {
-                                                    "AddIncidentComments": "@triggerBody()?['AddCommentsToIncident']",
+                                                    "AddIncidentComments": "@triggerBody()?['AddIncidentComments']",
                                                     "Entities": "@triggerBody()?['BaseModuleBody']",
                                                     "LookbackInDays": "@triggerBody()?['LookbackInDays']",
                                                     "MinimumInvestigationPriority": "@triggerBody()?['MinimumInvestigationPriority']"
@@ -2734,7 +2734,7 @@
                                             "type": "Workflow",
                                             "inputs": {
                                                 "body": {
-                                                    "AddIncidentComments": "@triggerBody()?['AddCommentsToIncident']",
+                                                    "AddIncidentComments": "@triggerBody()?['AddIncidentComments']",
                                                     "Entities": "@triggerBody()?['BaseModuleBody']",
                                                     "WatchlistKey": "@triggerBody()?['WatchlistKey']",
                                                     "WatchlistKeyDataType": "@triggerBody()?['WatchlistKeyDataType']",
