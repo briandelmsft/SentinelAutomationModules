@@ -150,115 +150,6 @@
                                 "visible": true
                             },
                             {
-                                "name": "BasePlaybookName",
-                                "type": "Microsoft.Common.TextBox",
-                                "label": "Base Playbook Name",
-                                "placeholder": "",
-                                "defaultValue": "Base-Module",
-                                "toolTip": "",
-                                "constraints": {}
-                            },
-                            {
-                                "name": "AADRisksPlaybookName",
-                                "type": "Microsoft.Common.TextBox",
-                                "label": "Azure AD Risks Playbook Name",
-                                "placeholder": "",
-                                "defaultValue": "Get-AADUserRisksInfo",
-                                "toolTip": "",
-                                "constraints": {},
-                                "visible": "[if(contains(steps('automationModules').enableModulesKind,'AADModule'), true, false)]"
-                            },
-                            {
-                                "name": "FilePlaybookName",
-                                "type": "Microsoft.Common.TextBox",
-                                "label": "File Playbook Name",
-                                "placeholder": "",
-                                "defaultValue": "Get-FileInsights",
-                                "toolTip": "",
-                                "constraints": {},
-                                "visible": "[if(contains(steps('automationModules').enableModulesKind,'FileModule'), true, false)]"
-                            },
-                            {
-                                "name": "KQLPlaybookName",
-                                "type": "Microsoft.Common.TextBox",
-                                "label": "KQL Playbook Name",
-                                "placeholder": "",
-                                "defaultValue": "Run-KQLQuery",
-                                "toolTip": "",
-                                "constraints": {},
-                                "visible": "[if(contains(steps('automationModules').enableModulesKind,'KQLModule'), true, false)]"
-                            },
-                            {
-                                "name": "OOFPlaybookName",
-                                "type": "Microsoft.Common.TextBox",
-                                "label": "Out Of Office Playbook Name",
-                                "placeholder": "",
-                                "defaultValue": "Get-OOFDetails",
-                                "toolTip": "",
-                                "constraints": {},
-                                "visible": "[if(contains(steps('automationModules').enableModulesKind,'OOFModule'), true, false)]"
-                            },
-                            {
-                                "name": "RelatedAlertsPlaybookName",
-                                "type": "Microsoft.Common.TextBox",
-                                "label": "Related Alerts Playbook Name",
-                                "placeholder": "",
-                                "defaultValue": "Get-RelatedAlerts",
-                                "toolTip": "",
-                                "constraints": {},
-                                "visible": "[if(contains(steps('automationModules').enableModulesKind,'RelatedAlerts'), true, false)]"
-                            },
-                            {
-                                "name": "TIPlaybookName",
-                                "type": "Microsoft.Common.TextBox",
-                                "label": "Threat Intelligence Playbook Name",
-                                "placeholder": "",
-                                "defaultValue": "Get-ThreatIntel",
-                                "toolTip": "",
-                                "constraints": {},
-                                "visible": "[if(contains(steps('automationModules').enableModulesKind,'TIModule'), true, false)]"
-                            },
-                            {
-                                "name": "UEBAPlaybookName",
-                                "type": "Microsoft.Common.TextBox",
-                                "label": "UEBA Playbook Name",
-                                "placeholder": "",
-                                "defaultValue": "Get-UEBAInsights",
-                                "toolTip": "",
-                                "constraints": {},
-                                "visible": "[if(contains(steps('automationModules').enableModulesKind,'UEBAModule'), true, false)]"
-                            },
-                            {
-                                "name": "MDEPlaybookName",
-                                "type": "Microsoft.Common.TextBox",
-                                "label": "MDE Playbook Name",
-                                "placeholder": "",
-                                "defaultValue": "Get-MDEUsersDevicesRiskScore",
-                                "toolTip": "",
-                                "constraints": {},
-                                "visible": "[if(contains(steps('automationModules').enableModulesKind,'MDEModule'), true, false)]"
-                            },
-                            {
-                                "name": "WatchlistPlaybookName",
-                                "type": "Microsoft.Common.TextBox",
-                                "label": "Watchlist Playbook Name",
-                                "placeholder": "",
-                                "defaultValue": "Get-WatchlistInsights",
-                                "toolTip": "",
-                                "constraints": {},
-                                "visible": "[if(contains(steps('automationModules').enableModulesKind,'WatchlistModule'), true, false)]"
-                            },
-                            {
-                                "name": "MCASPlaybookName",
-                                "type": "Microsoft.Common.TextBox",
-                                "label": "MCAS Playbook Name",
-                                "placeholder": "",
-                                "defaultValue": "Get-MCASInvestigationScore",
-                                "toolTip": "",
-                                "constraints": {},
-                                "visible": "[if(contains(steps('automationModules').enableModulesKind,'MCASModule'), true, false)]"
-                            },
-                            {
                                 "name": "MCASAPIKEY",
                                 "type": "Microsoft.Common.TextBox",
                                 "label": "MCAS API Key",
@@ -304,36 +195,6 @@
                                 "defaultValue": true,
                                 "toolTip": "",
                                 "constraints": {}
-                            },
-                            {
-                                "name": "STATCoordinatorPlaybookName",
-                                "type": "Microsoft.Common.TextBox",
-                                "label": "STAT Coordinator Playbook Name",
-                                "placeholder": "",
-                                "defaultValue": "STAT-Coordinator",
-                                "toolTip": "",
-                                "constraints": {},
-                                "visible": "[steps('automationModules').DeployConnector]"
-                            },
-                            {
-                                "name": "CustomConnectorName",
-                                "type": "Microsoft.Common.TextBox",
-                                "label": "STAT Logic Apps Connector Name",
-                                "placeholder": "",
-                                "defaultValue": "SentinelTriageAssistant",
-                                "toolTip": "",
-                                "constraints": {},
-                                "visible": "[steps('automationModules').DeployConnector]"
-                            },
-                            {
-                                "name": "CustomConnectorDisplayName",
-                                "type": "Microsoft.Common.TextBox",
-                                "label": "STAT Logic Apps Connector Display Name",
-                                "placeholder": "",
-                                "defaultValue": "Sentinel Triage AssistanT - STAT",
-                                "toolTip": "",
-                                "constraints": {},
-                                "visible": "[steps('automationModules').DeployConnector]"
                             }
         
                         ],
@@ -640,24 +501,24 @@
         ],
         "outputs": {
             "enableModulesKind": "[coalesce(steps('automationModules').advancedSetup.enableModulesKind,steps('automationModules').standardSetup.enableModulesKind)]",
-            "OOFPlaybookName": "[coalesce(steps('automationModules').advancedSetup.OOFPlaybookName,steps('automationModules').standardSetup.OOFPlaybookName)]",
-            "RelatedAlertsPlaybookName": "[coalesce(steps('automationModules').advancedSetup.RelatedAlertsPlaybookName,steps('automationModules').standardSetup.RelatedAlertsPlaybookName)]",
-            "TIPlaybookName": "[coalesce(steps('automationModules').advancedSetup.TIPlaybookName,steps('automationModules').standardSetup.TIPlaybookName)]",
-            "UEBAPlaybookName": "[coalesce(steps('automationModules').advancedSetup.UEBAPlaybookName,steps('automationModules').standardSetup.UEBAPlaybookName)]",
-            "FilePlaybookName": "[coalesce(steps('automationModules').advancedSetup.FilePlaybookName,steps('automationModules').standardSetup.FilePlaybookName)]",
-            "KQLPlaybookName": "[coalesce(steps('automationModules').advancedSetup.KQLPlaybookName,steps('automationModules').standardSetup.KQLPlaybookName)]",
-            "BasePlaybookName": "[coalesce(steps('automationModules').advancedSetup.BasePlaybookName,steps('automationModules').standardSetup.BasePlaybookName)]",
-            "AADRisksPlaybookName": "[coalesce(steps('automationModules').advancedSetup.AADRisksPlaybookName,steps('automationModules').standardSetup.AADRisksPlaybookName)]",
-            "MDEPlaybookName": "[coalesce(steps('automationModules').advancedSetup.MDEPlaybookName,steps('automationModules').standardSetup.MDEPlaybookName)]",
-            "MCASPlaybookName": "[coalesce(steps('automationModules').advancedSetup.MCASPlaybookName,steps('automationModules').standardSetup.MCASPlaybookName)]",
-            "WatchlistPlaybookName": "[coalesce(steps('automationModules').advancedSetup.WatchlistPlaybookName,steps('automationModules').standardSetup.WatchlistPlaybookName)]",
+            "OOFPlaybookName": "[coalesce(steps('automationModules').advancedSetup.OOFPlaybookName,'Get-OOFDetails')]",
+            "RelatedAlertsPlaybookName": "[coalesce(steps('automationModules').advancedSetup.RelatedAlertsPlaybookName,'Get-RelatedAlerts')]",
+            "TIPlaybookName": "[coalesce(steps('automationModules').advancedSetup.TIPlaybookName,'Get-ThreatIntel')]",
+            "UEBAPlaybookName": "[coalesce(steps('automationModules').advancedSetup.UEBAPlaybookName,'Get-UEBAInsights')]",
+            "FilePlaybookName": "[coalesce(steps('automationModules').advancedSetup.FilePlaybookName,'Get-FileInsights')]",
+            "KQLPlaybookName": "[coalesce(steps('automationModules').advancedSetup.KQLPlaybookName,'Run-KQLQuery')]",
+            "BasePlaybookName": "[coalesce(steps('automationModules').advancedSetup.BasePlaybookName,'Base-Module')]",
+            "AADRisksPlaybookName": "[coalesce(steps('automationModules').advancedSetup.AADRisksPlaybookName,'Get-AADUserRisksInfo')]",
+            "MDEPlaybookName": "[coalesce(steps('automationModules').advancedSetup.MDEPlaybookName,'Get-MDEUsersDevicesRiskScore')]",
+            "MCASPlaybookName": "[coalesce(steps('automationModules').advancedSetup.MCASPlaybookName,'Get-MCASInvestigationScore')]",
+            "WatchlistPlaybookName": "[coalesce(steps('automationModules').advancedSetup.WatchlistPlaybookName,'Get-WatchlistInsights')]",
             "MCAS API KEY": "[coalesce(steps('automationModules').advancedSetup.MCASAPIKEY,steps('automationModules').standardSetup.MCASAPIKEY)]",
             "MCAS API URL": "[coalesce(steps('automationModules').advancedSetup.MCASAPIURL,steps('automationModules').standardSetup.MCASAPIURL)]",
             "DeploySamplePlaybook": "[coalesce(steps('automationModules').advancedSetup.DeploySamplePlaybook,steps('automationModules').standardSetup.DeploySamplePlaybook)]",
             "SamplePlaybookName": "[coalesce(steps('automationModules').advancedSetup.SamplePlaybookName,steps('automationModules').standardSetup.SamplePlaybookName)]",
-            "STATCoordinatorPlaybookName": "[coalesce(steps('automationModules').advancedSetup.STATCoordinatorPlaybookName,steps('automationModules').standardSetup.STATCoordinatorPlaybookName)]",
-            "CustomConnectorName": "[coalesce(steps('automationModules').advancedSetup.CustomConnectorName,steps('automationModules').standardSetup.CustomConnectorName)]",
-            "CustomConnectorDisplayName": "[coalesce(steps('automationModules').advancedSetup.CustomConnectorDisplayName,steps('automationModules').standardSetup.CustomConnectorDisplayName)]",
+            "STATCoordinatorPlaybookName": "[coalesce(steps('automationModules').advancedSetup.STATCoordinatorPlaybookName,'STAT-Coordinator')]",
+            "CustomConnectorName": "[coalesce(steps('automationModules').advancedSetup.CustomConnectorName,'SentinelTriageAssistant')]",
+            "CustomConnectorDisplayName": "[coalesce(steps('automationModules').advancedSetup.CustomConnectorDisplayName,'Sentinel Triage AssistanT - STAT')]",
             "DeployConnector": "[coalesce(steps('automationModules').advancedSetup.DeployConnector,steps('automationModules').standardSetup.DeployConnector)]",
             "StandardSetup": "[if(equals(steps('deploymentTypeStep').deploymentType, 'standard'), true, false)]",
             "location": "[location()]"
