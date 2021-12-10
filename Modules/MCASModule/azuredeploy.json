@@ -149,7 +149,7 @@
                                   "Add_MCAS_score_in_a_comment": {
                                       "inputs": {
                                           "body": {
-                                              "incidentArmId": "@triggerBody()?['IncidentARMId']",
+                                              "incidentArmId": "@body('Parse_Trigger')?['IncidentARMId']",
                                               "message": "<p>MCAS Users' investigation priority scores per user: @{body('Create_HTML_table_for_comment')}</p>"
                                           },
                                           "host": {
