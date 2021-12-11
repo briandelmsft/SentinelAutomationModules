@@ -30,3 +30,4 @@ function Set-RBACPermissions ($MSIName, $Role) {
 
 #MCAS
 Set-RBACPermissions -MSIName $MCASLogicAppName -Role "Microsoft Sentinel Responder"
+Set-APIPermissions -MSIName $MCASLogicAppName -AppId "05a65629-4c1b-48c1-a78b-804c4abdd4af" -PermissionName "investigation.read"
