@@ -53,6 +53,10 @@
             "defaultValue": true,
             "type": "bool"
         },
+        "StandardSetup": {
+            "defaultValue": false,
+            "type": "bool"
+        },
         "FilePlaybookName": {
             "defaultValue": "Get-FileInsights",
             "type": "String"
@@ -112,7 +116,7 @@
             }
         },
         {
-            "condition": "[contains(parameters('enableModulesKind'), 'KQLModule')]",
+            "condition": "[or(contains(parameters('enableModulesKind'), 'KQLModule'),parameters('StandardSetup'))]",
             "apiVersion": "2019-10-01",
             "name": "KQLTemplate",
             "type": "Microsoft.Resources/deployments",
@@ -130,7 +134,7 @@
             }
         },
         {
-            "condition": "[contains(parameters('enableModulesKind'), 'TIModule')]",
+            "condition": "[or(contains(parameters('enableModulesKind'), 'TIModule'),parameters('StandardSetup'))]",
             "apiVersion": "2019-10-01",
             "name": "TITemplate",
             "type": "Microsoft.Resources/deployments",
@@ -148,7 +152,7 @@
             }
         },
         {
-            "condition": "[contains(parameters('enableModulesKind'), 'FileModule')]",
+            "condition": "[or(contains(parameters('enableModulesKind'), 'FileModule'),parameters('StandardSetup'))]",
             "apiVersion": "2019-10-01",
             "name": "FileTemplate",
             "type": "Microsoft.Resources/deployments",
@@ -166,7 +170,7 @@
             }
         },
         {
-            "condition": "[contains(parameters('enableModulesKind'), 'OOFModule')]",
+            "condition": "[or(contains(parameters('enableModulesKind'), 'OOFModule'),parameters('StandardSetup'))]",
             "apiVersion": "2019-10-01",
             "name": "OOFTemplate",
             "type": "Microsoft.Resources/deployments",
@@ -184,7 +188,7 @@
             }
         },
         {
-            "condition": "[contains(parameters('enableModulesKind'), 'WatchlistModule')]",
+            "condition": "[or(contains(parameters('enableModulesKind'), 'WatchlistModule'),parameters('StandardSetup'))]",
             "apiVersion": "2019-10-01",
             "name": "WatchlistTemplate",
             "type": "Microsoft.Resources/deployments",
@@ -202,7 +206,7 @@
             }
         },
         {
-            "condition": "[contains(parameters('enableModulesKind'), 'AADModule')]",
+            "condition": "[or(contains(parameters('enableModulesKind'), 'AADModule'),parameters('StandardSetup'))]",
             "apiVersion": "2019-10-01",
             "name": "AADTemplate",
             "type": "Microsoft.Resources/deployments",
@@ -220,7 +224,7 @@
             }
         },
         {
-            "condition": "[contains(parameters('enableModulesKind'), 'MCASModule')]",
+            "condition": "[or(contains(parameters('enableModulesKind'), 'MCASModule'),parameters('StandardSetup'))]",
             "apiVersion": "2019-10-01",
             "name": "MCASTemplate",
             "type": "Microsoft.Resources/deployments",
@@ -238,7 +242,7 @@
             }
         },
         {
-            "condition": "[contains(parameters('enableModulesKind'), 'UEBAModule')]",
+            "condition": "[or(contains(parameters('enableModulesKind'), 'UEBAModule'),parameters('StandardSetup'))]",
             "apiVersion": "2019-10-01",
             "name": "UEBATemplate",
             "type": "Microsoft.Resources/deployments",
@@ -256,7 +260,7 @@
             }
         },
         {
-            "condition": "[contains(parameters('enableModulesKind'), 'MDEModule')]",
+            "condition": "[or(contains(parameters('enableModulesKind'), 'MDEModule'),parameters('StandardSetup'))]",
             "apiVersion": "2019-10-01",
             "name": "MDETemplate",
             "type": "Microsoft.Resources/deployments",
@@ -274,7 +278,7 @@
             }
         },
         {
-            "condition": "[contains(parameters('enableModulesKind'), 'RelatedAlerts')]",
+            "condition": "[or(contains(parameters('enableModulesKind'), 'RelatedAlerts'),parameters('StandardSetup'))]",
             "apiVersion": "2019-10-01",
             "name": "RelatedAlertsTemplate",
             "type": "Microsoft.Resources/deployments",
