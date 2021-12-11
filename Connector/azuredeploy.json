@@ -2361,17 +2361,19 @@
                                                 }
                                             }
                                         },
-                                        "Response_9": {
+                                        "Response_-_AADUserRisks": {
                                             "runAfter": {
                                                 "Get-AADUserRisksInfo": [
-                                                    "Succeeded"
+                                                    "Succeeded",
+                                                    "TimedOut",
+                                                    "Failed"
                                                 ]
                                             },
                                             "type": "Response",
                                             "kind": "Http",
                                             "inputs": {
                                                 "body": "@body('Get-AADUserRisksInfo')",
-                                                "statusCode": 200
+                                                "statusCode": "@outputs('Get-AADUserRisksInfo')['statusCode']"
                                             }
                                         }
                                     }
@@ -2400,17 +2402,19 @@
                                                 }
                                             }
                                         },
-                                        "Response": {
+                                        "Response_-_Base": {
                                             "runAfter": {
                                                 "Base-Module": [
-                                                    "Succeeded"
+                                                    "Succeeded",
+                                                    "TimedOut",
+                                                    "Failed"
                                                 ]
                                             },
                                             "type": "Response",
                                             "kind": "Http",
                                             "inputs": {
                                                 "body": "@body('Base-Module')",
-                                                "statusCode": 200
+                                                "statusCode": "@outputs('Base-Module')['statusCode']"
                                             }
                                         }
                                     }
@@ -2437,17 +2441,19 @@
                                                 }
                                             }
                                         },
-                                        "Response_10": {
+                                        "Response_-_File": {
                                             "runAfter": {
                                                 "Get-FileInsights": [
-                                                    "Succeeded"
+                                                    "Succeeded",
+                                                    "TimedOut",
+                                                    "Failed"
                                                 ]
                                             },
                                             "type": "Response",
                                             "kind": "Http",
                                             "inputs": {
                                                 "body": "@body('Get-FileInsights')",
-                                                "statusCode": 200
+                                                "statusCode": "@outputs('Get-FileInsights')['statusCode']"
                                             }
                                         }
                                     }
@@ -2455,17 +2461,19 @@
                                 "Case_-_KQL": {
                                     "case": "kql",
                                     "actions": {
-                                        "Response_7": {
+                                        "Response_-_KQL": {
                                             "runAfter": {
                                                 "Run-KQLQuery": [
-                                                    "Succeeded"
+                                                    "Succeeded",
+                                                    "TimedOut",
+                                                    "Failed"
                                                 ]
                                             },
                                             "type": "Response",
                                             "kind": "Http",
                                             "inputs": {
                                                 "body": "@body('Run-KQLQuery')",
-                                                "statusCode": 200
+                                                "statusCode": "@outputs('Run-KQLQuery')['statusCode']"
                                             }
                                         },
                                         "Run-KQLQuery": {
@@ -2514,17 +2522,19 @@
                                                 }
                                             }
                                         },
-                                        "Response_12": {
+                                        "Response_-_MCAS": {
                                             "runAfter": {
                                                 "Get-MCASInvestigationScore": [
-                                                    "Succeeded"
+                                                    "Succeeded",
+                                                    "TimedOut",
+                                                    "Failed"
                                                 ]
                                             },
                                             "type": "Response",
                                             "kind": "Http",
                                             "inputs": {
                                                 "body": "@body('Get-MCASInvestigationScore')",
-                                                "statusCode": 200
+                                                "statusCode": "@outputs('Get-MCASInvestigationScore')['statusCode']"
                                             }
                                         }
                                     }
@@ -2552,17 +2562,19 @@
                                                 }
                                             }
                                         },
-                                        "Response_11": {
+                                        "Response_-_MDE": {
                                             "runAfter": {
                                                 "Get-MDEUsersDevicesRiskScore": [
-                                                    "Succeeded"
+                                                    "Succeeded",
+                                                    "TimedOut",
+                                                    "Failed"
                                                 ]
                                             },
                                             "type": "Response",
                                             "kind": "Http",
                                             "inputs": {
                                                 "body": "@body('Get-MDEUsersDevicesRiskScore')",
-                                                "statusCode": 200
+                                                "statusCode": "@outputs('Get-MDEUsersDevicesRiskScore')['statusCode']"
                                             }
                                         }
                                     }
@@ -2589,17 +2601,19 @@
                                                 }
                                             }
                                         },
-                                        "Response_2": {
+                                        "Response_-_OOF": {
                                             "runAfter": {
                                                 "Get-OOFDetails": [
-                                                    "Succeeded"
+                                                    "Succeeded",
+                                                    "TimedOut",
+                                                    "Failed"
                                                 ]
                                             },
                                             "type": "Response",
                                             "kind": "Http",
                                             "inputs": {
                                                 "body": "@body('Get-OOFDetails')",
-                                                "statusCode": 200
+                                                "statusCode": "@outputs('Get-OOFDetails')['statusCode']"
                                             }
                                         }
                                     }
@@ -2630,17 +2644,19 @@
                                                 }
                                             }
                                         },
-                                        "Response_5": {
+                                        "Response_-_RelatedAlerts": {
                                             "runAfter": {
                                                 "Get-RelatedAlerts": [
-                                                    "Succeeded"
+                                                    "Succeeded",
+                                                    "TimedOut",
+                                                    "Failed"
                                                 ]
                                             },
                                             "type": "Response",
                                             "kind": "Http",
                                             "inputs": {
                                                 "body": "@body('Get-RelatedAlerts')",
-                                                "statusCode": 200
+                                                "statusCode": "@outputs('Get-RelatedAlerts')['statusCode']"
                                             }
                                         }
                                     }
@@ -2672,17 +2688,19 @@
                                                 }
                                             }
                                         },
-                                        "Response_4": {
+                                        "Response_-_ThreatIntel": {
                                             "runAfter": {
                                                 "Get-ThreatIntel": [
-                                                    "Succeeded"
+                                                    "Succeeded",
+                                                    "TimedOut",
+                                                    "Failed"
                                                 ]
                                             },
                                             "type": "Response",
                                             "kind": "Http",
                                             "inputs": {
                                                 "body": "@body('Get-ThreatIntel')",
-                                                "statusCode": 200
+                                                "statusCode": "@outputs('Get-ThreatIntel')['statusCode']"
                                             }
                                         }
                                     }
@@ -2711,17 +2729,19 @@
                                                 }
                                             }
                                         },
-                                        "Response_8": {
+                                        "Response_-_UEBA": {
                                             "runAfter": {
                                                 "Get-UEBAInsights": [
-                                                    "Succeeded"
+                                                    "Succeeded",
+                                                    "TimedOut",
+                                                    "Failed"
                                                 ]
                                             },
                                             "type": "Response",
                                             "kind": "Http",
                                             "inputs": {
                                                 "body": "@body('Get-UEBAInsights')",
-                                                "statusCode": 200
+                                                "statusCode": "@outputs('Get-UEBAInsights')['statusCode']"
                                             }
                                         }
                                     }
@@ -2751,17 +2771,19 @@
                                                 }
                                             }
                                         },
-                                        "Response_6": {
+                                        "Response_-_Watchlist": {
                                             "runAfter": {
                                                 "Get-WatchlistInsights": [
-                                                    "Succeeded"
+                                                    "Succeeded",
+                                                    "TimedOut",
+                                                    "Failed"
                                                 ]
                                             },
                                             "type": "Response",
                                             "kind": "Http",
                                             "inputs": {
                                                 "body": "@body('Get-WatchlistInsights')",
-                                                "statusCode": 200
+                                                "statusCode": "@outputs('Get-WatchlistInsights')['statusCode']"
                                             }
                                         }
                                     }
@@ -2769,15 +2791,15 @@
                             },
                             "default": {
                                 "actions": {
-                                    "Response_3": {
+                                    "Response_-_Invalid_Module": {
                                         "runAfter": {},
                                         "type": "Response",
                                         "kind": "Http",
                                         "inputs": {
                                             "body": {
-                                                "Error": "Invalid Function Name"
+                                                "Error": "STAT Module not found in the coordinator.  Either the module is invalid or the coordinator needs to be updated."
                                             },
-                                            "statusCode": 200
+                                            "statusCode": 500
                                         }
                                     }
                                 }
