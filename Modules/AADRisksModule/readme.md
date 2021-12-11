@@ -1,7 +1,7 @@
 # Get-AADUserRisksInfo
 
 ## Description
-This module will retrieve the level of risk of the users in Azure AD Identity Protection as well as the following information is requested:
+This module will retrieve the level of risk of the users in Azure AD Identity Protection as well as the following information if requested:
 * Number of MFA fraud report for the specified entities
 * Number of MFA failure (the user denied the MFA request or the MFA request timed out) for the specified entities
 
