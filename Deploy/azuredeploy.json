@@ -41,14 +41,6 @@
             "defaultValue": "Get-MCASInvestigationScore",
             "type": "String"
         },
-        "MCAS API KEY": {
-            "defaultValue": "Type your API Key",
-            "type": "String"
-        },
-        "MCAS API URL": {
-            "defaultValue": "Type your API URL",
-            "type": "String"
-        },
         "SamplePlaybookName": {
             "defaultValue": "Triage-Incident",
             "type": "String"
@@ -241,12 +233,6 @@
                 "parameters": {
                     "PlaybookName": {
                         "value": "[parameters('MCASPlaybookName')]"
-                    },
-                    "API KEY": {
-                        "value": "[parameters('MCAS API KEY')]"
-                    },
-                    "MCAS API URL": {
-                        "value": "[parameters('MCAS API URL')]"
                     }
                 }
             }

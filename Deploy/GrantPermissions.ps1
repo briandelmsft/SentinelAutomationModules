@@ -57,7 +57,7 @@ Set-APIPermissions -MSIName $MDELogicAppName -AppId "fc780465-2017-40d4-a0c5-307
 Set-RBACPermissions -MSIName $MDELogicAppName -Role "Microsoft Sentinel Responder"
 
 #MCAS
-Set-APIPermissions -MSIName $MCASLogicAppName -AppId "00000003-0000-0000-c000-000000000000" -PermissionName "User.Read.All"
+Set-APIPermissions -MSIName $MCASLogicAppName -AppId "05a65629-4c1b-48c1-a78b-804c4abdd4af" -PermissionName "investigation.read"
 Set-RBACPermissions -MSIName $MCASLogicAppName -Role "Microsoft Sentinel Responder"
 
 #Watchlists

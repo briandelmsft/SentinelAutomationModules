@@ -150,26 +150,6 @@
                                 "visible": true
                             },
                             {
-                                "name": "MCASAPIKEY",
-                                "type": "Microsoft.Common.TextBox",
-                                "label": "MCAS API Key",
-                                "placeholder": "Enter the API Key obtained from MCAS",
-                                "defaultValue": "",
-                                "toolTip": "",
-                                "constraints": {},
-                                "visible": "[if(contains(steps('automationModules').enableModulesKind,'MCASModule'), true, false)]"
-                            },
-                            {
-                                "name": "MCASAPIURL",
-                                "type": "Microsoft.Common.TextBox",
-                                "label": "MCAS API URL",
-                                "placeholder": "Enter the API URL obtained from MCAS",
-                                "defaultValue": "",
-                                "toolTip": "",
-                                "constraints": {},
-                                "visible": "[if(contains(steps('automationModules').enableModulesKind,'MCASModule'), true, false)]"
-                            },
-                            {
                                 "name": "DeploySamplePlaybook",
                                 "type": "Microsoft.Common.CheckBox",
                                 "label": "Deploy the Sample Incident Triage Playbook",
@@ -382,26 +362,6 @@
                                 "visible": "[if(contains(steps('automationModules').enableModulesKind,'MCASModule'), true, false)]"
                             },
                             {
-                                "name": "MCASAPIKEY",
-                                "type": "Microsoft.Common.TextBox",
-                                "label": "MCAS API Key",
-                                "placeholder": "Enter the API Key obtained from MCAS",
-                                "defaultValue": "",
-                                "toolTip": "",
-                                "constraints": {},
-                                "visible": "[if(contains(steps('automationModules').enableModulesKind,'MCASModule'), true, false)]"
-                            },
-                            {
-                                "name": "MCASAPIURL",
-                                "type": "Microsoft.Common.TextBox",
-                                "label": "MCAS API URL",
-                                "placeholder": "Enter the API URL obtained from MCAS",
-                                "defaultValue": "",
-                                "toolTip": "",
-                                "constraints": {},
-                                "visible": "[if(contains(steps('automationModules').enableModulesKind,'MCASModule'), true, false)]"
-                            },
-                            {
                                 "name": "DeploySamplePlaybook",
                                 "type": "Microsoft.Common.CheckBox",
                                 "label": "Deploy the Sample Incident Triage Playbook",
@@ -512,8 +472,6 @@
             "MDEPlaybookName": "[coalesce(steps('automationModules').advancedSetup.MDEPlaybookName,'Get-MDEUsersDevicesRiskScore')]",
             "MCASPlaybookName": "[coalesce(steps('automationModules').advancedSetup.MCASPlaybookName,'Get-MCASInvestigationScore')]",
             "WatchlistPlaybookName": "[coalesce(steps('automationModules').advancedSetup.WatchlistPlaybookName,'Get-WatchlistInsights')]",
-            "MCAS API KEY": "[coalesce(steps('automationModules').advancedSetup.MCASAPIKEY,steps('automationModules').standardSetup.MCASAPIKEY)]",
-            "MCAS API URL": "[coalesce(steps('automationModules').advancedSetup.MCASAPIURL,steps('automationModules').standardSetup.MCASAPIURL)]",
             "DeploySamplePlaybook": "[coalesce(steps('automationModules').advancedSetup.DeploySamplePlaybook,steps('automationModules').standardSetup.DeploySamplePlaybook)]",
             "SamplePlaybookName": "[coalesce(steps('automationModules').advancedSetup.SamplePlaybookName,steps('automationModules').standardSetup.SamplePlaybookName)]",
             "STATCoordinatorPlaybookName": "[coalesce(steps('automationModules').advancedSetup.STATCoordinatorPlaybookName,'STAT-Coordinator')]",
