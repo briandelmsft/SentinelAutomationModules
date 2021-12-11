@@ -149,7 +149,7 @@
                                   "Add_MCAS_score_in_a_comment": {
                                       "inputs": {
                                           "body": {
-                                              "incidentArmId": "@body('Parse_Trigger')?['IncidentARMId']",
+                                              "incidentArmId": "@body('Parse_JSON')?['IncidentARMId']",
                                               "message": "<p>MCAS Users' investigation priority scores per user: @{body('Create_HTML_table_for_comment')}</p>"
                                           },
                                           "host": {
@@ -256,14 +256,14 @@
                                   "and": [
                                       {
                                           "equals": [
-                                              "@body('Parse_Trigger')?['AccountsCount']",
+                                              "@body('Parse_JSON')?['AccountsCount']",
                                               0
                                           ]
                                       }
                                   ]
                               },
                               "runAfter": {
-                                  "Parse_Trigger": [
+                                  "Parse_JSON": [
                                       "Succeeded"
                                   ]
                               },
@@ -271,7 +271,7 @@
                           },
                           "Filter_array_-_Get_only_accounts_with_id": {
                               "inputs": {
-                                  "from": "@body('Parse_Trigger')?['Accounts']",
+                                  "from": "@body('Parse_JSON')?['Accounts']",
                                   "where": "@greater(length(coalesce(item()?['id'], '')), 0)"
                               },
                               "runAfter": {
@@ -445,7 +445,7 @@
                               },
                               "type": "InitializeVariable"
                           },
-                          "Parse_Trigger": {
+                          "Parse_JSON": {
                               "inputs": {
                                   "content": "@triggerBody()?['Entities']",
                                   "schema": {
