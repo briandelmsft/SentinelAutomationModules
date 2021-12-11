@@ -41,83 +41,29 @@
                 "state": "Enabled",
                 "definition": {
                     "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
-                    "contentVersion": "1.0.0.0",
-                    "parameters": {
-                        "$connections": {
-                            "defaultValue": {},
-                            "type": "Object"
-                        }
-                    },
-                    "triggers": {
-                        "triage": {
-                            "type": "Request",
-                            "kind": "Http",
-                            "inputs": {
-                                "schema": {
-                                    "properties": {
-                                        "AddIncidentComments": {
-                                            "title": "Add comments to the incident",
-                                            "type": "boolean"
-                                        },
-                                        "Entities": {
-                                            "description": "Click here and select the EnrichedEntities object from the Dynamic content menu",
-                                            "type": "array"
-                                        },
-                                        "LookbackInDays": {
-                                            "description": "Enter a value between 1 and 90",
-                                            "maximum": 90,
-                                            "minimum": 1,
-                                            "title": "Lookback period in days",
-                                            "type": "integer"
-                                        },
-                                        "MFAFailureLookup": {
-                                            "title": "Look for failed MFA attempts",
-                                            "type": "boolean"
-                                        },
-                                        "MFAFraudLookup": {
-                                            "title": "Look for MFA Fraud reports",
-                                            "type": "boolean"
-                                        },
-                                        "TIIPLookup": {
-                                            "title": "Look for Azure AD Sign-in from IPs in TI",
-                                            "type": "boolean"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
                     "actions": {
                         "Compose_response": {
+                            "inputs": {
+                                "AnalyzedEntities": "@length(variables('DetailedResults'))",
+                                "DetailedResults": "@variables('DetailedResults')",
+                                "FailedMFATotalCount": "@variables('FailedMFATotalCount')",
+                                "HighestRiskLevel": "@{if(contains(body('Create_CSV_table_to_calculate_HighestRiskLevel'), 'high'), 'high', if(contains(body('Create_CSV_table_to_calculate_HighestRiskLevel'), 'medium'), 'medium', if(contains(body('Create_CSV_table_to_calculate_HighestRiskLevel'), 'low'), 'low', if(contains(body('Create_CSV_table_to_calculate_HighestRiskLevel'), 'none'),'none','unknown'))))}",
+                                "MFAFraudTotalCount": "@variables('MFAFraudTotalCount')"
+                            },
                             "runAfter": {
                                 "Create_CSV_table_to_calculate_HighestRiskLevel": [
                                     "Succeeded"
                                 ]
                             },
-                            "type": "Compose",
-                            "inputs": {
-                                "AnalyzedEntities": "@length(variables('DetailedResults'))",
-                                "DetailedResults": "@variables('DetailedResults')",
-                                "FailedMFATotalCount": "@variables('FailedMFATotalCount')",
-                                "HighestRiskLevel": "@{if(contains(body('Create_CSV_table_to_calculate_HighestRiskLevel'), 'High'), 'High', if(contains(body('Create_CSV_table_to_calculate_HighestRiskLevel'), 'Medium'), 'Medium', if(contains(body('Create_CSV_table_to_calculate_HighestRiskLevel'), 'Low'), 'Low', if(contains(body('Create_CSV_table_to_calculate_HighestRiskLevel'), 'None'),'None','Unknown'))))}",
-                                "MFAFraudTotalCount": "@variables('MFAFraudTotalCount')",
-                                "RiskyIPTotalCount": "@variables('RiskyIPTotalCount')"
-                            }
+                            "type": "Compose"
                         },
                         "Condition_-_Add_comment": {
                             "actions": {
                                 "Add_comment_to_incident": {
-                                    "runAfter": {
-                                        "Create_HTML_table_for_comments": [
-                                            "Succeeded"
-                                        ]
-                                    },
-                                    "type": "ApiConnection",
                                     "inputs": {
                                         "body": {
                                             "incidentArmId": "@{triggerBody()?['Entities']['IncidentARMId']}",
-                                            "message": "<p>Number of analyzed entities: @{length(variables('DetailedResults'))}<br>\nHighest risk level found: @{if(contains(body('Create_CSV_table_to_calculate_HighestRiskLevel'), 'High'), 'High', if(contains(body('Create_CSV_table_to_calculate_HighestRiskLevel'), 'Medium'), 'Medium', if(contains(body('Create_CSV_table_to_calculate_HighestRiskLevel'), 'Low'), 'Low', if(contains(body('Create_CSV_table_to_calculate_HighestRiskLevel'), 'None'),'None','Unknown'))))}<br>\nTotal failed MFA attempts: @{variables('FailedMFATotalCount')} (lookup enabled:@{triggerBody()?['MFAFailureLookup']})<br>\nTotal MFA fraud reports: @{variables('MFAFraudTotalCount')} (lookup enabled:@{triggerBody()?['MFAFraudLookup']})<br>\nTotal signins from IP matching TI: @{variables('RiskyIPTotalCount')} (lookup enabled:@{triggerBody()?['TIIPLookup']})<br>\n<br>\nDetailed results :&nbsp;@{if(equals(length(outputs('Compose_response')['DetailedResults']),0),'No results',body('Create_HTML_table_for_comments'))}<br>\n</p>"
+                                            "message": "<p>Number of analyzed entities: @{length(variables('DetailedResults'))}<br>\nHighest risk level found: @{if(contains(body('Create_CSV_table_to_calculate_HighestRiskLevel'), 'High'), 'High', if(contains(body('Create_CSV_table_to_calculate_HighestRiskLevel'), 'Medium'), 'Medium', if(contains(body('Create_CSV_table_to_calculate_HighestRiskLevel'), 'Low'), 'Low', if(contains(body('Create_CSV_table_to_calculate_HighestRiskLevel'), 'None'),'None','Unknown'))))}<br>\nTotal failed MFA attempts: @{variables('FailedMFATotalCount')} (lookup enabled:@{triggerBody()?['MFAFailureLookup']})<br>\nTotal MFA fraud reports: @{variables('MFAFraudTotalCount')} (lookup enabled:@{triggerBody()?['MFAFraudLookup']})<br>\n<br>\nDetailed results :&nbsp;@{if(equals(length(outputs('Compose_response')['DetailedResults']),0),'No results',body('Create_HTML_table_for_comments'))}<br>\n</p>"
                                         },
                                         "host": {
                                             "connection": {
@@ -126,21 +72,22 @@
                                         },
                                         "method": "post",
                                         "path": "/Incidents/Comment"
-                                    }
+                                    },
+                                    "runAfter": {
+                                        "Create_HTML_table_for_comments": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "ApiConnection"
                                 },
                                 "Create_HTML_table_for_comments": {
-                                    "runAfter": {},
-                                    "type": "Table",
                                     "inputs": {
                                         "format": "HTML",
                                         "from": "@outputs('Compose_response')['DetailedResults']"
-                                    }
+                                    },
+                                    "runAfter": {},
+                                    "type": "Table"
                                 }
-                            },
-                            "runAfter": {
-                                "Compose_response": [
-                                    "Succeeded"
-                                ]
                             },
                             "expression": {
                                 "and": [
@@ -152,22 +99,23 @@
                                     }
                                 ]
                             },
+                            "runAfter": {
+                                "Response": [
+                                    "Succeeded"
+                                ]
+                            },
                             "type": "If"
                         },
                         "Condition_-_Terminate_if_no_supported_entities": {
                             "actions": {
                                 "Response_-_Send_empty_results": {
-                                    "runAfter": {},
-                                    "type": "Response",
-                                    "kind": "Http",
                                     "inputs": {
                                         "body": {
                                             "AnalyzedEntities": 0,
                                             "DetailedResults": [],
                                             "FailedMFATotalCount": 0,
                                             "HighestRiskyLevel": 0,
-                                            "MFAFraudTotalCount": 0,
-                                            "RiskyIPTotalCount": 0
+                                            "MFAFraudTotalCount": 0
                                         },
                                         "schema": {
                                             "properties": {
@@ -216,118 +164,112 @@
                                                 "MFAFraudTotalCount": {
                                                     "description": "Total of MFA fraud reported for all entities",
                                                     "type": "integer"
-                                                },
-                                                "RiskyIPTotalCount": {
-                                                    "description": "Total of signins from IPs found in TI for all entities",
-                                                    "type": "integer"
                                                 }
                                             },
                                             "type": "object"
                                         },
                                         "statusCode": 200
-                                    }
+                                    },
+                                    "kind": "Http",
+                                    "runAfter": {},
+                                    "type": "Response"
                                 },
                                 "Terminate": {
+                                    "inputs": {
+                                        "runStatus": "Succeeded"
+                                    },
                                     "runAfter": {
                                         "Response_-_Send_empty_results": [
                                             "Succeeded"
                                         ]
                                     },
-                                    "type": "Terminate",
-                                    "inputs": {
-                                        "runStatus": "Succeeded"
-                                    }
+                                    "type": "Terminate"
                                 }
                             },
-                            "runAfter": {},
                             "expression": {
                                 "and": [
                                     {
                                         "equals": [
-                                            "@triggerBody()?['Entities']['AccountsCount']",
+                                            "@body('Parse_JSON')?['AccountsCount']",
                                             0
                                         ]
                                     }
                                 ]
                             },
+                            "runAfter": {
+                                "Parse_JSON": [
+                                    "Succeeded"
+                                ]
+                            },
                             "type": "If"
                         },
                         "Create_CSV_table_to_calculate_HighestRiskLevel": {
+                            "inputs": {
+                                "columns": [
+                                    {
+                                        "header": "",
+                                        "value": "@toLower(item()['UserRiskLevel'])"
+                                    }
+                                ],
+                                "format": "CSV",
+                                "from": "@variables('DetailedResults')"
+                            },
                             "runAfter": {
                                 "For_each_account": [
                                     "Succeeded"
                                 ]
                             },
-                            "type": "Table",
-                            "inputs": {
-                                "columns": [
-                                    {
-                                        "header": "",
-                                        "value": "@item()['UserRiskLevel']"
-                                    }
-                                ],
-                                "format": "CSV",
-                                "from": "@variables('DetailedResults')"
-                            }
+                            "type": "Table"
                         },
                         "Filter_array_-_Get_only_accounts_with_an_id": {
+                            "inputs": {
+                                "from": "@body('Parse_JSON')?['Accounts']",
+                                "where": "@greater(length(coalesce(item()?['id'], '')), 0)"
+                            },
                             "runAfter": {
                                 "Condition_-_Terminate_if_no_supported_entities": [
                                     "Succeeded"
                                 ]
                             },
-                            "type": "Query",
-                            "inputs": {
-                                "from": "@triggerBody()?['Entities']['Accounts']",
-                                "where": "@not(equals(item()?['id'], null))"
-                            }
+                            "type": "Query"
                         },
                         "For_each_account": {
-                            "foreach": "@body('Filter_array_-_Get_only_accounts_with_an_id')",
                             "actions": {
                                 "Append_to_array_variable_DetailedResults": {
+                                    "inputs": {
+                                        "name": "DetailedResults",
+                                        "value": "@outputs('Compose_DetailedResults')"
+                                    },
                                     "runAfter": {
                                         "Compose_DetailedResults": [
                                             "Succeeded"
                                         ]
                                     },
-                                    "type": "AppendToArrayVariable",
-                                    "inputs": {
-                                        "name": "DetailedResults",
-                                        "value": "@outputs('Compose_DetailedResults')"
-                                    }
+                                    "type": "AppendToArrayVariable"
                                 },
                                 "Compose_DetailedResults": {
-                                    "runAfter": {
-                                        "Increment_variable_FailedMFATotalCount": [
-                                            "Succeeded"
-                                        ]
-                                    },
-                                    "type": "Compose",
                                     "inputs": {
                                         "UserFailedMFACount": "@coalesce(body('Select_failed_MFA')?[0]?['Count'],0)",
                                         "UserId": "@{items('For_each_account')['id']}",
                                         "UserMFAFraudsCount": "@coalesce(body('Select_MFA_frauds')?[0]?['Count'],0)",
                                         "UserPrincipalName": "@{coalesce(item()?['UserPrincipalName'],'Unknown')}",
-                                        "UserRiskLevel": "@{coalesce(body('HTTP_-_Lookup_user_riskLevel')?['riskLevel'],'Unknown')}",
-                                        "UserRiskyIPCount": "@coalesce(body('Select_failed_MFA')?[0]?['Count'],0)",
-                                        "UserRiskyIPList": "@{coalesce(body('Select_failed_MFA')?[0]?['IPs'],'')}"
-                                    }
+                                        "UserRiskLevel": "@{coalesce(body('HTTP_-_Lookup_user_riskLevel')?['riskLevel'],'Unknown')}"
+                                    },
+                                    "runAfter": {
+                                        "Increment_variable_FailedMFATotalCount": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Compose"
                                 },
                                 "Condition_-_Failed_MFA_lookup": {
                                     "actions": {
                                         "Compose_KQL_for_Failed_MFA": {
+                                            "inputs": "SigninLogs\n| where ResultType == \"500121\"\n| where UserId== \"@{items('For_each_account')['id']}\"\n| summarize Count=count() by UserPrincipalName",
                                             "runAfter": {},
-                                            "type": "Compose",
-                                            "inputs": "SigninLogs\n| where ResultType == \"500121\"\n| where UserId== \"@{items('For_each_account')['id']}\"\n| summarize Count=count() by UserPrincipalName"
+                                            "type": "Compose"
                                         },
                                         "HTTP_-_Lookup_for_Failed_MFA": {
-                                            "runAfter": {
-                                                "Compose_KQL_for_Failed_MFA": [
-                                                    "Succeeded"
-                                                ]
-                                            },
-                                            "type": "Http",
                                             "inputs": {
                                                 "authentication": {
                                                     "audience": "https://api.loganalytics.io/",
@@ -338,26 +280,31 @@
                                                     "timespan": "P@{triggerBody()?['LookbackInDays']}D"
                                                 },
                                                 "method": "POST",
-                                                "uri": "https://api.loganalytics.io/v1/workspaces/@{triggerBody()?['Entities']['WorkspaceId']}/query"
-                                            }
-                                        },
-                                        "Select_failed_MFA": {
+                                                "uri": "https://api.loganalytics.io/v1/workspaces/@{body('Parse_JSON')?['WorkspaceId']}/query"
+                                            },
                                             "runAfter": {
-                                                "HTTP_-_Lookup_for_Failed_MFA": [
+                                                "Compose_KQL_for_Failed_MFA": [
                                                     "Succeeded"
                                                 ]
                                             },
-                                            "type": "Select",
+                                            "type": "Http"
+                                        },
+                                        "Select_failed_MFA": {
                                             "inputs": {
                                                 "from": "@body('HTTP_-_Lookup_for_Failed_MFA')['tables'][0]['rows']",
                                                 "select": {
                                                     "@{body('HTTP_-_Lookup_for_Failed_MFA')['tables'][0]['columns'][0]['name']}": "@item()[0]",
                                                     "@{body('HTTP_-_Lookup_for_Failed_MFA')['tables'][0]['columns'][1]['name']}": "@item()[1]"
                                                 }
-                                            }
+                                            },
+                                            "runAfter": {
+                                                "HTTP_-_Lookup_for_Failed_MFA": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "Select"
                                         }
                                     },
-                                    "runAfter": {},
                                     "expression": {
                                         "and": [
                                             {
@@ -368,22 +315,17 @@
                                             }
                                         ]
                                     },
+                                    "runAfter": {},
                                     "type": "If"
                                 },
                                 "Condition_-_MFA_fraud_lookup": {
                                     "actions": {
                                         "Compose_KQL_for_MFA_frauds": {
+                                            "inputs": "AuditLogs \n| where OperationName == \"Fraud reported - user is blocked for MFA\"\n| where ResultDescription == \"Successfully reported fraud\"\n| extend Id= tostring(parse_json(tostring(InitiatedBy.user)).id)\n| where Id == \"@{item()['id']}\"\n| summarize Count=count() by Id",
                                             "runAfter": {},
-                                            "type": "Compose",
-                                            "inputs": "AuditLogs \n| where OperationName == \"Fraud reported - user is blocked for MFA\"\n| where ResultDescription == \"Successfully reported fraud\"\n| extend Id= tostring(parse_json(tostring(InitiatedBy.user)).id)\n| where Id == \"@{item()['id']}\"\n| summarize Count=count() by Id"
+                                            "type": "Compose"
                                         },
                                         "HTTP_-_Lookup_for_MFA_frauds": {
-                                            "runAfter": {
-                                                "Compose_KQL_for_MFA_frauds": [
-                                                    "Succeeded"
-                                                ]
-                                            },
-                                            "type": "Http",
                                             "inputs": {
                                                 "authentication": {
                                                     "audience": "https://api.loganalytics.io",
@@ -394,26 +336,31 @@
                                                     "timespan": "P@{triggerBody()?['LookbackInDays']}D"
                                                 },
                                                 "method": "POST",
-                                                "uri": "https://api.loganalytics.io/v1/workspaces/@{triggerBody()?['Entities']['WorkspaceId']}/query"
-                                            }
-                                        },
-                                        "Select_MFA_frauds": {
+                                                "uri": "https://api.loganalytics.io/v1/workspaces/@{body('Parse_JSON')?['WorkspaceId']}/query"
+                                            },
                                             "runAfter": {
-                                                "HTTP_-_Lookup_for_MFA_frauds": [
+                                                "Compose_KQL_for_MFA_frauds": [
                                                     "Succeeded"
                                                 ]
                                             },
-                                            "type": "Select",
+                                            "type": "Http"
+                                        },
+                                        "Select_MFA_frauds": {
                                             "inputs": {
                                                 "from": "@body('HTTP_-_Lookup_for_MFA_frauds')['tables'][0]['rows']",
                                                 "select": {
                                                     "@{body('HTTP_-_Lookup_for_MFA_frauds')['tables'][0]['columns'][0]['name']}": "@item()[0]",
                                                     "@{body('HTTP_-_Lookup_for_MFA_frauds')['tables'][0]['columns'][1]['name']}": "@item()[1]"
                                                 }
-                                            }
+                                            },
+                                            "runAfter": {
+                                                "HTTP_-_Lookup_for_MFA_frauds": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "Select"
                                         }
                                     },
-                                    "runAfter": {},
                                     "expression": {
                                         "and": [
                                             {
@@ -424,68 +371,10 @@
                                             }
                                         ]
                                     },
-                                    "type": "If"
-                                },
-                                "Condition_-_TI_lookup": {
-                                    "actions": {
-                                        "Compose_KQL_filter_for_TI": {
-                                            "runAfter": {},
-                                            "type": "Compose",
-                                            "inputs": "SigninLogs\n| where UserId =~ \"@{item()['id']}\"\n| distinct UserPrincipalName, IPAddress\n| join kind=leftouter (\nThreatIntelligenceIndicator\n| where TimeGenerated > ago( 14d )\n| where Active == true\n| summarize arg_max(TimeGenerated, *) by IndicatorId\n| extend IPAddress = coalesce(NetworkIP, NetworkSourceIP, NetworkDestinationIP)\n) on IPAddress\n| summarize Count = count(), IPList = make_set(IPAddress) by UserPrincipalName\n| extend IPs = strcat_array(IPList, \", \")\n| project UserPrincipalName, Count, IPs"
-                                        },
-                                        "HTTP_-_Lookup_TI": {
-                                            "runAfter": {
-                                                "Compose_KQL_filter_for_TI": [
-                                                    "Succeeded"
-                                                ]
-                                            },
-                                            "type": "Http",
-                                            "inputs": {
-                                                "authentication": {
-                                                    "audience": "https://api.loganalytics.io/",
-                                                    "type": "ManagedServiceIdentity"
-                                                },
-                                                "body": {
-                                                    "query": "@{outputs('Compose_KQL_filter_for_TI')}",
-                                                    "timespan": "P@{triggerBody()?['LookbackInDays']}D"
-                                                },
-                                                "method": "POST",
-                                                "uri": "https://api.loganalytics.io/v1/workspaces/@{triggerBody()['Entities']['WorkspaceId']}/query"
-                                            }
-                                        },
-                                        "Select_TI": {
-                                            "runAfter": {
-                                                "HTTP_-_Lookup_TI": [
-                                                    "Succeeded"
-                                                ]
-                                            },
-                                            "type": "Select",
-                                            "inputs": {
-                                                "from": "@body('HTTP_-_Lookup_TI')['tables'][0]['rows']",
-                                                "select": {
-                                                    "@{body('HTTP_-_Lookup_TI')['tables'][0]['columns'][0]['name']}": "@item()[0]",
-                                                    "@{body('HTTP_-_Lookup_TI')['tables'][0]['columns'][1]['name']}": "@item()[1]",
-                                                    "@{body('HTTP_-_Lookup_TI')['tables'][0]['columns'][2]['name']}": "@item()[2]"
-                                                }
-                                            }
-                                        }
-                                    },
                                     "runAfter": {},
-                                    "expression": {
-                                        "and": [
-                                            {
-                                                "equals": [
-                                                    "@triggerBody()?['TIIPLookup']",
-                                                    "@true"
-                                                ]
-                                            }
-                                        ]
-                                    },
                                     "type": "If"
                                 },
                                 "HTTP_-_Lookup_user_riskLevel": {
-                                    "runAfter": {},
-                                    "type": "Http",
                                     "inputs": {
                                         "authentication": {
                                             "audience": "https://graph.microsoft.com/",
@@ -493,33 +382,27 @@
                                         },
                                         "method": "GET",
                                         "uri": "https://graph.microsoft.com/v1.0/identityProtection/riskyUsers/@{item()['id']}"
-                                    }
+                                    },
+                                    "runAfter": {},
+                                    "type": "Http"
                                 },
                                 "Increment_variable_FailedMFATotalCount": {
+                                    "inputs": {
+                                        "name": "FailedMFATotalCount",
+                                        "value": "@coalesce(body('Select_failed_MFA')?[0]?['Count'],0)"
+                                    },
                                     "runAfter": {
                                         "Increment_variable_MFAFraudTotalCount": [
                                             "Succeeded"
                                         ]
                                     },
-                                    "type": "IncrementVariable",
-                                    "inputs": {
-                                        "name": "FailedMFATotalCount",
-                                        "value": "@coalesce(body('Select_failed_MFA')?[0]?['Count'],0)"
-                                    }
+                                    "type": "IncrementVariable"
                                 },
                                 "Increment_variable_MFAFraudTotalCount": {
-                                    "runAfter": {
-                                        "Increment_variable_RiskyIPTotalCount": [
-                                            "Succeeded"
-                                        ]
-                                    },
-                                    "type": "IncrementVariable",
                                     "inputs": {
                                         "name": "MFAFraudTotalCount",
                                         "value": "@coalesce(body('Select_MFA_frauds')?[0]?['Count'],0)"
-                                    }
-                                },
-                                "Increment_variable_RiskyIPTotalCount": {
+                                    },
                                     "runAfter": {
                                         "Condition_-_Failed_MFA_lookup": [
                                             "Succeeded"
@@ -527,35 +410,23 @@
                                         "Condition_-_MFA_fraud_lookup": [
                                             "Succeeded"
                                         ],
-                                        "Condition_-_TI_lookup": [
-                                            "Succeeded"
-                                        ],
                                         "HTTP_-_Lookup_user_riskLevel": [
                                             "Succeeded",
                                             "Failed"
                                         ]
                                     },
-                                    "type": "IncrementVariable",
-                                    "inputs": {
-                                        "name": "RiskyIPTotalCount",
-                                        "value": "@coalesce(body('Select_failed_MFA')?[0]?['Count'],0)"
-                                    }
+                                    "type": "IncrementVariable"
                                 }
                             },
+                            "foreach": "@body('Filter_array_-_Get_only_accounts_with_an_id')",
                             "runAfter": {
-                                "Initialize_variable_RiskyIPTotalCount": [
+                                "Initialize_variable_MFAFraudTotalCount": [
                                     "Succeeded"
                                 ]
                             },
                             "type": "Foreach"
                         },
                         "Initialize_variable_DetailedResults": {
-                            "runAfter": {
-                                "Filter_array_-_Get_only_accounts_with_an_id": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "InitializeVariable",
                             "inputs": {
                                 "variables": [
                                     {
@@ -564,15 +435,15 @@
                                         "value": []
                                     }
                                 ]
-                            }
-                        },
-                        "Initialize_variable_FailedMFATotalCount": {
+                            },
                             "runAfter": {
-                                "Initialize_variable_DetailedResults": [
+                                "Filter_array_-_Get_only_accounts_with_an_id": [
                                     "Succeeded"
                                 ]
                             },
-                            "type": "InitializeVariable",
+                            "type": "InitializeVariable"
+                        },
+                        "Initialize_variable_FailedMFATotalCount": {
                             "inputs": {
                                 "variables": [
                                     {
@@ -581,15 +452,15 @@
                                         "value": 0
                                     }
                                 ]
-                            }
-                        },
-                        "Initialize_variable_MFAFraudTotalCount": {
+                            },
                             "runAfter": {
-                                "Initialize_variable_FailedMFATotalCount": [
+                                "Initialize_variable_DetailedResults": [
                                     "Succeeded"
                                 ]
                             },
-                            "type": "InitializeVariable",
+                            "type": "InitializeVariable"
+                        },
+                        "Initialize_variable_MFAFraudTotalCount": {
                             "inputs": {
                                 "variables": [
                                     {
@@ -598,33 +469,390 @@
                                         "value": 0
                                     }
                                 ]
-                            }
-                        },
-                        "Initialize_variable_RiskyIPTotalCount": {
+                            },
                             "runAfter": {
-                                "Initialize_variable_MFAFraudTotalCount": [
+                                "Initialize_variable_FailedMFATotalCount": [
                                     "Succeeded"
                                 ]
                             },
-                            "type": "InitializeVariable",
+                            "type": "InitializeVariable"
+                        },
+                        "Parse_JSON": {
                             "inputs": {
-                                "variables": [
-                                    {
-                                        "name": "RiskyIPTotalCount",
-                                        "type": "integer",
-                                        "value": 0
-                                    }
-                                ]
-                            }
+                                "content": "@triggerBody()?['Entities']",
+                                "schema": {
+                                    "properties": {
+                                        "Accounts": {
+                                            "description": "Array of User Accounts",
+                                            "items": {
+                                                "properties": {
+                                                    "AssignedRoles": {
+                                                        "description": "Array of assigned roles in Accounts array",
+                                                        "items": {
+                                                            "properties": {
+                                                                "Role": {
+                                                                    "description": "Array property in AssignedRoles array"
+                                                                }
+                                                            },
+                                                            "required": [],
+                                                            "type": "object"
+                                                        },
+                                                        "type": "array"
+                                                    },
+                                                    "RawEntity": {
+                                                        "description": "Object containing Raw unenriched entity data in Accounts array",
+                                                        "properties": {
+                                                            "accountName": {
+                                                                "description": "accountName from RawEntity object in Accounts array"
+                                                            },
+                                                            "displayName": {
+                                                                "description": "dislayName from RawEntity object in Accounts array"
+                                                            },
+                                                            "friendlyName": {
+                                                                "description": "friendlyName from RawEntity object in Accounts array"
+                                                            },
+                                                            "isDomainJoined": {
+                                                                "description": "isDomainJoined from RawEntity object in Accounts array"
+                                                            },
+                                                            "sid": {
+                                                                "description": "sid from RawEntity object in Accounts array"
+                                                            },
+                                                            "upnSuffix": {
+                                                                "description": "upnSuffix from RawEntity object in Accounts array"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "accountEnabled": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "city": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "country": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "department": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "id": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "jobTitle": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "mail": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "manager": {
+                                                        "description": "Array property in Accounts array",
+                                                        "properties": {
+                                                            "@@odata.type": {
+                                                                "description": "Array property in Accounts array manager object"
+                                                            },
+                                                            "id": {
+                                                                "description": "Array property in Accounts array manager object"
+                                                            },
+                                                            "mail": {
+                                                                "description": "Array property in Accounts array manager object"
+                                                            },
+                                                            "userPrincipalName": {
+                                                                "description": "Array property in Accounts array manager object"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "officeLocation": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "onPremisesDistinguishedName": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "onPremisesDomainName": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "onPremisesSamAccountName": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "onPremisesSecurityIdentifier": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "onPremisesSyncEnabled": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "state": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "userPrincipalName": {
+                                                        "description": "Array property in Accounts array"
+                                                    }
+                                                },
+                                                "required": [],
+                                                "type": "object"
+                                            },
+                                            "type": "array"
+                                        },
+                                        "AccountsCount": {
+                                            "description": "Count of accounts processed by module",
+                                            "type": "integer"
+                                        },
+                                        "Domains": {
+                                            "description": "Array of Domains",
+                                            "items": {
+                                                "properties": {
+                                                    "RawEntity": {
+                                                        "description": "Object containing Raw unenriched entity data in Domains array",
+                                                        "properties": {
+                                                            "domainName": {
+                                                                "description": "domainName from RawEntity object in Domains array"
+                                                            },
+                                                            "friendlyName": {
+                                                                "description": "friendlyName from RawEntity object in Domains array"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "required": [],
+                                                "type": "object"
+                                            },
+                                            "type": "array"
+                                        },
+                                        "DomainsCount": {
+                                            "description": "Count of Domains processed by module",
+                                            "type": "integer"
+                                        },
+                                        "EntitiesCount": {
+                                            "description": "Count of all entities processed by enrichment module",
+                                            "type": "integer"
+                                        },
+                                        "FileHashes": {
+                                            "description": "Array of FileHashes",
+                                            "items": {
+                                                "properties": {
+                                                    "RawEntity": {
+                                                        "description": "Object containing Raw unenriched entity data in FileHashes array",
+                                                        "properties": {
+                                                            "algorithm": {
+                                                                "description": "algorithm from RawEntity object in FileHashes array"
+                                                            },
+                                                            "friendlyName": {
+                                                                "description": "friendlyName from RawEntity object in FileHashes array"
+                                                            },
+                                                            "hashValue": {
+                                                                "description": "hashValue from RawEntity object in FileHashes array"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "required": [],
+                                                "type": "object"
+                                            },
+                                            "type": "array"
+                                        },
+                                        "FileHashesCount": {
+                                            "description": "Count of File Hashes processed by module",
+                                            "type": "integer"
+                                        },
+                                        "Files": {
+                                            "description": "Array of Files",
+                                            "items": {
+                                                "properties": {
+                                                    "RawEntity": {
+                                                        "description": "Object containing Raw unenriched entity data in Files array",
+                                                        "properties": {
+                                                            "directory": {
+                                                                "description": "directory from RawEntity object in Files array"
+                                                            },
+                                                            "fileName": {
+                                                                "description": "fileName from RawEntity object in Files array"
+                                                            },
+                                                            "friendlyName": {
+                                                                "description": "friendlyName from RawEntity object in Files array"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "required": [],
+                                                "type": "object"
+                                            },
+                                            "type": "array"
+                                        },
+                                        "FilesCount": {
+                                            "description": "Count of Files processed by module",
+                                            "type": "integer"
+                                        },
+                                        "Hosts": {
+                                            "description": "Array of Hosts",
+                                            "items": {
+                                                "properties": {
+                                                    "DnsDomain": {
+                                                        "description": "Array property in Hosts array"
+                                                    },
+                                                    "FQDN": {
+                                                        "description": "Array property in Hosts array"
+                                                    },
+                                                    "Hostname": {
+                                                        "description": "Array property in Hosts array"
+                                                    },
+                                                    "RawEntity": {
+                                                        "description": "Object containing Raw unenriched entity data in Hosts array",
+                                                        "properties": {
+                                                            "dnsDomain": {
+                                                                "description": "dnsDomain from RawEntity object in Hosts array"
+                                                            },
+                                                            "friendlyName": {
+                                                                "description": "friendlyName from RawEntity object in Hosts array"
+                                                            },
+                                                            "hostName": {
+                                                                "description": "hostName from RawEntity object in Hosts array"
+                                                            },
+                                                            "netBiosName": {
+                                                                "description": "netBiosName from RawEntity object in Hosts array"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "required": [],
+                                                "type": "object"
+                                            },
+                                            "type": "array"
+                                        },
+                                        "HostsCount": {
+                                            "description": "Count of Hosts processed by module",
+                                            "type": "integer"
+                                        },
+                                        "IPs": {
+                                            "description": "Array of IP Addresses",
+                                            "items": {
+                                                "properties": {
+                                                    "Address": {
+                                                        "description": "Array property in IPs array"
+                                                    },
+                                                    "GeoData": {
+                                                        "description": "Array object in IPs array",
+                                                        "properties": {
+                                                            "asn": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "carrier": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "city": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "cityCf": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "continent": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "country": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "countryCf": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "ipAddr": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "ipRoutingType": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "latitude": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "longitude": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "organization": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "organizationType": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "region": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "state": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "stateCf": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "stateCode": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "RawEntity": {
+                                                        "description": "Object containing Raw unenriched entity data in IPs array",
+                                                        "properties": {
+                                                            "address": {
+                                                                "description": "address from RawEntity object in IPs array"
+                                                            },
+                                                            "friendlyName": {
+                                                                "description": "friendlyName from RawEntity object in IPs array"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "required": [],
+                                                "type": "object"
+                                            },
+                                            "type": "array"
+                                        },
+                                        "IPsCount": {
+                                            "description": "Count of IPs processed by module",
+                                            "type": "integer"
+                                        },
+                                        "IncidentARMId": {
+                                            "description": "The ARM Id of the Azure Sentinel Incident",
+                                            "type": "string"
+                                        },
+                                        "URLs": {
+                                            "description": "Array of URLs",
+                                            "items": {
+                                                "properties": {
+                                                    "RawEntity": {
+                                                        "description": "Object containing Raw unenriched entity data in URLs array",
+                                                        "properties": {
+                                                            "friendlyName": {
+                                                                "description": "friendlyName from RawEntity object in URLs array"
+                                                            },
+                                                            "url": {
+                                                                "description": "url from RawEntity object in URLs array"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "required": [],
+                                                "type": "object"
+                                            },
+                                            "type": "array"
+                                        },
+                                        "URLsCount": {
+                                            "description": "Count of URLs processed by module",
+                                            "type": "integer"
+                                        },
+                                        "WorkspaceId": {
+                                            "description": "The Log Analytics Workspace Id of the Azure Sentinel Incident",
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            },
+                            "runAfter": {},
+                            "type": "ParseJson"
                         },
                         "Response": {
-                            "runAfter": {
-                                "Condition_-_Add_comment": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "Response",
-                            "kind": "Http",
                             "inputs": {
                                 "body": "@outputs('Compose_response')",
                                 "schema": {
@@ -674,19 +902,65 @@
                                         "MFAFraudTotalCount": {
                                             "description": "Total of MFA fraud reported for all entities",
                                             "type": "integer"
-                                        },
-                                        "RiskyIPTotalCount": {
-                                            "description": "Total of signins from IPs found in TI for all entities",
-                                            "type": "integer"
                                         }
                                     },
                                     "type": "object"
                                 },
                                 "statusCode": 200
-                            }
+                            },
+                            "kind": "Http",
+                            "runAfter": {
+                                "Compose_response": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Response"
                         }
                     },
-                    "outputs": {}
+                    "contentVersion": "1.0.0.0",
+                    "outputs": {},
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {},
+                            "type": "Object"
+                        }
+                    },
+                    "triggers": {
+                        "triage": {
+                            "inputs": {
+                                "schema": {
+                                    "properties": {
+                                        "AddIncidentComments": {
+                                            "title": "Add comments to the incident",
+                                            "type": "boolean"
+                                        },
+                                        "Entities": {
+                                            "description": "Click here and select the EnrichedEntities object from the Dynamic content menu",
+                                            "type": "array"
+                                        },
+                                        "LookbackInDays": {
+                                            "description": "Enter a value between 1 and 90",
+                                            "maximum": 90,
+                                            "minimum": 1,
+                                            "title": "Lookback period in days",
+                                            "type": "integer"
+                                        },
+                                        "MFAFailureLookup": {
+                                            "title": "Look for failed MFA attempts",
+                                            "type": "boolean"
+                                        },
+                                        "MFAFraudLookup": {
+                                            "title": "Look for MFA Fraud reports",
+                                            "type": "boolean"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            },
+                            "kind": "Http",
+                            "type": "Request"
+                        }
+                    }
                 },
                 "parameters": {
                     "$connections": {
