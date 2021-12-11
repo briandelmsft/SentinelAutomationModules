@@ -1642,15 +1642,6 @@
                                                         true,
                                                         false
                                                     ]
-                                                },
-                                                "TIIPLookup": {
-                                                    "type": "boolean",
-                                                    "description": "Look for IPs in TI",
-                                                    "title": "Look for Signin IPs in TI",
-                                                    "enum": [
-                                                        true,
-                                                        false
-                                                    ]
                                                 }
                                             },
                                             "default": {
@@ -1662,8 +1653,7 @@
                                                 "BaseModuleBody",
                                                 "LookbackInDays",
                                                 "MFAFailureLookup",
-                                                "MFAFraudLookup",
-                                                "TIIPLookup"
+                                                "MFAFraudLookup"
                                             ]
                                         },
                                         "required": true
@@ -1694,11 +1684,6 @@
                                                     "format": "int32",
                                                     "description": "Sum of all matching fraudulant MFA attempts"
                                                 },
-                                                "RiskyIPTotalCount": {
-                                                    "type": "integer",
-                                                    "format": "int32",
-                                                    "description": "Total of all Risky IPs"
-                                                },
                                                 "DetailedResults": {
                                                     "type": "array",
                                                     "items": {
@@ -1713,15 +1698,6 @@
                                                                 "type": "integer",
                                                                 "format": "int32",
                                                                 "description": "UserMFAFraudCount by user in DetailedResults array"
-                                                            },
-                                                            "UserRiskyIPCount": {
-                                                                "type": "integer",
-                                                                "format": "int32",
-                                                                "description": "UserRiskyIPCount by user in DetailedResults array"
-                                                            },
-                                                            "UserRiskyIPList": {
-                                                                "type": "string",
-                                                                "description": "UserRiskyIPList by user in DetailedResults array"
                                                             },
                                                             "UserId": {
                                                                 "type": "string",
@@ -2347,8 +2323,7 @@
                                                     "Entities": "@triggerBody()?['BaseModuleBody']",
                                                     "LookbackInDays": "@triggerBody()?['LookbackInDays']",
                                                     "MFAFailureLookup": "@triggerBody()?['MFAFailureLookup']",
-                                                    "MFAFraudLookup": "@triggerBody()?['MFAFraudLookup']",
-                                                    "TIIPLookup": "@triggerBody()?['TIIPLookup']"
+                                                    "MFAFraudLookup": "@triggerBody()?['MFAFraudLookup']"
                                                 },
                                                 "host": {
                                                     "triggerName": "triage",
