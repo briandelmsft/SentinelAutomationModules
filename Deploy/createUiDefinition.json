@@ -107,7 +107,7 @@
                                 "type": "Microsoft.Common.TextBlock",
                                 "visible": true,
                                 "options": {
-                                    "text": "Please select which automation modules you want to deloy",
+                                    "text": "Please select which automation modules you want to deloy.  You must deploy all modules to be able to deploy the STAT Logics Apps Connector.",
                                     "link": {
                                         "label": "Learn more",
                                         "uri": "https://github.com/briandelmsft/SentinelAutomationModules/tree/main/Modules"
@@ -305,7 +305,7 @@
                                 "defaultValue": "SentinelTriageAssistant",
                                 "toolTip": "",
                                 "constraints": {},
-                                "visible": "[steps('automationModules').advancedSetup.DeployConnector]"
+                                "visible": "[if(steps('automationModules').advancedSetup.DeployConnector, true, false)]"
                             },
                             {
                                 "name": "CustomConnectorDisplayName",
@@ -315,7 +315,7 @@
                                 "defaultValue": "Sentinel Triage AssistanT - STAT",
                                 "toolTip": "",
                                 "constraints": {},
-                                "visible": "[steps('automationModules').advancedSetup.DeployConnector]"
+                                "visible": "[if(steps('automationModules').advancedSetup.DeployConnector, true, false)]"
                             }
                         ],
                         "visible": "[if(equals(steps('deploymentTypeStep').deploymentType, 'advanced'), true, false)]"
