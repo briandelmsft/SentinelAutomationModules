@@ -49,17 +49,17 @@
                         "defaultValue": "Standard (recommended)",
                         "toolTip": "",
                         "constraints": {
-                          "allowedValues": [
-                            {
-                              "label": "Standard (recommended)",
-                              "value": "standard"
-                            },
-                            {
-                              "label": "Advanced",
-                              "value": "advanced"
-                            }
-                          ],
-                          "required": true
+                            "allowedValues": [
+                                {
+                                    "label": "Standard (recommended)",
+                                    "value": "standard"
+                                },
+                                {
+                                    "label": "Advanced",
+                                    "value": "advanced"
+                                }
+                            ],
+                            "required": true
                         },
                         "visible": true
                     }
@@ -94,7 +94,6 @@
                                 "toolTip": "",
                                 "constraints": {}
                             }
-        
                         ],
                         "visible": "[if(equals(steps('deploymentTypeStep').deploymentType, 'standard'), true, false)]"
                     },
@@ -283,10 +282,11 @@
                                 "name": "DeployConnector",
                                 "type": "Microsoft.Common.CheckBox",
                                 "label": "Deploy the STAT Logic Apps Custom Connector",
-                                "defaultValue": true,
+                                "defaultValue": false,
                                 "toolTip": "",
                                 "constraints": {},
-                                "visible": "[and(contains(steps('automationModules').advancedSetup.enableModulesKind,'OOFModule'),contains(steps('automationModules').advancedSetup.enableModulesKind,'RelatedAlerts'),contains(steps('automationModules').advancedSetup.enableModulesKind,'UEBAModule'),steps('automationModules').advancedSetup.enableModulesKind,'MCASModule',steps('automationModules').advancedSetup.enableModulesKind,'WatchlistModule',steps('automationModules').advancedSetup.enableModulesKind,'MDEModule',steps('automationModules').advancedSetup.enableModulesKind,'TIModule',steps('automationModules').advancedSetup.enableModulesKind,'KQLModule',steps('automationModules').advancedSetup.enableModulesKind,'FileModule',steps('automationModules').advancedSetup.enableModulesKind,'AADModule')]"                            },
+                                "visible": "[and(contains(steps('automationModules').advancedSetup.enableModulesKind,'OOFModule'),contains(steps('automationModules').advancedSetup.enableModulesKind,'RelatedAlerts'),contains(steps('automationModules').advancedSetup.enableModulesKind,'UEBAModule'),steps('automationModules').advancedSetup.enableModulesKind,'MCASModule',steps('automationModules').advancedSetup.enableModulesKind,'WatchlistModule',steps('automationModules').advancedSetup.enableModulesKind,'MDEModule',steps('automationModules').advancedSetup.enableModulesKind,'TIModule',steps('automationModules').advancedSetup.enableModulesKind,'KQLModule',steps('automationModules').advancedSetup.enableModulesKind,'FileModule',steps('automationModules').advancedSetup.enableModulesKind,'AADModule')]"
+                            },
                             {
                                 "name": "STATCoordinatorPlaybookName",
                                 "type": "Microsoft.Common.TextBox",
@@ -295,7 +295,7 @@
                                 "defaultValue": "STAT-Coordinator",
                                 "toolTip": "",
                                 "constraints": {},
-                                "visible": "[steps('automationModules').advancedSetup.DeployConnector]"
+                                "visible": "[if(steps('automationModules').advancedSetup.DeployConnector, true, false)]"
                             },
                             {
                                 "name": "CustomConnectorName",
@@ -317,7 +317,6 @@
                                 "constraints": {},
                                 "visible": "[steps('automationModules').advancedSetup.DeployConnector]"
                             }
-        
                         ],
                         "visible": "[if(equals(steps('deploymentTypeStep').deploymentType, 'advanced'), true, false)]"
                     }
