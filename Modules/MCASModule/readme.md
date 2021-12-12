@@ -40,22 +40,6 @@ This module will get the MCAS Investigation Score of the account entities of the
 }
 ```
 
-## Pre Deployment
-
-You will need to get two information from your Microsoft Cloud App Security portal. You need the MCAS API URL. You can get it followinf those steps:
-
-1. Connect to your Microsoft Cloud App Security portal and click on the **Parameters** menu and select **Security extensions**. Then click on **Add Token**. 
-![Step 1](images/Step_1.jpg)
-
-2. Note the Token displayed on the screen as well as the API url, you will need it when you import the Logic.
-![Step 2](images/Step_0.jpg)
-
-3. When deploying the template, type in the API Key and URL in the corresponding fields.
-![Step 3](images/Step_3.jpg)
-
-This will create a Key Vault storing the API Key in the selected resource group. The Logic App will then retrieve the key to query the MCAS API usign the URL you have specified.
-If you do not perform these tasks before the deployement, you can leave the default value of the ARM template and later modify the variables in the Logic App.
-
 ## Advanced Deployment
 
 Deployment of the Sentinel Triage AssistanT should typically be performed from the [deployment template](/Deploy/readme.md), however in some cases you may wish to deploy an individual module below.
@@ -64,7 +48,9 @@ Deployment of the Sentinel Triage AssistanT should typically be performed from t
 
 ## Post Deployment
 
+- Grant the Logic app managed identity access to the Microsoft Cloud App Security application permissions investigation.read (GrantPermissions.ps1)
 - Grant the Logic App managed identity the Microsoft Sentinel Responder RBAC role on the resource group containing Microsoft Sentinel. (GrantPermissions.ps1)
 
 ## Additional Links
 * [Understand the investigation priority score](https://docs.microsoft.com/en-us/cloud-app-security/tutorial-ueba#understand-the-investigation-priority-score)
+* [Using identities instead of API keys to access the API](https://docs.microsoft.com/en-us/defender-cloud-apps/api-authentication-application)

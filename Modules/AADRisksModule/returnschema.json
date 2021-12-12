@@ -25,12 +25,6 @@
                     },
                     "UserRiskLevel": {
                         "type": "string"
-                    },
-                    "UserRiskyIPCount": {
-                        "type": "integer"
-                    },
-                    "UserRiskyIPList": {
-                        "type": "string"
                     }
                 }
             }
@@ -46,10 +40,6 @@
         "MFAFraudTotalCount": {
             "type": "integer",
             "description": "Total of MFA fraud reported for all entities"
-        },
-        "RiskyIPTotalCount": {
-            "type": "integer",
-            "description": "Total of signins from IPs found in TI for all entities"
         }
     }
 }

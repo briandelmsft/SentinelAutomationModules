@@ -592,7 +592,7 @@
                                         "Compose_-_Account": {
                                             "runAfter": {},
                                             "type": "Compose",
-                                            "inputs": "let entityData = '@{body('Parse_JSON')?['Accounts']}';\nlet incidentEntities = datatable(temp:string)['']\n| extend Entities = parse_json(entityData)\n| project-away temp\n| mv-expand todynamic(Entities)\n| extend EntityData = tostring(coalesce(Entities.userPrincipalName, strcat(Entities.RawEntity.accountName, '@', Entities.RawEntity.upnSuffix)));\nincidentEntities\n| join kind=leftouter (_GetWatchlist('@{triggerBody()?['WatchlistName']}')) on $left.EntityData == $right.@{triggerBody()?['WatchlistKey']}\n| extend OnWatchlist = iff(isempty(_DTItemId), false, true)\n| project OnWatchlist, EntityData"
+                                            "inputs": "let entityData = '@{body('Parse_JSON')?['Accounts']}';\nlet incidentEntities = datatable(temp:string)['']\n| extend Entities = parse_json(entityData)\n| project-away temp\n| mv-expand todynamic(Entities)\n| extend EntityData = tostring(coalesce(Entities.userPrincipalName, strcat(Entities.RawEntity.accountName, '@', Entities.RawEntity.upnSuffix)))\n| extend Key = tolower(EntityData);\nincidentEntities\n| join kind=leftouter (_GetWatchlist('@{triggerBody()?['WatchlistName']}') | extend @{triggerBody()?['WatchlistKey']} = tolower(@{triggerBody()?['WatchlistKey']})) on $left.Key == $right.@{triggerBody()?['WatchlistKey']}\n| extend OnWatchlist = iff(isempty(_DTItemId), false, true)\n| project OnWatchlist, EntityData"
                                         }
                                     }
                                 },
