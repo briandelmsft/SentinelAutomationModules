@@ -28,7 +28,7 @@ Trigger name: **triage**
 |Property|Description|
 |---|---|
 |AnalyzedEntities|Returns the number of entities analyzed (returns 0 if no Account entities were found)|
-|HighestRiskyUser|Returns the highest risk level found in Azure AD for all entities(returns unknown if no Account entities were found)|
+|HighestRiskLevel|Returns the highest risk level found in Azure AD for all entities(returns unknown if no Account entities were found)|
 |FailedMFATotalCount|Returns the total failed MFA request in the SigninLogs table for all entities (returns 0 if no Account entities were found)|
 |FailedMFATotalCount|Returns the total MFA fraud reports in the AuditLogs table for all entities (returns 0 if no Account entities were found)|
 |RiskyIPTotalCount|Returns the total of IP addresses in the SigninLogs also found in your Threat Intelligence table for all entities (returns 0 if no Account entities were found)|
@@ -40,7 +40,7 @@ Trigger name: **triage**
 {
   "AnalyzedEntities": 2,
   "FailedMFATotalCount": 31,
-  "HighestRiskyUser": "low",
+  "HighestRiskLevel": "low",
   "MFAFraudTotalCount": 1,
   "RiskyIPTotalCount": 3,
   "DetailedResults": [

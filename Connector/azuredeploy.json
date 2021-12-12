@@ -1675,9 +1675,9 @@
                                                     "format": "int32",
                                                     "description": "Sum of all matching failed MFA attempts"
                                                 },
-                                                "HighestRiskyUser": {
+                                                "HighestRiskLevel": {
                                                     "type": "string",
-                                                    "description": "HighestRiskyUser"
+                                                    "description": "Highest risk level found for all the entities"
                                                 },
                                                 "MFAFraudTotalCount": {
                                                     "type": "integer",
