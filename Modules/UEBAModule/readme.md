@@ -54,7 +54,9 @@ This module will check the incident account entities to see if there are any Use
 }
 ```
 
-## Quick Deployment
+## Advanced Deployment
+
+Deployment of the Sentinel Triage AssistanT should typically be performed from the [deployment template](/Deploy/readme.md), however in some cases you may wish to deploy an individual module below.
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fbriandelmsft%2FSentinelAutomationModules%2Fmain%2FModules%2FUEBAModule%2Fazuredeploy.json)
 

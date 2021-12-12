@@ -41,19 +41,19 @@
             "defaultValue": "Get-MCASInvestigationScore",
             "type": "String"
         },
-        "MCAS API KEY": {
-            "defaultValue": "Type your API Key",
-            "type": "String"
-        },
-        "MCAS API URL": {
-            "defaultValue": "Type your API URL",
-            "type": "String"
-        },
         "SamplePlaybookName": {
             "defaultValue": "Triage-Incident",
             "type": "String"
         },
         "DeploySamplePlaybook": {
+            "defaultValue": false,
+            "type": "bool"
+        },
+        "DeployConnector": {
+            "defaultValue": true,
+            "type": "bool"
+        },
+        "StandardSetup": {
             "defaultValue": false,
             "type": "bool"
         },
@@ -67,6 +67,18 @@
         },
         "BasePlaybookName": {
             "defaultValue": "Base-Module",
+            "type": "String"
+        },
+        "STATCoordinatorPlaybookName": {
+            "defaultValue": "STAT-Coordinator",
+            "type": "String"
+        },
+        "CustomConnectorName": {
+            "defaultValue": "SentinelTriageAssistant",
+            "type": "String"
+        },
+        "CustomConnectorDisplayName": {
+            "defaultValue": "Sentinel Triage AssistanT - STAT",
             "type": "String"
         }
     },
@@ -82,7 +94,8 @@
         "KQLTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/KQLModule/azuredeploy.json",
         "TITemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/TIModule/azuredeploy.json",
         "BaseTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/BaseModule/azuredeploy.json",
-        "SampleTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Samples/azuredeploy.json"
+        "SampleTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Samples/azuredeploy.json",
+        "ConnectorTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/statconnector/Connector/azuredeploy.json"
     },
     "resources": [
         {
@@ -103,7 +116,7 @@
             }
         },
         {
-            "condition": "[contains(parameters('enableModulesKind'), 'KQLModule')]",
+            "condition": "[or(contains(parameters('enableModulesKind'), 'KQLModule'),parameters('StandardSetup'))]",
             "apiVersion": "2019-10-01",
             "name": "KQLTemplate",
             "type": "Microsoft.Resources/deployments",
@@ -121,7 +134,7 @@
             }
         },
         {
-            "condition": "[contains(parameters('enableModulesKind'), 'TIModule')]",
+            "condition": "[or(contains(parameters('enableModulesKind'), 'TIModule'),parameters('StandardSetup'))]",
             "apiVersion": "2019-10-01",
             "name": "TITemplate",
             "type": "Microsoft.Resources/deployments",
@@ -139,7 +152,7 @@
             }
         },
         {
-            "condition": "[contains(parameters('enableModulesKind'), 'FileModule')]",
+            "condition": "[or(contains(parameters('enableModulesKind'), 'FileModule'),parameters('StandardSetup'))]",
             "apiVersion": "2019-10-01",
             "name": "FileTemplate",
             "type": "Microsoft.Resources/deployments",
@@ -157,7 +170,7 @@
             }
         },
         {
-            "condition": "[contains(parameters('enableModulesKind'), 'OOFModule')]",
+            "condition": "[or(contains(parameters('enableModulesKind'), 'OOFModule'),parameters('StandardSetup'))]",
             "apiVersion": "2019-10-01",
             "name": "OOFTemplate",
             "type": "Microsoft.Resources/deployments",
@@ -175,7 +188,7 @@
             }
         },
         {
-            "condition": "[contains(parameters('enableModulesKind'), 'WatchlistModule')]",
+            "condition": "[or(contains(parameters('enableModulesKind'), 'WatchlistModule'),parameters('StandardSetup'))]",
             "apiVersion": "2019-10-01",
             "name": "WatchlistTemplate",
             "type": "Microsoft.Resources/deployments",
@@ -193,7 +206,7 @@
             }
         },
         {
-            "condition": "[contains(parameters('enableModulesKind'), 'AADModule')]",
+            "condition": "[or(contains(parameters('enableModulesKind'), 'AADModule'),parameters('StandardSetup'))]",
             "apiVersion": "2019-10-01",
             "name": "AADTemplate",
             "type": "Microsoft.Resources/deployments",
@@ -211,7 +224,7 @@
             }
         },
         {
-            "condition": "[contains(parameters('enableModulesKind'), 'MCASModule')]",
+            "condition": "[or(contains(parameters('enableModulesKind'), 'MCASModule'),parameters('StandardSetup'))]",
             "apiVersion": "2019-10-01",
             "name": "MCASTemplate",
             "type": "Microsoft.Resources/deployments",
@@ -224,18 +237,12 @@
                 "parameters": {
                     "PlaybookName": {
                         "value": "[parameters('MCASPlaybookName')]"
-                    },
-                    "API KEY": {
-                        "value": "[parameters('MCAS API KEY')]"
-                    },
-                    "MCAS API URL": {
-                        "value": "[parameters('MCAS API URL')]"
                     }
                 }
             }
         },
         {
-            "condition": "[contains(parameters('enableModulesKind'), 'UEBAModule')]",
+            "condition": "[or(contains(parameters('enableModulesKind'), 'UEBAModule'),parameters('StandardSetup'))]",
             "apiVersion": "2019-10-01",
             "name": "UEBATemplate",
             "type": "Microsoft.Resources/deployments",
@@ -253,7 +260,7 @@
             }
         },
         {
-            "condition": "[contains(parameters('enableModulesKind'), 'MDEModule')]",
+            "condition": "[or(contains(parameters('enableModulesKind'), 'MDEModule'),parameters('StandardSetup'))]",
             "apiVersion": "2019-10-01",
             "name": "MDETemplate",
             "type": "Microsoft.Resources/deployments",
@@ -271,7 +278,7 @@
             }
         },
         {
-            "condition": "[contains(parameters('enableModulesKind'), 'RelatedAlerts')]",
+            "condition": "[or(contains(parameters('enableModulesKind'), 'RelatedAlerts'),parameters('StandardSetup'))]",
             "apiVersion": "2019-10-01",
             "name": "RelatedAlertsTemplate",
             "type": "Microsoft.Resources/deployments",
@@ -317,6 +324,76 @@
                     },
                     "UEBAInsightsPlaybook_ResourceId": {
                         "value": "[reference('UEBATemplate').outputs.resourceID.value]"
+                    }
+                }
+            }
+        },
+        {
+            "condition": "[parameters('DeployConnector')]",
+            "apiVersion": "2019-10-01",
+            "name": "DeployConnector",
+            "type": "Microsoft.Resources/deployments",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'OOFTemplate')]",
+                "[resourceId('Microsoft.Resources/deployments', 'RelatedAlertsTemplate')]",
+                "[resourceId('Microsoft.Resources/deployments', 'UEBATemplate')]",
+                "[resourceId('Microsoft.Resources/deployments', 'BaseTemplate')]",
+                "[resourceId('Microsoft.Resources/deployments', 'MCASTemplate')]",
+                "[resourceId('Microsoft.Resources/deployments', 'MDETemplate')]",
+                "[resourceId('Microsoft.Resources/deployments', 'AADTemplate')]",
+                "[resourceId('Microsoft.Resources/deployments', 'WatchlistTemplate')]",
+                "[resourceId('Microsoft.Resources/deployments', 'FileTemplate')]",
+                "[resourceId('Microsoft.Resources/deployments', 'KQLTemplate')]",
+                "[resourceId('Microsoft.Resources/deployments', 'TITemplate')]"
+            ],
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[variables('ConnectorTemplate')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "STATCoordinatorPlaybookName": {
+                        "value": "[parameters('STATCoordinatorPlaybookName')]"
+                    },
+                    "CustomConnectorName": {
+                        "value": "[parameters('CustomConnectorName')]"
+                    },
+                    "CustomConnectorDisplayName": {
+                        "value": "[parameters('CustomConnectorDisplayName')]"
+                    },
+                    "OOFModule_resourceid": {
+                        "value": "[reference('OOFTemplate').outputs.resourceID.value]"
+                    },
+                    "RelatedAlertsModule_resourceid": {
+                        "value": "[reference('RelatedAlertsTemplate').outputs.resourceID.value]"
+                    },
+                    "UEBAModule_resourceid": {
+                        "value": "[reference('UEBATemplate').outputs.resourceID.value]"
+                    },
+                    "BaseModule_resourceid": {
+                        "value": "[reference('BaseTemplate').outputs.resourceID.value]"
+                    },
+                    "AADRisks_resourceid": {
+                        "value": "[reference('AADTemplate').outputs.resourceID.value]"
+                    },
+                    "FileModule_resourceid": {
+                        "value": "[reference('FileTemplate').outputs.resourceID.value]"
+                    },
+                    "KQLModule_resourceid": {
+                        "value": "[reference('KQLTemplate').outputs.resourceID.value]"
+                    },
+                    "MCASModule_resourceid": {
+                        "value": "[reference('MCASTemplate').outputs.resourceID.value]"
+                    },
+                    "MDEModule_resourceid": {
+                        "value": "[reference('MDETemplate').outputs.resourceID.value]"
+                    },
+                    "ThreatIntelModule_resourceid": {
+                        "value": "[reference('TITemplate').outputs.resourceID.value]"
+                    },
+                    "WatchlistModule_resourceid": {
+                        "value": "[reference('WatchlistTemplate').outputs.resourceID.value]"
                     }
                 }
             }

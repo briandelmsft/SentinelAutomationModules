@@ -1,6 +1,6 @@
-## Deploy the full solution
+# Deploy the full solution
 
-This template is used to deploy the Microsoft Sentinel Triage AssistanT (STAT) solution.  The template will give you choices of which modules you would like to deploy, including sample templates, and allow for you to provide names for the modules.
+This template is used to deploy or update the Microsoft Sentinel Triage AssistanT (STAT) solution.  The template will give you choices of which modules you would like to deploy, including sample templates, and allow for you to provide names for the modules.
 
 ## Quick Deployment
 

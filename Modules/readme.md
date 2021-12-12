@@ -1,16 +1,18 @@
 # Automation Modules Home
 
-Automation Modules make it easier to perform routine tasks by using a common set of callable Logic Apps
+Automation Modules make it easier to perform routine tasks by using a common set of callable Logic Apps.  Modules should typically be deployed through the [deployment template](/Deploy/readme.md), but individual deployment templates and other information on each module can be found in these subdirectories.
 
 ## Available Modules
 
 * Base
 * Azure Active Directory Risks
 * File Insights
-* Microsoft Cloud App Security
+* Kusto Query Language (KQL)
+* Microsoft Defender for Cloud Apps (MCAS)
 * Microsoft Defender for Endpoint
 * Office 365 Out of Office
 * Microsoft Sentinel Related Alerts
+* Microsoft Sentinel Threat Intelligence
 * Microsoft Sentinel User Entity Behavior Analytics
 * Microsoft Sentinel Watchlists
 
@@ -26,7 +28,11 @@ Module Description
 
 Module Description
 
-### Microsoft Cloud App Security
+### Kusto Query Language (KQL)
+
+The KQL module allows you to run custom KQL queries against Microsoft Sentinel or Microsoft 365 Security Advanced Hunting using the entity data from the Microsoft Sentinel incident.
+
+### Microsoft Defender for Cloud Apps (MCAS)
 
 Module Description
 
@@ -41,6 +47,10 @@ The Out Of Office module takes user entity data and determines if the user has a
 ### Microsoft Sentinel Related Alerts
 
 The Related Alerts module takes the incident entity data and determines if other alerts about those same entities exist in Microsoft Sentinel within a specified timeframe.
+
+### Microsoft Sentinel Threat Intelligence
+
+The Threat Intelligence module takes the incident entities and allows you to cross refernce them against data in the ThreatIntelligenceIndicator table.
 
 ### Microsoft Sentinel User Entity Behavior Analytics
 

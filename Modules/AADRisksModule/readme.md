@@ -26,7 +26,7 @@ Trigger name: **triage**
 |Property|Description|
 |---|---|
 |AnalyzedEntities|Returns the number of entities analyzed (returns 0 if no Account entities were found)|
-|HighestRiskyUser|Returns the highest risk level found in Azure AD for all entities(returns unknown if no Account entities were found)|
+|HighestRiskLevel|Returns the highest risk level found in Azure AD for all entities(returns unknown if no Account entities were found)|
 |FailedMFATotalCount|Returns the total failed MFA request in the SigninLogs table for all entities (returns 0 if no Account entities were found)|
 |MFAFraudTotalCount|Returns the total MFA fraud reports in the AuditLogs table for all entities (returns 0 if no Account entities were found)|
 |DetailedResults|An array containing the details for each entity|
@@ -37,7 +37,7 @@ Trigger name: **triage**
 {
   "AnalyzedEntities": 2,
   "FailedMFATotalCount": 31,
-  "HighestRiskyUser": "low",
+  "HighestRiskLevel": "low",
   "MFAFraudTotalCount": 1,
   "DetailedResults": [
     {
@@ -58,7 +58,9 @@ Trigger name: **triage**
 }
 ```
 
-## Quick Deployment
+## Advanced Deployment
+
+Deployment of the Sentinel Triage AssistanT should typically be performed from the [deployment template](/Deploy/readme.md), however in some cases you may wish to deploy an individual module below.
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fbriandelmsft%2FSentinelAutomationModules%2Fmain%2FModules%2FAADRisksModule%2Fazuredeploy.json)
 
