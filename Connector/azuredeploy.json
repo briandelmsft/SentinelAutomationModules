@@ -1344,6 +1344,15 @@
                                         "schema": {
                                             "type": "object",
                                             "properties": {
+                                                "AddIncidentComments": {
+                                                    "type": "boolean",
+                                                    "description": "Add Comments to Microsoft Sentinel Incident",
+                                                    "title": "",
+                                                    "enum": [
+                                                        true,
+                                                        false
+                                                    ]
+                                                },
                                                 "BaseModuleBody": {
                                                     "type": "string",
                                                     "description": "Body from STAT Base Module",
@@ -1373,6 +1382,7 @@
                                                 "Entities": ""
                                             },
                                             "required": [
+                                                "AddIncidentComments",
                                                 "BaseModuleBody",
                                                 "KQLQuery",
                                                 "LookbackInDays",
@@ -2456,6 +2466,7 @@
                                             "type": "Workflow",
                                             "inputs": {
                                                 "body": {
+                                                    "AddIncidentComments": "@triggerBody()?['AddIncidentComments']",
                                                     "Entities": "@triggerBody()?['BaseModuleBody']",
                                                     "KQLQuery": "@triggerBody()?['KQLQuery']",
                                                     "LookbackInDays": "@triggerBody()?['LookbackInDays']",

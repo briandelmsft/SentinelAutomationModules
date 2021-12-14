@@ -7,13 +7,33 @@
             "type": "String"
         }
     },
-    "variables": {},
+    "variables": {
+        "AzureSentinelConnectionName": "[concat('azuresentinel-', parameters('PlaybookName'))]"
+    },
     "resources": [
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[variables('AzureSentinelConnectionName')]",
+            "location": "[resourceGroup().location]",
+            "kind": "V1",
+            "properties": {
+                "displayName": "[variables('AzureSentinelConnectionName')]",
+                "customParameterValues": {},
+                "parameterValueType": "Alternative",
+                "api": {
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azuresentinel')]"
+                }
+            }
+        },
         {
             "type": "Microsoft.Logic/workflows",
             "apiVersion": "2017-07-01",
             "name": "[parameters('PlaybookName')]",
             "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/connections', variables('AzureSentinelConnectionName'))]"
+            ],
             "identity": {
                 "type": "SystemAssigned"
             },
@@ -54,6 +74,89 @@
                         }
                     },
                     "actions": {
+                        "Condition_-_Add_Comments": {
+                            "actions": {
+                                "Add_comment_to_incident_(V3)": {
+                                    "runAfter": {
+                                        "Create_HTML_table": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "ApiConnection",
+                                    "inputs": {
+                                        "body": {
+                                            "incidentArmId": "@body('Parse_JSON')?['IncidentARMId']",
+                                            "message": "<p>A toatl of @{variables('ResultCount')} records were found in a @{triggerBody()?['RunQueryAgainst']} search.<br>\nDetails for the first @{min(variables('ResultCount'),10)} records:<br>\n@{body('Create_HTML_table')}</p>"
+                                        },
+                                        "host": {
+                                            "connection": {
+                                                "name": "@parameters('$connections')['azuresentinel']['connectionId']"
+                                            }
+                                        },
+                                        "method": "post",
+                                        "path": "/Incidents/Comment"
+                                    }
+                                },
+                                "Create_HTML_table": {
+                                    "runAfter": {},
+                                    "type": "Table",
+                                    "inputs": {
+                                        "format": "HTML",
+                                        "from": "@variables('Records')"
+                                    }
+                                }
+                            },
+                            "runAfter": {
+                                "Switch": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "expression": {
+                                "and": [
+                                    {
+                                        "equals": [
+                                            "@triggerBody()?['AddIncidentComments']",
+                                            true
+                                        ]
+                                    }
+                                ]
+                            },
+                            "type": "If"
+                        },
+                        "Initialize_variable_-_Records": {
+                            "runAfter": {
+                                "Parse_JSON": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "Records",
+                                        "type": "array",
+                                        "value": []
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_variable_-_Result_Count": {
+                            "runAfter": {
+                                "Initialize_variable_-_Records": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "ResultCount",
+                                        "type": "integer",
+                                        "value": 0
+                                    }
+                                ]
+                            }
+                        },
                         "Parse_JSON": {
                             "runAfter": {},
                             "type": "ParseJson",
@@ -431,7 +534,7 @@
                         },
                         "Switch": {
                             "runAfter": {
-                                "Parse_JSON": [
+                                "Initialize_variable_-_Result_Count": [
                                     "Succeeded"
                                 ]
                             },
@@ -468,7 +571,7 @@
                                         },
                                         "Response_-_M365": {
                                             "runAfter": {
-                                                "HTTP_-_M365": [
+                                                "Set_variable_-_ResultCount": [
                                                     "Succeeded"
                                                 ]
                                             },
@@ -476,11 +579,35 @@
                                             "kind": "Http",
                                             "inputs": {
                                                 "body": {
-                                                    "DetailedResults": "@body('HTTP_-_M365')['Results']",
-                                                    "ResultsCount": "@length(body('HTTP_-_M365')['Results'])",
+                                                    "DetailedResults": "@variables('Records')",
+                                                    "ResultsCount": "@variables('ResultCount')",
                                                     "ResultsFound": "@greater(length(body('HTTP_-_M365')['Results']),0)"
                                                 },
                                                 "statusCode": 200
+                                            }
+                                        },
+                                        "Set_variable_-_Records": {
+                                            "runAfter": {
+                                                "HTTP_-_M365": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "SetVariable",
+                                            "inputs": {
+                                                "name": "Records",
+                                                "value": "@take(body('HTTP_-_M365')['Results'], 10)"
+                                            }
+                                        },
+                                        "Set_variable_-_ResultCount": {
+                                            "runAfter": {
+                                                "Set_variable_-_Records": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "SetVariable",
+                                            "inputs": {
+                                                "name": "ResultCount",
+                                                "value": "@length(body('HTTP_-_M365')['Results'])"
                                             }
                                         }
                                     }
@@ -491,7 +618,31 @@
                                         "Compose_-_Sentinel_Query": {
                                             "runAfter": {},
                                             "type": "Compose",
-                                            "inputs": "let accountData = '@{body('Parse_JSON')?['Accounts']}';\nlet ipData = '@{body('Parse_JSON')?['IPs']}';\nlet accountEntities = datatable(temp:string)['']\n| extend Entities = parse_json(accountData)\n| mv-expand todynamic(Entities)\n| project UserPrincipalName = tostring(Entities.userPrincipalName), SamAccountName = tostring(Entities.onPremisesSamAccountName), ObjectSID = tostring(Entities.onPremisesSecurityIdentifier), AADUserId = tostring(Entities.id), ManagerUPN = tostring(Entities.manager.userPrincipalName);\nlet ipEntities = datatable(temp:string)['']\n| extend Entities = parse_json(ipData)\n| mv-expand todynamic(Entities)\n| project IPAddress = tostring(Entities.Address), Latitude = todecimal(Entities.GeoData.latitude), Longitude = todecimal(Entities.GeoData.longitude), Country=tostring(Entities.GeoData.country), State=tostring(Entities.GeoData.state);\n@{triggerBody()?['KQLQuery']}\n\n"
+                                            "inputs": "let accountData = '@{body('Parse_JSON')?['Accounts']}';\nlet ipData = '@{body('Parse_JSON')?['IPs']}';\nlet accountEntities = datatable(temp:string)['']\n| extend Entities = parse_json(accountData)\n| mv-expand todynamic(Entities)\n| project UserPrincipalName = tostring(Entities.userPrincipalName), SamAccountName = tostring(Entities.onPremisesSamAccountName), ObjectSID = tostring(Entities.onPremisesSecurityIdentifier), AADUserId = tostring(Entities.id), ManagerUPN = tostring(Entities.manager.userPrincipalName);\nlet ipEntities = datatable(temp:string)['']\n| extend Entities = parse_json(ipData)\n| mv-expand todynamic(Entities)\n| project IPAddress = tostring(Entities.Address), Latitude = todecimal(Entities.GeoData.latitude), Longitude = todecimal(Entities.GeoData.longitude), Country=tostring(Entities.GeoData.country), State=tostring(Entities.GeoData.state);\n@{triggerBody()?['KQLQuery']}\n| extend STATResponse = pack_all()\n| project STATResponse\n\n"
+                                        },
+                                        "For_each": {
+                                            "foreach": "@take(body('HTTP_-_Sentinel')['tables'][0]['rows'], 10)",
+                                            "actions": {
+                                                "Append_to_array_variable": {
+                                                    "runAfter": {},
+                                                    "type": "AppendToArrayVariable",
+                                                    "inputs": {
+                                                        "name": "Records",
+                                                        "value": "@json(item()[0])"
+                                                    }
+                                                }
+                                            },
+                                            "runAfter": {
+                                                "HTTP_-_Sentinel": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "Foreach",
+                                            "runtimeConfiguration": {
+                                                "concurrency": {
+                                                    "repetitions": 1
+                                                }
+                                            }
                                         },
                                         "HTTP_-_Sentinel": {
                                             "runAfter": {
@@ -515,7 +666,7 @@
                                         },
                                         "Response_-_Sentinel": {
                                             "runAfter": {
-                                                "Select": [
+                                                "Set_variable_-_ResultCount_2": [
                                                     "Succeeded"
                                                 ]
                                             },
@@ -523,29 +674,23 @@
                                             "kind": "Http",
                                             "inputs": {
                                                 "body": {
-                                                    "DetailedResults": "@body('Select')",
-                                                    "ResultsCount": "@length(body('HTTP_-_Sentinel')['tables'][0]['rows'])",
-                                                    "ResultsFound": "@greater(length(body('HTTP_-_Sentinel')['tables'][0]['rows']),0)"
+                                                    "DetailedResults": "@variables('Records')",
+                                                    "ResultsCount": "@variables('ResultCount')",
+                                                    "ResultsFound": "@greater(length(body('HTTP_-_Sentinel')['tables'][0]['rows']), 0)"
                                                 },
                                                 "statusCode": 200
                                             }
                                         },
-                                        "Select": {
+                                        "Set_variable_-_ResultCount_2": {
                                             "runAfter": {
-                                                "HTTP_-_Sentinel": [
+                                                "For_each": [
                                                     "Succeeded"
                                                 ]
                                             },
-                                            "type": "Select",
+                                            "type": "SetVariable",
                                             "inputs": {
-                                                "from": "@body('HTTP_-_Sentinel')['tables'][0]['rows']",
-                                                "select": {
-                                                    "@{coalesce(body('HTTP_-_Sentinel')['tables'][0]['columns']?[0]?['name'],'NoColumn1Name')}": "@item()?[0]",
-                                                    "@{coalesce(body('HTTP_-_Sentinel')['tables'][0]['columns']?[1]?['name'],'NoColumn2Name')}": "@item()?[1]",
-                                                    "@{coalesce(body('HTTP_-_Sentinel')['tables'][0]['columns']?[2]?['name'],'NoColumn3Name')}": "@item()?[2]",
-                                                    "@{coalesce(body('HTTP_-_Sentinel')['tables'][0]['columns']?[3]?['name'],'NoColumn4Name')}": "@item()?[3]",
-                                                    "@{coalesce(body('HTTP_-_Sentinel')['tables'][0]['columns']?[4]?['name'],'NoColumn5Name')}": "@item()?[4]"
-                                                }
+                                                "name": "ResultCount",
+                                                "value": "@length(body('HTTP_-_Sentinel')['tables'][0]['rows'])"
                                             }
                                         }
                                     }
@@ -583,7 +728,22 @@
                     },
                     "outputs": {}
                 },
-                "parameters": {}
+                "parameters": {
+                    "$connections": {
+                        "value": {
+                            "azuresentinel": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('AzureSentinelConnectionName'))]",
+                                "connectionName": "[variables('AzureSentinelConnectionName')]",
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azuresentinel')]",
+                                "connectionProperties": {
+                                    "authentication": {
+                                        "type": "ManagedServiceIdentity"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     ],
