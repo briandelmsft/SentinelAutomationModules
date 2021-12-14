@@ -25,11 +25,12 @@ For best results, limit your query results to as few columns of data as possible
 
 ### Sentinel Query Special Considerations
 
-* When querying against Microsoft Sentinel only the first 5 columns of data will be returned in the DetailedResults array.  You can use project or summarize statements to limit your return to the columns you are most interested in.
+* Only the first 10 records will be returned in the detailed results array.  When using this array, such as when using the option to AddIncidentComments consider using the sort function so the most important records are returned in the first 10. This does not impact the ResultsCount that is returned.
 * If you need your query to assess multiple time ranges, for example comparing the last day of data to the last week of data, ensure to set the LookbackInDays to the larger time window and incoroporate the more granular time windows through filter in your KQL query.
 
 ### M365 Query Special Considerations
 
+* Only the first 10 records will be returned in the detailed results array.  When using this array, such as when using the option to AddIncidentComments consider using the sort or summarize functions so the most important records are returned in the first 10. This does not impact the ResultsCount that is returned.
 * When querying Microsoft 365 Security advanced hunting the LookbackInDays parameter is ignored.  To limit your query to a specific time period please include a time filter in your KQL query syntax such as:
 
 ```
