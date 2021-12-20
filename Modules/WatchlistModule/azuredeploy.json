@@ -138,6 +138,54 @@
                             },
                             "type": "If"
                         },
+                        "Condition": {
+                            "actions": {
+                                "Response_-_Watchlist_Not_Found": {
+                                    "runAfter": {},
+                                    "type": "Response",
+                                    "kind": "Http",
+                                    "inputs": {
+                                        "body": {
+                                            "Error": "Watchlist @{triggerBody()?['WatchlistName']} was not found.",
+                                            "PlaybookName": "@{workflow()?['name']}",
+                                            "PlaybookResourceId": "@{workflow()?['id']}",
+                                            "PlaybookRunId": "@{workflow()?['run']?['name']}"
+                                        },
+                                        "statusCode": 404
+                                    }
+                                },
+                                "Terminate_2": {
+                                    "runAfter": {
+                                        "Response_-_Watchlist_Not_Found": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Terminate",
+                                    "inputs": {
+                                        "runError": {
+                                            "message": "Watchlist @{triggerBody()?['WatchlistName']} was not found"
+                                        },
+                                        "runStatus": "Failed"
+                                    }
+                                }
+                            },
+                            "runAfter": {
+                                "HTTP_-_Check_Watchlist_Validity": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "expression": {
+                                "and": [
+                                    {
+                                        "equals": [
+                                            "@length(body('HTTP_-_Check_Watchlist_Validity')['tables'][0]['rows'])",
+                                            0
+                                        ]
+                                    }
+                                ]
+                            },
+                            "type": "If"
+                        },
                         "Filter_array": {
                             "runAfter": {
                                 "Select": [
@@ -164,6 +212,26 @@
                                 },
                                 "body": {
                                     "query": "@{coalesce(outputs('Compose_-_IP'),outputs('Compose_-_Account'),outputs('Compose_-_CIDR'))}",
+                                    "timespan": "P7D"
+                                },
+                                "method": "POST",
+                                "uri": "https://api.loganalytics.io/v1/workspaces/@{body('Parse_JSON')?['WorkspaceId']}/query"
+                            }
+                        },
+                        "HTTP_-_Check_Watchlist_Validity": {
+                            "runAfter": {
+                                "Parse_JSON": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Http",
+                            "inputs": {
+                                "authentication": {
+                                    "audience": "https://api.loganalytics.io",
+                                    "type": "ManagedServiceIdentity"
+                                },
+                                "body": {
+                                    "query": "_GetWatchlistAlias\n| where WatchlistAlias == \"@{triggerBody()?['WatchlistName']}\"",
                                     "timespan": "P7D"
                                 },
                                 "method": "POST",
@@ -564,6 +632,25 @@
                                 "statusCode": 200
                             }
                         },
+                        "Response_-_Error_Calling_API": {
+                            "runAfter": {
+                                "HTTP_-_Check_Watchlist_Validity": [
+                                    "Failed"
+                                ]
+                            },
+                            "type": "Response",
+                            "kind": "Http",
+                            "inputs": {
+                                "body": {
+                                    "Error": "Watchlist module failed to execute with status @{outputs('HTTP_-_Check_Watchlist_Validity')['statusCode']}",
+                                    "PlaybookName": "@{workflow()?['name']}",
+                                    "PlaybookResourceId": "@{workflow()?['id']}",
+                                    "PlaybookRunId": "@{workflow()?['run']?['name']}",
+                                    "SourceError": "@body('HTTP_-_Check_Watchlist_Validity')"
+                                },
+                                "statusCode": "@outputs('HTTP_-_Check_Watchlist_Validity')['statusCode']"
+                            }
+                        },
                         "Select": {
                             "runAfter": {
                                 "HTTP": [
@@ -581,7 +668,7 @@
                         },
                         "Switch": {
                             "runAfter": {
-                                "Parse_JSON": [
+                                "Condition": [
                                     "Succeeded"
                                 ]
                             },
@@ -625,9 +712,12 @@
                                         "kind": "Http",
                                         "inputs": {
                                             "body": {
-                                                "Error": "Invalid WatchlistKeyDataType: @{triggerBody()?['WatchlistKeyDataType']}"
+                                                "Error": "Invalid WatchlistKeyDataType: @{triggerBody()?['WatchlistKeyDataType']}",
+                                                "PlaybookName": "@{workflow()?['name']}",
+                                                "PlaybookResourceId": "@{workflow()?['id']}",
+                                                "PlaybookRunId": "@{workflow()?['run']?['name']}"
                                             },
-                                            "statusCode": 400
+                                            "statusCode": 404
                                         }
                                     },
                                     "Terminate": {
