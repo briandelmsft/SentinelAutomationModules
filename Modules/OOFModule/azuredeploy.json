@@ -140,7 +140,7 @@
                                 }
                             },
                             "runAfter": {
-                                "Initialize_variable_-_DetailedResults": [
+                                "Initialize_variable_-_APIFailure": [
                                     "Succeeded"
                                 ]
                             },
@@ -205,6 +205,55 @@
                             },
                             "type": "If"
                         },
+                        "Condition_-_Error_Check": {
+                            "actions": {
+                                "Response_-_API_Failure": {
+                                    "runAfter": {},
+                                    "type": "Response",
+                                    "kind": "Http",
+                                    "inputs": {
+                                        "body": {
+                                            "Error": "Out of Office module failed to execute with status 401",
+                                            "PlaybookName": "@{workflow()?['name']}",
+                                            "PlaybookResourceId": "@{workflow()?['id']}",
+                                            "PlaybookRunId": "@{workflow()?['run']?['name']}"
+                                        },
+                                        "statusCode": 401
+                                    }
+                                },
+                                "Terminate_-_API_Failure": {
+                                    "runAfter": {
+                                        "Response_-_API_Failure": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Terminate",
+                                    "inputs": {
+                                        "runError": {
+                                            "message": "API Failure - Unauthorized"
+                                        },
+                                        "runStatus": "Failed"
+                                    }
+                                }
+                            },
+                            "runAfter": {
+                                "For_each": [
+                                    "Succeeded",
+                                    "Failed"
+                                ]
+                            },
+                            "expression": {
+                                "and": [
+                                    {
+                                        "equals": [
+                                            "@variables('APIFailure')",
+                                            true
+                                        ]
+                                    }
+                                ]
+                            },
+                            "type": "If"
+                        },
                         "Current_time": {
                             "runAfter": {
                                 "Parse_JSON": [
@@ -217,9 +266,8 @@
                         },
                         "Filter_array_-_OOF_Disabled": {
                             "runAfter": {
-                                "For_each": [
-                                    "Succeeded",
-                                    "Failed"
+                                "Condition_-_Error_Check": [
+                                    "Succeeded"
                                 ]
                             },
                             "type": "Query",
@@ -230,9 +278,8 @@
                         },
                         "Filter_array_-_OOF_Enabled": {
                             "runAfter": {
-                                "For_each": [
-                                    "Succeeded",
-                                    "Failed"
+                                "Condition_-_Error_Check": [
+                                    "Succeeded"
                                 ]
                             },
                             "type": "Query",
@@ -243,9 +290,8 @@
                         },
                         "Filter_array_-_OOF_Unknown": {
                             "runAfter": {
-                                "For_each": [
-                                    "Succeeded",
-                                    "Failed"
+                                "Condition_-_Error_Check": [
+                                    "Succeeded"
                                 ]
                             },
                             "type": "Query",
@@ -257,23 +303,50 @@
                         "For_each": {
                             "foreach": "@body('Parse_JSON')?['Accounts']",
                             "actions": {
-                                "Append_to_DetailedResults_-_Failed_Graph_Call": {
+                                "Condition_-_Handle_Error": {
+                                    "actions": {
+                                        "Set_variable_APIFailure": {
+                                            "runAfter": {},
+                                            "type": "SetVariable",
+                                            "inputs": {
+                                                "name": "APIFailure",
+                                                "value": true
+                                            }
+                                        }
+                                    },
                                     "runAfter": {
                                         "HTTP": [
-                                            "TimedOut",
                                             "Failed"
                                         ]
                                     },
-                                    "type": "AppendToArrayVariable",
-                                    "inputs": {
-                                        "name": "DetailedResults",
-                                        "value": {
-                                            "ExternalMessage": "",
-                                            "InternalMessage": "",
-                                            "OOFStatus": "unknown",
-                                            "UPN": "@{coalesce(items('For_each')?['userPrincipalName'],items('For_each')?['RawEntity']?['friendlyName'])}"
+                                    "else": {
+                                        "actions": {
+                                            "Append_to_DetailedResults_-_Failed_Graph_Call": {
+                                                "runAfter": {},
+                                                "type": "AppendToArrayVariable",
+                                                "inputs": {
+                                                    "name": "DetailedResults",
+                                                    "value": {
+                                                        "ExternalMessage": "",
+                                                        "InternalMessage": "",
+                                                        "OOFStatus": "unknown",
+                                                        "UPN": "@{coalesce(items('For_each')?['userPrincipalName'],items('For_each')?['RawEntity']?['friendlyName'])}"
+                                                    }
+                                                }
+                                            }
                                         }
-                                    }
+                                    },
+                                    "expression": {
+                                        "or": [
+                                            {
+                                                "equals": [
+                                                    "@outputs('HTTP')['statusCode']",
+                                                    401
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    "type": "If"
                                 },
                                 "HTTP": {
                                     "runAfter": {},
@@ -541,6 +614,23 @@
                                 ]
                             },
                             "type": "Foreach"
+                        },
+                        "Initialize_variable_-_APIFailure": {
+                            "runAfter": {
+                                "Initialize_variable_-_DetailedResults": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "APIFailure",
+                                        "type": "boolean",
+                                        "value": false
+                                    }
+                                ]
+                            }
                         },
                         "Initialize_variable_-_DetailedResults": {
                             "runAfter": {
