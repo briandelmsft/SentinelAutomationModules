@@ -105,7 +105,11 @@
                             }
                         },
                         "Filter_array_-_Accounts": {
-                            "runAfter": {},
+                            "runAfter": {
+                                "HTTP_-_Test_API_Access": [
+                                    "Succeeded"
+                                ]
+                            },
                             "type": "Query",
                             "inputs": {
                                 "from": "@triggerBody()?['Entities']",
@@ -113,7 +117,11 @@
                             }
                         },
                         "Filter_array_-_Domains": {
-                            "runAfter": {},
+                            "runAfter": {
+                                "HTTP_-_Test_API_Access": [
+                                    "Succeeded"
+                                ]
+                            },
                             "type": "Query",
                             "inputs": {
                                 "from": "@triggerBody()?['Entities']",
@@ -121,7 +129,11 @@
                             }
                         },
                         "Filter_array_-_File_Hashes": {
-                            "runAfter": {},
+                            "runAfter": {
+                                "HTTP_-_Test_API_Access": [
+                                    "Succeeded"
+                                ]
+                            },
                             "type": "Query",
                             "inputs": {
                                 "from": "@triggerBody()?['Entities']",
@@ -129,7 +141,11 @@
                             }
                         },
                         "Filter_array_-_Files": {
-                            "runAfter": {},
+                            "runAfter": {
+                                "HTTP_-_Test_API_Access": [
+                                    "Succeeded"
+                                ]
+                            },
                             "type": "Query",
                             "inputs": {
                                 "from": "@triggerBody()?['Entities']",
@@ -137,7 +153,11 @@
                             }
                         },
                         "Filter_array_-_Hosts": {
-                            "runAfter": {},
+                            "runAfter": {
+                                "HTTP_-_Test_API_Access": [
+                                    "Succeeded"
+                                ]
+                            },
                             "type": "Query",
                             "inputs": {
                                 "from": "@triggerBody()?['Entities']",
@@ -145,7 +165,11 @@
                             }
                         },
                         "Filter_array_-_IPs": {
-                            "runAfter": {},
+                            "runAfter": {
+                                "HTTP_-_Test_API_Access": [
+                                    "Succeeded"
+                                ]
+                            },
                             "type": "Query",
                             "inputs": {
                                 "from": "@triggerBody()?['Entities']",
@@ -153,7 +177,11 @@
                             }
                         },
                         "Filter_array_-_URLs": {
-                            "runAfter": {},
+                            "runAfter": {
+                                "HTTP_-_Test_API_Access": [
+                                    "Succeeded"
+                                ]
+                            },
                             "type": "Query",
                             "inputs": {
                                 "from": "@triggerBody()?['Entities']",
@@ -562,6 +590,18 @@
                             },
                             "type": "Foreach"
                         },
+                        "HTTP_-_Test_API_Access": {
+                            "runAfter": {},
+                            "type": "Http",
+                            "inputs": {
+                                "authentication": {
+                                    "audience": "https://graph.microsoft.com",
+                                    "type": "ManagedServiceIdentity"
+                                },
+                                "method": "GET",
+                                "uri": "https://graph.microsoft.com/v1.0/users?$top=1&$select=id"
+                            }
+                        },
                         "Initialize_AccountsArray": {
                             "runAfter": {
                                 "Select_Accounts": [
@@ -709,6 +749,25 @@
                             "inputs": {
                                 "body": "@outputs('Compose')",
                                 "statusCode": 200
+                            }
+                        },
+                        "Response_-_API_Failure": {
+                            "runAfter": {
+                                "HTTP_-_Test_API_Access": [
+                                    "Failed"
+                                ]
+                            },
+                            "type": "Response",
+                            "kind": "Http",
+                            "inputs": {
+                                "body": {
+                                    "Error": "Base module failed to execute with status @{outputs('HTTP_-_Test_API_Access')['statusCode']}",
+                                    "PlaybookName": "@{workflow()?['name']}",
+                                    "PlaybookResourceId": "@{workflow()?['id']}",
+                                    "PlaybookRunId": "@{workflow()?['run']?['name']}",
+                                    "SourceError": "@body('HTTP_-_Test_API_Access')"
+                                },
+                                "statusCode": "@outputs('HTTP_-_Test_API_Access')['statusCode']"
                             }
                         },
                         "Select_Accounts": {
