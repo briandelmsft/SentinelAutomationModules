@@ -712,9 +712,12 @@
                                         "kind": "Http",
                                         "inputs": {
                                             "body": {
-                                                "Error": "Invalid WatchlistKeyDataType: @{triggerBody()?['WatchlistKeyDataType']}"
+                                                "Error": "Invalid WatchlistKeyDataType: @{triggerBody()?['WatchlistKeyDataType']}",
+                                                "PlaybookName": "@{workflow()?['name']}",
+                                                "PlaybookResourceId": "@{workflow()?['id']}",
+                                                "PlaybookRunId": "@{workflow()?['run']?['name']}"
                                             },
-                                            "statusCode": 400
+                                            "statusCode": 404
                                         }
                                     },
                                     "Terminate": {
