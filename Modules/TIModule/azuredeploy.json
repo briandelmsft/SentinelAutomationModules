@@ -185,6 +185,25 @@
                                         "uri": "https://api.loganalytics.io/v1/workspaces/@{body('Parse_JSON')?['WorkspaceId']}/query"
                                     }
                                 },
+                                "Response_-_Domain_API_Failure": {
+                                    "runAfter": {
+                                        "HTTP_-_Domain": [
+                                            "Failed"
+                                        ]
+                                    },
+                                    "type": "Response",
+                                    "kind": "Http",
+                                    "inputs": {
+                                        "body": {
+                                            "Error": "ThreatIntel module failed to execute with status @{outputs('HTTP_-_Domain')['statusCode']}",
+                                            "PlaybookName": "@{workflow()?['name']}",
+                                            "PlaybookResourceId": "@{workflow()?['id']}",
+                                            "PlaybookRunId": "@{workflow()?['run']?['name']}",
+                                            "SourceError": "@body('HTTP_-_Domain')"
+                                        },
+                                        "statusCode": "@outputs('HTTP_-_Domain')['statusCode']"
+                                    }
+                                },
                                 "Select_-_Domain": {
                                     "runAfter": {
                                         "HTTP_-_Domain": [
@@ -254,6 +273,25 @@
                                         },
                                         "method": "POST",
                                         "uri": "https://api.loganalytics.io/v1/workspaces/@{body('Parse_JSON')?['WorkspaceId']}/query"
+                                    }
+                                },
+                                "Response_-_FIleHash_API_Failure": {
+                                    "runAfter": {
+                                        "HTTP_-_File_Hash": [
+                                            "Failed"
+                                        ]
+                                    },
+                                    "type": "Response",
+                                    "kind": "Http",
+                                    "inputs": {
+                                        "body": {
+                                            "Error": "ThreatIntel module failed to execute with status @{outputs('HTTP_-_File_Hash')['statusCode']}",
+                                            "PlaybookName": "@{workflow()?['name']}",
+                                            "PlaybookResourceId": "@{workflow()?['id']}",
+                                            "PlaybookRunId": "@{workflow()?['run']?['name']}",
+                                            "SourceError": "@body('HTTP_-_File_Hash')"
+                                        },
+                                        "statusCode": "@outputs('HTTP_-_File_Hash')['statusCode']"
                                     }
                                 },
                                 "Select_-_File_Hash": {
@@ -327,6 +365,25 @@
                                         "uri": "https://api.loganalytics.io/v1/workspaces/@{body('Parse_JSON')?['WorkspaceId']}/query"
                                     }
                                 },
+                                "Response_-_IP_API_Failure": {
+                                    "runAfter": {
+                                        "HTTP_-_IP": [
+                                            "Failed"
+                                        ]
+                                    },
+                                    "type": "Response",
+                                    "kind": "Http",
+                                    "inputs": {
+                                        "body": {
+                                            "Error": "ThreatIntel module failed to execute with status @{outputs('HTTP_-_IP')['statusCode']}",
+                                            "PlaybookName": "@{workflow()?['name']}",
+                                            "PlaybookResourceId": "@{workflow()?['id']}",
+                                            "PlaybookRunId": "@{workflow()?['run']?['name']}",
+                                            "SourceError": "@body('HTTP_-_IP')"
+                                        },
+                                        "statusCode": "@outputs('HTTP_-_IP')['statusCode']"
+                                    }
+                                },
                                 "Select_-_IP": {
                                     "runAfter": {
                                         "HTTP_-_IP": [
@@ -396,6 +453,25 @@
                                         },
                                         "method": "POST",
                                         "uri": "https://api.loganalytics.io/v1/workspaces/@{body('Parse_JSON')?['WorkspaceId']}/query"
+                                    }
+                                },
+                                "Response_-_URL_API_Failed": {
+                                    "runAfter": {
+                                        "HTTP_-_URL": [
+                                            "Failed"
+                                        ]
+                                    },
+                                    "type": "Response",
+                                    "kind": "Http",
+                                    "inputs": {
+                                        "body": {
+                                            "Error": "ThreatIntel module failed to execute with status @{outputs('HTTP_-_URL')['statusCode']}",
+                                            "PlaybookName": "@{workflow()?['name']}",
+                                            "PlaybookResourceId": "@{workflow()?['id']}",
+                                            "PlaybookRunId": "@{workflow()?['run']?['name']}",
+                                            "SourceError": "@body('HTTP_-_URL')"
+                                        },
+                                        "statusCode": "@outputs('HTTP_-_URL')['statusCode']"
                                     }
                                 },
                                 "Select_-_URL": {
