@@ -591,6 +591,25 @@
                                                 "statusCode": 200
                                             }
                                         },
+                                        "Response_2": {
+                                            "runAfter": {
+                                                "HTTP_-_M365": [
+                                                    "Failed"
+                                                ]
+                                            },
+                                            "type": "Response",
+                                            "kind": "Http",
+                                            "inputs": {
+                                                "body": {
+                                                    "Error": "KQL module failed to execute with status @{outputs('HTTP_-_M365')['statusCode']}",
+                                                    "PlaybookName": "@{workflow()?['name']}",
+                                                    "PlaybookResourceId": "@{workflow()?['id']}",
+                                                    "PlaybookRunId": "@{workflow()?['run']?['name']}",
+                                                    "SourceError": "@body('HTTP_-_M365')"
+                                                },
+                                                "statusCode": "@outputs('HTTP_-_M365')['statusCode']"
+                                            }
+                                        },
                                         "Set_variable_-_Records": {
                                             "runAfter": {
                                                 "HTTP_-_M365": [
@@ -669,6 +688,25 @@
                                                 "uri": "https://api.loganalytics.io/v1/workspaces/@{body('Parse_JSON')?['WorkspaceId']}/query"
                                             }
                                         },
+                                        "Response": {
+                                            "runAfter": {
+                                                "HTTP_-_Sentinel": [
+                                                    "Failed"
+                                                ]
+                                            },
+                                            "type": "Response",
+                                            "kind": "Http",
+                                            "inputs": {
+                                                "body": {
+                                                    "Error": "KQL module failed to execute with status @{outputs('HTTP_-_Sentinel')['statusCode']}",
+                                                    "PlaybookName": "@{workflow()?['name']}",
+                                                    "PlaybookResourceId": "@{workflow()?['id']}",
+                                                    "PlaybookRunId": "@{workflow()?['run']?['name']}",
+                                                    "SourceError": "@body('HTTP_-_Sentinel')"
+                                                },
+                                                "statusCode": "@outputs('HTTP_-_Sentinel')['statusCode']"
+                                            }
+                                        },
                                         "Response_-_Sentinel": {
                                             "runAfter": {
                                                 "Set_variable_-_ResultCount_2": [
@@ -709,7 +747,10 @@
                                         "kind": "Http",
                                         "inputs": {
                                             "body": {
-                                                "Error": "Invalid RunQueryAgainst: @{triggerBody()?['WatchlistKeyDataType']}"
+                                                "Error": "Invalid RunQueryAgainst: @{triggerBody()?['RunQueryAgainst']}",
+                                                "PlaybookName": "@{workflow()?['name']}",
+                                                "PlaybookResourceId": "@{workflow()?['id']}",
+                                                "PlaybookRunId": "@{workflow()?['run']?['name']}"
                                             },
                                             "statusCode": 400
                                         }
