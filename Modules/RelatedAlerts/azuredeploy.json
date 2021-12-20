@@ -662,6 +662,25 @@
                                     "type": "object"
                                 }
                             }
+                        },
+                        "Response_-_API_Failure": {
+                            "runAfter": {
+                                "HTTP": [
+                                    "Failed"
+                                ]
+                            },
+                            "type": "Response",
+                            "kind": "Http",
+                            "inputs": {
+                                "body": {
+                                    "Error": "RelatedAlerts module failed to execute with status @{outputs('HTTP')['statusCode']}",
+                                    "PlaybookName": "@{workflow()?['name']}",
+                                    "PlaybookResourceId": "@{workflow()?['id']}",
+                                    "PlaybookRunId": "@{workflow()?['run']?['name']}",
+                                    "SourceError": "@body('HTTP')"
+                                },
+                                "statusCode": "@outputs('HTTP')['statusCode']"
+                            }
                         }
                     },
                     "outputs": {}
