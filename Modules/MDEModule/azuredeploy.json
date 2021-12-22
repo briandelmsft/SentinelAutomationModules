@@ -58,7 +58,1002 @@
                 "state": "Enabled",
                 "definition": {
                     "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "actions": {
+                        "Compose_response": {
+                            "inputs": {
+                                "AnalyzedEntities": "@add(length(variables('DetailedResultsIPs')),length(variables('DetailedResultsAccounts')))",
+                                "DetailedResults": {
+                                    "Accounts": "@variables('DetailedResultsAccounts')",
+                                    "IPs": "@variables('DetailedResultsIPs')"
+                                },
+                                "IPsHighestExposureLevel": "@{if(contains(body('Create_table_to_check_IPsHighestExposureLevel'), 'High'), 'High', if(contains(body('Create_table_to_check_IPsHighestExposureLevel'), 'Medium'), 'Medium', if(contains(body('Create_table_to_check_IPsHighestExposureLevel'), 'Low'), 'Low', if(contains(body('Create_table_to_check_IPsHighestExposureLevel'), 'None'),'None','Unknown'))))}",
+                                "IPsHighestRiskScore": "@{if(contains(body('Create_table_to_check_IPsHighestRiskScore'), 'High'), 'High', if(contains(body('Create_table_to_check_IPsHighestRiskScore'), 'Medium'), 'Medium', if(contains(body('Create_table_to_check_IPsHighestRiskScore'), 'Low'), 'Low', if(contains(body('Create_table_to_check_IPsHighestRiskScore'), 'Informational'), 'Informational', if(contains(body('Create_table_to_check_IPsHighestRiskScore'), 'None'), 'None', 'Unknown')))))}",
+                                "UsersHighestExposureLevel": "@{if(contains(body('Create_table_to_check_UsersHighestExposureLevel'), 'High'), 'High', if(contains(body('Create_table_to_check_UsersHighestExposureLevel'), 'Medium'), 'Medium', if(contains(body('Create_table_to_check_UsersHighestExposureLevel'), 'Low'), 'Low', if(contains(body('Create_table_to_check_UsersHighestExposureLevel'), 'None'),'None','Unknown'))))}",
+                                "UsersHighestRiskScore": "@{if(contains(body('Create_table_to_check_UsersHighestRiskScore'), 'High'), 'High', if(contains(body('Create_table_to_check_UsersHighestRiskScore'), 'Medium'), 'Medium', if(contains(body('Create_table_to_check_UsersHighestRiskScore'), 'Low'), 'Low', if(contains(body('Create_table_to_check_UsersHighestRiskScore'), 'Informational'), 'Informational', if(contains(body('Create_table_to_check_UsersHighestRiskScore'), 'None'), 'None', 'Unknown')))))}"
+                            },
+                            "runAfter": {
+                                "Scope_Account": [
+                                    "Succeeded"
+                                ],
+                                "Scope_IP": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Compose"
+                        },
+                        "Condition_-_Add_comment": {
+                            "actions": {
+                                "Add_comment_to_incident_(V3)": {
+                                    "inputs": {
+                                        "body": {
+                                            "incidentArmId": "@triggerBody()?['Entities']['IncidentARMId']",
+                                            "message": "<p>Lookback in days: @{triggerBody()?['LookbackInDays']}</p><strong>Account Info</strong><br/><ul><li>Users Highest Risk Score: @{outputs('Compose_response')['UsersHighestRiskScore']}</li><li>Users Highest Exposure Level: @{outputs('Compose_response')['UsersHighestExposureLevel']}</li><li>List of users and devices: <ul>@{outputs('Compose_UserDevices_output')}</ul></li></ul><strong>IP Info</strong><br/><br/><ul><li>IP Highest Risk Score: @{outputs('Compose_response')['IPsHighestRiskScore']}</li><li>IP Highest Exposure Level: @{outputs('Compose_response')['IPsHighestExposureLevel']}</li><li>List of IP and devices: <ul>@{variables('Comments')}</ul></li></ul>"
+                                        },
+                                        "host": {
+                                            "connection": {
+                                                "name": "@parameters('$connections')['azuresentinel']['connectionId']"
+                                            }
+                                        },
+                                        "method": "post",
+                                        "path": "/Incidents/Comment"
+                                    },
+                                    "runAfter": {
+                                        "For_each_DetailedResultsIPs": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "ApiConnection"
+                                },
+                                "Compose_UserDevices_output": {
+                                    "inputs": "@variables('Comments')",
+                                    "runAfter": {
+                                        "For_each_DetailedResultsAccounts": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Compose"
+                                },
+                                "For_each_DetailedResultsAccounts": {
+                                    "actions": {
+                                        "Append_to_string_variable_Comments": {
+                                            "inputs": {
+                                                "name": "Comments",
+                                                "value": "<li>@{if(not(equals(item()['UserPrincipalName'], '')), item()['UserPrincipalName'], item()['UserSid'])} @{if(equals(length(items('For_each_DetailedResultsAccounts')['UserDevices']),0),' - No devices found',body('Create_HTML_table_for_UserDevices'))}</li>"
+                                            },
+                                            "runAfter": {
+                                                "Create_HTML_table_for_UserDevices": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "AppendToStringVariable"
+                                        },
+                                        "Create_HTML_table_for_UserDevices": {
+                                            "inputs": {
+                                                "format": "HTML",
+                                                "from": "@items('For_each_DetailedResultsAccounts')['UserDevices']"
+                                            },
+                                            "runAfter": {},
+                                            "type": "Table"
+                                        }
+                                    },
+                                    "foreach": "@variables('DetailedResultsAccounts')",
+                                    "runAfter": {},
+                                    "runtimeConfiguration": {
+                                        "concurrency": {
+                                            "repetitions": 1
+                                        }
+                                    },
+                                    "type": "Foreach"
+                                },
+                                "For_each_DetailedResultsIPs": {
+                                    "actions": {
+                                        "Append_to_string_variable_Comments_again": {
+                                            "inputs": {
+                                                "name": "Comments",
+                                                "value": "<li>@{items('For_each_DetailedResultsIPs')['Address']}@{if(equals(length(items('For_each_DetailedResultsIPs')['IPDevices']),0),' - No devices found',body('Create_HTML_table_for_IPDevices'))}</li>"
+                                            },
+                                            "runAfter": {
+                                                "Create_HTML_table_for_IPDevices": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "AppendToStringVariable"
+                                        },
+                                        "Create_HTML_table_for_IPDevices": {
+                                            "inputs": {
+                                                "format": "HTML",
+                                                "from": "@item()['IPDevices']"
+                                            },
+                                            "runAfter": {},
+                                            "type": "Table"
+                                        }
+                                    },
+                                    "foreach": "@variables('DetailedResultsIPs')",
+                                    "runAfter": {
+                                        "Reset_variable_Comments": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "runtimeConfiguration": {
+                                        "concurrency": {
+                                            "repetitions": 1
+                                        }
+                                    },
+                                    "type": "Foreach"
+                                },
+                                "Reset_variable_Comments": {
+                                    "inputs": {
+                                        "name": "Comments",
+                                        "value": "@{null}"
+                                    },
+                                    "runAfter": {
+                                        "Compose_UserDevices_output": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "SetVariable"
+                                }
+                            },
+                            "expression": {
+                                "and": [
+                                    {
+                                        "equals": [
+                                            "@triggerBody()?['AddIncidentComments']",
+                                            "@true"
+                                        ]
+                                    }
+                                ]
+                            },
+                            "runAfter": {
+                                "Response": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "If"
+                        },
+                        "Condition_-_Terminate_if_no_supported_entities": {
+                            "actions": {
+                                "Response_-_Send_empty_results": {
+                                    "inputs": {
+                                        "body": {
+                                            "AnalyzedEntities": 0,
+                                            "DetailedResults": [],
+                                            "IPsHighestExposureLevel": "Unknown",
+                                            "IPsHighestRiskScore": "Unknown",
+                                            "UsersHighestExposureLevel": "Unknown",
+                                            "UsersHighestRiskScore": "Unknown"
+                                        },
+                                        "statusCode": 200
+                                    },
+                                    "kind": "Http",
+                                    "runAfter": {},
+                                    "type": "Response"
+                                },
+                                "Terminate": {
+                                    "inputs": {
+                                        "runStatus": "Succeeded"
+                                    },
+                                    "runAfter": {
+                                        "Response_-_Send_empty_results": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Terminate"
+                                }
+                            },
+                            "expression": {
+                                "and": [
+                                    {
+                                        "equals": [
+                                            "@body('Parse_JSON')?['AccountsCount']",
+                                            0
+                                        ]
+                                    },
+                                    {
+                                        "equals": [
+                                            "@body('Parse_JSON')?['IPsCount']",
+                                            0
+                                        ]
+                                    }
+                                ]
+                            },
+                            "runAfter": {
+                                "Initialize_variable_Comments": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "If"
+                        },
+                        "Initialize_variable_Comments": {
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "Comments",
+                                        "type": "string"
+                                    }
+                                ]
+                            },
+                            "runAfter": {
+                                "Initialize_variable_DetailedResultsIPs": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable"
+                        },
+                        "Initialize_variable_DetailedResultsAccounts": {
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "DetailedResultsAccounts",
+                                        "type": "array",
+                                        "value": []
+                                    }
+                                ]
+                            },
+                            "runAfter": {
+                                "Parse_JSON": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable"
+                        },
+                        "Initialize_variable_DetailedResultsIPs": {
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "DetailedResultsIPs",
+                                        "type": "array",
+                                        "value": []
+                                    }
+                                ]
+                            },
+                            "runAfter": {
+                                "Initialize_variable_DetailedResultsAccounts": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable"
+                        },
+                        "Parse_JSON": {
+                            "inputs": {
+                                "content": "@triggerBody()?['Entities']",
+                                "schema": {
+                                    "properties": {
+                                        "Accounts": {
+                                            "description": "Array of User Accounts",
+                                            "items": {
+                                                "properties": {
+                                                    "AssignedRoles": {
+                                                        "description": "Array of assigned roles in Accounts array",
+                                                        "items": {
+                                                            "properties": {
+                                                                "Role": {
+                                                                    "description": "Array property in AssignedRoles array"
+                                                                }
+                                                            },
+                                                            "required": [],
+                                                            "type": "object"
+                                                        },
+                                                        "type": "array"
+                                                    },
+                                                    "RawEntity": {
+                                                        "description": "Object containing Raw unenriched entity data in Accounts array",
+                                                        "properties": {
+                                                            "accountName": {
+                                                                "description": "accountName from RawEntity object in Accounts array"
+                                                            },
+                                                            "displayName": {
+                                                                "description": "dislayName from RawEntity object in Accounts array"
+                                                            },
+                                                            "friendlyName": {
+                                                                "description": "friendlyName from RawEntity object in Accounts array"
+                                                            },
+                                                            "isDomainJoined": {
+                                                                "description": "isDomainJoined from RawEntity object in Accounts array"
+                                                            },
+                                                            "sid": {
+                                                                "description": "sid from RawEntity object in Accounts array"
+                                                            },
+                                                            "upnSuffix": {
+                                                                "description": "upnSuffix from RawEntity object in Accounts array"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "accountEnabled": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "city": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "country": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "department": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "id": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "jobTitle": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "mail": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "manager": {
+                                                        "description": "Array property in Accounts array",
+                                                        "properties": {
+                                                            "@@odata.type": {
+                                                                "description": "Array property in Accounts array manager object"
+                                                            },
+                                                            "id": {
+                                                                "description": "Array property in Accounts array manager object"
+                                                            },
+                                                            "mail": {
+                                                                "description": "Array property in Accounts array manager object"
+                                                            },
+                                                            "userPrincipalName": {
+                                                                "description": "Array property in Accounts array manager object"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "officeLocation": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "onPremisesDistinguishedName": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "onPremisesDomainName": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "onPremisesSamAccountName": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "onPremisesSecurityIdentifier": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "onPremisesSyncEnabled": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "state": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "userPrincipalName": {
+                                                        "description": "Array property in Accounts array"
+                                                    }
+                                                },
+                                                "required": [],
+                                                "type": "object"
+                                            },
+                                            "type": "array"
+                                        },
+                                        "AccountsCount": {
+                                            "description": "Count of accounts processed by module",
+                                            "type": "integer"
+                                        },
+                                        "Domains": {
+                                            "description": "Array of Domains",
+                                            "items": {
+                                                "properties": {
+                                                    "RawEntity": {
+                                                        "description": "Object containing Raw unenriched entity data in Domains array",
+                                                        "properties": {
+                                                            "domainName": {
+                                                                "description": "domainName from RawEntity object in Domains array"
+                                                            },
+                                                            "friendlyName": {
+                                                                "description": "friendlyName from RawEntity object in Domains array"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "required": [],
+                                                "type": "object"
+                                            },
+                                            "type": "array"
+                                        },
+                                        "DomainsCount": {
+                                            "description": "Count of Domains processed by module",
+                                            "type": "integer"
+                                        },
+                                        "EntitiesCount": {
+                                            "description": "Count of all entities processed by enrichment module",
+                                            "type": "integer"
+                                        },
+                                        "FileHashes": {
+                                            "description": "Array of FileHashes",
+                                            "items": {
+                                                "properties": {
+                                                    "RawEntity": {
+                                                        "description": "Object containing Raw unenriched entity data in FileHashes array",
+                                                        "properties": {
+                                                            "algorithm": {
+                                                                "description": "algorithm from RawEntity object in FileHashes array"
+                                                            },
+                                                            "friendlyName": {
+                                                                "description": "friendlyName from RawEntity object in FileHashes array"
+                                                            },
+                                                            "hashValue": {
+                                                                "description": "hashValue from RawEntity object in FileHashes array"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "required": [],
+                                                "type": "object"
+                                            },
+                                            "type": "array"
+                                        },
+                                        "FileHashesCount": {
+                                            "description": "Count of File Hashes processed by module",
+                                            "type": "integer"
+                                        },
+                                        "Files": {
+                                            "description": "Array of Files",
+                                            "items": {
+                                                "properties": {
+                                                    "RawEntity": {
+                                                        "description": "Object containing Raw unenriched entity data in Files array",
+                                                        "properties": {
+                                                            "directory": {
+                                                                "description": "directory from RawEntity object in Files array"
+                                                            },
+                                                            "fileName": {
+                                                                "description": "fileName from RawEntity object in Files array"
+                                                            },
+                                                            "friendlyName": {
+                                                                "description": "friendlyName from RawEntity object in Files array"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "required": [],
+                                                "type": "object"
+                                            },
+                                            "type": "array"
+                                        },
+                                        "FilesCount": {
+                                            "description": "Count of Files processed by module",
+                                            "type": "integer"
+                                        },
+                                        "Hosts": {
+                                            "description": "Array of Hosts",
+                                            "items": {
+                                                "properties": {
+                                                    "DnsDomain": {
+                                                        "description": "Array property in Hosts array"
+                                                    },
+                                                    "FQDN": {
+                                                        "description": "Array property in Hosts array"
+                                                    },
+                                                    "Hostname": {
+                                                        "description": "Array property in Hosts array"
+                                                    },
+                                                    "RawEntity": {
+                                                        "description": "Object containing Raw unenriched entity data in Hosts array",
+                                                        "properties": {
+                                                            "dnsDomain": {
+                                                                "description": "dnsDomain from RawEntity object in Hosts array"
+                                                            },
+                                                            "friendlyName": {
+                                                                "description": "friendlyName from RawEntity object in Hosts array"
+                                                            },
+                                                            "hostName": {
+                                                                "description": "hostName from RawEntity object in Hosts array"
+                                                            },
+                                                            "netBiosName": {
+                                                                "description": "netBiosName from RawEntity object in Hosts array"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "required": [],
+                                                "type": "object"
+                                            },
+                                            "type": "array"
+                                        },
+                                        "HostsCount": {
+                                            "description": "Count of Hosts processed by module",
+                                            "type": "integer"
+                                        },
+                                        "IPs": {
+                                            "description": "Array of IP Addresses",
+                                            "items": {
+                                                "properties": {
+                                                    "Address": {
+                                                        "description": "Array property in IPs array"
+                                                    },
+                                                    "GeoData": {
+                                                        "description": "Array object in IPs array",
+                                                        "properties": {
+                                                            "asn": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "carrier": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "city": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "cityCf": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "continent": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "country": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "countryCf": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "ipAddr": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "ipRoutingType": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "latitude": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "longitude": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "organization": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "organizationType": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "region": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "state": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "stateCf": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "stateCode": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "RawEntity": {
+                                                        "description": "Object containing Raw unenriched entity data in IPs array",
+                                                        "properties": {
+                                                            "address": {
+                                                                "description": "address from RawEntity object in IPs array"
+                                                            },
+                                                            "friendlyName": {
+                                                                "description": "friendlyName from RawEntity object in IPs array"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "required": [],
+                                                "type": "object"
+                                            },
+                                            "type": "array"
+                                        },
+                                        "IPsCount": {
+                                            "description": "Count of IPs processed by module",
+                                            "type": "integer"
+                                        },
+                                        "IncidentARMId": {
+                                            "description": "The ARM Id of the Azure Sentinel Incident",
+                                            "type": "string"
+                                        },
+                                        "URLs": {
+                                            "description": "Array of URLs",
+                                            "items": {
+                                                "properties": {
+                                                    "RawEntity": {
+                                                        "description": "Object containing Raw unenriched entity data in URLs array",
+                                                        "properties": {
+                                                            "friendlyName": {
+                                                                "description": "friendlyName from RawEntity object in URLs array"
+                                                            },
+                                                            "url": {
+                                                                "description": "url from RawEntity object in URLs array"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "required": [],
+                                                "type": "object"
+                                            },
+                                            "type": "array"
+                                        },
+                                        "URLsCount": {
+                                            "description": "Count of URLs processed by module",
+                                            "type": "integer"
+                                        },
+                                        "WorkspaceId": {
+                                            "description": "The Log Analytics Workspace Id of the Azure Sentinel Incident",
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            },
+                            "runAfter": {},
+                            "type": "ParseJson"
+                        },
+                        "Response": {
+                            "inputs": {
+                                "body": "@outputs('Compose_response')",
+                                "statusCode": 200
+                            },
+                            "kind": "Http",
+                            "runAfter": {
+                                "Compose_response": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Response"
+                        },
+                        "Response_error_Account": {
+                            "inputs": {
+                                "body": {
+                                    "Error": "MDE module failed to execute with status @{result('For_each_account')[0]['outputs'][0]['outputs']['statusCode']}",
+                                    "PlaybookName": "@{workflow()?['name']}",
+                                    "PlaybookResourceId": "@{workflow()?['id']}",
+                                    "PlaybookRunId": "@{workflow()?['run']?['name']}",
+                                    "SourceError": "@result('For_each_account')[0]['outputs'][0]['outputs']['body']"
+                                },
+                                "statusCode": "@result('For_each_account')[0]['outputs'][0]['outputs']['statusCode']"
+                            },
+                            "kind": "Http",
+                            "runAfter": {
+                                "Scope_Account": [
+                                    "TimedOut",
+                                    "Failed"
+                                ]
+                            },
+                            "type": "Response"
+                        },
+                        "Response_error_IP": {
+                            "inputs": {
+                                "body": {
+                                    "Error": "MDE module failed to execute with status @{result('For_each_IP_in_IPs')[0]['outputs'][0]['outputs']['statusCode']}",
+                                    "PlaybookName": "@{workflow()?['name']}",
+                                    "PlaybookResourceId": "@{workflow()?['id']}",
+                                    "PlaybookRunId": "@{workflow()?['run']?['name']}",
+                                    "SourceError": "@result('For_each_IP_in_IPs')[0]['outputs'][0]['outputs']['body']"
+                                },
+                                "statusCode": "@result('For_each_IP_in_IPs')[0]['outputs'][0]['outputs']['statusCode']"
+                            },
+                            "kind": "Http",
+                            "runAfter": {
+                                "Scope_IP": [
+                                    "Failed",
+                                    "TimedOut"
+                                ]
+                            },
+                            "type": "Response"
+                        },
+                        "Scope_Account": {
+                            "actions": {
+                                "Create_table_to_check_UsersHighestExposureLevel": {
+                                    "inputs": {
+                                        "columns": [
+                                            {
+                                                "header": "",
+                                                "value": "@item()['UserHighestExposureLevel']"
+                                            }
+                                        ],
+                                        "format": "CSV",
+                                        "from": "@variables('DetailedResultsAccounts')"
+                                    },
+                                    "runAfter": {
+                                        "Create_table_to_check_UsersHighestRiskScore": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Table"
+                                },
+                                "Create_table_to_check_UsersHighestRiskScore": {
+                                    "inputs": {
+                                        "columns": [
+                                            {
+                                                "header": "",
+                                                "value": "@item()?['UserHighestRiskScore']"
+                                            }
+                                        ],
+                                        "format": "CSV",
+                                        "from": "@variables('DetailedResultsAccounts')"
+                                    },
+                                    "runAfter": {
+                                        "For_each_account": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Table"
+                                },
+                                "Filter_array_-_Get_only_account_with_a_onPremisesSecurityIdentifier_or_sid": {
+                                    "inputs": {
+                                        "from": "@body('Parse_JSON')?['Accounts']",
+                                        "where": "@greater(add(length(coalesce(item()?['onPremisesSecurityIdentifier'], '')), length(coalesce(item()?['RawEntity']?['sid'], ''))), 0)"
+                                    },
+                                    "runAfter": {},
+                                    "type": "Query"
+                                },
+                                "For_each_account": {
+                                    "actions": {
+                                        "Advanced_Hunting_-_SID_path": {
+                                            "inputs": {
+                                                "body": {
+                                                    "Query": "DeviceLogonEvents \n| where Timestamp > ago(@{triggerBody()?['LookbackInDays']}d)\n| where LogonType in (\"Interactive\",\"RemoteInteractive\")\n| where AccountSid == \"@{coalesce(item()?['RawEntity']?['sid'],item()?['onPremisesSecurityIdentifier'])}\" \n| distinct DeviceId\n| summarize ListIds=make_list(DeviceId)\n| project List=array_concat(ListIds,pack_array(\"default\"))"
+                                                },
+                                                "host": {
+                                                    "connection": {
+                                                        "name": "@parameters('$connections')['wdatp']['connectionId']"
+                                                    }
+                                                },
+                                                "method": "post",
+                                                "path": "/api/advancedqueries/run"
+                                            },
+                                            "runAfter": {
+                                                "Compose_UserHighestScore": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "ApiConnection"
+                                        },
+                                        "Append_to_array_DetailsResultsAccounts": {
+                                            "inputs": {
+                                                "name": "DetailedResultsAccounts",
+                                                "value": {
+                                                    "UserDevices": "@body('Machines_-_Get_list_of_machines_-_SID_path')?['value']",
+                                                    "UserHighestExposureLevel": "@{if(contains(body('Create_table_to_check_UserHighestExposureLevel'), 'High'), 'High', if(contains(body('Create_table_to_check_UserHighestExposureLevel'), 'Medium'), 'Medium', if(contains(body('Create_table_to_check_UserHighestExposureLevel'), 'Low'), 'Low', if(contains(body('Create_table_to_check_UserHighestExposureLevel'), 'None'),'None','Unknown'))))}",
+                                                    "UserHighestRiskScore": "@{if(contains(body('Create_table_to_check_UserHighestRiskScore'), 'High'), 'High', if(contains(body('Create_table_to_check_UserHighestRiskScore'), 'Medium'), 'Medium', if(contains(body('Create_table_to_check_UserHighestRiskScore'), 'Low'), 'Low', if(contains(body('Create_table_to_check_UserHighestRiskScore'), 'Informational'), 'Informational', if(contains(body('Create_table_to_check_UserHighestRiskScore'), 'None'), 'None', 'Unknown')))))}",
+                                                    "UserId": "@{item()?['id']}",
+                                                    "UserPrincipalName": "@{item()?['UserPrincipalName']}",
+                                                    "UserSid": "@{coalesce(item()?['RawEntity']?['sid'],item()?['onPremisesSecurityIdentifier'])}"
+                                                }
+                                            },
+                                            "runAfter": {
+                                                "Create_table_to_check_UserHighestExposureLevel": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "AppendToArrayVariable"
+                                        },
+                                        "Compose_UserHighestScore": {
+                                            "inputs": [],
+                                            "runAfter": {},
+                                            "type": "Compose"
+                                        },
+                                        "Create_table_to_check_UserHighestExposureLevel": {
+                                            "inputs": {
+                                                "columns": [
+                                                    {
+                                                        "header": "",
+                                                        "value": "@item()['exposureLevel']"
+                                                    }
+                                                ],
+                                                "format": "CSV",
+                                                "from": "@body('Machines_-_Get_list_of_machines_-_SID_path')?['value']"
+                                            },
+                                            "runAfter": {
+                                                "Create_table_to_check_UserHighestRiskScore": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "Table"
+                                        },
+                                        "Create_table_to_check_UserHighestRiskScore": {
+                                            "inputs": {
+                                                "columns": [
+                                                    {
+                                                        "header": "",
+                                                        "value": "@item()?['riskScore']"
+                                                    }
+                                                ],
+                                                "format": "CSV",
+                                                "from": "@body('Machines_-_Get_list_of_machines_-_SID_path')?['value']"
+                                            },
+                                            "runAfter": {
+                                                "Machines_-_Get_list_of_machines_-_SID_path": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "Table"
+                                        },
+                                        "Machines_-_Get_list_of_machines_-_SID_path": {
+                                            "inputs": {
+                                                "host": {
+                                                    "connection": {
+                                                        "name": "@parameters('$connections')['wdatp']['connectionId']"
+                                                    }
+                                                },
+                                                "method": "get",
+                                                "path": "/api/machines",
+                                                "queries": {
+                                                    "$filter": "id in (\"@{join(body('Advanced_Hunting_-_SID_path')?['Results'][0]['List'],'\",\"')}\")",
+                                                    "$select": "id,computerDnsName,riskScore,exposureLevel"
+                                                }
+                                            },
+                                            "runAfter": {
+                                                "Advanced_Hunting_-_SID_path": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "ApiConnection"
+                                        }
+                                    },
+                                    "foreach": "@body('Filter_array_-_Get_only_account_with_a_onPremisesSecurityIdentifier_or_sid')",
+                                    "runAfter": {
+                                        "Filter_array_-_Get_only_account_with_a_onPremisesSecurityIdentifier_or_sid": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Foreach"
+                                }
+                            },
+                            "runAfter": {
+                                "Condition_-_Terminate_if_no_supported_entities": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Scope"
+                        },
+                        "Scope_IP": {
+                            "actions": {
+                                "Create_table_to_check_IPsHighestExposureLevel": {
+                                    "inputs": {
+                                        "columns": [
+                                            {
+                                                "header": "",
+                                                "value": "@item()['IPHighestExposureLevel']"
+                                            }
+                                        ],
+                                        "format": "CSV",
+                                        "from": "@variables('DetailedResultsIPs')"
+                                    },
+                                    "runAfter": {
+                                        "Create_table_to_check_IPsHighestRiskScore": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Table"
+                                },
+                                "Create_table_to_check_IPsHighestRiskScore": {
+                                    "inputs": {
+                                        "columns": [
+                                            {
+                                                "header": "",
+                                                "value": "@item()['IPHighestRiskScore']"
+                                            }
+                                        ],
+                                        "format": "CSV",
+                                        "from": "@variables('DetailedResultsIPs')"
+                                    },
+                                    "runAfter": {
+                                        "For_each_IP_in_IPs": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Table"
+                                },
+                                "For_each_IP_in_IPs": {
+                                    "actions": {
+                                        "Advanced_Hunting_-_IP_path": {
+                                            "inputs": {
+                                                "body": {
+                                                    "Query": "let IPLookUp = \"@{items('For_each_IP_in_IPs')['Address']}\";\nDeviceNetworkInfo\n| where Timestamp > ago(@{triggerBody()?['LookbackInDays']}d)\n| summarize arg_max(Timestamp,*) by DeviceId\n| extend IPs = todynamic(IPAddresses)\n| mv-expand IPs\n| evaluate bag_unpack(IPs)\n| where IPAddress == IPLookUp\n| summarize ListIds=make_list(DeviceId)\n| project List=array_concat(ListIds,pack_array(\"default\"))"
+                                                },
+                                                "host": {
+                                                    "connection": {
+                                                        "name": "@parameters('$connections')['wdatp']['connectionId']"
+                                                    }
+                                                },
+                                                "method": "post",
+                                                "path": "/api/advancedqueries/run"
+                                            },
+                                            "runAfter": {},
+                                            "type": "ApiConnection"
+                                        },
+                                        "Append_to_array_variable_DetailedResultsIPs": {
+                                            "inputs": {
+                                                "name": "DetailedResultsIPs",
+                                                "value": {
+                                                    "Address": "@{items('For_each_IP_in_IPs')['Address']}",
+                                                    "IPDevices": "@body('Machines_-_Get_list_of_machines_-_IP_path')?['value']",
+                                                    "IPHighestExposureLevel": "@{if(contains(body('Create_table_to_check_IPHighestExposureLevel'), 'High'), 'High', if(contains(body('Create_table_to_check_IPHighestExposureLevel'), 'Medium'), 'Medium', if(contains(body('Create_table_to_check_IPHighestExposureLevel'), 'Low'), 'Low', if(contains(body('Create_table_to_check_IPHighestExposureLevel'), 'None'),'None','Unknown'))))}",
+                                                    "IPHighestRiskScore": "@{if(contains(body('Create_table_to_check_IpHighestRiskScore'), 'High'), 'High', if(contains(body('Create_table_to_check_IpHighestRiskScore'), 'Medium'), 'Medium', if(contains(body('Create_table_to_check_IpHighestRiskScore'), 'Low'), 'Low', if(contains(body('Create_table_to_check_IpHighestRiskScore'), 'Informational'), 'Informational', if(contains(body('Create_table_to_check_IpHighestRiskScore'), 'None'), 'None', 'Unknown')))))}"
+                                                }
+                                            },
+                                            "runAfter": {
+                                                "Create_table_to_check_IPHighestExposureLevel": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "AppendToArrayVariable"
+                                        },
+                                        "Create_table_to_check_IPHighestExposureLevel": {
+                                            "inputs": {
+                                                "columns": [
+                                                    {
+                                                        "header": "",
+                                                        "value": "@item()['exposureLevel']"
+                                                    }
+                                                ],
+                                                "format": "CSV",
+                                                "from": "@body('Machines_-_Get_list_of_machines_-_IP_path')?['value']"
+                                            },
+                                            "runAfter": {
+                                                "Create_table_to_check_IPHighestRiskScore": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "Table"
+                                        },
+                                        "Create_table_to_check_IPHighestRiskScore": {
+                                            "inputs": {
+                                                "columns": [
+                                                    {
+                                                        "header": "",
+                                                        "value": "@item()?['riskScore']"
+                                                    }
+                                                ],
+                                                "format": "CSV",
+                                                "from": "@body('Machines_-_Get_list_of_machines_-_IP_path')?['value']"
+                                            },
+                                            "runAfter": {
+                                                "Machines_-_Get_list_of_machines_-_IP_path": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "Table"
+                                        },
+                                        "Machines_-_Get_list_of_machines_-_IP_path": {
+                                            "inputs": {
+                                                "host": {
+                                                    "connection": {
+                                                        "name": "@parameters('$connections')['wdatp']['connectionId']"
+                                                    }
+                                                },
+                                                "method": "get",
+                                                "path": "/api/machines",
+                                                "queries": {
+                                                    "$filter": "id in (\"@{join(body('Advanced_Hunting_-_IP_path')?['Results'][0]['List'],'\",\"')}\")",
+                                                    "$select": "id,computerDnsName,riskScore,exposureLevel"
+                                                }
+                                            },
+                                            "runAfter": {
+                                                "Advanced_Hunting_-_IP_path": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "ApiConnection"
+                                        }
+                                    },
+                                    "foreach": "@body('Parse_JSON')?['IPs']",
+                                    "runAfter": {},
+                                    "type": "Foreach"
+                                }
+                            },
+                            "runAfter": {
+                                "Condition_-_Terminate_if_no_supported_entities": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Scope"
+                        }
+                    },
                     "contentVersion": "1.0.0.0",
+                    "outputs": {},
                     "parameters": {
                         "$connections": {
                             "defaultValue": {},
@@ -67,9 +1062,6 @@
                     },
                     "triggers": {
                         "triage": {
-                            "type": "Request",
-                            "operationOptions": "EnableSchemaValidation",
-                            "kind": "Http",
                             "inputs": {
                                 "schema": {
                                     "properties": {
@@ -92,653 +1084,11 @@
                                     },
                                     "type": "object"
                                 }
-                            }
-                        }
-                    },
-                    "actions": {
-                        "Compose_response": {
-                            "runAfter": {
-                                "Create_table_to_check_IPsHighestExposureLevel": [
-                                    "Succeeded"
-                                ],
-                                "Create_table_to_check_UsersHighestExposureLevel": [
-                                    "Succeeded"
-                                ]
                             },
-                            "type": "Compose",
-                            "inputs": {
-                                "AnalyzedEntities": "@add(length(variables('DetailedResultsIPs')),length(variables('DetailedResultsAccounts')))",
-                                "DetailedResults": {
-                                    "Accounts": "@variables('DetailedResultsAccounts')",
-                                    "IPs": "@variables('DetailedResultsIPs')"
-                                },
-                                "IPsHighestExposureLevel": "@{if(contains(body('Create_table_to_check_IPsHighestExposureLevel'), 'High'), 'High', if(contains(body('Create_table_to_check_IPsHighestExposureLevel'), 'Medium'), 'Medium', if(contains(body('Create_table_to_check_IPsHighestExposureLevel'), 'Low'), 'Low', if(contains(body('Create_table_to_check_IPsHighestExposureLevel'), 'None'),'None','Unknown'))))}",
-                                "IPsHighestRiskScore": "@{if(contains(body('Create_table_to_check_IPsHighestRiskScore'), 'High'), 'High', if(contains(body('Create_table_to_check_IPsHighestRiskScore'), 'Medium'), 'Medium', if(contains(body('Create_table_to_check_IPsHighestRiskScore'), 'Low'), 'Low', if(contains(body('Create_table_to_check_IPsHighestRiskScore'), 'Informational'), 'Informational', if(contains(body('Create_table_to_check_IPsHighestRiskScore'), 'None'), 'None', 'Unknown')))))}",
-                                "UsersHighestExposureLevel": "@{if(contains(body('Create_table_to_check_UsersHighestExposureLevel'), 'High'), 'High', if(contains(body('Create_table_to_check_UsersHighestExposureLevel'), 'Medium'), 'Medium', if(contains(body('Create_table_to_check_UsersHighestExposureLevel'), 'Low'), 'Low', if(contains(body('Create_table_to_check_UsersHighestExposureLevel'), 'None'),'None','Unknown'))))}",
-                                "UsersHighestRiskScore": "@{if(contains(body('Create_table_to_check_UsersHighestRiskScore'), 'High'), 'High', if(contains(body('Create_table_to_check_UsersHighestRiskScore'), 'Medium'), 'Medium', if(contains(body('Create_table_to_check_UsersHighestRiskScore'), 'Low'), 'Low', if(contains(body('Create_table_to_check_UsersHighestRiskScore'), 'Informational'), 'Informational', if(contains(body('Create_table_to_check_UsersHighestRiskScore'), 'None'), 'None', 'Unknown')))))}"
-                            }
-                        },
-                        "Condition_-_Add_comment": {
-                            "actions": {
-                                "Add_comment_to_incident_(V3)": {
-                                    "runAfter": {
-                                        "For_each_DetailedResultsIPs": [
-                                            "Succeeded"
-                                        ]
-                                    },
-                                    "type": "ApiConnection",
-                                    "inputs": {
-                                        "body": {
-                                            "incidentArmId": "@triggerBody()?['Entities']['IncidentARMId']",
-                                            "message": "<p>Lookback in days: @{triggerBody()?['LookbackInDays']}</p><strong>Account Info</strong><br/><ul><li>Users Highest Risk Score: @{outputs('Compose_response')['UsersHighestRiskScore']}</li><li>Users Highest Exposure Level: @{outputs('Compose_response')['UsersHighestExposureLevel']}</li><li>List of users and devices: <ul>@{outputs('Compose_UserDevices_output')}</ul></li></ul><strong>IP Info</strong><br/><br/><ul><li>IP Highest Risk Score: @{outputs('Compose_response')['IPsHighestRiskScore']}</li><li>IP Highest Exposure Level: @{outputs('Compose_response')['IPsHighestExposureLevel']}</li><li>List of IP and devices: <ul>@{variables('Comments')}</ul></li></ul>"
-                                        },
-                                        "host": {
-                                            "connection": {
-                                                "name": "@parameters('$connections')['azuresentinel']['connectionId']"
-                                            }
-                                        },
-                                        "method": "post",
-                                        "path": "/Incidents/Comment"
-                                    }
-                                },
-                                "Compose_UserDevices_output": {
-                                    "runAfter": {
-                                        "For_each_DetailedResultsAccounts": [
-                                            "Succeeded"
-                                        ]
-                                    },
-                                    "type": "Compose",
-                                    "inputs": "@variables('Comments')"
-                                },
-                                "For_each_DetailedResultsAccounts": {
-                                    "foreach": "@variables('DetailedResultsAccounts')",
-                                    "actions": {
-                                        "Append_to_string_variable_Comments": {
-                                            "runAfter": {
-                                                "Create_HTML_table_for_UserDevices": [
-                                                    "Succeeded"
-                                                ]
-                                            },
-                                            "type": "AppendToStringVariable",
-                                            "inputs": {
-                                                "name": "Comments",
-                                                "value": "<li>@{if(not(equals(item()['UserPrincipalName'], '')), item()['UserPrincipalName'], item()['UserSid'])} @{if(equals(length(items('For_each_DetailedResultsAccounts')['UserDevices']),0),' - No devices found',body('Create_HTML_table_for_UserDevices'))}</li>"
-                                            }
-                                        },
-                                        "Create_HTML_table_for_UserDevices": {
-                                            "runAfter": {},
-                                            "type": "Table",
-                                            "inputs": {
-                                                "format": "HTML",
-                                                "from": "@items('For_each_DetailedResultsAccounts')['UserDevices']"
-                                            }
-                                        }
-                                    },
-                                    "runAfter": {},
-                                    "type": "Foreach",
-                                    "runtimeConfiguration": {
-                                        "concurrency": {
-                                            "repetitions": 1
-                                        }
-                                    }
-                                },
-                                "For_each_DetailedResultsIPs": {
-                                    "foreach": "@variables('DetailedResultsIPs')",
-                                    "actions": {
-                                        "Append_to_string_variable_Comments_again": {
-                                            "runAfter": {
-                                                "Create_HTML_table_for_IPDevices": [
-                                                    "Succeeded"
-                                                ]
-                                            },
-                                            "type": "AppendToStringVariable",
-                                            "inputs": {
-                                                "name": "Comments",
-                                                "value": "<li>@{items('For_each_DetailedResultsIPs')['Address']}@{if(equals(length(items('For_each_DetailedResultsIPs')['IPDevices']),0),' - No devices found',body('Create_HTML_table_for_IPDevices'))}</li>"
-                                            }
-                                        },
-                                        "Create_HTML_table_for_IPDevices": {
-                                            "runAfter": {},
-                                            "type": "Table",
-                                            "inputs": {
-                                                "format": "HTML",
-                                                "from": "@item()['IPDevices']"
-                                            }
-                                        }
-                                    },
-                                    "runAfter": {
-                                        "Reset_variable_Comments": [
-                                            "Succeeded"
-                                        ]
-                                    },
-                                    "type": "Foreach",
-                                    "runtimeConfiguration": {
-                                        "concurrency": {
-                                            "repetitions": 1
-                                        }
-                                    }
-                                },
-                                "Reset_variable_Comments": {
-                                    "runAfter": {
-                                        "Compose_UserDevices_output": [
-                                            "Succeeded"
-                                        ]
-                                    },
-                                    "type": "SetVariable",
-                                    "inputs": {
-                                        "name": "Comments",
-                                        "value": "@{null}"
-                                    }
-                                }
-                            },
-                            "runAfter": {
-                                "Compose_response": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "expression": {
-                                "and": [
-                                    {
-                                        "equals": [
-                                            "@triggerBody()?['AddIncidentComments']",
-                                            "@true"
-                                        ]
-                                    }
-                                ]
-                            },
-                            "type": "If"
-                        },
-                        "Condition_-_Terminate_if_no_supported_entities": {
-                            "actions": {
-                                "Response_-_Send_empty_results": {
-                                    "runAfter": {},
-                                    "type": "Response",
-                                    "kind": "Http",
-                                    "inputs": {
-                                        "body": {
-                                            "AnalyzedEntities": 0,
-                                            "DetailedResults": [],
-                                            "IPsHighestExposureLevel": "Unknown",
-                                            "IPsHighestRiskScore": "Unknown",
-                                            "UsersHighestExposureLevel": "Unknown",
-                                            "UsersHighestRiskScore": "Unknown"
-                                        },
-                                        "statusCode": 200
-                                    }
-                                },
-                                "Terminate": {
-                                    "runAfter": {
-                                        "Response_-_Send_empty_results": [
-                                            "Succeeded"
-                                        ]
-                                    },
-                                    "type": "Terminate",
-                                    "inputs": {
-                                        "runStatus": "Succeeded"
-                                    }
-                                }
-                            },
-                            "runAfter": {
-                                "Initialize_variable_Comments": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "expression": {
-                                "and": [
-                                    {
-                                        "equals": [
-                                            "@triggerBody()?['Entities']['AccountsCount']",
-                                            0
-                                        ]
-                                    },
-                                    {
-                                        "equals": [
-                                            "@triggerBody()?['Entities']['IPsCount']",
-                                            0
-                                        ]
-                                    }
-                                ]
-                            },
-                            "type": "If"
-                        },
-                        "Create_table_to_check_IPsHighestExposureLevel": {
-                            "runAfter": {
-                                "Create_table_to_check_IPsHighestRiskScore": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "Table",
-                            "inputs": {
-                                "columns": [
-                                    {
-                                        "header": "",
-                                        "value": "@item()['IPHighestExposureLevel']"
-                                    }
-                                ],
-                                "format": "CSV",
-                                "from": "@variables('DetailedResultsIPs')"
-                            }
-                        },
-                        "Create_table_to_check_IPsHighestRiskScore": {
-                            "runAfter": {
-                                "For_each_IP_in_IPs": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "Table",
-                            "inputs": {
-                                "columns": [
-                                    {
-                                        "header": "",
-                                        "value": "@item()['IPHighestRiskScore']"
-                                    }
-                                ],
-                                "format": "CSV",
-                                "from": "@variables('DetailedResultsIPs')"
-                            }
-                        },
-                        "Create_table_to_check_UsersHighestExposureLevel": {
-                            "runAfter": {
-                                "Create_table_to_check_UsersHighestRiskScore": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "Table",
-                            "inputs": {
-                                "columns": [
-                                    {
-                                        "header": "",
-                                        "value": "@item()['UserHighestExposureLevel']"
-                                    }
-                                ],
-                                "format": "CSV",
-                                "from": "@variables('DetailedResultsAccounts')"
-                            }
-                        },
-                        "Create_table_to_check_UsersHighestRiskScore": {
-                            "runAfter": {
-                                "For_each_account": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "Table",
-                            "inputs": {
-                                "columns": [
-                                    {
-                                        "header": "",
-                                        "value": "@item()?['UserHighestRiskScore']"
-                                    }
-                                ],
-                                "format": "CSV",
-                                "from": "@variables('DetailedResultsAccounts')"
-                            }
-                        },
-                        "Filter_array_-_Get_only_account_with_a_onPremisesSecurityIdentifier_or_sid": {
-                            "runAfter": {
-                                "Condition_-_Terminate_if_no_supported_entities": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "Query",
-                            "inputs": {
-                                "from": "@triggerBody()?['Entities']['Accounts']",
-                                "where": "@greater(add(length(coalesce(item()?['onPremisesSecurityIdentifier'], '')), length(coalesce(item()?['RawEntity']?['sid'], ''))), 0)"
-                            }
-                        },
-                        "For_each_IP_in_IPs": {
-                            "foreach": "@triggerBody()?['Entities']['IPs']",
-                            "actions": {
-                                "Advanced_Hunting_-_IP_path": {
-                                    "runAfter": {},
-                                    "type": "ApiConnection",
-                                    "inputs": {
-                                        "body": {
-                                            "Query": "let IPLookUp = \"@{items('For_each_IP_in_IPs')['Address']}\";\nDeviceNetworkInfo\n| where Timestamp > ago(@{triggerBody()?['LookbackInDays']}d)\n| summarize arg_max(Timestamp,*) by DeviceId\n| extend IPs = todynamic(IPAddresses)\n| mv-expand IPs\n| evaluate bag_unpack(IPs)\n| where IPAddress == IPLookUp\n| summarize ListIds=make_list(DeviceId)\n| project List=array_concat(ListIds,pack_array(\"default\"))"
-                                        },
-                                        "host": {
-                                            "connection": {
-                                                "name": "@parameters('$connections')['wdatp']['connectionId']"
-                                            }
-                                        },
-                                        "method": "post",
-                                        "path": "/api/advancedqueries/run"
-                                    }
-                                },
-                                "Append_to_array_variable_DetailedResultsIPs": {
-                                    "runAfter": {
-                                        "Create_table_to_check_IPHighestExposureLevel": [
-                                            "Succeeded"
-                                        ]
-                                    },
-                                    "type": "AppendToArrayVariable",
-                                    "inputs": {
-                                        "name": "DetailedResultsIPs",
-                                        "value": {
-                                            "Address": "@{items('For_each_IP_in_IPs')['Address']}",
-                                            "IPDevices": "@body('Machines_-_Get_list_of_machines_-_IP_path')?['value']",
-                                            "IPHighestExposureLevel": "@{if(contains(body('Create_table_to_check_IPHighestExposureLevel'), 'High'), 'High', if(contains(body('Create_table_to_check_IPHighestExposureLevel'), 'Medium'), 'Medium', if(contains(body('Create_table_to_check_IPHighestExposureLevel'), 'Low'), 'Low', if(contains(body('Create_table_to_check_IPHighestExposureLevel'), 'None'),'None','Unknown'))))}",
-                                            "IPHighestRiskScore": "@{if(contains(body('Create_table_to_check_IpHighestRiskScore'), 'High'), 'High', if(contains(body('Create_table_to_check_IpHighestRiskScore'), 'Medium'), 'Medium', if(contains(body('Create_table_to_check_IpHighestRiskScore'), 'Low'), 'Low', if(contains(body('Create_table_to_check_IpHighestRiskScore'), 'Informational'), 'Informational', if(contains(body('Create_table_to_check_IpHighestRiskScore'), 'None'), 'None', 'Unknown')))))}"
-                                        }
-                                    }
-                                },
-                                "Create_table_to_check_IPHighestExposureLevel": {
-                                    "runAfter": {
-                                        "Create_table_to_check_IPHighestRiskScore": [
-                                            "Succeeded"
-                                        ]
-                                    },
-                                    "type": "Table",
-                                    "inputs": {
-                                        "columns": [
-                                            {
-                                                "header": "",
-                                                "value": "@item()['exposureLevel']"
-                                            }
-                                        ],
-                                        "format": "CSV",
-                                        "from": "@body('Machines_-_Get_list_of_machines_-_IP_path')?['value']"
-                                    }
-                                },
-                                "Create_table_to_check_IPHighestRiskScore": {
-                                    "runAfter": {
-                                        "Machines_-_Get_list_of_machines_-_IP_path": [
-                                            "Succeeded"
-                                        ]
-                                    },
-                                    "type": "Table",
-                                    "inputs": {
-                                        "columns": [
-                                            {
-                                                "header": "",
-                                                "value": "@item()?['riskScore']"
-                                            }
-                                        ],
-                                        "format": "CSV",
-                                        "from": "@body('Machines_-_Get_list_of_machines_-_IP_path')?['value']"
-                                    }
-                                },
-                                "Machines_-_Get_list_of_machines_-_IP_path": {
-                                    "runAfter": {
-                                        "Advanced_Hunting_-_IP_path": [
-                                            "Succeeded"
-                                        ]
-                                    },
-                                    "type": "ApiConnection",
-                                    "inputs": {
-                                        "host": {
-                                            "connection": {
-                                                "name": "@parameters('$connections')['wdatp']['connectionId']"
-                                            }
-                                        },
-                                        "method": "get",
-                                        "path": "/api/machines",
-                                        "queries": {
-                                            "$filter": "id in (\"@{join(body('Advanced_Hunting_-_IP_path')?['Results'][0]['List'],'\",\"')}\")",
-                                            "$select": "id,computerDnsName,riskScore,exposureLevel"
-                                        }
-                                    }
-                                }
-                            },
-                            "runAfter": {
-                                "Condition_-_Terminate_if_no_supported_entities": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "Foreach"
-                        },
-                        "For_each_account": {
-                            "foreach": "@body('Filter_array_-_Get_only_account_with_a_onPremisesSecurityIdentifier_or_sid')",
-                            "actions": {
-                                "Advanced_Hunting_-_SID_path": {
-                                    "runAfter": {
-                                        "Compose_UserHighestScore": [
-                                            "Succeeded"
-                                        ]
-                                    },
-                                    "type": "ApiConnection",
-                                    "inputs": {
-                                        "body": {
-                                            "Query": "DeviceLogonEvents \n| where Timestamp > ago(@{triggerBody()?['LookbackInDays']}d)\n| where LogonType in (\"Interactive\",\"RemoteInteractive\")\n| where AccountSid == \"@{coalesce(item()?['RawEntity']?['sid'],item()?['onPremisesSecurityIdentifier'])}\" \n| distinct DeviceId\n| summarize ListIds=make_list(DeviceId)\n| project List=array_concat(ListIds,pack_array(\"default\"))"
-                                        },
-                                        "host": {
-                                            "connection": {
-                                                "name": "@parameters('$connections')['wdatp']['connectionId']"
-                                            }
-                                        },
-                                        "method": "post",
-                                        "path": "/api/advancedqueries/run"
-                                    }
-                                },
-                                "Append_to_array_DetailsResultsAccounts": {
-                                    "runAfter": {
-                                        "Create_table_to_check_UserHighestExposureLevel": [
-                                            "Succeeded"
-                                        ]
-                                    },
-                                    "type": "AppendToArrayVariable",
-                                    "inputs": {
-                                        "name": "DetailedResultsAccounts",
-                                        "value": {
-                                            "UserDevices": "@body('Machines_-_Get_list_of_machines_-_SID_path')?['value']",
-                                            "UserHighestExposureLevel": "@{if(contains(body('Create_table_to_check_UserHighestExposureLevel'), 'High'), 'High', if(contains(body('Create_table_to_check_UserHighestExposureLevel'), 'Medium'), 'Medium', if(contains(body('Create_table_to_check_UserHighestExposureLevel'), 'Low'), 'Low', if(contains(body('Create_table_to_check_UserHighestExposureLevel'), 'None'),'None','Unknown'))))}",
-                                            "UserHighestRiskScore": "@{if(contains(body('Create_table_to_check_UserHighestRiskScore'), 'High'), 'High', if(contains(body('Create_table_to_check_UserHighestRiskScore'), 'Medium'), 'Medium', if(contains(body('Create_table_to_check_UserHighestRiskScore'), 'Low'), 'Low', if(contains(body('Create_table_to_check_UserHighestRiskScore'), 'Informational'), 'Informational', if(contains(body('Create_table_to_check_UserHighestRiskScore'), 'None'), 'None', 'Unknown')))))}",
-                                            "UserId": "@{item()?['id']}",
-                                            "UserPrincipalName": "@{item()?['UserPrincipalName']}",
-                                            "UserSid": "@{coalesce(item()?['RawEntity']?['sid'],item()?['onPremisesSecurityIdentifier'])}"
-                                        }
-                                    }
-                                },
-                                "Compose_UserHighestScore": {
-                                    "runAfter": {},
-                                    "type": "Compose",
-                                    "inputs": []
-                                },
-                                "Create_table_to_check_UserHighestExposureLevel": {
-                                    "runAfter": {
-                                        "Create_table_to_check_UserHighestRiskScore": [
-                                            "Succeeded"
-                                        ]
-                                    },
-                                    "type": "Table",
-                                    "inputs": {
-                                        "columns": [
-                                            {
-                                                "header": "",
-                                                "value": "@item()['exposureLevel']"
-                                            }
-                                        ],
-                                        "format": "CSV",
-                                        "from": "@body('Machines_-_Get_list_of_machines_-_SID_path')?['value']"
-                                    }
-                                },
-                                "Create_table_to_check_UserHighestRiskScore": {
-                                    "runAfter": {
-                                        "Machines_-_Get_list_of_machines_-_SID_path": [
-                                            "Succeeded"
-                                        ]
-                                    },
-                                    "type": "Table",
-                                    "inputs": {
-                                        "columns": [
-                                            {
-                                                "header": "",
-                                                "value": "@item()?['riskScore']"
-                                            }
-                                        ],
-                                        "format": "CSV",
-                                        "from": "@body('Machines_-_Get_list_of_machines_-_SID_path')?['value']"
-                                    }
-                                },
-                                "Machines_-_Get_list_of_machines_-_SID_path": {
-                                    "runAfter": {
-                                        "Advanced_Hunting_-_SID_path": [
-                                            "Succeeded"
-                                        ]
-                                    },
-                                    "type": "ApiConnection",
-                                    "inputs": {
-                                        "host": {
-                                            "connection": {
-                                                "name": "@parameters('$connections')['wdatp']['connectionId']"
-                                            }
-                                        },
-                                        "method": "get",
-                                        "path": "/api/machines",
-                                        "queries": {
-                                            "$filter": "id in (\"@{join(body('Advanced_Hunting_-_SID_path')?['Results'][0]['List'],'\",\"')}\")",
-                                            "$select": "id,computerDnsName,riskScore,exposureLevel"
-                                        }
-                                    }
-                                }
-                            },
-                            "runAfter": {
-                                "Filter_array_-_Get_only_account_with_a_onPremisesSecurityIdentifier_or_sid": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "Foreach"
-                        },
-                        "Initialize_variable_Comments": {
-                            "runAfter": {
-                                "Initialize_variable_DetailedResultsIPs": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "InitializeVariable",
-                            "inputs": {
-                                "variables": [
-                                    {
-                                        "name": "Comments",
-                                        "type": "string"
-                                    }
-                                ]
-                            }
-                        },
-                        "Initialize_variable_DetailedResultsAccounts": {
-                            "runAfter": {},
-                            "type": "InitializeVariable",
-                            "inputs": {
-                                "variables": [
-                                    {
-                                        "name": "DetailedResultsAccounts",
-                                        "type": "array",
-                                        "value": []
-                                    }
-                                ]
-                            }
-                        },
-                        "Initialize_variable_DetailedResultsIPs": {
-                            "runAfter": {
-                                "Initialize_variable_DetailedResultsAccounts": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "InitializeVariable",
-                            "inputs": {
-                                "variables": [
-                                    {
-                                        "name": "DetailedResultsIPs",
-                                        "type": "array",
-                                        "value": []
-                                    }
-                                ]
-                            }
-                        },
-                        "Response": {
-                            "runAfter": {
-                                "Condition_-_Add_comment": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "Response",
                             "kind": "Http",
-                            "inputs": {
-                                "body": "@outputs('Compose_response')",
-                                "schema": {
-                                    "properties": {
-                                        "AnalyzedEntities": {
-                                            "type": "integer",
-                                            "description": "Number of entities parsed by the module"
-                                        },
-                                        "DetailedResults": {
-                                            "properties": {
-                                                "Accounts": {
-                                                    "items": {
-                                                        "properties": {
-                                                            "UserDevices": {
-                                                                "type": "array"
-                                                            },
-                                                            "UserHighestExposureLevel": {
-                                                                "type": "string"
-                                                            },
-                                                            "UserHighestRiskScore": {
-                                                                "type": "string"
-                                                            },
-                                                            "UserId": {
-                                                                "type": "string"
-                                                            },
-                                                            "UserPrincipalName": {
-                                                                "type": "string"
-                                                            },
-                                                            "UserSid": {
-                                                                "type": "string"
-                                                            }
-                                                        },
-                                                        "required": [],
-                                                        "type": "object"
-                                                    },
-                                                    "type": "array",
-                                                    "description": "Array of accounts and associated devices"
-                                                },
-                                                "IPs": {
-                                                    "items": {
-                                                        "properties": {
-                                                            "Address": {
-                                                                "type": "string"
-                                                            },
-                                                            "IPDevices": {
-                                                                "type": "array"
-                                                            },
-                                                            "IPHighestExposureLevel": {
-                                                                "type": "string"
-                                                            },
-                                                            "IPHighestRiskScore": {
-                                                                "type": "string"
-                                                            }
-                                                        },
-                                                        "required": [],
-                                                        "type": "object"
-                                                    },
-                                                    "type": "array",
-                                                    "description": "Array of IPs and associated devices"
-                                                }
-                                            },
-                                            "type": "object"
-                                        },
-                                        "IPsHighestExposureLevel": {
-                                            "type": "string",
-                                            "description": "Highest exposure level found on devices for all IPs"
-                                        },
-                                        "IPsHighestRiskScore": {
-                                            "type": "string",
-                                            "description": "Highest risk score found on devices for all IPs"
-                                        },
-                                        "UsersHighestExposureLevel": {
-                                            "type": "string",
-                                            "description": "Highest exposure level found on devices for all accounts"
-                                        },
-                                        "UsersHighestRiskScore": {
-                                            "type": "string",
-                                            "description": "Highest risk score found for on devices all accounts"
-                                        }
-                                    },
-                                    "type": "object"
-                                },
-                                "statusCode": 200
-                            }
+                            "type": "Request"
                         }
-                    },
-                    "outputs": {}
+                    }
                 },
                 "parameters": {
                     "$connections": {
