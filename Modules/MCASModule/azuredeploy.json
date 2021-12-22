@@ -8,7 +8,6 @@
         }
     },
     "variables": {
-        "LogicAppName": "[parameters('PlaybookName')]",
         "AzureSentinelConnectionName":"[concat('azuresentinel-', parameters('PlaybookName'))]"
     },
     "resources": [
@@ -42,6 +41,43 @@
                 "state": "Enabled",
                 "definition": {
                     "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {},
+                            "type": "Object"
+                        },
+                        "PlaybookVersion": {
+                            "defaultValue": "0.0.1",
+                            "type": "String"
+                        }
+                    },
+                    "triggers": {
+                        "triage": {
+                            "inputs": {
+                                "schema": {
+                                    "properties": {
+                                        "AddIncidentComments": {
+                                            "title": "Add comments to the incident",
+                                            "type": "boolean"
+                                        },
+                                        "Entities": {
+                                            "description": "Click here and select the Entities object from the Dynamic content menu",
+                                            "type": "array"
+                                        },
+                                        "ScoreThreshold": {
+                                            "description": "Type the minimum investigation Score",
+                                            "title": "Investigation Score Threshold",
+                                            "type": "integer"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            },
+                            "kind": "Http",
+                            "type": "Request"
+                        }
+                    },
                     "actions": {
                         "Compose_final_response": {
                             "inputs": {
@@ -742,40 +778,7 @@
                             "type": "Response"
                         }
                     },
-                    "contentVersion": "1.0.0.0",
-                    "outputs": {},
-                    "parameters": {
-                        "$connections": {
-                            "defaultValue": {},
-                            "type": "Object"
-                        }
-                    },
-                    "triggers": {
-                        "triage": {
-                            "inputs": {
-                                "schema": {
-                                    "properties": {
-                                        "AddIncidentComments": {
-                                            "title": "Add comments to the incident",
-                                            "type": "boolean"
-                                        },
-                                        "Entities": {
-                                            "description": "Click here and select the Entities object from the Dynamic content menu",
-                                            "type": "array"
-                                        },
-                                        "ScoreThreshold": {
-                                            "description": "Type the minimum investigation Score",
-                                            "title": "Investigation Score Threshold",
-                                            "type": "integer"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            },
-                            "kind": "Http",
-                            "type": "Request"
-                        }
-                    }
+                    "outputs": {}
                 },
                 "parameters": {
                     "$connections": {

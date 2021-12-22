@@ -41,6 +41,53 @@
                 "state": "Enabled",
                 "definition": {
                     "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {},
+                            "type": "Object"
+                        },
+                        "PlaybookVersion": {
+                            "defaultValue": "0.0.1",
+                            "type": "String"
+                        }
+                    },
+                    "triggers": {
+                        "triage": {
+                            "inputs": {
+                                "schema": {
+                                    "properties": {
+                                        "AddIncidentComments": {
+                                            "title": "Add comments to the incident",
+                                            "type": "boolean"
+                                        },
+                                        "Entities": {
+                                            "description": "Click here and select the EnrichedEntities object from the Dynamic content menu",
+                                            "type": "array"
+                                        },
+                                        "LookbackInDays": {
+                                            "description": "Enter a value between 1 and 90",
+                                            "maximum": 90,
+                                            "minimum": 1,
+                                            "title": "Lookback period in days",
+                                            "type": "integer"
+                                        },
+                                        "MFAFailureLookup": {
+                                            "title": "Look for failed MFA attempts",
+                                            "type": "boolean"
+                                        },
+                                        "MFAFraudLookup": {
+                                            "title": "Look for MFA Fraud reports",
+                                            "type": "boolean"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            },
+                            "kind": "Http",
+                            "type": "Request"
+                        }
+                    },
                     "actions": {
                         "Compose_response": {
                             "inputs": {
@@ -905,50 +952,7 @@
                             "type": "Response"
                         }
                     },
-                    "contentVersion": "1.0.0.0",
-                    "outputs": {},
-                    "parameters": {
-                        "$connections": {
-                            "defaultValue": {},
-                            "type": "Object"
-                        }
-                    },
-                    "triggers": {
-                        "triage": {
-                            "inputs": {
-                                "schema": {
-                                    "properties": {
-                                        "AddIncidentComments": {
-                                            "title": "Add comments to the incident",
-                                            "type": "boolean"
-                                        },
-                                        "Entities": {
-                                            "description": "Click here and select the EnrichedEntities object from the Dynamic content menu",
-                                            "type": "array"
-                                        },
-                                        "LookbackInDays": {
-                                            "description": "Enter a value between 1 and 90",
-                                            "maximum": 90,
-                                            "minimum": 1,
-                                            "title": "Lookback period in days",
-                                            "type": "integer"
-                                        },
-                                        "MFAFailureLookup": {
-                                            "title": "Look for failed MFA attempts",
-                                            "type": "boolean"
-                                        },
-                                        "MFAFraudLookup": {
-                                            "title": "Look for MFA Fraud reports",
-                                            "type": "boolean"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            },
-                            "kind": "Http",
-                            "type": "Request"
-                        }
-                    }
+                    "outputs": {}
                 },
                 "parameters": {
                     "$connections": {

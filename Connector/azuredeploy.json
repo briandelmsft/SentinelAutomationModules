@@ -113,7 +113,7 @@
                     "info": {
                         "version": "1.0.0",
                         "title": "STAT",
-                        "description": "STAT"
+                        "description": "The Microsoft Sentinel Triage assistance is an automation toolkit to simplify the construction of automation to analyze Sentinel Incidents (version 0.0.1)"
                     },
                     "host": "[string(split(split(listCallbackUrl(resourceId('Microsoft.Logic/workflows/triggers', parameters('STATCoordinatorPlaybookName'), 'manual'), '2017-07-01').value, ':443')[0], '//')[1])]",
                     "basePath": "/",
@@ -2280,7 +2280,12 @@
                 "definition": {
                     "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
                     "contentVersion": "1.0.0.0",
-                    "parameters": {},
+                    "parameters": {
+                        "PlaybookVersion": {
+                            "defaultValue": "0.0.1",
+                            "type": "String"
+                        }
+                    },
                     "triggers": {
                         "manual": {
                             "type": "Request",

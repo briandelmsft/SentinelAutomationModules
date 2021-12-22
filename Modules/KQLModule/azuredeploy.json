@@ -46,6 +46,10 @@
                         "$connections": {
                             "defaultValue": {},
                             "type": "Object"
+                        },
+                        "PlaybookVersion": {
+                            "defaultValue": "0.0.1",
+                            "type": "String"
                         }
                     },
                     "triggers": {
@@ -605,6 +609,7 @@
                                                     "PlaybookName": "@{workflow()?['name']}",
                                                     "PlaybookResourceId": "@{workflow()?['id']}",
                                                     "PlaybookRunId": "@{workflow()?['run']?['name']}",
+                                                    "PlaybookVersion": "@parameters('PlaybookVersion')",
                                                     "SourceError": "@body('HTTP_-_M365')"
                                                 },
                                                 "statusCode": "@outputs('HTTP_-_M365')['statusCode']"
@@ -702,6 +707,7 @@
                                                     "PlaybookName": "@{workflow()?['name']}",
                                                     "PlaybookResourceId": "@{workflow()?['id']}",
                                                     "PlaybookRunId": "@{workflow()?['run']?['name']}",
+                                                    "PlaybookVersion": "@parameters('PlaybookVersion')",
                                                     "SourceError": "@body('HTTP_-_Sentinel')"
                                                 },
                                                 "statusCode": "@outputs('HTTP_-_Sentinel')['statusCode']"
@@ -750,7 +756,8 @@
                                                 "Error": "Invalid RunQueryAgainst: @{triggerBody()?['RunQueryAgainst']}",
                                                 "PlaybookName": "@{workflow()?['name']}",
                                                 "PlaybookResourceId": "@{workflow()?['id']}",
-                                                "PlaybookRunId": "@{workflow()?['run']?['name']}"
+                                                "PlaybookRunId": "@{workflow()?['run']?['name']}",
+                                                "PlaybookVersion": "@parameters('PlaybookVersion')"
                                             },
                                             "statusCode": 400
                                         }
