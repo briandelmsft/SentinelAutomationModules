@@ -63,6 +63,10 @@
                         "$connections": {
                             "defaultValue": {},
                             "type": "Object"
+                        },
+                        "PlaybookVersion": {
+                            "defaultValue": "0.0.1",
+                            "type": "String"
                         }
                     },
                     "triggers": {
@@ -745,6 +749,7 @@
                                     "PlaybookName": "@{workflow()?['name']}",
                                     "PlaybookResourceId": "@{workflow()?['id']}",
                                     "PlaybookRunId": "@{workflow()?['run']?['name']}",
+                                    "PlaybookVersion": "@parameters('PlaybookVersion')",
                                     "SourceError": "@result('For_each_account')[0]['outputs'][0]['outputs']['body']"
                                 },
                                 "statusCode": "@result('For_each_account')[0]['outputs'][0]['outputs']['statusCode']"
@@ -765,6 +770,7 @@
                                     "PlaybookName": "@{workflow()?['name']}",
                                     "PlaybookResourceId": "@{workflow()?['id']}",
                                     "PlaybookRunId": "@{workflow()?['run']?['name']}",
+                                    "PlaybookVersion": "@parameters('PlaybookVersion')",
                                     "SourceError": "@result('For_each_IP_in_IPs')[0]['outputs'][0]['outputs']['body']"
                                 },
                                 "statusCode": "@result('For_each_IP_in_IPs')[0]['outputs'][0]['outputs']['statusCode']"

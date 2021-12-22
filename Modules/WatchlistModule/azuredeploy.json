@@ -46,6 +46,10 @@
                         "$connections": {
                             "defaultValue": {},
                             "type": "Object"
+                        },
+                        "PlaybookVersion": {
+                            "defaultValue": "0.0.1",
+                            "type": "String"
                         }
                     },
                     "triggers": {
@@ -149,7 +153,8 @@
                                             "Error": "Watchlist @{triggerBody()?['WatchlistName']} was not found.",
                                             "PlaybookName": "@{workflow()?['name']}",
                                             "PlaybookResourceId": "@{workflow()?['id']}",
-                                            "PlaybookRunId": "@{workflow()?['run']?['name']}"
+                                            "PlaybookRunId": "@{workflow()?['run']?['name']}",
+                                            "PlaybookVersion": "@parameters('PlaybookVersion')"
                                         },
                                         "statusCode": 404
                                     }
@@ -646,6 +651,7 @@
                                     "PlaybookName": "@{workflow()?['name']}",
                                     "PlaybookResourceId": "@{workflow()?['id']}",
                                     "PlaybookRunId": "@{workflow()?['run']?['name']}",
+                                    "PlaybookVersion": "@parameters('PlaybookVersion')",
                                     "SourceError": "@body('HTTP_-_Check_Watchlist_Validity')"
                                 },
                                 "statusCode": "@outputs('HTTP_-_Check_Watchlist_Validity')['statusCode']"
@@ -715,7 +721,8 @@
                                                 "Error": "Invalid WatchlistKeyDataType: @{triggerBody()?['WatchlistKeyDataType']}",
                                                 "PlaybookName": "@{workflow()?['name']}",
                                                 "PlaybookResourceId": "@{workflow()?['id']}",
-                                                "PlaybookRunId": "@{workflow()?['run']?['name']}"
+                                                "PlaybookRunId": "@{workflow()?['run']?['name']}",
+                                                "PlaybookVersion": "@parameters('PlaybookVersion')"
                                             },
                                             "statusCode": 404
                                         }

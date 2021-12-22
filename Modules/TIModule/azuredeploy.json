@@ -46,6 +46,10 @@
                         "$connections": {
                             "defaultValue": {},
                             "type": "Object"
+                        },
+                        "PlaybookVersion": {
+                            "defaultValue": "0.0.1",
+                            "type": "String"
                         }
                     },
                     "triggers": {
@@ -199,6 +203,7 @@
                                             "PlaybookName": "@{workflow()?['name']}",
                                             "PlaybookResourceId": "@{workflow()?['id']}",
                                             "PlaybookRunId": "@{workflow()?['run']?['name']}",
+                                            "PlaybookVersion": "@parameters('PlaybookVersion')",
                                             "SourceError": "@body('HTTP_-_Domain')"
                                         },
                                         "statusCode": "@outputs('HTTP_-_Domain')['statusCode']"
@@ -289,6 +294,7 @@
                                             "PlaybookName": "@{workflow()?['name']}",
                                             "PlaybookResourceId": "@{workflow()?['id']}",
                                             "PlaybookRunId": "@{workflow()?['run']?['name']}",
+                                            "PlaybookVersion": "@parameters('PlaybookVersion')",
                                             "SourceError": "@body('HTTP_-_File_Hash')"
                                         },
                                         "statusCode": "@outputs('HTTP_-_File_Hash')['statusCode']"
@@ -379,6 +385,7 @@
                                             "PlaybookName": "@{workflow()?['name']}",
                                             "PlaybookResourceId": "@{workflow()?['id']}",
                                             "PlaybookRunId": "@{workflow()?['run']?['name']}",
+                                            "PlaybookVersion": "@parameters('PlaybookVersion')",
                                             "SourceError": "@body('HTTP_-_IP')"
                                         },
                                         "statusCode": "@outputs('HTTP_-_IP')['statusCode']"
@@ -469,6 +476,7 @@
                                             "PlaybookName": "@{workflow()?['name']}",
                                             "PlaybookResourceId": "@{workflow()?['id']}",
                                             "PlaybookRunId": "@{workflow()?['run']?['name']}",
+                                            "PlaybookVersion": "@parameters('PlaybookVersion')",
                                             "SourceError": "@body('HTTP_-_URL')"
                                         },
                                         "statusCode": "@outputs('HTTP_-_URL')['statusCode']"

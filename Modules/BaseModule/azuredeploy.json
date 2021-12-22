@@ -22,7 +22,12 @@
                 "definition": {
                     "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
                     "contentVersion": "1.0.0.0",
-                    "parameters": {},
+                    "parameters": {
+                        "PlaybookVersion": {
+                            "defaultValue": "0.0.1",
+                            "type": "String"
+                        }
+                    },
                     "triggers": {
                         "enrich": {
                             "type": "Request",
@@ -765,6 +770,7 @@
                                     "PlaybookName": "@{workflow()?['name']}",
                                     "PlaybookResourceId": "@{workflow()?['id']}",
                                     "PlaybookRunId": "@{workflow()?['run']?['name']}",
+                                    "PlaybookVersion": "@parameters('PlaybookVersion')",
                                     "SourceError": "@body('HTTP_-_Test_API_Access')"
                                 },
                                 "statusCode": "@outputs('HTTP_-_Test_API_Access')['statusCode']"

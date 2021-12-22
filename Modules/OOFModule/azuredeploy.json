@@ -62,6 +62,10 @@
                         "$connections": {
                             "defaultValue": {},
                             "type": "Object"
+                        },
+                        "PlaybookVersion": {
+                            "defaultValue": "0.0.1",
+                            "type": "String"
                         }
                     },
                     "triggers": {
@@ -216,7 +220,8 @@
                                             "Error": "Out of Office module failed to execute with status 401",
                                             "PlaybookName": "@{workflow()?['name']}",
                                             "PlaybookResourceId": "@{workflow()?['id']}",
-                                            "PlaybookRunId": "@{workflow()?['run']?['name']}"
+                                            "PlaybookRunId": "@{workflow()?['run']?['name']}",
+                                            "PlaybookVersion": "@parameters('PlaybookVersion')"
                                         },
                                         "statusCode": 401
                                     }
