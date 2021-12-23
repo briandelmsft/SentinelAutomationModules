@@ -65,7 +65,7 @@
                             "type": "Object"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.0.1",
+                            "defaultValue": "0.0.2",
                             "type": "String"
                         }
                     },
@@ -126,7 +126,7 @@
                                 "Add_comment_to_incident_(V3)": {
                                     "inputs": {
                                         "body": {
-                                            "incidentArmId": "@triggerBody()?['Entities']['IncidentARMId']",
+                                            "incidentArmId": "@body('Parse_JSON')?['IncidentARMId']",
                                             "message": "<p>Lookback in days: @{triggerBody()?['LookbackInDays']}</p><strong>Account Info</strong><br/><ul><li>Users Highest Risk Score: @{outputs('Compose_response')['UsersHighestRiskScore']}</li><li>Users Highest Exposure Level: @{outputs('Compose_response')['UsersHighestExposureLevel']}</li><li>List of users and devices: <ul>@{outputs('Compose_UserDevices_output')}</ul></li></ul><strong>IP Info</strong><br/><br/><ul><li>IP Highest Risk Score: @{outputs('Compose_response')['IPsHighestRiskScore']}</li><li>IP Highest Exposure Level: @{outputs('Compose_response')['IPsHighestExposureLevel']}</li><li>List of IP and devices: <ul>@{variables('Comments')}</ul></li></ul>"
                                         },
                                         "host": {

@@ -41,118 +41,7 @@
                 "state": "Enabled",
                 "definition": {
                     "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
-                    "contentVersion": "1.0.0.0",
-                    "parameters": {
-                        "$connections": {
-                            "defaultValue": {},
-                            "type": "Object"
-                        },
-                        "PlaybookVersion": {
-                            "defaultValue": "0.0.1",
-                            "type": "String"
-                        }
-                    },
-                    "triggers": {
-                        "triage": {
-                            "inputs": {
-                                "schema": {
-                                    "properties": {
-                                        "AddIncidentComments": {
-                                            "title": "Add comments to the incident",
-                                            "type": "boolean"
-                                        },
-                                        "Entities": {
-                                            "description": "Click here and select the EnrichedEntities object from the Dynamic content menu",
-                                            "type": "array"
-                                        },
-                                        "LookbackInDays": {
-                                            "description": "Enter a value between 1 and 90",
-                                            "maximum": 90,
-                                            "minimum": 1,
-                                            "title": "Lookback period in days",
-                                            "type": "integer"
-                                        },
-                                        "MFAFailureLookup": {
-                                            "title": "Look for failed MFA attempts",
-                                            "type": "boolean"
-                                        },
-                                        "MFAFraudLookup": {
-                                            "title": "Look for MFA Fraud reports",
-                                            "type": "boolean"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            },
-                            "kind": "Http",
-                            "type": "Request"
-                        }
-                    },
                     "actions": {
-                        "Compose_response": {
-                            "inputs": {
-                                "AnalyzedEntities": "@length(variables('DetailedResults'))",
-                                "DetailedResults": "@variables('DetailedResults')",
-                                "FailedMFATotalCount": "@variables('FailedMFATotalCount')",
-                                "HighestRiskLevel": "@{if(contains(body('Create_CSV_table_to_calculate_HighestRiskLevel'), 'high'), 'high', if(contains(body('Create_CSV_table_to_calculate_HighestRiskLevel'), 'medium'), 'medium', if(contains(body('Create_CSV_table_to_calculate_HighestRiskLevel'), 'low'), 'low', if(contains(body('Create_CSV_table_to_calculate_HighestRiskLevel'), 'none'),'none','unknown'))))}",
-                                "MFAFraudTotalCount": "@variables('MFAFraudTotalCount')"
-                            },
-                            "runAfter": {
-                                "Create_CSV_table_to_calculate_HighestRiskLevel": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "Compose"
-                        },
-                        "Condition_-_Add_comment": {
-                            "actions": {
-                                "Add_comment_to_incident": {
-                                    "inputs": {
-                                        "body": {
-                                            "incidentArmId": "@body('Parse_JSON')?['IncidentARMId']",
-                                            "message": "<p>Number of analyzed entities: @{length(variables('DetailedResults'))}<br>\nHighest risk level found: @{if(contains(body('Create_CSV_table_to_calculate_HighestRiskLevel'), 'High'), 'High', if(contains(body('Create_CSV_table_to_calculate_HighestRiskLevel'), 'Medium'), 'Medium', if(contains(body('Create_CSV_table_to_calculate_HighestRiskLevel'), 'Low'), 'Low', if(contains(body('Create_CSV_table_to_calculate_HighestRiskLevel'), 'None'),'None','Unknown'))))}<br>\nTotal failed MFA attempts: @{variables('FailedMFATotalCount')} (lookup enabled:@{triggerBody()?['MFAFailureLookup']})<br>\nTotal MFA fraud reports: @{variables('MFAFraudTotalCount')} (lookup enabled:@{triggerBody()?['MFAFraudLookup']})<br>\n<br>\nDetailed results :&nbsp;@{if(equals(length(outputs('Compose_response')['DetailedResults']),0),'No results',body('Create_HTML_table_for_comments'))}<br>\n</p>"
-                                        },
-                                        "host": {
-                                            "connection": {
-                                                "name": "@parameters('$connections')['azuresentinel']['connectionId']"
-                                            }
-                                        },
-                                        "method": "post",
-                                        "path": "/Incidents/Comment"
-                                    },
-                                    "runAfter": {
-                                        "Create_HTML_table_for_comments": [
-                                            "Succeeded"
-                                        ]
-                                    },
-                                    "type": "ApiConnection"
-                                },
-                                "Create_HTML_table_for_comments": {
-                                    "inputs": {
-                                        "format": "HTML",
-                                        "from": "@outputs('Compose_response')['DetailedResults']"
-                                    },
-                                    "runAfter": {},
-                                    "type": "Table"
-                                }
-                            },
-                            "expression": {
-                                "and": [
-                                    {
-                                        "equals": [
-                                            "@triggerBody()?['AddIncidentComments']",
-                                            "@true"
-                                        ]
-                                    }
-                                ]
-                            },
-                            "runAfter": {
-                                "Response": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "If"
-                        },
                         "Condition_-_Terminate_if_no_supported_entities": {
                             "actions": {
                                 "Response_-_Send_empty_results": {
@@ -163,51 +52,6 @@
                                             "FailedMFATotalCount": 0,
                                             "HighestRiskyLevel": 0,
                                             "MFAFraudTotalCount": 0
-                                        },
-                                        "schema": {
-                                            "properties": {
-                                                "AnalyzedEntities": {
-                                                    "description": "Number of entities analyzed",
-                                                    "type": "integer"
-                                                },
-                                                "DetailedResults": {
-                                                    "description": "An array of details per user",
-                                                    "items": {
-                                                        "properties": {
-                                                            "UserFailedMFACount": {
-                                                                "type": "integer"
-                                                            },
-                                                            "UserId": {
-                                                                "type": "string"
-                                                            },
-                                                            "UserMFAFraudsCount": {
-                                                                "type": "integer"
-                                                            },
-                                                            "UserPrincipalName": {
-                                                                "type": "string"
-                                                            },
-                                                            "UserRiskLevel": {
-                                                                "type": "string"
-                                                            }
-                                                        },
-                                                        "type": "object"
-                                                    },
-                                                    "type": "array"
-                                                },
-                                                "FailedMFATotalCount": {
-                                                    "description": "Total of failed MFA found for all entities",
-                                                    "type": "integer"
-                                                },
-                                                "HighestRiskLevel": {
-                                                    "description": "Highest risk level found for all the entities",
-                                                    "type": "string"
-                                                },
-                                                "MFAFraudTotalCount": {
-                                                    "description": "Total of MFA fraud reported for all entities",
-                                                    "type": "integer"
-                                                }
-                                            },
-                                            "type": "object"
                                         },
                                         "statusCode": 200
                                     },
@@ -244,23 +88,156 @@
                             },
                             "type": "If"
                         },
-                        "Create_CSV_table_to_calculate_HighestRiskLevel": {
-                            "inputs": {
-                                "columns": [
-                                    {
-                                        "header": "",
-                                        "value": "@toLower(item()['UserRiskLevel'])"
+                        "Condition_Error": {
+                            "actions": {
+                                "Response_Access_Issue": {
+                                    "inputs": {
+                                        "body": {
+                                            "Error": "AAD Risk module failed to execute with status @{body('Filter_array')[0]['statusCode']}",
+                                            "PlaybookName": "@{workflow()?['name']}",
+                                            "PlaybookResourceId": "@{workflow()?['id']}",
+                                            "PlaybookRunId": "@{workflow()?['run']?['name']}",
+                                            "SourceError": "@{body('Filter_array')[0]['body']}"
+                                        },
+                                        "statusCode": "@body('Filter_array')[0]['statusCode']"
+                                    },
+                                    "kind": "Http",
+                                    "runAfter": {},
+                                    "type": "Response"
+                                }
+                            },
+                            "else": {
+                                "actions": {
+                                    "Compose": {
+                                        "inputs": "@result('For_each_account')",
+                                        "runAfter": {},
+                                        "type": "Compose"
+                                    },
+                                    "Compose_response": {
+                                        "inputs": {
+                                            "AnalyzedEntities": "@length(variables('DetailedResults'))",
+                                            "DetailedResults": "@variables('DetailedResults')",
+                                            "FailedMFATotalCount": "@variables('FailedMFATotalCount')",
+                                            "HighestRiskLevel": "@{if(contains(body('Create_CSV_table_to_calculate_HighestRiskLevel'), 'high'), 'high', if(contains(body('Create_CSV_table_to_calculate_HighestRiskLevel'), 'medium'), 'medium', if(contains(body('Create_CSV_table_to_calculate_HighestRiskLevel'), 'low'), 'low', if(contains(body('Create_CSV_table_to_calculate_HighestRiskLevel'), 'none'),'none','unknown'))))}",
+                                            "MFAFraudTotalCount": "@variables('MFAFraudTotalCount')"
+                                        },
+                                        "runAfter": {
+                                            "Create_CSV_table_to_calculate_HighestRiskLevel": [
+                                                "Succeeded"
+                                            ]
+                                        },
+                                        "type": "Compose"
+                                    },
+                                    "Condition_-_Add_comment": {
+                                        "actions": {
+                                            "Add_comment_to_incident": {
+                                                "inputs": {
+                                                    "body": {
+                                                        "incidentArmId": "@body('Parse_JSON')?['IncidentARMId']",
+                                                        "message": "<p>Number of analyzed entities: @{length(variables('DetailedResults'))}<br>\nHighest risk level found: @{if(contains(body('Create_CSV_table_to_calculate_HighestRiskLevel'), 'High'), 'High', if(contains(body('Create_CSV_table_to_calculate_HighestRiskLevel'), 'Medium'), 'Medium', if(contains(body('Create_CSV_table_to_calculate_HighestRiskLevel'), 'Low'), 'Low', if(contains(body('Create_CSV_table_to_calculate_HighestRiskLevel'), 'None'),'None','Unknown'))))}<br>\nTotal failed MFA attempts: @{variables('FailedMFATotalCount')} (lookup enabled:@{triggerBody()?['MFAFailureLookup']})<br>\nTotal MFA fraud reports: @{variables('MFAFraudTotalCount')} (lookup enabled:@{triggerBody()?['MFAFraudLookup']})<br>\n<br>\nDetailed results :&nbsp;@{if(equals(length(outputs('Compose_response')['DetailedResults']),0),'No results',body('Create_HTML_table_for_comments'))}<br>\n</p>"
+                                                    },
+                                                    "host": {
+                                                        "connection": {
+                                                            "name": "@parameters('$connections')['azuresentinel']['connectionId']"
+                                                        }
+                                                    },
+                                                    "method": "post",
+                                                    "path": "/Incidents/Comment"
+                                                },
+                                                "runAfter": {
+                                                    "Create_HTML_table_for_comments": [
+                                                        "Succeeded"
+                                                    ]
+                                                },
+                                                "type": "ApiConnection"
+                                            },
+                                            "Create_HTML_table_for_comments": {
+                                                "inputs": {
+                                                    "format": "HTML",
+                                                    "from": "@outputs('Compose_response')['DetailedResults']"
+                                                },
+                                                "runAfter": {},
+                                                "type": "Table"
+                                            }
+                                        },
+                                        "expression": {
+                                            "and": [
+                                                {
+                                                    "equals": [
+                                                        "@triggerBody()?['AddIncidentComments']",
+                                                        "@true"
+                                                    ]
+                                                }
+                                            ]
+                                        },
+                                        "runAfter": {
+                                            "Response": [
+                                                "Succeeded"
+                                            ]
+                                        },
+                                        "type": "If"
+                                    },
+                                    "Create_CSV_table_to_calculate_HighestRiskLevel": {
+                                        "inputs": {
+                                            "columns": [
+                                                {
+                                                    "header": "",
+                                                    "value": "@toLower(item()['UserRiskLevel'])"
+                                                }
+                                            ],
+                                            "format": "CSV",
+                                            "from": "@variables('DetailedResults')"
+                                        },
+                                        "runAfter": {
+                                            "Compose": [
+                                                "Succeeded"
+                                            ]
+                                        },
+                                        "type": "Table"
+                                    },
+                                    "Response": {
+                                        "inputs": {
+                                            "body": "@outputs('Compose_response')",
+                                            "statusCode": 200
+                                        },
+                                        "kind": "Http",
+                                        "runAfter": {
+                                            "Compose_response": [
+                                                "Succeeded"
+                                            ]
+                                        },
+                                        "type": "Response"
                                     }
-                                ],
-                                "format": "CSV",
-                                "from": "@variables('DetailedResults')"
+                                }
+                            },
+                            "expression": {
+                                "and": [
+                                    {
+                                        "greater": [
+                                            "@length(body('Filter_array'))",
+                                            0
+                                        ]
+                                    }
+                                ]
+                            },
+                            "runAfter": {
+                                "Filter_array": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "If"
+                        },
+                        "Filter_array": {
+                            "inputs": {
+                                "from": "@variables('ErrorManagement')",
+                                "where": "@not(equals(item()?['statusCode'], 404))"
                             },
                             "runAfter": {
                                 "For_each_account": [
                                     "Succeeded"
                                 ]
                             },
-                            "type": "Table"
+                            "type": "Query"
                         },
                         "Filter_array_-_Get_only_accounts_with_an_id": {
                             "inputs": {
@@ -284,6 +261,18 @@
                                     "runAfter": {
                                         "Compose_DetailedResults": [
                                             "Succeeded"
+                                        ]
+                                    },
+                                    "type": "AppendToArrayVariable"
+                                },
+                                "Append_to_array_variable_ErrorManagement": {
+                                    "inputs": {
+                                        "name": "ErrorManagement",
+                                        "value": "@outputs('HTTP_-_Lookup_user_riskLevel')"
+                                    },
+                                    "runAfter": {
+                                        "HTTP_-_Lookup_user_riskLevel": [
+                                            "Failed"
                                         ]
                                     },
                                     "type": "AppendToArrayVariable"
@@ -422,7 +411,7 @@
                                             "type": "ManagedServiceIdentity"
                                         },
                                         "method": "GET",
-                                        "uri": "https://graph.microsoft.com/v1.0/identityProtection/riskyUsers/@{item()['id']}"
+                                        "uri": "https://graph.microsoft.com/v1.0/identityProtection/riskyUsers/@{items('For_each_account')['id']}"
                                     },
                                     "runAfter": {},
                                     "type": "Http"
@@ -461,7 +450,7 @@
                             },
                             "foreach": "@body('Filter_array_-_Get_only_accounts_with_an_id')",
                             "runAfter": {
-                                "Initialize_variable_MFAFraudTotalCount": [
+                                "Initialize_variable_ErrorManagement": [
                                     "Succeeded"
                                 ]
                             },
@@ -479,6 +468,23 @@
                             },
                             "runAfter": {
                                 "Filter_array_-_Get_only_accounts_with_an_id": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable"
+                        },
+                        "Initialize_variable_ErrorManagement": {
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "ErrorManagement",
+                                        "type": "array",
+                                        "value": []
+                                    }
+                                ]
+                            },
+                            "runAfter": {
+                                "Initialize_variable_MFAFraudTotalCount": [
                                     "Succeeded"
                                 ]
                             },
@@ -892,67 +898,56 @@
                             },
                             "runAfter": {},
                             "type": "ParseJson"
+                        }
+                    },
+                    "contentVersion": "1.0.0.0",
+                    "outputs": {},
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {},
+                            "type": "Object"
                         },
-                        "Response": {
+                        "PlaybookVersion": {
+                            "defaultValue": "0.0.2",
+                            "type": "String"
+                        }
+                    },
+                    "triggers": {
+                        "triage": {
                             "inputs": {
-                                "body": "@outputs('Compose_response')",
                                 "schema": {
                                     "properties": {
-                                        "AnalyzedEntities": {
-                                            "description": "Number of entities analyzed",
-                                            "type": "integer"
+                                        "AddIncidentComments": {
+                                            "title": "Add comments to the incident",
+                                            "type": "boolean"
                                         },
-                                        "DetailedResults": {
-                                            "description": "An array of details per user",
-                                            "items": {
-                                                "properties": {
-                                                    "UserFailedMFACount": {
-                                                        "type": "integer"
-                                                    },
-                                                    "UserId": {
-                                                        "type": "string"
-                                                    },
-                                                    "UserMFAFraudsCount": {
-                                                        "type": "integer"
-                                                    },
-                                                    "UserPrincipalName": {
-                                                        "type": "string"
-                                                    },
-                                                    "UserRiskLevel": {
-                                                        "type": "string"
-                                                    }
-                                                },
-                                                "type": "object"
-                                            },
+                                        "Entities": {
+                                            "description": "Click here and select the EnrichedEntities object from the Dynamic content menu",
                                             "type": "array"
                                         },
-                                        "FailedMFATotalCount": {
-                                            "description": "Total of failed MFA found for all entities",
+                                        "LookbackInDays": {
+                                            "description": "Enter a value between 1 and 90",
+                                            "maximum": 90,
+                                            "minimum": 1,
+                                            "title": "Lookback period in days",
                                             "type": "integer"
                                         },
-                                        "HighestRiskLevel": {
-                                            "description": "Highest risk level found for all the entities",
-                                            "type": "string"
+                                        "MFAFailureLookup": {
+                                            "title": "Look for failed MFA attempts",
+                                            "type": "boolean"
                                         },
-                                        "MFAFraudTotalCount": {
-                                            "description": "Total of MFA fraud reported for all entities",
-                                            "type": "integer"
+                                        "MFAFraudLookup": {
+                                            "title": "Look for MFA Fraud reports",
+                                            "type": "boolean"
                                         }
                                     },
                                     "type": "object"
-                                },
-                                "statusCode": 200
+                                }
                             },
                             "kind": "Http",
-                            "runAfter": {
-                                "Compose_response": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "Response"
+                            "type": "Request"
                         }
-                    },
-                    "outputs": {}
+                    }
                 },
                 "parameters": {
                     "$connections": {
