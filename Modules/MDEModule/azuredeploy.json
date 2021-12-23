@@ -65,7 +65,7 @@
                             "type": "Object"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.0.1",
+                            "defaultValue": "0.0.2",
                             "type": "String"
                         }
                     },
