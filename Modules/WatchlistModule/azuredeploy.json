@@ -48,7 +48,15 @@
                             "type": "Object"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.0.1",
+                            "defaultValue": "0.0.2",
+                            "type": "String"
+                        },
+                        "PlaybookInternalName": {
+                            "defaultValue": "WatchlistModule",
+                            "type": "String"
+                        },
+                        "ProjectName": {
+                            "defaultValue": "STAT",
                             "type": "String"
                         }
                     },
@@ -150,7 +158,7 @@
                                     "kind": "Http",
                                     "inputs": {
                                         "body": {
-                                            "Error": "Watchlist @{triggerBody()?['WatchlistName']} was not found.",
+                                            "Error": "@{parameters('PlaybookInternalName')} failed. Watchlist @{triggerBody()?['WatchlistName']} was not found.",
                                             "PlaybookName": "@{workflow()?['name']}",
                                             "PlaybookResourceId": "@{workflow()?['id']}",
                                             "PlaybookRunId": "@{workflow()?['run']?['name']}",
@@ -647,7 +655,7 @@
                             "kind": "Http",
                             "inputs": {
                                 "body": {
-                                    "Error": "Watchlist module failed to execute with status @{outputs('HTTP_-_Check_Watchlist_Validity')['statusCode']}",
+                                    "Error": "@{parameters('PlaybookInternalName')} failed to execute with status @{outputs('HTTP_-_Check_Watchlist_Validity')['statusCode']}",
                                     "PlaybookName": "@{workflow()?['name']}",
                                     "PlaybookResourceId": "@{workflow()?['id']}",
                                     "PlaybookRunId": "@{workflow()?['run']?['name']}",
@@ -718,7 +726,7 @@
                                         "kind": "Http",
                                         "inputs": {
                                             "body": {
-                                                "Error": "Invalid WatchlistKeyDataType: @{triggerBody()?['WatchlistKeyDataType']}",
+                                                "Error": "@{parameters('PlaybookInternalName')} failed. Invalid WatchlistKeyDataType: @{triggerBody()?['WatchlistKeyDataType']}",
                                                 "PlaybookName": "@{workflow()?['name']}",
                                                 "PlaybookResourceId": "@{workflow()?['id']}",
                                                 "PlaybookRunId": "@{workflow()?['run']?['name']}",

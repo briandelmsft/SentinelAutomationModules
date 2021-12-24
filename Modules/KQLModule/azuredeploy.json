@@ -48,7 +48,15 @@
                             "type": "Object"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.0.1",
+                            "defaultValue": "0.0.2",
+                            "type": "String"
+                        },
+                        "PlaybookInternalName": {
+                            "defaultValue": "KQLModule",
+                            "type": "String"
+                        },
+                        "ProjectName": {
+                            "defaultValue": "STAT",
                             "type": "String"
                         }
                     },
@@ -605,7 +613,7 @@
                                             "kind": "Http",
                                             "inputs": {
                                                 "body": {
-                                                    "Error": "KQL module failed to execute with status @{outputs('HTTP_-_M365')['statusCode']}",
+                                                    "Error": "@{parameters('PlaybookInternalName')} failed to execute with status @{outputs('HTTP_-_M365')['statusCode']}",
                                                     "PlaybookName": "@{workflow()?['name']}",
                                                     "PlaybookResourceId": "@{workflow()?['id']}",
                                                     "PlaybookRunId": "@{workflow()?['run']?['name']}",
@@ -703,7 +711,7 @@
                                             "kind": "Http",
                                             "inputs": {
                                                 "body": {
-                                                    "Error": "KQL module failed to execute with status @{outputs('HTTP_-_Sentinel')['statusCode']}",
+                                                    "Error": "@{parameters('PlaybookInternalName')} failed to execute with status @{outputs('HTTP_-_Sentinel')['statusCode']}",
                                                     "PlaybookName": "@{workflow()?['name']}",
                                                     "PlaybookResourceId": "@{workflow()?['id']}",
                                                     "PlaybookRunId": "@{workflow()?['run']?['name']}",
@@ -753,7 +761,7 @@
                                         "kind": "Http",
                                         "inputs": {
                                             "body": {
-                                                "Error": "Invalid RunQueryAgainst: @{triggerBody()?['RunQueryAgainst']}",
+                                                "Error": "@{parameters('PlaybookInternalName')} failed. Invalid RunQueryAgainst: @{triggerBody()?['RunQueryAgainst']}",
                                                 "PlaybookName": "@{workflow()?['name']}",
                                                 "PlaybookResourceId": "@{workflow()?['id']}",
                                                 "PlaybookRunId": "@{workflow()?['run']?['name']}",
