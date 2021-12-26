@@ -48,7 +48,15 @@
                             "type": "Object"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.0.1",
+                            "defaultValue": "0.0.2",
+                            "type": "String"
+                        },
+                        "PlaybookInternalName": {
+                            "defaultValue": "MCASModule",
+                            "type": "String"
+                        },
+                        "ProjectName": {
+                            "defaultValue": "STAT",
                             "type": "String"
                         }
                     },

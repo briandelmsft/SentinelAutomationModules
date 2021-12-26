@@ -65,7 +65,15 @@
                             "type": "Object"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.0.2",
+                            "defaultValue": "0.0.3",
+                            "type": "String"
+                        },
+                        "PlaybookInternalName": {
+                            "defaultValue": "MDEModule",
+                            "type": "String"
+                        },
+                        "ProjectName": {
+                            "defaultValue": "STAT",
                             "type": "String"
                         }
                     },
@@ -745,7 +753,7 @@
                         "Response_error_Account": {
                             "inputs": {
                                 "body": {
-                                    "Error": "MDE module failed to execute with status @{result('For_each_account')[0]['outputs'][0]['outputs']['statusCode']}",
+                                    "Error": "@{parameters('PlaybookInternalName')} failed to execute with status @{result('For_each_account')[0]['outputs'][0]['outputs']['statusCode']}",
                                     "PlaybookName": "@{workflow()?['name']}",
                                     "PlaybookResourceId": "@{workflow()?['id']}",
                                     "PlaybookRunId": "@{workflow()?['run']?['name']}",
@@ -766,7 +774,7 @@
                         "Response_error_IP": {
                             "inputs": {
                                 "body": {
-                                    "Error": "MDE module failed to execute with status @{result('For_each_IP_in_IPs')[0]['outputs'][0]['outputs']['statusCode']}",
+                                    "Error": "@{parameters('PlaybookInternalName')} failed to execute with status @{result('For_each_IP_in_IPs')[0]['outputs'][0]['outputs']['statusCode']}",
                                     "PlaybookName": "@{workflow()?['name']}",
                                     "PlaybookResourceId": "@{workflow()?['id']}",
                                     "PlaybookRunId": "@{workflow()?['run']?['name']}",

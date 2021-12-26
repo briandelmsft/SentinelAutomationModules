@@ -48,7 +48,15 @@
                             "type": "Object"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.0.1",
+                            "defaultValue": "0.0.2",
+                            "type": "String"
+                        },
+                        "PlaybookInternalName": {
+                            "defaultValue": "UEBAModule",
+                            "type": "String"
+                        },
+                        "ProjectName": {
+                            "defaultValue": "STAT",
                             "type": "String"
                         }
                     },
@@ -650,7 +658,7 @@
                             "kind": "Http",
                             "inputs": {
                                 "body": {
-                                    "Error": "UEBA module failed to execute with status @{outputs('HTTP')['statusCode']}",
+                                    "Error": "@{parameters('PlaybookInternalName')} failed to execute with status @{outputs('HTTP')['statusCode']}",
                                     "PlaybookName": "@{workflow()?['name']}",
                                     "PlaybookResourceId": "@{workflow()?['id']}",
                                     "PlaybookRunId": "@{workflow()?['run']?['name']}",

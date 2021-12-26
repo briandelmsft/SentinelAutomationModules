@@ -93,7 +93,7 @@
                                 "Response_Access_Issue": {
                                     "inputs": {
                                         "body": {
-                                            "Error": "AAD Risk module failed to execute with status @{body('Filter_array')[0]['statusCode']}",
+                                            "Error": "@{parameters('PlaybookInternalName')} failed to execute with status @{body('Filter_array')[0]['statusCode']}",
                                             "PlaybookName": "@{workflow()?['name']}",
                                             "PlaybookResourceId": "@{workflow()?['id']}",
                                             "PlaybookRunId": "@{workflow()?['run']?['name']}",
@@ -908,7 +908,15 @@
                             "type": "Object"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.0.2",
+                            "defaultValue": "0.0.3",
+                            "type": "String"
+                        },
+                        "PlaybookInternalName": {
+                            "defaultValue": "AADRisksModule",
+                            "type": "String"
+                        },
+                        "ProjectName": {
+                            "defaultValue": "STAT",
                             "type": "String"
                         }
                     },

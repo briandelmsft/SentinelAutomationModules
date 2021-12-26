@@ -24,7 +24,15 @@
                     "contentVersion": "1.0.0.0",
                     "parameters": {
                         "PlaybookVersion": {
-                            "defaultValue": "0.0.1",
+                            "defaultValue": "0.0.2",
+                            "type": "String"
+                        },
+                        "PlaybookInternalName": {
+                            "defaultValue": "BaseModule",
+                            "type": "String"
+                        },
+                        "ProjectName": {
+                            "defaultValue": "STAT",
                             "type": "String"
                         }
                     },
@@ -766,7 +774,7 @@
                             "kind": "Http",
                             "inputs": {
                                 "body": {
-                                    "Error": "Base module failed to execute with status @{outputs('HTTP_-_Test_API_Access')['statusCode']}",
+                                    "Error": "@{parameters('PlaybookInternalName')} failed to execute with status @{outputs('HTTP_-_Test_API_Access')['statusCode']}",
                                     "PlaybookName": "@{workflow()?['name']}",
                                     "PlaybookResourceId": "@{workflow()?['id']}",
                                     "PlaybookRunId": "@{workflow()?['run']?['name']}",
