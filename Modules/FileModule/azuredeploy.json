@@ -52,7 +52,7 @@
                             "type": "String"
                         },
                         "PlaybookInternalName": {
-                            "defaultValue": "BaseModule",
+                            "defaultValue": "FileModule",
                             "type": "String"
                         },
                         "ProjectName": {
