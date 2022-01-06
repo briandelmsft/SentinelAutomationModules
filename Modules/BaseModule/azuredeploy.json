@@ -24,7 +24,7 @@
                     "contentVersion": "1.0.0.0",
                     "parameters": {
                         "PlaybookVersion": {
-                            "defaultValue": "0.1.0",
+                            "defaultValue": "0.1.1",
                             "type": "String"
                         },
                         "PlaybookInternalName": {
@@ -337,7 +337,7 @@
                                         ]
                                     },
                                     "type": "Compose",
-                                    "inputs": "@addProperty(coalesce(body('HTTP_-_UPN')?['value']?[0],body('HTTP_-_AADId')?['value']?[0],body('HTTP_-_ObjectSid')?['value']?[0],body('HTTP_-_SamAccountName')?['value']?[0],body('HTTP_-_DistinguishedName')?['value']?[0],body('HTTP_-_Email')?['value']?[0]), 'AssignedRoles', body('Select_Roles'))"
+                                    "inputs": "@addProperty(coalesce(body('HTTP_-_Email')?['value']?[0],body('HTTP_-_UPN'),body('HTTP_-_AADId'),body('HTTP_-_ObjectSid')?['value']?[0],body('HTTP_-_SamAccountName')?['value']?[0],body('HTTP_-_DistinguishedName')?['value']?[0]), 'AssignedRoles', body('Select_Roles'))"
                                 },
                                 "Compose_User_2": {
                                     "runAfter": {
@@ -373,7 +373,7 @@
                                             "type": "ManagedServiceIdentity"
                                         },
                                         "method": "GET",
-                                        "uri": "https://graph.microsoft.com/v1.0/roleManagement/directory/roleAssignments?$filter=principalId%20eq%20'@{coalesce(body('HTTP_-_UPN')?['value']?[0]?['id'],body('HTTP_-_AADId')?['value']?[0]?['id'],body('HTTP_-_ObjectSid')?['value']?[0]?['id'],body('HTTP_-_SamAccountName')?['value']?[0]?['id'],body('HTTP_-_DistinguishedName')?['value']?[0]?['id'],body('HTTP_-_Email')?['value']?[0]?['id'])}'&$expand=roleDefinition"
+                                        "uri": "https://graph.microsoft.com/v1.0/roleManagement/directory/roleAssignments?$filter=principalId%20eq%20'@{coalesce(body('HTTP_-_Email')?['value']?[0]?['id'],body('HTTP_-_UPN')?['id'],body('HTTP_-_AADId')?['id'],body('HTTP_-_ObjectSid')?['value']?[0]?['id'],body('HTTP_-_SamAccountName')?['value']?[0]?['id'],body('HTTP_-_DistinguishedName')?['value']?[0]?['id'])}'&$expand=roleDefinition"
                                     }
                                 },
                                 "Select_Roles": {
@@ -405,7 +405,7 @@
                                                             "type": "ManagedServiceIdentity"
                                                         },
                                                         "method": "GET",
-                                                        "uri": "https://graph.microsoft.com/v1.0/users?$filter=(id%20eq%20'@{items('For_each_account')['aadUserId']}')&$select=@{variables('SelectProperties')}"
+                                                        "uri": "https://graph.microsoft.com/v1.0/users/@{items('For_each_account')['aadUserId']}?$select=@{variables('SelectProperties')}"
                                                     }
                                                 }
                                             }
