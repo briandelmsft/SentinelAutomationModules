@@ -1054,7 +1054,7 @@
                                                 "LookbackInDays": {
                                                     "type": "integer",
                                                     "format": "int32",
-                                                    "description": "Number of days to lookback in Threat Intel for matches",
+                                                    "description": "Number of days to lookback in recent alerts for matches",
                                                     "title": ""
                                                 }
                                             },
