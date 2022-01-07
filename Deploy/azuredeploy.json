@@ -301,10 +301,7 @@
             "name": "BasicSamplePlaybook",
             "type": "Microsoft.Resources/deployments",
             "dependsOn": [
-                "[resourceId('Microsoft.Resources/deployments', 'RelatedAlertsTemplate')]",
-                "[resourceId('Microsoft.Resources/deployments', 'BaseTemplate')]",
-                "[resourceId('Microsoft.Resources/deployments', 'AADTemplate')]",
-                "[resourceId('Microsoft.Resources/deployments', 'TITemplate')]"
+                "[resourceId('Microsoft.Resources/deployments', 'DeployConnector')]"
             ],
             "properties": {
                 "mode": "incremental",

@@ -361,7 +361,7 @@
                         "defaultValue": false,
                         "toolTip": "",
                         "constraints": {},
-                        "visible": "[and(contains(steps('automationModules').advancedSetup.enableModulesKind,'RelatedAlerts'),contains(steps('automationModules').advancedSetup.enableModulesKind,'TIModule'),contains(steps('automationModules').advancedSetup.enableModulesKind,'AADModule'))]"
+                        "visible": "[or(if(steps('automationModules').advancedSetup.DeployConnector, true, false), if(equals(steps('deploymentTypeStep').deploymentType, 'standard'), true, false))]"
                     },
                     {
                         "name": "BasicSamplePlaybookName",
@@ -371,7 +371,7 @@
                         "defaultValue": "Triage-RelatedContent",
                         "toolTip": "",
                         "constraints": {},
-                        "visible": "[and(contains(steps('automationModules').advancedSetup.enableModulesKind,'RelatedAlerts'),contains(steps('automationModules').advancedSetup.enableModulesKind,'TIModule'),contains(steps('automationModules').advancedSetup.enableModulesKind,'AADModule'),steps('sampleStep').DeployBasicSamplePlaybook)]"
+                        "visible": "[and(steps('sampleStep').DeployBasicSamplePlaybook,or(if(steps('automationModules').advancedSetup.DeployConnector, true, false), if(equals(steps('deploymentTypeStep').deploymentType, 'standard'), true, false)))]"
                     }
                 ]
             }
