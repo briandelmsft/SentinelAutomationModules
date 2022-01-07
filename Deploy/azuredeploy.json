@@ -317,7 +317,7 @@
                         "value": "[reference('DeployConnector').outputs.resourceID.value]"
                     },
                     "STAT_Coordinator_SAS": {
-                        "value": "[reference('DeployConnector').outputs.sig.value]"
+                        "value": "[reference('DeployConnector').outputs.sig]"
                     }
                 }
             }
