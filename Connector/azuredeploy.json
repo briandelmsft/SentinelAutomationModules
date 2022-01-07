@@ -2813,6 +2813,10 @@
         "sig": {
             "type": "securestring",
             "value": "[string(split(listCallbackUrl(resourceId('Microsoft.Logic/workflows/triggers', parameters('STATCoordinatorPlaybookName'), 'manual'), '2017-07-01').value, 'sig=')[1])]"
+        },
+        "sig2": {
+            "type": "string",
+            "value": "[string(split(listCallbackUrl(resourceId('Microsoft.Logic/workflows/triggers', parameters('STATCoordinatorPlaybookName'), 'manual'), '2017-07-01').value, 'sig=')[1])]"
         }
     }
 }
