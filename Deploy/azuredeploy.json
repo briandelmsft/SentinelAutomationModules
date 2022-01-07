@@ -41,11 +41,11 @@
             "defaultValue": "Get-MCASInvestigationScore",
             "type": "String"
         },
-        "SamplePlaybookName": {
+        "BasicSamplePlaybookName": {
             "defaultValue": "Triage-Incident",
             "type": "String"
         },
-        "DeploySamplePlaybook": {
+        "DeployBasicSamplePlaybook": {
             "defaultValue": false,
             "type": "bool"
         },
@@ -94,8 +94,8 @@
         "KQLTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/KQLModule/azuredeploy.json",
         "TITemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/TIModule/azuredeploy.json",
         "BaseTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/BaseModule/azuredeploy.json",
-        "SampleTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Samples/azuredeploy.json",
-        "ConnectorTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Connector/azuredeploy.json"
+        "BasicSampleTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/basic_sample/Samples/basicsample.json",
+        "ConnectorTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/basic_sample/Connector/azuredeploy.json"
     },
     "resources": [
         {
@@ -296,34 +296,31 @@
             }
         },
         {
-            "condition": "[parameters('DeploySamplePlaybook')]",
+            "condition": "[parameters('DeployBasicSamplePlaybook')]",
             "apiVersion": "2019-10-01",
-            "name": "SamplePlaybook",
+            "name": "BasicSamplePlaybook",
             "type": "Microsoft.Resources/deployments",
             "dependsOn": [
-                "[resourceId('Microsoft.Resources/deployments', 'OOFTemplate')]",
                 "[resourceId('Microsoft.Resources/deployments', 'RelatedAlertsTemplate')]",
-                "[resourceId('Microsoft.Resources/deployments', 'UEBATemplate')]",
-                "[resourceId('Microsoft.Resources/deployments', 'BaseTemplate')]"
+                "[resourceId('Microsoft.Resources/deployments', 'BaseTemplate')]",
+                "[resourceId('Microsoft.Resources/deployments', 'AADTemplate')]",
+                "[resourceId('Microsoft.Resources/deployments', 'TITemplate')]"
             ],
             "properties": {
                 "mode": "incremental",
                 "templateLink": {
-                    "uri": "[variables('SampleTemplate')]",
+                    "uri": "[variables('BasicSampleTemplate')]",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
                     "PlaybookName": {
-                        "value": "[parameters('SamplePlaybookName')]"
+                        "value": "[parameters('BasicSamplePlaybookName')]"
                     },
-                    "OOFPlaybook_ResourceId": {
-                        "value": "[reference('OOFTemplate').outputs.resourceID.value]"
+                    "STAT_Connector_resourceId": {
+                        "value": "[reference('DeployConnector').outputs.resourceID.value]"
                     },
-                    "RelatedAlertsPlaybook_ResourceId": {
-                        "value": "[reference('RelatedAlertsTemplate').outputs.resourceID.value]"
-                    },
-                    "UEBAInsightsPlaybook_ResourceId": {
-                        "value": "[reference('UEBATemplate').outputs.resourceID.value]"
+                    "STAT_Coordinator_SAS": {
+                        "value": "[reference('DeployConnector').outputs.sig.value]"
                     }
                 }
             }
