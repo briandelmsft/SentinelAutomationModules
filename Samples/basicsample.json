@@ -71,6 +71,18 @@
                         "$connections": {
                             "defaultValue": {},
                             "type": "Object"
+                        },
+                        "PlaybookVersion": {
+                            "defaultValue": "0.0.1",
+                            "type": "String"
+                        },
+                        "PlaybookInternalName": {
+                            "defaultValue": "BasicSample",
+                            "type": "String"
+                        },
+                        "ProjectName": {
+                            "defaultValue": "STAT",
+                            "type": "String"
                         }
                     },
                     "triggers": {
