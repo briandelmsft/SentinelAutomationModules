@@ -24,7 +24,7 @@
                     "contentVersion": "1.0.0.0",
                     "parameters": {
                         "PlaybookVersion": {
-                            "defaultValue": "0.0.2",
+                            "defaultValue": "0.1.1",
                             "type": "String"
                         },
                         "PlaybookInternalName": {
@@ -67,6 +67,10 @@
                     "actions": {
                         "Compose": {
                             "runAfter": {
+                                "Filter_array_-_Other": [
+                                    "Succeeded",
+                                    "Failed"
+                                ],
                                 "For_each_Domain": [
                                     "Succeeded",
                                     "Failed"
@@ -112,6 +116,8 @@
                                 "IPs": "@variables('IPArray')",
                                 "IPsCount": "@length(variables('IPArray'))",
                                 "IncidentARMId": "@triggerBody()?['IncidentARMId']",
+                                "OtherEntities": "@body('Filter_array_-_Other')",
+                                "OtherEntitiesCount": "@length(body('Filter_array_-_Other'))",
                                 "URLs": "@variables('URLArray')",
                                 "URLsCount": "@length(variables('URLArray'))",
                                 "WorkspaceId": "@triggerBody()?['WorkspaceId']"
@@ -187,6 +193,18 @@
                             "inputs": {
                                 "from": "@triggerBody()?['Entities']",
                                 "where": "@equals(toLower(item()['kind']), 'ip')"
+                            }
+                        },
+                        "Filter_array_-_Other": {
+                            "runAfter": {
+                                "HTTP_-_Test_API_Access": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Query",
+                            "inputs": {
+                                "from": "@triggerBody()?['Entities']",
+                                "where": "@and(not(equals(toLower(item()['kind']), 'url')),not(equals(toLower(item()['kind']), 'ip')),not(equals(toLower(item()['kind']), 'host')),not(equals(toLower(item()['kind']), 'file')),not(equals(toLower(item()['kind']), 'filehash')),not(equals(toLower(item()['kind']), 'dnsresolution')),not(equals(toLower(item()['kind']), 'account')))"
                             }
                         },
                         "Filter_array_-_URLs": {
@@ -319,7 +337,7 @@
                                         ]
                                     },
                                     "type": "Compose",
-                                    "inputs": "@addProperty(coalesce(body('HTTP_-_UPN')?['value'][0],body('HTTP_-_AADId')?['value'][0],body('HTTP_-_ObjectSid')?['value'][0],body('HTTP_-_SamAccountName')?['value'][0],body('HTTP_-_DistinguishedName')?['value'][0]), 'AssignedRoles', body('Select_Roles'))"
+                                    "inputs": "@addProperty(coalesce(body('HTTP_-_Email')?['value']?[0],body('HTTP_-_UPN'),body('HTTP_-_AADId'),body('HTTP_-_ObjectSid')?['value']?[0],body('HTTP_-_SamAccountName')?['value']?[0],body('HTTP_-_DistinguishedName')?['value']?[0]), 'AssignedRoles', body('Select_Roles'))"
                                 },
                                 "Compose_User_2": {
                                     "runAfter": {
@@ -355,7 +373,7 @@
                                             "type": "ManagedServiceIdentity"
                                         },
                                         "method": "GET",
-                                        "uri": "https://graph.microsoft.com/v1.0/roleManagement/directory/roleAssignments?$filter=principalId%20eq%20'@{coalesce(body('HTTP_-_UPN')?['value'][0]['id'],body('HTTP_-_AADId')?['value'][0]['id'],body('HTTP_-_ObjectSid')?['value'][0]['id'],body('HTTP_-_SamAccountName')?['value'][0]['id'],body('HTTP_-_DistinguishedName')?['value'][0]['id'])}'&$expand=roleDefinition"
+                                        "uri": "https://graph.microsoft.com/v1.0/roleManagement/directory/roleAssignments?$filter=principalId%20eq%20'@{coalesce(body('HTTP_-_Email')?['value']?[0]?['id'],body('HTTP_-_UPN')?['id'],body('HTTP_-_AADId')?['id'],body('HTTP_-_ObjectSid')?['value']?[0]?['id'],body('HTTP_-_SamAccountName')?['value']?[0]?['id'],body('HTTP_-_DistinguishedName')?['value']?[0]?['id'])}'&$expand=roleDefinition"
                                     }
                                 },
                                 "Select_Roles": {
@@ -387,7 +405,7 @@
                                                             "type": "ManagedServiceIdentity"
                                                         },
                                                         "method": "GET",
-                                                        "uri": "https://graph.microsoft.com/v1.0/users?$filter=(id%20eq%20'@{items('For_each_account')['aadUserId']}')&$select=@{variables('SelectProperties')}"
+                                                        "uri": "https://graph.microsoft.com/v1.0/users/@{items('For_each_account')['aadUserId']}?$select=@{variables('SelectProperties')}"
                                                     }
                                                 }
                                             }
@@ -458,6 +476,22 @@
                                         "Case_-_UPN": {
                                             "case": "UPN",
                                             "actions": {
+                                                "HTTP_-_Email": {
+                                                    "runAfter": {
+                                                        "HTTP_-_UPN": [
+                                                            "Failed"
+                                                        ]
+                                                    },
+                                                    "type": "Http",
+                                                    "inputs": {
+                                                        "authentication": {
+                                                            "audience": "https://graph.microsoft.com",
+                                                            "type": "ManagedServiceIdentity"
+                                                        },
+                                                        "method": "GET",
+                                                        "uri": "https://graph.microsoft.com/v1.0/users?$filter=(mail%20eq%20'@{concat(item()['accountName'], '@', item()['upnSuffix'])}')&$select=@{variables('SelectProperties')}"
+                                                    }
+                                                },
                                                 "HTTP_-_UPN": {
                                                     "runAfter": {},
                                                     "type": "Http",
@@ -467,7 +501,7 @@
                                                             "type": "ManagedServiceIdentity"
                                                         },
                                                         "method": "GET",
-                                                        "uri": "https://graph.microsoft.com/v1.0/users?$filter=(userPrincipalName%20eq%20'@{concat(item()['accountName'], '@', item()['upnSuffix'])}')&$select=@{variables('SelectProperties')}"
+                                                        "uri": "https://graph.microsoft.com/v1.0/users/@{concat(item()['accountName'], '@', item()['upnSuffix'])}?$select=@{variables('SelectProperties')}"
                                                     }
                                                 }
                                             }
@@ -797,7 +831,7 @@
                                     "RawEntity": "@item()['properties']",
                                     "aadUserId": "@item()['properties']?['aadUserId']",
                                     "accountName": "@item()['properties']?['accountName']",
-                                    "accountType": "@if(not(empty(item()['properties']?['upnSuffix'])), 'UPN', if(not(empty(item()['properties']?['aadUserId'])), 'AADId', if(not(empty(item()['properties']?['sid'])), 'ObjectSid', if(not(empty(item()['properties']?['ntDomain'])), 'SamAccountName', if(contains(item()['properties']?['accountName'], ',DC='), 'DistinguishedName', 'Unknown')))))",
+                                    "accountType": "@if(not(empty(item()['properties']?['aadUserId'])), 'AADId', if(not(empty(item()['properties']?['upnSuffix'])), 'UPN', if(not(empty(item()['properties']?['sid'])), 'ObjectSid', if(not(empty(item()['properties']?['ntDomain'])), 'SamAccountName', if(contains(item()['properties']?['accountName'], ',DC='), 'DistinguishedName', 'Unknown')))))",
                                     "ntDomain": "@item()['properties']?['ntDomain']",
                                     "sid": "@item()['properties']?['sid']",
                                     "upnSuffix": "@item()['properties']?['upnSuffix']"

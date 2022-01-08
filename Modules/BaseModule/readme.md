@@ -1,7 +1,7 @@
 # Base Module
 
 ## Description
-The base module must be called before any other modules in this solution.  It performs important shared functions such as enriching entity data and formatting the enriched data in a consistent way to pass into other modules.
+The base module must be called before any other modules in this solution.  It performs important shared functions such as enriching entity data and formatting the enriched data in a consistent way to pass into other modules.  Unsupported entity types will be returned in the OtherEntities array with no enrichments.
 
 ## Suported Entity Types
 * Account
@@ -115,6 +115,30 @@ The base module must be called before any other modules in this solution.  It pe
   ],
   "IPsCount": 1,
   "IncidentARMId": "/subscriptions/397caaaa-d999-4abc-acdd-f3a40db41234/resourceGroups/sentinel-rg/providers/Microsoft.OperationalInsights/workspaces/sentinel-workspace/providers/Microsoft.SecurityInsights/Incidents/afdffc57-0ae5-4323-b75e-48a64fcb3280",
+  "OtherEntities": [
+    {
+      "id": "/subscriptions/.../Entities/",
+      "type": "Microsoft.SecurityInsights/Entities",
+      "kind": "Process",
+      "properties": {
+        "processId": "1918",
+        "friendlyName": "1918"
+      }
+    },
+    {
+      "id": "/subscriptions/.../Entities/",
+      "type": "Microsoft.SecurityInsights/Entities",
+      "kind": "MailMessage",
+      "properties": {
+        "fileEntityIds": [],
+        "recipient": "recipient@contoso.com",
+        "p2Sender": "sender@contoso.com",
+        "networkMessageId": "93b12097-530b-4add-9deb-d34878d0fb02",
+        "friendlyName": "93b12097-530b-4add-9deb-d34878d0fb02"
+      }
+    }
+  ],
+  "OtherEntitiesCount": 2,
   "URLs": [
     {
       "RawEntity": {
