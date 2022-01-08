@@ -2804,5 +2804,15 @@
                 "parameters": {}
             }
         }
-    ]
+    ],
+    "outputs": {
+        "connectorResourceId": {
+            "type": "string",
+            "value": "[resourceId('Microsoft.Web/customApis', parameters('CustomConnectorName'))]"
+        },
+        "coordinatorTriggerResourceId": {
+            "type": "string",
+            "value": "[resourceId('Microsoft.Logic/workflows/triggers', parameters('STATCoordinatorPlaybookName'), 'manual')]"
+        }
+    }
 }

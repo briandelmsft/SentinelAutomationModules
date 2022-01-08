@@ -331,7 +331,7 @@
                         "type": "Microsoft.Common.TextBlock",
                         "visible": true,
                         "options": {
-                            "text": "Placeholder - For deployment of samples"
+                            "text": "Sample Playbook Deloyment"
                         }
                     },
                     {
@@ -347,7 +347,7 @@
                         "type": "Microsoft.Common.TextBlock",
                         "visible": true,
                         "options": {
-                            "text": "a",
+                            "text": "The Basic Sample Playbook evaluates the incident entities to look for Related Alerts (Account, Host or IP), Threat Intelligence (Domain, FileHash, IP or URL) and Azure AD MFA Fraud reports.",
                             "link": {
                                 "label": "Learn more",
                                 "uri": "https://github.com/briandelmsft/SentinelAutomationModules/tree/main/Samples"
@@ -355,23 +355,23 @@
                         }
                     },
                     {
-                        "name": "DeploySamplePlaybook",
+                        "name": "DeployBasicSamplePlaybook",
                         "type": "Microsoft.Common.CheckBox",
-                        "label": "Deploy the Sample Incident Triage Playbook",
+                        "label": "Deploy the Basic Sample Incident Triage Playbook",
                         "defaultValue": false,
                         "toolTip": "",
                         "constraints": {},
-                        "visible": "[and(contains(steps('automationModules').advancedSetup.enableModulesKind,'OOFModule'),contains(steps('automationModules').advancedSetup.enableModulesKind,'RelatedAlerts'),contains(steps('automationModules').advancedSetup.enableModulesKind,'UEBAModule'))]"
+                        "visible": "[or(if(steps('automationModules').advancedSetup.DeployConnector, true, false), if(equals(steps('deploymentTypeStep').deploymentType, 'standard'), true, false))]"
                     },
                     {
-                        "name": "SamplePlaybookName",
+                        "name": "BasicSamplePlaybookName",
                         "type": "Microsoft.Common.TextBox",
-                        "label": "Sample Triage Playbook Name",
+                        "label": "Basic Sample Triage Playbook Name",
                         "placeholder": "",
-                        "defaultValue": "Triage-Incident",
+                        "defaultValue": "Triage-RelatedContent",
                         "toolTip": "",
                         "constraints": {},
-                        "visible": "[and(contains(steps('automationModules').advancedSetup.enableModulesKind,'OOFModule'),contains(steps('automationModules').advancedSetup.enableModulesKind,'RelatedAlerts'),contains(steps('automationModules').advancedSetup.enableModulesKind,'UEBAModule'),steps('sampleStep').DeploySamplePlaybook)]"
+                        "visible": "[and(steps('sampleStep').DeployBasicSamplePlaybook,or(if(steps('automationModules').advancedSetup.DeployConnector, true, false), if(equals(steps('deploymentTypeStep').deploymentType, 'standard'), true, false)))]"
                     }
                 ]
             }
@@ -389,8 +389,8 @@
             "MDEPlaybookName": "[coalesce(steps('automationModules').advancedSetup.MDEPlaybookName,'Get-MDEUsersDevicesRiskScore')]",
             "MCASPlaybookName": "[coalesce(steps('automationModules').advancedSetup.MCASPlaybookName,'Get-MCASInvestigationScore')]",
             "WatchlistPlaybookName": "[coalesce(steps('automationModules').advancedSetup.WatchlistPlaybookName,'Get-WatchlistInsights')]",
-            "DeploySamplePlaybook": "[steps('sampleStep').DeploySamplePlaybook]",
-            "SamplePlaybookName": "[coalesce(steps('sampleStep').SamplePlaybookName,'Triage-Incident')]",
+            "DeployBasicSamplePlaybook": "[steps('sampleStep').DeployBasicSamplePlaybook]",
+            "BasicSamplePlaybookName": "[coalesce(steps('sampleStep').BasicSamplePlaybookName,'Triage-RelatedContent')]",
             "STATCoordinatorPlaybookName": "[coalesce(steps('automationModules').advancedSetup.STATCoordinatorPlaybookName,'STAT-Coordinator')]",
             "CustomConnectorName": "[coalesce(steps('automationModules').advancedSetup.CustomConnectorName,'SentinelTriageAssistant')]",
             "CustomConnectorDisplayName": "[coalesce(steps('automationModules').advancedSetup.CustomConnectorDisplayName,'Sentinel Triage AssistanT - STAT')]",

@@ -1,0 +1,340 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "PlaybookName": {
+            "defaultValue": "Triage-RelatedContent",
+            "type": "String"
+        },
+        "STAT_Connector_resourceId": {
+            "defaultValue": "",
+            "type": "String"
+        },
+        "STAT_Coordinator_Trigger_resourceId": {
+            "defaultValue": "",
+            "type": "string"
+        }
+    },
+    "variables": {
+        "AzureSentinelConnectionName": "[concat('azuresentinel-', parameters('PlaybookName'))]",
+        "STATConnectionName": "[concat('STAT-', parameters('PlaybookName'))]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[variables('AzureSentinelConnectionName')]",
+            "location": "[resourceGroup().location]",
+            "kind": "V1",
+            "properties": {
+                "displayName": "[variables('AzureSentinelConnectionName')]",
+                "customParameterValues": {},
+                "parameterValueType": "Alternative",
+                "api": {
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azuresentinel')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[variables('STATConnectionName')]",
+            "location": "[resourceGroup().location]",
+            "kind": "V1",
+            "properties": {
+                "displayName": "[variables('STATConnectionName')]",
+                "customParameterValues": {},
+                "api": {
+                    "id": "[parameters('STAT_Connector_resourceId')]",
+                    "type": "Microsoft.Web/customApis"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2017-07-01",
+            "name": "[parameters('PlaybookName')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/connections', variables('AzureSentinelConnectionName'))]",
+                "[resourceId('Microsoft.Web/connections', variables('STATConnectionName'))]"
+            ],
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "state": "Enabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {},
+                            "type": "Object"
+                        },
+                        "PlaybookVersion": {
+                            "defaultValue": "0.0.1",
+                            "type": "String"
+                        },
+                        "PlaybookInternalName": {
+                            "defaultValue": "BasicSample",
+                            "type": "String"
+                        },
+                        "ProjectName": {
+                            "defaultValue": "STAT",
+                            "type": "String"
+                        }
+                    },
+                    "triggers": {
+                        "When_Azure_Sentinel_incident_creation_rule_was_triggered": {
+                            "type": "ApiConnectionWebhook",
+                            "inputs": {
+                                "body": {
+                                    "callback_url": "@{listCallbackUrl()}"
+                                },
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['azuresentinel']['connectionId']"
+                                    }
+                                },
+                                "path": "/incident-creation"
+                            }
+                        }
+                    },
+                    "actions": {
+                        "AAD_Risks_Module": {
+                            "runAfter": {
+                                "Base_Module": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ApiConnection",
+                            "inputs": {
+                                "body": {
+                                    "AddIncidentComments": true,
+                                    "BaseModuleBody": "@{body('Base_Module')}",
+                                    "LookbackInDays": 30,
+                                    "MFAFailureLookup": false,
+                                    "MFAFraudLookup": true
+                                },
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['SentinelTriageAssistant']['connectionId']"
+                                    }
+                                },
+                                "method": "post",
+                                "path": "/workflows/02fad9a1dbb447e1bf9970e39e5d9b8d/triggers/manual/paths/invoke/func/aadrisks",
+                                "queries": {
+                                    "api-version": "2016-10-01",
+                                    "sig": "[string(split(listCallbackUrl(parameters('STAT_Coordinator_Trigger_resourceId'), '2017-07-01').value, 'sig=')[1])]",
+                                    "sp": "/triggers/manual/run",
+                                    "sv": "1.0"
+                                }
+                            }
+                        },
+                        "Base_Module": {
+                            "runAfter": {},
+                            "type": "ApiConnection",
+                            "inputs": {
+                                "body": {
+                                    "EnrichIPsWithGeoData": true,
+                                    "Entities": "@triggerBody()?['object']?['properties']?['relatedEntities']",
+                                    "IncidentARMId": "@triggerBody()?['object']?['id']",
+                                    "WorkspaceId": "@triggerBody()?['workspaceId']"
+                                },
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['SentinelTriageAssistant']['connectionId']"
+                                    }
+                                },
+                                "method": "post",
+                                "path": "/workflows/02fad9a1dbb447e1bf9970e39e5d9b8d/triggers/manual/paths/invoke/func/base",
+                                "queries": {
+                                    "api-version": "2016-10-01",
+                                    "sig": "[string(split(listCallbackUrl(parameters('STAT_Coordinator_Trigger_resourceId'), '2017-07-01').value, 'sig=')[1])]",
+                                    "sp": "/triggers/manual/run",
+                                    "sv": "1.0"
+                                }
+                            }
+                        },
+                        "Condition": {
+                            "actions": {
+                                "Update_incident_-_Raise_Severity_and_Tag": {
+                                    "runAfter": {},
+                                    "type": "ApiConnection",
+                                    "inputs": {
+                                        "body": {
+                                            "incidentArmId": "@triggerBody()?['object']?['id']",
+                                            "severity": "High",
+                                            "tagsToAdd": {
+                                                "TagsToAdd": [
+                                                    {
+                                                        "Tag": "STAT Triage - High Risk"
+                                                    }
+                                                ]
+                                            }
+                                        },
+                                        "host": {
+                                            "connection": {
+                                                "name": "@parameters('$connections')['azuresentinel']['connectionId']"
+                                            }
+                                        },
+                                        "method": "put",
+                                        "path": "/Incidents"
+                                    }
+                                }
+                            },
+                            "runAfter": {
+                                "AAD_Risks_Module": [
+                                    "Succeeded"
+                                ],
+                                "Related_Alerts_Module": [
+                                    "Succeeded"
+                                ],
+                                "Threat_Intel_Module": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "else": {
+                                "actions": {
+                                    "Update_incident_-_Lower_Severity_and_Tag": {
+                                        "runAfter": {},
+                                        "type": "ApiConnection",
+                                        "inputs": {
+                                            "body": {
+                                                "incidentArmId": "@triggerBody()?['object']?['id']",
+                                                "severity": "Informational",
+                                                "tagsToAdd": {
+                                                    "TagsToAdd": [
+                                                        {
+                                                            "Tag": "STAT Triage - Low Risk"
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            "host": {
+                                                "connection": {
+                                                    "name": "@parameters('$connections')['azuresentinel']['connectionId']"
+                                                }
+                                            },
+                                            "method": "put",
+                                            "path": "/Incidents"
+                                        }
+                                    }
+                                }
+                            },
+                            "expression": {
+                                "or": [
+                                    {
+                                        "equals": [
+                                            "@body('Related_Alerts_Module')?['RelatedAlertsFound']",
+                                            true
+                                        ]
+                                    },
+                                    {
+                                        "equals": [
+                                            "@body('Threat_Intel_Module')?['AnyTIFound']",
+                                            true
+                                        ]
+                                    },
+                                    {
+                                        "greater": [
+                                            "@body('AAD_Risks_Module')?['MFAFraudTotalCount']",
+                                            0
+                                        ]
+                                    }
+                                ]
+                            },
+                            "type": "If"
+                        },
+                        "Related_Alerts_Module": {
+                            "runAfter": {
+                                "Base_Module": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ApiConnection",
+                            "inputs": {
+                                "body": {
+                                    "AddIncidentComments": true,
+                                    "BaseModuleBody": "@{body('Base_Module')}",
+                                    "CheckAccounts": true,
+                                    "CheckHosts": true,
+                                    "CheckIPs": true,
+                                    "LookbackInDays": 30
+                                },
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['SentinelTriageAssistant']['connectionId']"
+                                    }
+                                },
+                                "method": "post",
+                                "path": "/workflows/02fad9a1dbb447e1bf9970e39e5d9b8d/triggers/manual/paths/invoke/func/relatedalerts",
+                                "queries": {
+                                    "api-version": "2016-10-01",
+                                    "sig": "[string(split(listCallbackUrl(parameters('STAT_Coordinator_Trigger_resourceId'), '2017-07-01').value, 'sig=')[1])]",
+                                    "sp": "/triggers/manual/run",
+                                    "sv": "1.0"
+                                }
+                            }
+                        },
+                        "Threat_Intel_Module": {
+                            "runAfter": {
+                                "Base_Module": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ApiConnection",
+                            "inputs": {
+                                "body": {
+                                    "AddIncidentComments": true,
+                                    "BaseModuleBody": "@{body('Base_Module')}",
+                                    "CheckDomains": true,
+                                    "CheckFileHashes": true,
+                                    "CheckIPs": true,
+                                    "CheckURLs": true,
+                                    "LookbackInDays": 30
+                                },
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['SentinelTriageAssistant']['connectionId']"
+                                    }
+                                },
+                                "method": "post",
+                                "path": "/workflows/02fad9a1dbb447e1bf9970e39e5d9b8d/triggers/manual/paths/invoke/func/threatintel",
+                                "queries": {
+                                    "api-version": "2016-10-01",
+                                    "sig": "[string(split(listCallbackUrl(parameters('STAT_Coordinator_Trigger_resourceId'), '2017-07-01').value, 'sig=')[1])]",
+                                    "sp": "/triggers/manual/run",
+                                    "sv": "1.0"
+                                }
+                            }
+                        }
+                    },
+                    "outputs": {}
+                },
+                "parameters": {
+                    "$connections": {
+                        "value": {
+                            "azuresentinel": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('AzureSentinelConnectionName'))]",
+                                "connectionName": "[variables('AzureSentinelConnectionName')]",
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azuresentinel')]",
+                                "connectionProperties": {
+                                    "authentication": {
+                                        "type": "ManagedServiceIdentity"
+                                    }
+                                }
+                            },
+                            "SentinelTriageAssistant": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('STATConnectionName'))]",
+                                "connectionName": "[variables('AzureSentinelConnectionName')]",
+                                "id": "[parameters('STAT_Connector_resourceId')]"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ]
+}
