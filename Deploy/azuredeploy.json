@@ -314,10 +314,10 @@
                         "value": "[parameters('BasicSamplePlaybookName')]"
                     },
                     "STAT_Connector_resourceId": {
-                        "value": "[reference('DeployConnector').outputs.resourceID.value]"
+                        "value": "[reference('DeployConnector').outputs.connectorResourceId.value]"
                     },
-                    "STAT_Coordinator_SAS": {
-                        "value": "[reference('DeployConnector').outputs.sig.securestring]"
+                    "STAT_Coordinator_Trigger_resourceId": {
+                        "value": "[reference('DeployConnector').outputs.coordinatorTriggerResourceId.value]"
                     }
                 }
             }

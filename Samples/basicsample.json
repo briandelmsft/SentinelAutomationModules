@@ -10,9 +10,9 @@
             "defaultValue": "",
             "type": "String"
         },
-        "STAT_Coordinator_SAS": {
+        "STAT_Coordinator_Trigger_resourceId": {
             "defaultValue": "",
-            "type": "securestring"
+            "type": "string"
         }
     },
     "variables": {
@@ -114,7 +114,7 @@
                                 "path": "/workflows/02fad9a1dbb447e1bf9970e39e5d9b8d/triggers/manual/paths/invoke/func/aadrisks",
                                 "queries": {
                                     "api-version": "2016-10-01",
-                                    "sig": "[parameters('STAT_Coordinator_SAS')]",
+                                    "sig": "[string(split(listCallbackUrl(parameters('STAT_Coordinator_Trigger_resourceId'), '2017-07-01').value, 'sig=')[1])]",
                                     "sp": "/triggers/manual/run",
                                     "sv": "1.0"
                                 }
@@ -139,7 +139,7 @@
                                 "path": "/workflows/02fad9a1dbb447e1bf9970e39e5d9b8d/triggers/manual/paths/invoke/func/base",
                                 "queries": {
                                     "api-version": "2016-10-01",
-                                    "sig": "[parameters('STAT_Coordinator_SAS')]",
+                                    "sig": "[string(split(listCallbackUrl(parameters('STAT_Coordinator_Trigger_resourceId'), '2017-07-01').value, 'sig=')[1])]",
                                     "sp": "/triggers/manual/run",
                                     "sv": "1.0"
                                 }
@@ -260,7 +260,7 @@
                                 "path": "/workflows/02fad9a1dbb447e1bf9970e39e5d9b8d/triggers/manual/paths/invoke/func/relatedalerts",
                                 "queries": {
                                     "api-version": "2016-10-01",
-                                    "sig": "[parameters('STAT_Coordinator_SAS')]",
+                                    "sig": "[string(split(listCallbackUrl(parameters('STAT_Coordinator_Trigger_resourceId'), '2017-07-01').value, 'sig=')[1])]",
                                     "sp": "/triggers/manual/run",
                                     "sv": "1.0"
                                 }
@@ -292,7 +292,7 @@
                                 "path": "/workflows/02fad9a1dbb447e1bf9970e39e5d9b8d/triggers/manual/paths/invoke/func/threatintel",
                                 "queries": {
                                     "api-version": "2016-10-01",
-                                    "sig": "[parameters('STAT_Coordinator_SAS')]",
+                                    "sig": "[string(split(listCallbackUrl(parameters('STAT_Coordinator_Trigger_resourceId'), '2017-07-01').value, 'sig=')[1])]",
                                     "sp": "/triggers/manual/run",
                                     "sv": "1.0"
                                 }
