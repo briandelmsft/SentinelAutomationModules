@@ -22,11 +22,11 @@ The Base module processes incident data and prepares it for consumption by other
 
 ### Azure Active Directory Risks
 
-Module Description
+The Azure Active Directory Risks module will retrieve the level of risk of the users in Azure AD Identity Protection as well as MFA Fraud Reports and MFA Failures.
 
 ### File Insights
 
-Module Description
+The File Insights module will check if the entities are found as email attachments and will run the FileProfile() function on the provided hashes.
 
 ### Kusto Query Language (KQL)
 
@@ -34,11 +34,11 @@ The KQL module allows you to run custom KQL queries against Microsoft Sentinel o
 
 ### Microsoft Defender for Cloud Apps (MCAS)
 
-Module Description
+The Microsoft Defender for Cloud Apps module will get the MCAS Investigation Score of the account entities of the incidient.
 
 ### Microsoft Defender for Endpoint
 
-Module Description
+The Microsoft Defender for Endpoint module will return the risk score and exposure level from Microsoft Defender for Endpoint of all the machines on which a user logged on interactively and for all machines with specified IP addresses.
 
 ### Office 365 Out of Office
 
