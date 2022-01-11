@@ -10,3 +10,4 @@ Take for example an impossible travel incident, while this incident could repres
 
 * [How it works](howitworks.md)
 * [Deployment](deployment.md)
+* [Sample Playbook](sample.md)
