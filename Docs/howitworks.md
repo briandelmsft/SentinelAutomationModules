@@ -1,11 +1,12 @@
 # Sentinel Triage AssistanT (STAT) :hospital: - How it Works
 
-The Sentinel Triage AssistanT consists of 4 components
+The Sentinel Triage AssistanT consists of 5 components
 
 * Sentinel Playbook (Logic App)
 * Logic Apps Custom Connector
 * STAT Coordinator
 * Automation Modules
+* STAT Workbook
 
 ## Sentinel Playbook (Logic App)
 
@@ -28,6 +29,10 @@ When using STAT, the first module you should call from the STAT Connector is the
 An example of the use of multiple modules can be found in the [Sample](sample.md) playbook included during the deployment.
 
 More information about the automation modules can be located within the [Modules](/Modules/) folders.
+
+## STAT Workbook
+
+The STAT workbook helps you to monitor the overall STAT solution.  The workbook locates the deployed STAT components in your environment and retrieves execution data and returns success/failure information.  In addition, it will also retrieve the version information of your deployed STAT solution and compare it to the publically published versions to see if updates are available.
 
 ---
 [Documentation Home](readme.md)
