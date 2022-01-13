@@ -73,7 +73,7 @@
                             "type": "Object"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.0.1",
+                            "defaultValue": "0.0.2",
                             "type": "String"
                         },
                         "PlaybookInternalName": {
@@ -123,7 +123,7 @@
                                     }
                                 },
                                 "method": "post",
-                                "path": "/workflows/02fad9a1dbb447e1bf9970e39e5d9b8d/triggers/manual/paths/invoke/func/aadrisks",
+                                "path": "[concat('/workflows/', string(split(listCallbackUrl(parameters('STAT_Coordinator_Trigger_resourceId'), '2017-07-01').value, '/')[4]), '/triggers/manual/paths/invoke/func/aadrisks')]",
                                 "queries": {
                                     "api-version": "2016-10-01",
                                     "sig": "[string(split(listCallbackUrl(parameters('STAT_Coordinator_Trigger_resourceId'), '2017-07-01').value, 'sig=')[1])]",
@@ -148,7 +148,7 @@
                                     }
                                 },
                                 "method": "post",
-                                "path": "/workflows/02fad9a1dbb447e1bf9970e39e5d9b8d/triggers/manual/paths/invoke/func/base",
+                                "path": "[concat('/workflows/', string(split(listCallbackUrl(parameters('STAT_Coordinator_Trigger_resourceId'), '2017-07-01').value, '/')[4]), '/triggers/manual/paths/invoke/func/base')]",
                                 "queries": {
                                     "api-version": "2016-10-01",
                                     "sig": "[string(split(listCallbackUrl(parameters('STAT_Coordinator_Trigger_resourceId'), '2017-07-01').value, 'sig=')[1])]",
@@ -269,7 +269,7 @@
                                     }
                                 },
                                 "method": "post",
-                                "path": "/workflows/02fad9a1dbb447e1bf9970e39e5d9b8d/triggers/manual/paths/invoke/func/relatedalerts",
+                                "path": "[concat('/workflows/', string(split(listCallbackUrl(parameters('STAT_Coordinator_Trigger_resourceId'), '2017-07-01').value, '/')[4]), '/triggers/manual/paths/invoke/func/relatedalerts')]",
                                 "queries": {
                                     "api-version": "2016-10-01",
                                     "sig": "[string(split(listCallbackUrl(parameters('STAT_Coordinator_Trigger_resourceId'), '2017-07-01').value, 'sig=')[1])]",
@@ -301,7 +301,7 @@
                                     }
                                 },
                                 "method": "post",
-                                "path": "/workflows/02fad9a1dbb447e1bf9970e39e5d9b8d/triggers/manual/paths/invoke/func/threatintel",
+                                "path": "[concat('/workflows/', string(split(listCallbackUrl(parameters('STAT_Coordinator_Trigger_resourceId'), '2017-07-01').value, '/')[4]), '/triggers/manual/paths/invoke/func/threatintel')]",
                                 "queries": {
                                     "api-version": "2016-10-01",
                                     "sig": "[string(split(listCallbackUrl(parameters('STAT_Coordinator_Trigger_resourceId'), '2017-07-01').value, 'sig=')[1])]",
