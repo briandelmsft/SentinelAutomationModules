@@ -627,12 +627,6 @@
             ],
             "expandTopLevel": true
           },
-          "sortBy": [
-            {
-              "itemKey": "$gen_bar_microsoft.logic/workflows--BillableActionExecutions_2",
-              "sortOrder": 2
-            }
-          ],
           "labelSettings": [
             {
               "columnId": "microsoft.logic/workflows--BillableActionExecutions",
@@ -645,12 +639,7 @@
             }
           ]
         },
-        "sortBy": [
-          {
-            "itemKey": "$gen_bar_microsoft.logic/workflows--BillableActionExecutions_2",
-            "sortOrder": 2
-          }
-        ]
+        "sortBy": []
       },
       "conditionalVisibility": {
         "parameterName": "ActiveTab",
