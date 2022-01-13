@@ -337,7 +337,7 @@
                     {
                         "name": "sampleTextBlock2",
                         "type": "Microsoft.Common.TextBlock",
-                        "visible": true,
+                        "visible": false,
                         "options": {
                             "text": "This sample is presently not functional!  Do not deploy it."
                         }
