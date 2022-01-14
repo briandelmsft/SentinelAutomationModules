@@ -41,51 +41,6 @@
                 "state": "Enabled",
                 "definition": {
                     "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
-                    "contentVersion": "1.0.0.0",
-                    "parameters": {
-                        "$connections": {
-                            "defaultValue": {},
-                            "type": "Object"
-                        },
-                        "PlaybookVersion": {
-                            "defaultValue": "0.0.2",
-                            "type": "String"
-                        },
-                        "PlaybookInternalName": {
-                            "defaultValue": "MCASModule",
-                            "type": "String"
-                        },
-                        "ProjectName": {
-                            "defaultValue": "STAT",
-                            "type": "String"
-                        }
-                    },
-                    "triggers": {
-                        "triage": {
-                            "inputs": {
-                                "schema": {
-                                    "properties": {
-                                        "AddIncidentComments": {
-                                            "title": "Add comments to the incident",
-                                            "type": "boolean"
-                                        },
-                                        "Entities": {
-                                            "description": "Click here and select the Entities object from the Dynamic content menu",
-                                            "type": "array"
-                                        },
-                                        "ScoreThreshold": {
-                                            "description": "Type the minimum investigation Score",
-                                            "title": "Investigation Score Threshold",
-                                            "type": "integer"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            },
-                            "kind": "Http",
-                            "type": "Request"
-                        }
-                    },
                     "actions": {
                         "Compose_final_response": {
                             "inputs": {
@@ -144,7 +99,7 @@
                                 ]
                             },
                             "runAfter": {
-                                "Compose_final_response": [
+                                "Return_final_response": [
                                     "Succeeded"
                                 ]
                             },
@@ -741,6 +696,25 @@
                             },
                             "type": "ParseJson"
                         },
+                        "Response_when_permissions_issues": {
+                            "inputs": {
+                                "body": {
+                                    "Error": "@{parameters('PlaybookInternalName')} failed to execute with status 401",
+                                    "PlaybookName": "@{workflow()?['name']}",
+                                    "PlaybookResourceId": "@{workflow()?['id']}",
+                                    "PlaybookRunId": "@{workflow()?['run']?['name']}",
+                                    "PlaybookVersion": "@{parameters('PlaybookVersion')}"
+                                },
+                                "statusCode": 401
+                            },
+                            "kind": "Http",
+                            "runAfter": {
+                                "For_each_account": [
+                                    "Failed"
+                                ]
+                            },
+                            "type": "Response"
+                        },
                         "Return_final_response": {
                             "inputs": {
                                 "body": "@outputs('Compose_final_response')",
@@ -779,14 +753,59 @@
                             },
                             "kind": "Http",
                             "runAfter": {
-                                "Condition_-_Check_if_comment_is_required": [
+                                "Compose_final_response": [
                                     "Succeeded"
                                 ]
                             },
                             "type": "Response"
                         }
                     },
-                    "outputs": {}
+                    "contentVersion": "1.0.0.0",
+                    "outputs": {},
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {},
+                            "type": "Object"
+                        },
+                        "PlaybookInternalName": {
+                            "defaultValue": "MCASModule",
+                            "type": "String"
+                        },
+                        "PlaybookVersion": {
+                            "defaultValue": "0.0.2",
+                            "type": "String"
+                        },
+                        "ProjectName": {
+                            "defaultValue": "STAT",
+                            "type": "String"
+                        }
+                    },
+                    "triggers": {
+                        "triage": {
+                            "inputs": {
+                                "schema": {
+                                    "properties": {
+                                        "AddIncidentComments": {
+                                            "title": "Add comments to the incident",
+                                            "type": "boolean"
+                                        },
+                                        "Entities": {
+                                            "description": "Click here and select the Entities object from the Dynamic content menu",
+                                            "type": "array"
+                                        },
+                                        "ScoreThreshold": {
+                                            "description": "Type the minimum investigation Score",
+                                            "title": "Investigation Score Threshold",
+                                            "type": "integer"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            },
+                            "kind": "Http",
+                            "type": "Request"
+                        }
+                    }
                 },
                 "parameters": {
                     "$connections": {
