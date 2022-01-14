@@ -17,6 +17,8 @@ $RelatedAlertsLogicAppName="Get-RelatedAlerts"   #Name of the Related Alerts Log
 $TILogicAppName="Get-ThreatIntel"                #Name of the TI Logic App
 $WatchlistLogicAppName="Get-WatchlistInsights"   #Name of the Watchlists Logic App
 
+$SampleLogicAppName="Triage-RelatedContent"      #Name of the Sample Logic App
+
 Connect-AzureAD -TenantId $TenantID
 Login-AzAccount
 Set-AzContext -Subscription $AzureSubscriptionId
@@ -87,3 +89,6 @@ Set-RBACPermissions -MSIName $AADLogicAppName -Role "Microsoft Sentinel Responde
 #TI
 Set-APIPermissions -MSIName $TILogicAppName -AppId "ca7f3f0b-7d91-482c-8e09-c5d840d0eac5" -PermissionName "Data.Read"
 Set-RBACPermissions -MSIName $TILogicAppName -Role "Microsoft Sentinel Responder"
+
+#Triage-Content Sample
+Set-RBACPermissions -MSIName $SampleLogicAppName -Role "Microsoft Sentinel Responder"
