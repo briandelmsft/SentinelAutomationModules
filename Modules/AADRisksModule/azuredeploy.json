@@ -234,7 +234,8 @@
                             },
                             "runAfter": {
                                 "For_each_account": [
-                                    "Succeeded"
+                                    "Succeeded",
+                                    "Failed"
                                 ]
                             },
                             "type": "Query"
