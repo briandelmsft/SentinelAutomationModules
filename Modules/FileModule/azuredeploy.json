@@ -41,58 +41,8 @@
                 "state": "Enabled",
                 "definition": {
                     "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
-                    "contentVersion": "1.0.0.0",
-                    "parameters": {
-                        "$connections": {
-                            "defaultValue": {},
-                            "type": "Object"
-                        },
-                        "PlaybookVersion": {
-                            "defaultValue": "0.0.2",
-                            "type": "String"
-                        },
-                        "PlaybookInternalName": {
-                            "defaultValue": "FileModule",
-                            "type": "String"
-                        },
-                        "ProjectName": {
-                            "defaultValue": "STAT",
-                            "type": "String"
-                        }
-                    },
-                    "triggers": {
-                        "triage": {
-                            "type": "Request",
-                            "operationOptions": "EnableSchemaValidation",
-                            "kind": "Http",
-                            "inputs": {
-                                "schema": {
-                                    "properties": {
-                                        "AddIncidentComments": {
-                                            "title": "Add comments to the incident",
-                                            "type": "boolean"
-                                        },
-                                        "Entities": {
-                                            "description": "Click here and select the EnrichedEntities object from the Dynamic content menu",
-                                            "type": "array"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
                     "actions": {
                         "Compose_response": {
-                            "runAfter": {
-                                "For_each_File": [
-                                    "Succeeded"
-                                ],
-                                "For_each_FileHash": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "Compose",
                             "inputs": {
                                 "AnalyzedEntities": "@add(length(variables('FileHashResults')),length(variables('FileResults')))",
                                 "DetailedResults": "@union(variables('FileHashResults'),variables('FileResults'))",
@@ -103,17 +53,20 @@
                                 "HashesThreatList": "@variables('HashesThreatList')",
                                 "MaximumGlobalPrevalence": "@max(variables('GlobalPrevalence'))",
                                 "MinimumGlobalPrevalence": "@min(variables('GlobalPrevalence'))"
-                            }
+                            },
+                            "runAfter": {
+                                "For_each_File": [
+                                    "Succeeded"
+                                ],
+                                "For_each_FileHash": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Compose"
                         },
                         "Condition_-_Add_comment_to_the_incident": {
                             "actions": {
                                 "Add_comment_to_incident": {
-                                    "runAfter": {
-                                        "Create_HTML_table_for_threats": [
-                                            "Succeeded"
-                                        ]
-                                    },
-                                    "type": "ApiConnection",
                                     "inputs": {
                                         "body": {
                                             "incidentArmId": "@{triggerBody()?['Entities']['IncidentARMId']}",
@@ -126,23 +79,23 @@
                                         },
                                         "method": "post",
                                         "path": "/Incidents/Comment"
-                                    }
-                                },
-                                "Create_HTML_table_for_Files": {
-                                    "runAfter": {},
-                                    "type": "Table",
-                                    "inputs": {
-                                        "format": "HTML",
-                                        "from": "@variables('FileResults')"
-                                    }
-                                },
-                                "Create_HTML_table_for_hashes": {
+                                    },
                                     "runAfter": {
-                                        "Create_HTML_table_for_Files": [
+                                        "Create_HTML_table_for_threats": [
                                             "Succeeded"
                                         ]
                                     },
-                                    "type": "Table",
+                                    "type": "ApiConnection"
+                                },
+                                "Create_HTML_table_for_Files": {
+                                    "inputs": {
+                                        "format": "HTML",
+                                        "from": "@variables('FileResults')"
+                                    },
+                                    "runAfter": {},
+                                    "type": "Table"
+                                },
+                                "Create_HTML_table_for_hashes": {
                                     "inputs": {
                                         "columns": [
                                             {
@@ -168,25 +121,26 @@
                                         ],
                                         "format": "HTML",
                                         "from": "@variables('FileHashResults')"
-                                    }
+                                    },
+                                    "runAfter": {
+                                        "Create_HTML_table_for_Files": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Table"
                                 },
                                 "Create_HTML_table_for_threats": {
+                                    "inputs": {
+                                        "format": "HTML",
+                                        "from": "@variables('HashesThreatList')"
+                                    },
                                     "runAfter": {
                                         "Create_HTML_table_for_hashes": [
                                             "Succeeded"
                                         ]
                                     },
-                                    "type": "Table",
-                                    "inputs": {
-                                        "format": "HTML",
-                                        "from": "@variables('HashesThreatList')"
-                                    }
+                                    "type": "Table"
                                 }
-                            },
-                            "runAfter": {
-                                "Compose_response": [
-                                    "Succeeded"
-                                ]
                             },
                             "expression": {
                                 "and": [
@@ -198,14 +152,16 @@
                                     }
                                 ]
                             },
+                            "runAfter": {
+                                "Response": [
+                                    "Succeeded"
+                                ]
+                            },
                             "type": "If"
                         },
                         "Condition_-_Terminate_if_no_supported_entities": {
                             "actions": {
                                 "Response_-_Send_empty_results": {
-                                    "runAfter": {},
-                                    "type": "Response",
-                                    "kind": "Http",
                                     "inputs": {
                                         "body": {
                                             "AnalyzedEntities": 0,
@@ -218,191 +174,103 @@
                                             "MaximumGlobalPrevalence": 0,
                                             "MinimumGlobalPrevalence": 0
                                         },
-                                        "schema": {
-                                            "properties": {
-                                            "AnalyzedEntities": {
-                                                "type": "integer",
-                                                "description": "Number of entities analyzed"
-                                            },
-                                            "EntitiesAttachmentCount": {
-                                                "type": "integer",
-                                                "description": "Number of times the entities were found in email attachements"
-                                            },
-                                            "HashesInvalidSignatureCount": {
-                                                "type": "integer",
-                                                "description": "Number of hashes of files with no or invalid signatures found"
-                                            },
-                                            "HashesLinkedToThreatCount": {
-                                                "type": "integer",
-                                                "description": "Number of hashes of files linked with a known threat found"
-                                            },
-                                            "HashesNotMicrosoftSignedCount": {
-                                                "type": "integer",
-                                                "description": "Number of hashes of files not signed by Microsoft found"
-                                            },
-                                            "MaximumGlobalPrevalence": {
-                                                "type": "integer",
-                                                "description": "Highest global prevalence score found"
-                                            }, 
-                                            "MinimumGlobalPrevalence": {
-                                                "type": "integer",
-                                                "description": "Lowest global prevalence score found"
-                                            },
-                                            "HashesThreatList": {
-                                                "type": "array",
-                                                "items": {}
-                                            },        
-                                            "DetailedResults": {
-                                                "description" : "Array of detailed results for files and hashes" ,
-                                                "items": {
-                                                    "properties": {
-                                                        "EmailAttachmentCount": {
-                                                            "type": "integer"
-                                                        },
-                                                        "EmailAttachmentFileSize": {
-                                                            "type": "integer"
-                                                        },
-                                                        "EmailAttachmentFirstSeen": {
-                                                            "type": "string"
-                                                        },
-                                                        "EmailAttachmentLastSeen": {
-                                                            "type": "string"
-                                                        },
-                                                        "FileName": {
-                                                            "type": "string"
-                                                        },
-                                                        "GlobalFirstSeen": {
-                                                            "type": "string"
-                                                        },
-                                                        "GlobalLastSeen": {
-                                                            "type": "string"
-                                                        },
-                                                        "GlobalPrevalence": {
-                                                            "type": "integer"
-                                                        },
-                                                        "IsCertificateValid": {
-                                                            "type": "integer"
-                                                        },
-                                                        "MD5": {
-                                                            "type": "string"
-                                                        },
-                                                        "Publisher": {
-                                                            "type": "string"
-                                                        },
-                                                        "SHA1": {
-                                                            "type": "string"
-                                                        },
-                                                        "SHA256": {
-                                                            "type": "string"
-                                                        },
-                                                        "SignatureState": {
-                                                            "type": "string"
-                                                        },
-                                                        "ThreatName": {
-                                                            "type": "string"
-                                                        }
-                                                    }
-                                                },
-                                                "type": "array"
-                                            }
-                                        }
-                                    },
                                         "statusCode": 200
-                                    }
+                                    },
+                                    "kind": "Http",
+                                    "runAfter": {},
+                                    "type": "Response"
                                 },
                                 "Terminate": {
+                                    "inputs": {
+                                        "runStatus": "Succeeded"
+                                    },
                                     "runAfter": {
                                         "Response_-_Send_empty_results": [
                                             "Succeeded"
                                         ]
                                     },
-                                    "type": "Terminate",
-                                    "inputs": {
-                                        "runStatus": "Succeeded"
-                                    }
+                                    "type": "Terminate"
                                 }
                             },
-                            "runAfter": {},
                             "expression": {
                                 "and": [
                                     {
                                         "equals": [
-                                            "@triggerBody()?['Entities']['FilesCount']",
+                                            "@body('Parse_JSON')?['FileHashesCount']",
                                             0
                                         ]
                                     },
                                     {
                                         "equals": [
-                                            "@triggerBody()?['Entities']['FileHashesCount']",
+                                            "@body('Parse_JSON')?['FilesCount']",
                                             0
                                         ]
                                     }
+                                ]
+                            },
+                            "runAfter": {
+                                "Parse_JSON": [
+                                    "Succeeded"
                                 ]
                             },
                             "type": "If"
                         },
                         "Filter_array_for_supported_algorithms": {
+                            "inputs": {
+                                "from": "@body('Parse_JSON')?['FileHashes']",
+                                "where": "@contains(createArray('SHA256', 'SHA1', 'MD5'), item()['RawEntity']['algorithm'])"
+                            },
                             "runAfter": {
                                 "Initialize_variable_HashesThreatList": [
                                     "Succeeded"
                                 ]
                             },
-                            "type": "Query",
-                            "inputs": {
-                                "from": "@ triggerBody()?['Entities']['FileHashes']",
-                                "where": "@contains(createArray('SHA256', 'SHA1', 'MD5'), item()['RawEntity']['algorithm'])"
-                            }
+                            "type": "Query"
                         },
                         "For_each_File": {
-                            "foreach": "@ triggerBody()?['Entities']['Files']",
                             "actions": {
                                 "Compose_DetailedResults_entry_for_files": {
-                                    "runAfter": {
-                                        "HTTP_query_the_EmailAttachmentInfo_table_with_files": [
-                                            "Succeeded"
-                                        ]
-                                    },
-                                    "type": "Compose",
                                     "inputs": {
                                         "EmailAttachmentCount": "@coalesce(body('HTTP_query_the_EmailAttachmentInfo_table_with_files')?['Results']?[0]?['Count'],0)",
                                         "EmailAttachmentFileSize": "@{coalesce(body('HTTP_query_the_EmailAttachmentInfo_table_with_files')?['Results']?[0]?['FileSize'],0)}",
                                         "EmailAttachmentFirstSeen": "@{coalesce(body('HTTP_query_the_EmailAttachmentInfo_table_with_files')?['Results']?[0]?['FirstSeen'],null)}",
                                         "EmailAttachmentLastSeen": "@{coalesce(body('HTTP_query_the_EmailAttachmentInfo_table_with_files')?['Results']?[0]?['LastSeen'],null)}",
                                         "FileName": "@{items('For_each_File')['RawEntity']['friendlyName']}"
-                                    }
+                                    },
+                                    "runAfter": {
+                                        "HTTP_query_the_EmailAttachmentInfo_table_with_files": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Compose"
                                 },
                                 "Compose_KQL_for_EmailAttachmentInfo_with_files": {
+                                    "inputs": "EmailAttachmentInfo\n| where Timestamp > ago(30d)\n| where FileName=~ \"@{items('For_each_File')['RawEntity']['friendlyName']}\"\n| summarize FirstSeen=min(Timestamp), LastSeen=max(Timestamp), Count=count() by FileName,SHA256, FileSize",
                                     "runAfter": {},
-                                    "type": "Compose",
-                                    "inputs": "EmailAttachmentInfo\n| where Timestamp > ago(30d)\n| where FileName=~ \"@{items('For_each_File')['RawEntity']['friendlyName']}\"\n| summarize FirstSeen=min(Timestamp), LastSeen=max(Timestamp), Count=count() by FileName,SHA256, FileSize"
+                                    "type": "Compose"
                                 },
                                 "Condition_-_Check_if_the_file_was_found": {
                                     "actions": {
                                         "Append_to_array_variable_FileResults": {
-                                            "runAfter": {},
-                                            "type": "AppendToArrayVariable",
                                             "inputs": {
                                                 "name": "FileResults",
                                                 "value": "@outputs('Compose_DetailedResults_entry_for_files')"
-                                            }
+                                            },
+                                            "runAfter": {},
+                                            "type": "AppendToArrayVariable"
                                         },
                                         "Increment_variable_EntitiesAttachmentCount_for_files": {
+                                            "inputs": {
+                                                "name": "EntitiesAttachmentCount",
+                                                "value": "@outputs('Compose_DetailedResults_entry_for_files')['EmailAttachmentCount']"
+                                            },
                                             "runAfter": {
                                                 "Append_to_array_variable_FileResults": [
                                                     "Succeeded"
                                                 ]
                                             },
-                                            "type": "IncrementVariable",
-                                            "inputs": {
-                                                "name": "EntitiesAttachmentCount",
-                                                "value": "@outputs('Compose_DetailedResults_entry_for_files')['EmailAttachmentCount']"
-                                            }
+                                            "type": "IncrementVariable"
                                         }
-                                    },
-                                    "runAfter": {
-                                        "Compose_DetailedResults_entry_for_files": [
-                                            "Succeeded"
-                                        ]
                                     },
                                     "expression": {
                                         "and": [
@@ -416,15 +284,14 @@
                                             }
                                         ]
                                     },
-                                    "type": "If"
-                                },
-                                "HTTP_query_the_EmailAttachmentInfo_table_with_files": {
                                     "runAfter": {
-                                        "Compose_KQL_for_EmailAttachmentInfo_with_files": [
+                                        "Compose_DetailedResults_entry_for_files": [
                                             "Succeeded"
                                         ]
                                     },
-                                    "type": "Http",
+                                    "type": "If"
+                                },
+                                "HTTP_query_the_EmailAttachmentInfo_table_with_files": {
                                     "inputs": {
                                         "authentication": {
                                             "audience": "https://api.security.microsoft.com/",
@@ -435,9 +302,16 @@
                                         },
                                         "method": "POST",
                                         "uri": "https://api.security.microsoft.com/api/advancedhunting/run"
-                                    }
+                                    },
+                                    "runAfter": {
+                                        "Compose_KQL_for_EmailAttachmentInfo_with_files": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Http"
                                 }
                             },
+                            "foreach": "@body('Parse_JSON')?['Files']",
                             "runAfter": {
                                 "Initialize_variable_EntitiesAttachmentCount": [
                                     "Succeeded"
@@ -446,43 +320,32 @@
                             "type": "Foreach"
                         },
                         "For_each_FileHash": {
-                            "foreach": "@body('Filter_array_for_supported_algorithms')",
                             "actions": {
                                 "Append_to_array_FileHashResults": {
+                                    "inputs": {
+                                        "name": "FileHashResults",
+                                        "value": "@outputs('Compose_DetailedResults_entry_for_hashes')"
+                                    },
                                     "runAfter": {
                                         "Compose_DetailedResults_entry_for_hashes": [
                                             "Succeeded"
                                         ]
                                     },
-                                    "type": "AppendToArrayVariable",
-                                    "inputs": {
-                                        "name": "FileHashResults",
-                                        "value": "@outputs('Compose_DetailedResults_entry_for_hashes')"
-                                    }
+                                    "type": "AppendToArrayVariable"
                                 },
                                 "Append_to_array_GlobalPrevalence": {
+                                    "inputs": {
+                                        "name": "GlobalPrevalence",
+                                        "value": "@body('HTTP_invoke_the_FileProfile_function')['Results'][0]['GlobalPrevalence']"
+                                    },
                                     "runAfter": {
                                         "Append_to_array_FileHashResults": [
                                             "Succeeded"
                                         ]
                                     },
-                                    "type": "AppendToArrayVariable",
-                                    "inputs": {
-                                        "name": "GlobalPrevalence",
-                                        "value": "@body('HTTP_invoke_the_FileProfile_function')['Results'][0]['GlobalPrevalence']"
-                                    }
+                                    "type": "AppendToArrayVariable"
                                 },
                                 "Compose_DetailedResults_entry_for_hashes": {
-                                    "runAfter": {
-                                        "Condition_-_Add_ThreatName_to_HashesThreatList": [
-                                            "Succeeded"
-                                        ],
-                                        "HTTP_query_the_EmailAttachmentInfo_table_with_hashes": [
-                                            "Succeeded",
-                                            "Failed"
-                                        ]
-                                    },
-                                    "type": "Compose",
                                     "inputs": {
                                         "EmailAttachmentCount": "@coalesce(body('HTTP_query_the_EmailAttachmentInfo_table_with_hashes')?['Results']?[0]?['Count'],0)",
                                         "EmailAttachmentFileSize": "@{coalesce(body('HTTP_query_the_EmailAttachmentInfo_table_with_hashes')?['Results']?[0]?['FileSize'],0)}",
@@ -499,33 +362,38 @@
                                         "SHA256": "@{body('HTTP_invoke_the_FileProfile_function')?['Results']?[0]?['SHA256']}",
                                         "SignatureState": "@body('HTTP_invoke_the_FileProfile_function')?['Results']?[0]?['SignatureState']",
                                         "ThreatName": "@body('HTTP_invoke_the_FileProfile_function')?['Results']?[0]?['ThreatName']"
-                                    }
+                                    },
+                                    "runAfter": {
+                                        "Condition_-_Add_ThreatName_to_HashesThreatList": [
+                                            "Succeeded"
+                                        ],
+                                        "HTTP_query_the_EmailAttachmentInfo_table_with_hashes": [
+                                            "Succeeded",
+                                            "Failed"
+                                        ]
+                                    },
+                                    "type": "Compose"
                                 },
                                 "Compose_KQL_for_EmailAttachmentInfo_with_hashes": {
+                                    "inputs": "EmailAttachmentInfo\n| where Timestamp > ago(30d)\n| where SHA256 =~ \"@{items('For_each_FileHash')['RawEntity']['hashValue']}\"\n| summarize FirstSeen=min(Timestamp), LastSeen=max(Timestamp), Count=count() by FileName,SHA256, FileSize",
                                     "runAfter": {},
-                                    "type": "Compose",
-                                    "inputs": "EmailAttachmentInfo\n| where Timestamp > ago(30d)\n| where SHA256 =~ \"@{items('For_each_FileHash')['RawEntity']['hashValue']}\"\n| summarize FirstSeen=min(Timestamp), LastSeen=max(Timestamp), Count=count() by FileName,SHA256, FileSize"
+                                    "type": "Compose"
                                 },
                                 "Compose_KQL_for_FileProfile": {
+                                    "inputs": "print @{item()['RawEntity']['algorithm']}=\"@{item()['RawEntity']['hashValue']}\"\n| invoke FileProfile(\"@{item()['RawEntity']['algorithm']}\")",
                                     "runAfter": {},
-                                    "type": "Compose",
-                                    "inputs": "print @{item()['RawEntity']['algorithm']}=\"@{item()['RawEntity']['hashValue']}\"\n| invoke FileProfile(\"@{item()['RawEntity']['algorithm']}\")"
+                                    "type": "Compose"
                                 },
                                 "Condition_-_Add_ThreatName_to_HashesThreatList": {
                                     "actions": {
                                         "Append_to_array_HashesThreatList": {
-                                            "runAfter": {},
-                                            "type": "AppendToArrayVariable",
                                             "inputs": {
                                                 "name": "HashesThreatList",
                                                 "value": "@body('HTTP_invoke_the_FileProfile_function')['Results'][0]['ThreatName']"
-                                            }
+                                            },
+                                            "runAfter": {},
+                                            "type": "AppendToArrayVariable"
                                         }
-                                    },
-                                    "runAfter": {
-                                        "HTTP_invoke_the_FileProfile_function": [
-                                            "Succeeded"
-                                        ]
                                     },
                                     "expression": {
                                         "and": [
@@ -537,15 +405,14 @@
                                             }
                                         ]
                                     },
-                                    "type": "If"
-                                },
-                                "HTTP_invoke_the_FileProfile_function": {
                                     "runAfter": {
-                                        "Compose_KQL_for_FileProfile": [
+                                        "HTTP_invoke_the_FileProfile_function": [
                                             "Succeeded"
                                         ]
                                     },
-                                    "type": "Http",
+                                    "type": "If"
+                                },
+                                "HTTP_invoke_the_FileProfile_function": {
                                     "inputs": {
                                         "authentication": {
                                             "audience": "https://api.security.microsoft.com/",
@@ -556,15 +423,16 @@
                                         },
                                         "method": "POST",
                                         "uri": "https://api.security.microsoft.com/api/advancedhunting/run"
-                                    }
-                                },
-                                "HTTP_query_the_EmailAttachmentInfo_table_with_hashes": {
+                                    },
                                     "runAfter": {
-                                        "Compose_KQL_for_EmailAttachmentInfo_with_hashes": [
+                                        "Compose_KQL_for_FileProfile": [
                                             "Succeeded"
                                         ]
                                     },
-                                    "type": "Http",
+                                    "type": "Http"
+                                },
+                                "HTTP_query_the_EmailAttachmentInfo_table_with_hashes": {
+                                    "description": "Will fail on purpose when SHA256 is not the algorithm, it will use a null URI",
                                     "inputs": {
                                         "authentication": {
                                             "audience": "https://api.security.microsoft.com/",
@@ -576,57 +444,63 @@
                                         "method": "POST",
                                         "uri": "@{if(equals(item()['RawEntity']['algorithm'],'SHA256'),'https://api.security.microsoft.com/api/advancedhunting/run','')}"
                                     },
-                                    "description": "Will fail on purpose when SHA256 is not the algorithm, it will use a null URI"
-                                },
-                                "Increment_variable_EntitiesAttachmentCount_for_hashes": {
                                     "runAfter": {
-                                        "Append_to_array_FileHashResults": [
+                                        "Compose_KQL_for_EmailAttachmentInfo_with_hashes": [
                                             "Succeeded"
                                         ]
                                     },
-                                    "type": "IncrementVariable",
+                                    "type": "Http"
+                                },
+                                "Increment_variable_EntitiesAttachmentCount_for_hashes": {
                                     "inputs": {
                                         "name": "EntitiesAttachmentCount",
                                         "value": "@outputs('Compose_DetailedResults_entry_for_hashes')['EmailAttachmentCount']"
-                                    }
-                                },
-                                "Increment_variable_HashesInvalidSignatureCount": {
+                                    },
                                     "runAfter": {
                                         "Append_to_array_FileHashResults": [
                                             "Succeeded"
                                         ]
                                     },
-                                    "type": "IncrementVariable",
+                                    "type": "IncrementVariable"
+                                },
+                                "Increment_variable_HashesInvalidSignatureCount": {
                                     "inputs": {
                                         "name": "HashesInvalidSignatureCount",
                                         "value": "@if(equals(body('HTTP_invoke_the_FileProfile_function')?['Results']?[0]?['SignatureState'],'SignedValid'),0,1)"
-                                    }
-                                },
-                                "Increment_variable_HashesLinkedToThreatCount": {
+                                    },
                                     "runAfter": {
                                         "Append_to_array_FileHashResults": [
                                             "Succeeded"
                                         ]
                                     },
-                                    "type": "IncrementVariable",
+                                    "type": "IncrementVariable"
+                                },
+                                "Increment_variable_HashesLinkedToThreatCount": {
                                     "inputs": {
                                         "name": "HashesLinkedToThreatCount",
                                         "value": "@if(equals(body('HTTP_invoke_the_FileProfile_function')?['Results']?[0]?['ThreatName'],''),0,1)"
-                                    }
-                                },
-                                "Increment_variable_HashesNotMicrosoftSigned": {
+                                    },
                                     "runAfter": {
                                         "Append_to_array_FileHashResults": [
                                             "Succeeded"
                                         ]
                                     },
-                                    "type": "IncrementVariable",
+                                    "type": "IncrementVariable"
+                                },
+                                "Increment_variable_HashesNotMicrosoftSigned": {
                                     "inputs": {
                                         "name": "HashesNotMicrosoftSignedCount",
                                         "value": "@if(equals(body('HTTP_invoke_the_FileProfile_function')?['Results']?[0]?['Publisher'],'Microsoft Corporation'),0,1)"
-                                    }
+                                    },
+                                    "runAfter": {
+                                        "Append_to_array_FileHashResults": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "IncrementVariable"
                                 }
                             },
+                            "foreach": "@body('Parse_JSON')?['FileHashes']",
                             "runAfter": {
                                 "Filter_array_for_supported_algorithms": [
                                     "Succeeded"
@@ -634,13 +508,26 @@
                             },
                             "type": "Foreach"
                         },
-                        "Initialize_variable_EntitiesAttachmentCount": {
+                        "HTTP_Permissions_Check": {
+                            "inputs": {
+                                "authentication": {
+                                    "audience": "https://api.security.microsoft.com/",
+                                    "type": "ManagedServiceIdentity"
+                                },
+                                "body": {
+                                    "Query": "print STAT"
+                                },
+                                "method": "POST",
+                                "uri": "https://api.security.microsoft.com/api/advancedhunting/run"
+                            },
                             "runAfter": {
-                                "Initialize_variable_HashesInvalidSignatureCount": [
+                                "Condition_-_Terminate_if_no_supported_entities": [
                                     "Succeeded"
                                 ]
                             },
-                            "type": "InitializeVariable",
+                            "type": "Http"
+                        },
+                        "Initialize_variable_EntitiesAttachmentCount": {
                             "inputs": {
                                 "variables": [
                                     {
@@ -649,15 +536,15 @@
                                         "value": 0
                                     }
                                 ]
-                            }
-                        },
-                        "Initialize_variable_FileHashResults": {
+                            },
                             "runAfter": {
-                                "Initialize_variable_FileResults": [
+                                "Initialize_variable_HashesInvalidSignatureCount": [
                                     "Succeeded"
                                 ]
                             },
-                            "type": "InitializeVariable",
+                            "type": "InitializeVariable"
+                        },
+                        "Initialize_variable_FileHashResults": {
                             "inputs": {
                                 "variables": [
                                     {
@@ -666,15 +553,15 @@
                                         "value": []
                                     }
                                 ]
-                            }
-                        },
-                        "Initialize_variable_FileResults": {
+                            },
                             "runAfter": {
-                                "Condition_-_Terminate_if_no_supported_entities": [
+                                "Initialize_variable_FileResults": [
                                     "Succeeded"
                                 ]
                             },
-                            "type": "InitializeVariable",
+                            "type": "InitializeVariable"
+                        },
+                        "Initialize_variable_FileResults": {
                             "inputs": {
                                 "variables": [
                                     {
@@ -683,15 +570,15 @@
                                         "value": []
                                     }
                                 ]
-                            }
-                        },
-                        "Initialize_variable_GlobalPrevalence": {
+                            },
                             "runAfter": {
-                                "Initialize_variable_EntitiesAttachmentCount": [
+                                "HTTP_Permissions_Check": [
                                     "Succeeded"
                                 ]
                             },
-                            "type": "InitializeVariable",
+                            "type": "InitializeVariable"
+                        },
+                        "Initialize_variable_GlobalPrevalence": {
                             "inputs": {
                                 "variables": [
                                     {
@@ -700,15 +587,15 @@
                                         "value": []
                                     }
                                 ]
-                            }
-                        },
-                        "Initialize_variable_HashesInvalidSignatureCount": {
+                            },
                             "runAfter": {
-                                "Initialize_variable_HashesNotMicrosoftSignedCount": [
+                                "Initialize_variable_EntitiesAttachmentCount": [
                                     "Succeeded"
                                 ]
                             },
-                            "type": "InitializeVariable",
+                            "type": "InitializeVariable"
+                        },
+                        "Initialize_variable_HashesInvalidSignatureCount": {
                             "inputs": {
                                 "variables": [
                                     {
@@ -717,15 +604,15 @@
                                         "value": 0
                                     }
                                 ]
-                            }
-                        },
-                        "Initialize_variable_HashesLinkedToThreatCount": {
+                            },
                             "runAfter": {
-                                "Initialize_variable_FileHashResults": [
+                                "Initialize_variable_HashesNotMicrosoftSignedCount": [
                                     "Succeeded"
                                 ]
                             },
-                            "type": "InitializeVariable",
+                            "type": "InitializeVariable"
+                        },
+                        "Initialize_variable_HashesLinkedToThreatCount": {
                             "inputs": {
                                 "variables": [
                                     {
@@ -734,15 +621,15 @@
                                         "value": 0
                                     }
                                 ]
-                            }
-                        },
-                        "Initialize_variable_HashesNotMicrosoftSignedCount": {
+                            },
                             "runAfter": {
-                                "Initialize_variable_HashesLinkedToThreatCount": [
+                                "Initialize_variable_FileHashResults": [
                                     "Succeeded"
                                 ]
                             },
-                            "type": "InitializeVariable",
+                            "type": "InitializeVariable"
+                        },
+                        "Initialize_variable_HashesNotMicrosoftSignedCount": {
                             "inputs": {
                                 "variables": [
                                     {
@@ -751,15 +638,15 @@
                                         "value": 0
                                     }
                                 ]
-                            }
-                        },
-                        "Initialize_variable_HashesThreatList": {
+                            },
                             "runAfter": {
-                                "Initialize_variable_GlobalPrevalence": [
+                                "Initialize_variable_HashesLinkedToThreatCount": [
                                     "Succeeded"
                                 ]
                             },
-                            "type": "InitializeVariable",
+                            "type": "InitializeVariable"
+                        },
+                        "Initialize_variable_HashesThreatList": {
                             "inputs": {
                                 "variables": [
                                     {
@@ -768,112 +655,463 @@
                                         "value": []
                                     }
                                 ]
-                            }
-                        },
-                        "Response": {
+                            },
                             "runAfter": {
-                                "Condition_-_Add_comment_to_the_incident": [
+                                "Initialize_variable_GlobalPrevalence": [
                                     "Succeeded"
                                 ]
                             },
-                            "type": "Response",
-                            "kind": "Http",
+                            "type": "InitializeVariable"
+                        },
+                        "Parse_JSON": {
                             "inputs": {
-                                "body": "@outputs('Compose_response')",
+                                "content": "@triggerBody()?['Entities']",
                                 "schema": {
                                     "properties": {
-                                            "AnalyzedEntities": {
-                                                "type": "integer",
-                                                "description": "Number of entities analyzed"
-                                            },
-                                            "EntitiesAttachmentCount": {
-                                                "type": "integer",
-                                                "description": "Number of times the entities were found in email attachements"
-                                            },
-                                            "HashesInvalidSignatureCount": {
-                                                "type": "integer",
-                                                "description": "Number of hashes of files with no or invalid signatures found"
-                                            },
-                                            "HashesLinkedToThreatCount": {
-                                                "type": "integer",
-                                                "description": "Number of hashes of files linked with a known threat found"
-                                            },
-                                            "HashesNotMicrosoftSignedCount": {
-                                                "type": "integer",
-                                                "description": "Number of hashes of files not signed by Microsoft found"
-                                            },
-                                            "MaximumGlobalPrevalence": {
-                                                "type": "integer",
-                                                "description": "Highest global prevalence score found"
-                                            }, 
-                                            "MinimumGlobalPrevalence": {
-                                                "type": "integer",
-                                                "description": "Lowest global prevalence score found"
-                                            },
-                                            "HashesThreatList": {
-                                                "type": "array",
-                                                "items": {}
-                                            },        
-                                            "DetailedResults": {
-                                                "description" : "Array of detailed results for files and hashes" ,
-                                                "items": {
-                                                    "properties": {
-                                                        "EmailAttachmentCount": {
-                                                            "type": "integer"
+                                        "Accounts": {
+                                            "description": "Array of User Accounts",
+                                            "items": {
+                                                "properties": {
+                                                    "AssignedRoles": {
+                                                        "description": "Array of assigned roles in Accounts array",
+                                                        "items": {
+                                                            "properties": {
+                                                                "Role": {
+                                                                    "description": "Array property in AssignedRoles array"
+                                                                }
+                                                            },
+                                                            "required": [],
+                                                            "type": "object"
                                                         },
-                                                        "EmailAttachmentFileSize": {
-                                                            "type": "integer"
+                                                        "type": "array"
+                                                    },
+                                                    "RawEntity": {
+                                                        "description": "Object containing Raw unenriched entity data in Accounts array",
+                                                        "properties": {
+                                                            "accountName": {
+                                                                "description": "accountName from RawEntity object in Accounts array"
+                                                            },
+                                                            "displayName": {
+                                                                "description": "dislayName from RawEntity object in Accounts array"
+                                                            },
+                                                            "friendlyName": {
+                                                                "description": "friendlyName from RawEntity object in Accounts array"
+                                                            },
+                                                            "isDomainJoined": {
+                                                                "description": "isDomainJoined from RawEntity object in Accounts array"
+                                                            },
+                                                            "sid": {
+                                                                "description": "sid from RawEntity object in Accounts array"
+                                                            },
+                                                            "upnSuffix": {
+                                                                "description": "upnSuffix from RawEntity object in Accounts array"
+                                                            }
                                                         },
-                                                        "EmailAttachmentFirstSeen": {
-                                                            "type": "string"
+                                                        "type": "object"
+                                                    },
+                                                    "accountEnabled": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "city": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "country": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "department": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "id": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "jobTitle": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "mail": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "manager": {
+                                                        "description": "Array property in Accounts array",
+                                                        "properties": {
+                                                            "@@odata.type": {
+                                                                "description": "Array property in Accounts array manager object"
+                                                            },
+                                                            "id": {
+                                                                "description": "Array property in Accounts array manager object"
+                                                            },
+                                                            "mail": {
+                                                                "description": "Array property in Accounts array manager object"
+                                                            },
+                                                            "userPrincipalName": {
+                                                                "description": "Array property in Accounts array manager object"
+                                                            }
                                                         },
-                                                        "EmailAttachmentLastSeen": {
-                                                            "type": "string"
-                                                        },
-                                                        "FileName": {
-                                                            "type": "string"
-                                                        },
-                                                        "GlobalFirstSeen": {
-                                                            "type": "string"
-                                                        },
-                                                        "GlobalLastSeen": {
-                                                            "type": "string"
-                                                        },
-                                                        "GlobalPrevalence": {
-                                                            "type": "integer"
-                                                        },
-                                                        "IsCertificateValid": {
-                                                            "type": "integer"
-                                                        },
-                                                        "MD5": {
-                                                            "type": "string"
-                                                        },
-                                                        "Publisher": {
-                                                            "type": "string"
-                                                        },
-                                                        "SHA1": {
-                                                            "type": "string"
-                                                        },
-                                                        "SHA256": {
-                                                            "type": "string"
-                                                        },
-                                                        "SignatureState": {
-                                                            "type": "string"
-                                                        },
-                                                        "ThreatName": {
-                                                            "type": "string"
-                                                        }
+                                                        "type": "object"
+                                                    },
+                                                    "officeLocation": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "onPremisesDistinguishedName": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "onPremisesDomainName": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "onPremisesSamAccountName": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "onPremisesSecurityIdentifier": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "onPremisesSyncEnabled": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "state": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "userPrincipalName": {
+                                                        "description": "Array property in Accounts array"
                                                     }
                                                 },
-                                                "type": "array"
-                                            }
+                                                "required": [],
+                                                "type": "object"
+                                            },
+                                            "type": "array"
+                                        },
+                                        "AccountsCount": {
+                                            "description": "Count of accounts processed by module",
+                                            "type": "integer"
+                                        },
+                                        "Domains": {
+                                            "description": "Array of Domains",
+                                            "items": {
+                                                "properties": {
+                                                    "RawEntity": {
+                                                        "description": "Object containing Raw unenriched entity data in Domains array",
+                                                        "properties": {
+                                                            "domainName": {
+                                                                "description": "domainName from RawEntity object in Domains array"
+                                                            },
+                                                            "friendlyName": {
+                                                                "description": "friendlyName from RawEntity object in Domains array"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "required": [],
+                                                "type": "object"
+                                            },
+                                            "type": "array"
+                                        },
+                                        "DomainsCount": {
+                                            "description": "Count of Domains processed by module",
+                                            "type": "integer"
+                                        },
+                                        "EntitiesCount": {
+                                            "description": "Count of all entities processed by enrichment module",
+                                            "type": "integer"
+                                        },
+                                        "FileHashes": {
+                                            "description": "Array of FileHashes",
+                                            "items": {
+                                                "properties": {
+                                                    "RawEntity": {
+                                                        "description": "Object containing Raw unenriched entity data in FileHashes array",
+                                                        "properties": {
+                                                            "algorithm": {
+                                                                "description": "algorithm from RawEntity object in FileHashes array"
+                                                            },
+                                                            "friendlyName": {
+                                                                "description": "friendlyName from RawEntity object in FileHashes array"
+                                                            },
+                                                            "hashValue": {
+                                                                "description": "hashValue from RawEntity object in FileHashes array"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "required": [],
+                                                "type": "object"
+                                            },
+                                            "type": "array"
+                                        },
+                                        "FileHashesCount": {
+                                            "description": "Count of File Hashes processed by module",
+                                            "type": "integer"
+                                        },
+                                        "Files": {
+                                            "description": "Array of Files",
+                                            "items": {
+                                                "properties": {
+                                                    "RawEntity": {
+                                                        "description": "Object containing Raw unenriched entity data in Files array",
+                                                        "properties": {
+                                                            "directory": {
+                                                                "description": "directory from RawEntity object in Files array"
+                                                            },
+                                                            "fileName": {
+                                                                "description": "fileName from RawEntity object in Files array"
+                                                            },
+                                                            "friendlyName": {
+                                                                "description": "friendlyName from RawEntity object in Files array"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "required": [],
+                                                "type": "object"
+                                            },
+                                            "type": "array"
+                                        },
+                                        "FilesCount": {
+                                            "description": "Count of Files processed by module",
+                                            "type": "integer"
+                                        },
+                                        "Hosts": {
+                                            "description": "Array of Hosts",
+                                            "items": {
+                                                "properties": {
+                                                    "DnsDomain": {
+                                                        "description": "Array property in Hosts array"
+                                                    },
+                                                    "FQDN": {
+                                                        "description": "Array property in Hosts array"
+                                                    },
+                                                    "Hostname": {
+                                                        "description": "Array property in Hosts array"
+                                                    },
+                                                    "RawEntity": {
+                                                        "description": "Object containing Raw unenriched entity data in Hosts array",
+                                                        "properties": {
+                                                            "dnsDomain": {
+                                                                "description": "dnsDomain from RawEntity object in Hosts array"
+                                                            },
+                                                            "friendlyName": {
+                                                                "description": "friendlyName from RawEntity object in Hosts array"
+                                                            },
+                                                            "hostName": {
+                                                                "description": "hostName from RawEntity object in Hosts array"
+                                                            },
+                                                            "netBiosName": {
+                                                                "description": "netBiosName from RawEntity object in Hosts array"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "required": [],
+                                                "type": "object"
+                                            },
+                                            "type": "array"
+                                        },
+                                        "HostsCount": {
+                                            "description": "Count of Hosts processed by module",
+                                            "type": "integer"
+                                        },
+                                        "IPs": {
+                                            "description": "Array of IP Addresses",
+                                            "items": {
+                                                "properties": {
+                                                    "Address": {
+                                                        "description": "Array property in IPs array"
+                                                    },
+                                                    "GeoData": {
+                                                        "description": "Array object in IPs array",
+                                                        "properties": {
+                                                            "asn": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "carrier": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "city": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "cityCf": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "continent": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "country": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "countryCf": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "ipAddr": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "ipRoutingType": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "latitude": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "longitude": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "organization": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "organizationType": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "region": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "state": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "stateCf": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "stateCode": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "RawEntity": {
+                                                        "description": "Object containing Raw unenriched entity data in IPs array",
+                                                        "properties": {
+                                                            "address": {
+                                                                "description": "address from RawEntity object in IPs array"
+                                                            },
+                                                            "friendlyName": {
+                                                                "description": "friendlyName from RawEntity object in IPs array"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "required": [],
+                                                "type": "object"
+                                            },
+                                            "type": "array"
+                                        },
+                                        "IPsCount": {
+                                            "description": "Count of IPs processed by module",
+                                            "type": "integer"
+                                        },
+                                        "IncidentARMId": {
+                                            "description": "The ARM Id of the Azure Sentinel Incident",
+                                            "type": "string"
+                                        },
+                                        "URLs": {
+                                            "description": "Array of URLs",
+                                            "items": {
+                                                "properties": {
+                                                    "RawEntity": {
+                                                        "description": "Object containing Raw unenriched entity data in URLs array",
+                                                        "properties": {
+                                                            "friendlyName": {
+                                                                "description": "friendlyName from RawEntity object in URLs array"
+                                                            },
+                                                            "url": {
+                                                                "description": "url from RawEntity object in URLs array"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "required": [],
+                                                "type": "object"
+                                            },
+                                            "type": "array"
+                                        },
+                                        "URLsCount": {
+                                            "description": "Count of URLs processed by module",
+                                            "type": "integer"
+                                        },
+                                        "WorkspaceId": {
+                                            "description": "The Log Analytics Workspace Id of the Azure Sentinel Incident",
+                                            "type": "string"
                                         }
                                     },
+                                    "type": "object"
+                                }
+                            },
+                            "runAfter": {},
+                            "type": "ParseJson"
+                        },
+                        "Response": {
+                            "inputs": {
+                                "body": "@outputs('Compose_response')",
                                 "statusCode": 200
-                            }
+                            },
+                            "kind": "Http",
+                            "runAfter": {
+                                "Compose_response": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Response"
+                        },
+                        "Response_Permissions_Check_Failure": {
+                            "inputs": {
+                                "body": {
+                                    "Error": "@{parameters('PlaybookInternalName')} failed to execute with status @{outputs('HTTP_Permissions_Check')['statusCode']}",
+                                    "PlaybookName": "@{workflow()?['name']}",
+                                    "PlaybookResourceId": "@{workflow()?['id']}",
+                                    "PlaybookRunId": "@{workflow()?['run']?['name']}",
+                                    "PlaybookVersion": "@{parameters('PlaybookVersion')}"
+                                },
+                                "statusCode": "@outputs('HTTP_Permissions_Check')['statusCode']"
+                            },
+                            "kind": "Http",
+                            "runAfter": {
+                                "HTTP_Permissions_Check": [
+                                    "Failed"
+                                ]
+                            },
+                            "type": "Response"
                         }
                     },
-                    "outputs": {}
+                    "contentVersion": "1.0.0.0",
+                    "outputs": {},
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {},
+                            "type": "Object"
+                        },
+                        "PlaybookInternalName": {
+                            "defaultValue": "FileModule",
+                            "type": "String"
+                        },
+                        "PlaybookVersion": {
+                            "defaultValue": "0.0.2",
+                            "type": "String"
+                        },
+                        "ProjectName": {
+                            "defaultValue": "STAT",
+                            "type": "String"
+                        }
+                    },
+                    "triggers": {
+                        "triage": {
+                            "inputs": {
+                                "schema": {
+                                    "properties": {
+                                        "AddIncidentComments": {
+                                            "title": "Add comments to the incident",
+                                            "type": "boolean"
+                                        },
+                                        "Entities": {
+                                            "description": "Click here and select the EnrichedEntities object from the Dynamic content menu",
+                                            "type": "array"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            },
+                            "kind": "Http",
+                            "type": "Request"
+                        }
+                    }
                 },
                 "parameters": {
                     "$connections": {
