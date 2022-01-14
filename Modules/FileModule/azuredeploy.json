@@ -39,7 +39,7 @@
             },
             "properties": {
                 "state": "Enabled",
-                "definition": {
+               "definition": {
                     "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
                     "actions": {
                         "Compose_response": {
@@ -69,7 +69,7 @@
                                 "Add_comment_to_incident": {
                                     "inputs": {
                                         "body": {
-                                            "incidentArmId": "@{triggerBody()?['Entities']['IncidentARMId']}",
+                                            "incidentArmId": "@body('Parse_JSON')?['IncidentARMId']",
                                             "message": "<p>Analyzed entities: @{outputs('Compose_response')['AnalyzedEntities']}<br>\nMaximum Global Prevalence: @{outputs('Compose_response')['MaximumGlobalPrevalence']}<br>\nMinimum Global Prevalence: @{outputs('Compose_response')['MinimumGlobalPrevalence']}<br>\nNumber of files found in email attachments: @{outputs('Compose_response')['EntitiesAttachmentCount']}<br>\nNumber of hashes for files not signed by Microsoft: @{outputs('Compose_response')['HashesNotMicrosoftSignedCount']}<br>\nNumber of hashes with no or invalid signatures: @{outputs('Compose_response')['HashesInvalidSignatureCount']}<br>\nNumber of hashes linked to known threats: @{outputs('Compose_response')['HashesLinkedToThreatCount']}<br>\nList of these threats: @{if(equals(length(variables('HashesThreatList')),0),'No threats found',body('Create_HTML_table_for_threats'))}<br>\nDetails for files: @{if(equals(length(variables('FileResults')),0),'No attachment files found',body('Create_HTML_table_for_files'))}<br>\nDetails for hashes: @{if(equals(length(variables('FileHashResults')),0),'No hashes found',body('Create_HTML_table_for_hashes'))}<br>\n<br>\n</p>"
                                         },
                                         "host": {
@@ -336,7 +336,7 @@
                                 "Append_to_array_GlobalPrevalence": {
                                     "inputs": {
                                         "name": "GlobalPrevalence",
-                                        "value": "@body('HTTP_invoke_the_FileProfile_function')['Results'][0]['GlobalPrevalence']"
+                                        "value": "@if(equals(body('HTTP_invoke_the_FileProfile_function')['Results'][0]['GlobalPrevalence'],null),0,body('HTTP_invoke_the_FileProfile_function')['Results'][0]['GlobalPrevalence'])"
                                     },
                                     "runAfter": {
                                         "Append_to_array_FileHashResults": [
@@ -515,7 +515,7 @@
                                     "type": "ManagedServiceIdentity"
                                 },
                                 "body": {
-                                    "Query": "print STAT"
+                                    "Query": "print 'STAT Permissions Check'"
                                 },
                                 "method": "POST",
                                 "uri": "https://api.security.microsoft.com/api/advancedhunting/run"
