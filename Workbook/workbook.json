@@ -172,9 +172,10 @@
       "type": 3,
       "content": {
         "version": "KqlItem/1.0",
-        "query": "{\"version\":\"Merge/1.0\",\"merges\":[{\"id\":\"414f4d03-24ed-43be-8e7b-58d78fe3e0f5\",\"mergeType\":\"leftanti\",\"leftTable\":\"InstalledConnector\",\"rightTable\":\"CurrentConnectorVersion\",\"leftColumn\":\"Version\",\"rightColumn\":\"Version\"}],\"projectRename\":[{\"originalName\":\"[InstalledConnector].DisplayName\",\"mergedName\":\"DisplayName\",\"fromId\":\"414f4d03-24ed-43be-8e7b-58d78fe3e0f5\"},{\"originalName\":\"[InstalledConnector].Name\",\"mergedName\":\"Name\",\"fromId\":\"414f4d03-24ed-43be-8e7b-58d78fe3e0f5\"},{\"originalName\":\"[InstalledConnector].Version\",\"mergedName\":\"Version\",\"fromId\":\"414f4d03-24ed-43be-8e7b-58d78fe3e0f5\"}]}",
+        "query": "{\"version\":\"Merge/1.0\",\"merges\":[{\"id\":\"414f4d03-24ed-43be-8e7b-58d78fe3e0f5\",\"mergeType\":\"leftanti\",\"leftTable\":\"CurrentConnectorVersion\",\"rightTable\":\"InstalledConnector\",\"leftColumn\":\"Version\",\"rightColumn\":\"Version\"}],\"projectRename\":[{\"originalName\":\"[CurrentConnectorVersion].VersionIcon\",\"mergedName\":\"Updated Version Available\",\"fromId\":\"414f4d03-24ed-43be-8e7b-58d78fe3e0f5\"},{\"originalName\":\"[CurrentConnectorVersion].Version\"}]}",
         "size": 4,
         "noDataMessage": "The current version of the connector is up to date.",
+        "noDataMessageStyle": 3,
         "queryType": 7,
         "visualization": "table",
         "textSettings": {
@@ -278,6 +279,8 @@
         "query": "{\"version\":\"Merge/1.0\",\"merges\":[{\"id\":\"414f4d03-24ed-43be-8e7b-58d78fe3e0c7\",\"mergeType\":\"leftanti\",\"leftTable\":\"InstalledModules\",\"rightTable\":\"CurrentModuleVersions\",\"leftColumn\":\"Version\",\"rightColumn\":\"Version\"},{\"id\":\"2121964a-3b1b-4013-b3de-a93cad3a3271\",\"mergeType\":\"innerunique\",\"leftTable\":\"InstalledModules\",\"rightTable\":\"CurrentModuleVersions\",\"leftColumn\":\"InternalName\",\"rightColumn\":\"PlaybookInternalName\"}],\"projectRename\":[{\"originalName\":\"[InstalledModules].Name\",\"mergedName\":\"Name\",\"fromId\":\"unknown\"},{\"originalName\":\"[CurrentModuleVersions].VersionIcon\",\"mergedName\":\"Latest Version Available\",\"fromId\":\"2121964a-3b1b-4013-b3de-a93cad3a3271\"},{\"originalName\":\"[InstalledModules].State\"},{\"originalName\":\"[InstalledModules].Location\"},{\"originalName\":\"[InstalledModules].RG\"},{\"originalName\":\"[InstalledModules].Created\"},{\"originalName\":\"[InstalledModules].Modified\"},{\"originalName\":\"[InstalledModules].Version\"},{\"originalName\":\"[InstalledModules].InternalName\"},{\"originalName\":\"[CurrentModuleVersions].PlaybookInternalName\"},{\"originalName\":\"[CurrentModuleVersions].Version\"}]}",
         "size": 2,
         "title": "Updated Versions Available",
+        "noDataMessage": "All modules are up to date.",
+        "noDataMessageStyle": 3,
         "queryType": 7
       },
       "conditionalVisibility": {
@@ -645,6 +648,8 @@
       "customWidth": "45",
       "name": "Billable Actions"
     }
+  ],
+  "fallbackResourceIds": [
   ],
   "fromTemplateId": "sentinel-UserWorkbook",
   "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
