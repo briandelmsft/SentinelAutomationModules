@@ -42,64 +42,124 @@
                 "definition": {
                     "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
                     "actions": {
-                        "Compose_final_response": {
-                            "inputs": {
-                                "AboveThreholdCount": "@length(body('Filter_scores_above_the_threshold'))",
-                                "AnalyzedEntities": "@length(variables('DetailedResults'))",
-                                "DetailedResults": "@variables('DetailedResults')",
-                                "MaximumScore": "@max(variables('Scores'))"
-                            },
-                            "runAfter": {
-                                "Filter_scores_above_the_threshold": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "Compose"
-                        },
-                        "Condition_-_Check_if_comment_is_required": {
+                        "Check_for_Errors": {
                             "actions": {
-                                "Add_MCAS_score_in_a_comment": {
+                                "Response_when_permissions_issues": {
                                     "inputs": {
                                         "body": {
-                                            "incidentArmId": "@body('Parse_JSON')?['IncidentARMId']",
-                                            "message": "<p>MCAS Users' investigation priority scores per user: @{body('Create_HTML_table_for_comment')}</p>"
+                                            "Error": "@{parameters('PlaybookInternalName')} failed to execute with status @{body('Filter_array_Errors')[0]}",
+                                            "PlaybookName": "@{workflow()?['name']}",
+                                            "PlaybookResourceId": "@{workflow()?['id']}",
+                                            "PlaybookRunId": "@{workflow()?['run']?['name']}",
+                                            "PlaybookVersion": "@{parameters('PlaybookVersion')}"
                                         },
-                                        "host": {
-                                            "connection": {
-                                                "name": "@parameters('$connections')['azuresentinel']['connectionId']"
+                                        "statusCode": "@body('Filter_array_Errors')[0]"
+                                    },
+                                    "kind": "Http",
+                                    "runAfter": {},
+                                    "type": "Response"
+                                }
+                            },
+                            "else": {
+                                "actions": {
+                                    "Compose_final_response": {
+                                        "inputs": {
+                                            "AboveThreholdCount": "@length(body('Filter_scores_above_the_threshold'))",
+                                            "AnalyzedEntities": "@length(variables('DetailedResults'))",
+                                            "DetailedResults": "@variables('DetailedResults')",
+                                            "MaximumScore": "@max(variables('Scores'))"
+                                        },
+                                        "runAfter": {
+                                            "Filter_scores_above_the_threshold": [
+                                                "Succeeded"
+                                            ]
+                                        },
+                                        "type": "Compose"
+                                    },
+                                    "Condition_-_Check_if_comment_is_required": {
+                                        "actions": {
+                                            "Add_MCAS_score_in_a_comment": {
+                                                "inputs": {
+                                                    "body": {
+                                                        "incidentArmId": "@body('Parse_JSON')?['IncidentARMId']",
+                                                        "message": "<p>MCAS Users' investigation priority scores per user: @{body('Create_HTML_table_for_comment')}</p>"
+                                                    },
+                                                    "host": {
+                                                        "connection": {
+                                                            "name": "@parameters('$connections')['azuresentinel']['connectionId']"
+                                                        }
+                                                    },
+                                                    "method": "post",
+                                                    "path": "/Incidents/Comment"
+                                                },
+                                                "runAfter": {
+                                                    "Create_HTML_table_for_comment": [
+                                                        "Succeeded"
+                                                    ]
+                                                },
+                                                "type": "ApiConnection"
+                                            },
+                                            "Create_HTML_table_for_comment": {
+                                                "inputs": {
+                                                    "format": "HTML",
+                                                    "from": "@variables('DetailedResults')"
+                                                },
+                                                "runAfter": {},
+                                                "type": "Table"
                                             }
                                         },
-                                        "method": "post",
-                                        "path": "/Incidents/Comment"
+                                        "expression": {
+                                            "and": [
+                                                {
+                                                    "equals": [
+                                                        "@triggerBody()?['AddIncidentComments']",
+                                                        "@true"
+                                                    ]
+                                                }
+                                            ]
+                                        },
+                                        "runAfter": {
+                                            "Return_final_response": [
+                                                "Succeeded"
+                                            ]
+                                        },
+                                        "type": "If"
                                     },
-                                    "runAfter": {
-                                        "Create_HTML_table_for_comment": [
-                                            "Succeeded"
-                                        ]
+                                    "Filter_scores_above_the_threshold": {
+                                        "inputs": {
+                                            "from": "@variables('Scores')",
+                                            "where": "@greater(item(), triggerBody()?['ScoreThreshold'])"
+                                        },
+                                        "runAfter": {},
+                                        "type": "Query"
                                     },
-                                    "type": "ApiConnection"
-                                },
-                                "Create_HTML_table_for_comment": {
-                                    "inputs": {
-                                        "format": "HTML",
-                                        "from": "@variables('DetailedResults')"
-                                    },
-                                    "runAfter": {},
-                                    "type": "Table"
+                                    "Return_final_response": {
+                                        "inputs": {
+                                            "body": "@outputs('Compose_final_response')",
+                                            "statusCode": 200
+                                        },
+                                        "kind": "Http",
+                                        "runAfter": {
+                                            "Compose_final_response": [
+                                                "Succeeded"
+                                            ]
+                                        },
+                                        "type": "Response"
+                                    }
                                 }
                             },
                             "expression": {
                                 "and": [
                                     {
-                                        "equals": [
-                                            "@triggerBody()?['AddIncidentComments']",
-                                            "@true"
+                                        "greater": [
+                                            "@length(body('Filter_array_Errors'))",
+                                            0
                                         ]
                                     }
                                 ]
                             },
                             "runAfter": {
-                                "Return_final_response": [
+                                "Filter_array_Errors": [
                                     "Succeeded"
                                 ]
                             },
@@ -114,37 +174,6 @@
                                             "DetailedResults": [],
                                             "MaximumScore": 0,
                                             "UnderThreholdCount": 0
-                                        },
-                                        "schema": {
-                                            "properties": {
-                                                "AboveThreholdCount": {
-                                                    "type": "integer"
-                                                },
-                                                "AnalyzedEntities": {
-                                                    "type": "integer"
-                                                },
-                                                "DetailedResults": {
-                                                    "items": {
-                                                        "properties": {
-                                                            "ThreatScore": {
-                                                                "type": "integer"
-                                                            },
-                                                            "UserId": {
-                                                                "type": "string"
-                                                            },
-                                                            "UserPrincipalName": {
-                                                                "type": "string"
-                                                            }
-                                                        },
-                                                        "type": "object"
-                                                    },
-                                                    "type": "array"
-                                                },
-                                                "MaximumScore": {
-                                                    "type": "integer"
-                                                }
-                                            },
-                                            "type": "object"
                                         },
                                         "statusCode": 200
                                     },
@@ -193,10 +222,10 @@
                             },
                             "type": "Query"
                         },
-                        "Filter_scores_above_the_threshold": {
+                        "Filter_array_Errors": {
                             "inputs": {
-                                "from": "@variables('Scores')",
-                                "where": "@greater(item(), triggerBody()?['ScoreThreshold'])"
+                                "from": "@variables('StatusCodeErrors')",
+                                "where": "@not(equals(item(), 404))"
                             },
                             "runAfter": {
                                 "For_each_account": [
@@ -207,6 +236,15 @@
                         },
                         "For_each_account": {
                             "actions": {
+                                "Compose_Base64": {
+                                    "inputs": "@base64(outputs('Compose_PkUser'))",
+                                    "runAfter": {
+                                        "Compose_PkUser": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Compose"
+                                },
                                 "Compose_PkUser": {
                                     "inputs": {
                                         "id": "@{items('For_each_account')['id']}",
@@ -243,6 +281,18 @@
                                             "type": "AppendToArrayVariable"
                                         }
                                     },
+                                    "else": {
+                                        "actions": {
+                                            "Append_to_array_variable": {
+                                                "inputs": {
+                                                    "name": "StatusCodeErrors",
+                                                    "value": "@outputs('HTTP_-_MCAS_API_Call')['statusCode']"
+                                                },
+                                                "runAfter": {},
+                                                "type": "AppendToArrayVariable"
+                                            }
+                                        }
+                                    },
                                     "expression": {
                                         "and": [
                                             {
@@ -255,7 +305,8 @@
                                     },
                                     "runAfter": {
                                         "HTTP_-_MCAS_API_Call": [
-                                            "Succeeded"
+                                            "Succeeded",
+                                            "Failed"
                                         ]
                                     },
                                     "type": "If"
@@ -267,10 +318,10 @@
                                             "type": "ManagedServiceIdentity"
                                         },
                                         "method": "GET",
-                                        "uri": "https://portal.cloudappsecurity.com/cas/api/v1/entities/@{base64(outputs('Compose_PkUser'))}/"
+                                        "uri": "https://portal.cloudappsecurity.com/cas/api/v1/entities/@{outputs('Compose_Base64')}/"
                                     },
                                     "runAfter": {
-                                        "Compose_PkUser": [
+                                        "Compose_Base64": [
                                             "Succeeded"
                                         ]
                                     },
@@ -315,6 +366,23 @@
                                 ]
                             },
                             "runAfter": {},
+                            "type": "InitializeVariable"
+                        },
+                        "Initialize_variable_StatusCodeErrors": {
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "StatusCodeErrors",
+                                        "type": "array",
+                                        "value": []
+                                    }
+                                ]
+                            },
+                            "runAfter": {
+                                "Initialize_DetailedResults": [
+                                    "Succeeded"
+                                ]
+                            },
                             "type": "InitializeVariable"
                         },
                         "Parse_JSON": {
@@ -690,74 +758,11 @@
                                 }
                             },
                             "runAfter": {
-                                "Initialize_DetailedResults": [
+                                "Initialize_variable_StatusCodeErrors": [
                                     "Succeeded"
                                 ]
                             },
                             "type": "ParseJson"
-                        },
-                        "Response_when_permissions_issues": {
-                            "inputs": {
-                                "body": {
-                                    "Error": "@{parameters('PlaybookInternalName')} failed to execute with status 401",
-                                    "PlaybookName": "@{workflow()?['name']}",
-                                    "PlaybookResourceId": "@{workflow()?['id']}",
-                                    "PlaybookRunId": "@{workflow()?['run']?['name']}",
-                                    "PlaybookVersion": "@{parameters('PlaybookVersion')}"
-                                },
-                                "statusCode": 401
-                            },
-                            "kind": "Http",
-                            "runAfter": {
-                                "For_each_account": [
-                                    "Failed"
-                                ]
-                            },
-                            "type": "Response"
-                        },
-                        "Return_final_response": {
-                            "inputs": {
-                                "body": "@outputs('Compose_final_response')",
-                                "schema": {
-                                    "properties": {
-                                        "AboveThreholdCount": {
-                                            "type": "integer"
-                                        },
-                                        "AnalyzedEntities": {
-                                            "type": "integer"
-                                        },
-                                        "DetailedResults": {
-                                            "items": {
-                                                "properties": {
-                                                    "ThreatScore": {
-                                                        "type": "integer"
-                                                    },
-                                                    "UserId": {
-                                                        "type": "string"
-                                                    },
-                                                    "UserPrincipalName": {
-                                                        "type": "string"
-                                                    }
-                                                },
-                                                "type": "object"
-                                            },
-                                            "type": "array"
-                                        },
-                                        "MaximumScore": {
-                                            "type": "integer"
-                                        }
-                                    },
-                                    "type": "object"
-                                },
-                                "statusCode": 200
-                            },
-                            "kind": "Http",
-                            "runAfter": {
-                                "Compose_final_response": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "Response"
                         }
                     },
                     "contentVersion": "1.0.0.0",
