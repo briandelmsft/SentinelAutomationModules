@@ -80,6 +80,14 @@
         "CustomConnectorDisplayName": {
             "defaultValue": "Sentinel Triage AssistanT - STAT",
             "type": "String"
+        },
+        "WorkbookName": {
+            "defaultValue": "Sentinel Triage AssistanT - Status",
+            "type": "String"
+        },
+        "DeployWorkbook": {
+            "defaultValue": true,
+            "type": "bool"
         }
     },
     "variables": {
@@ -95,7 +103,8 @@
         "TITemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/TIModule/azuredeploy.json",
         "BaseTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/BaseModule/azuredeploy.json",
         "BasicSampleTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Samples/basicsample.json",
-        "ConnectorTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Connector/azuredeploy.json"
+        "ConnectorTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Connector/azuredeploy.json",
+        "WorkbookTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/workbook/Workbook/azuredeploy.json"
     },
     "resources": [
         {
@@ -388,6 +397,25 @@
                     },
                     "WatchlistModule_resourceid": {
                         "value": "[reference('WatchlistTemplate').outputs.resourceID.value]"
+                    }
+                }
+            }
+        },
+        {
+            "condition": "[parameters('DeployWorkbook')]",
+            "apiVersion": "2019-10-01",
+            "name": "DeloyWorkbook",
+            "type": "Microsoft.Resources/deployments",
+            "dependsOn": [],
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[variables('WorkbookTemplate')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "workbookDisplayName": {
+                        "value": "[parameters('WorkbookName')]"
                     }
                 }
             }

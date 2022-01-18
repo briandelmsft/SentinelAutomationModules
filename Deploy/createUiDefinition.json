@@ -316,6 +316,25 @@
                                 "toolTip": "",
                                 "constraints": {},
                                 "visible": "[if(steps('automationModules').advancedSetup.DeployConnector, true, false)]"
+                            },
+                            {
+                                "name": "DeployWorkbook",
+                                "type": "Microsoft.Common.CheckBox",
+                                "label": "Deploy the STAT Monitoring Workbook",
+                                "defaultValue": true,
+                                "toolTip": "",
+                                "constraints": {},
+                                "visible": true
+                            },
+                            {
+                                "name": "WorkbookDisplayName",
+                                "type": "Microsoft.Common.TextBox",
+                                "label": "STAT Workbook Display Name",
+                                "placeholder": "",
+                                "defaultValue": "Sentinel Triage AssistanT - Status",
+                                "toolTip": "",
+                                "constraints": {},
+                                "visible": "[if(steps('automationModules').advancedSetup.DeployWorkbook, true, false)]"
                             }
                         ],
                         "visible": "[if(equals(steps('deploymentTypeStep').deploymentType, 'advanced'), true, false)]"
@@ -396,6 +415,8 @@
             "CustomConnectorDisplayName": "[coalesce(steps('automationModules').advancedSetup.CustomConnectorDisplayName,'Sentinel Triage AssistanT - STAT')]",
             "DeployConnector": "[coalesce(steps('automationModules').advancedSetup.DeployConnector,steps('automationModules').standardSetup.DeployConnector)]",
             "StandardSetup": "[if(equals(steps('deploymentTypeStep').deploymentType, 'standard'), true, false)]",
+            "WorkbookName": "[coalesce(steps('automationModules').advancedSetup.WorkbookDisplayName,'Sentinel Triage AssistanT - Status')]",
+            "DeployWorkbook": "[coalesce(steps('automationModules').advancedSetup.DeployWorkbook, true)]",
             "location": "[location()]"
         }
     }
