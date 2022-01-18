@@ -172,7 +172,7 @@
       "type": 3,
       "content": {
         "version": "KqlItem/1.0",
-        "query": "{\"version\":\"Merge/1.0\",\"merges\":[{\"id\":\"414f4d03-24ed-43be-8e7b-58d78fe3e0f5\",\"mergeType\":\"leftanti\",\"leftTable\":\"CurrentConnectorVersion\",\"rightTable\":\"InstalledConnector\",\"leftColumn\":\"Version\",\"rightColumn\":\"Version\"}],\"projectRename\":[{\"originalName\":\"[CurrentConnectorVersion].VersionIcon\",\"mergedName\":\"Updated Version Available\",\"fromId\":\"414f4d03-24ed-43be-8e7b-58d78fe3e0f5\"},{\"originalName\":\"[InstalledConnector].id\"},{\"originalName\":\"[InstalledConnector].name\"},{\"originalName\":\"[InstalledConnector].type\"},{\"originalName\":\"[InstalledConnector].tenantId\"},{\"originalName\":\"[InstalledConnector].kind\"},{\"originalName\":\"[InstalledConnector].location\"},{\"originalName\":\"[InstalledConnector].resourceGroup\"},{\"originalName\":\"[InstalledConnector].subscriptionId\"},{\"originalName\":\"[InstalledConnector].managedBy\"},{\"originalName\":\"[InstalledConnector].sku\"},{\"originalName\":\"[InstalledConnector].plan\"},{\"originalName\":\"[InstalledConnector].properties\"},{\"originalName\":\"[InstalledConnector].tags\"},{\"originalName\":\"[InstalledConnector].identity\"},{\"originalName\":\"[InstalledConnector].zones\"},{\"originalName\":\"[InstalledConnector].extendedLocation\"},{\"originalName\":\"[InstalledConnector].DisplayName\"},{\"originalName\":\"[CurrentConnectorVersion].Version\"}]}",
+        "query": "{\"version\":\"Merge/1.0\",\"merges\":[{\"id\":\"414f4d03-24ed-43be-8e7b-58d78fe3e0f5\",\"mergeType\":\"leftanti\",\"leftTable\":\"InstalledConnector\",\"rightTable\":\"CurrentConnectorVersion\",\"leftColumn\":\"Version\",\"rightColumn\":\"Version\"}],\"projectRename\":[{\"originalName\":\"[InstalledConnector].DisplayName\",\"mergedName\":\"DisplayName\",\"fromId\":\"414f4d03-24ed-43be-8e7b-58d78fe3e0f5\"},{\"originalName\":\"[InstalledConnector].Name\",\"mergedName\":\"Name\",\"fromId\":\"414f4d03-24ed-43be-8e7b-58d78fe3e0f5\"},{\"originalName\":\"[InstalledConnector].Version\",\"mergedName\":\"Version\",\"fromId\":\"414f4d03-24ed-43be-8e7b-58d78fe3e0f5\"}]}",
         "size": 4,
         "noDataMessage": "The current version of the connector is up to date.",
         "queryType": 7,
@@ -275,25 +275,9 @@
       "type": 3,
       "content": {
         "version": "KqlItem/1.0",
-        "query": "{\"version\":\"Merge/1.0\",\"merges\":[{\"id\":\"414f4d03-24ed-43be-8e7b-58d78fe3e0c7\",\"mergeType\":\"leftanti\",\"leftTable\":\"InstalledModules\",\"rightTable\":\"CurrentModuleVersions\",\"leftColumn\":\"Version\",\"rightColumn\":\"Version\"}],\"projectRename\":[{\"originalName\":\"[CurrentModuleVersions].Version\",\"mergedName\":\"Version\",\"fromId\":\"unknown\"},{\"originalName\":\"[InstalledModules].Version\",\"mergedName\":\"Version\",\"fromId\":\"unknown\"},{\"originalName\":\"[InstalledModules].[InstalledModules].Name\",\"mergedName\":\"Name\",\"fromId\":\"unknown\"},{\"originalName\":\"[InstalledModules].[InstalledModules].State\",\"mergedName\":\"State\",\"fromId\":\"unknown\"},{\"originalName\":\"[InstalledModules].[InstalledModules].Location\",\"mergedName\":\"Location\",\"fromId\":\"unknown\"},{\"originalName\":\"[InstalledModules].[InstalledModules].RG\",\"mergedName\":\"RG\",\"fromId\":\"unknown\"},{\"originalName\":\"[InstalledModules].[InstalledModules].Created\",\"mergedName\":\"Created\",\"fromId\":\"unknown\"},{\"originalName\":\"[InstalledModules].[InstalledModules].Modified\",\"mergedName\":\"Modified\",\"fromId\":\"unknown\"},{\"originalName\":\"[InstalledModules].[InstalledModules].Version\",\"mergedName\":\"Version\",\"fromId\":\"unknown\"},{\"originalName\":\"[InstalledModules].[InstalledModules].InternalName\",\"mergedName\":\"InternalName\",\"fromId\":\"unknown\"},{\"originalName\":\"[InstalledModules].[CurrentModuleVersions].PlaybookInternalName\",\"mergedName\":\"PlaybookInternalName\",\"fromId\":\"unknown\"},{\"originalName\":\"[InstalledModules].[CurrentModuleVersions].Version\",\"mergedName\":\"Version\",\"fromId\":\"unknown\"},{\"originalName\":\"[InstalledModules].Name\",\"mergedName\":\"Name\",\"fromId\":\"unknown\"},{\"originalName\":\"[InstalledModules].Created\",\"mergedName\":\"Created\",\"fromId\":\"unknown\"},{\"originalName\":\"[InstalledModules].Modified\",\"mergedName\":\"Modified\",\"fromId\":\"unknown\"},{\"originalName\":\"[InstalledModules].State\",\"mergedName\":\"State\",\"fromId\":\"414f4d03-24ed-43be-8e7b-58d78fe3e0c7\"},{\"originalName\":\"[InstalledModules].Location\",\"mergedName\":\"Location\",\"fromId\":\"414f4d03-24ed-43be-8e7b-58d78fe3e0c7\"},{\"originalName\":\"[InstalledModules].RG\",\"mergedName\":\"RG\",\"fromId\":\"414f4d03-24ed-43be-8e7b-58d78fe3e0c7\"},{\"originalName\":\"[InstalledModules].InternalName\",\"mergedName\":\"InternalName\",\"fromId\":\"414f4d03-24ed-43be-8e7b-58d78fe3e0c7\"},{\"originalName\":\"[InstalledModules].InternalName\"},{\"originalName\":\"[InstalledModules].State\"},{\"originalName\":\"[InstalledModules].RG\"},{\"originalName\":\"[InstalledModules].Location\"},{\"originalName\":\"[CurrentModuleVersions].PlaybookInternalName\"}]}",
-        "size": 0,
-        "queryType": 7
-      },
-      "conditionalVisibility": {
-        "parameterName": "ActiveTab",
-        "comparison": "isEqualTo",
-        "value": "Debug"
-      },
-      "name": "MergedVersions"
-    },
-    {
-      "type": 3,
-      "content": {
-        "version": "KqlItem/1.0",
-        "query": "{\"version\":\"Merge/1.0\",\"merges\":[{\"id\":\"414f4d03-24ed-43be-8e7b-58d78fe3e0d2\",\"mergeType\":\"innerunique\",\"leftTable\":\"MergedVersions\",\"rightTable\":\"CurrentModuleVersions\",\"leftColumn\":\"InternalName\",\"rightColumn\":\"PlaybookInternalName\"}],\"projectRename\":[{\"originalName\":\"[MergedVersions].Name\",\"mergedName\":\"Name\",\"fromId\":\"414f4d03-24ed-43be-8e7b-58d78fe3e0d2\"},{\"originalName\":\"[MergedVersions].Version\",\"mergedName\":\"Installed Version\",\"fromId\":\"414f4d03-24ed-43be-8e7b-58d78fe3e0d2\"},{\"originalName\":\"[CurrentModuleVersions].VersionIcon\",\"mergedName\":\"Latest Version Available\",\"fromId\":\"unknown\"},{\"originalName\":\"[MergedVersions].Created\"},{\"originalName\":\"[MergedVersions].Modified\"},{\"originalName\":\"[MergedVersions].State\"},{\"originalName\":\"[MergedVersions].Location\"},{\"originalName\":\"[MergedVersions].RG\"},{\"originalName\":\"[MergedVersions].InternalName\"},{\"originalName\":\"[CurrentModuleVersions].PlaybookInternalName\"},{\"originalName\":\"[CurrentModuleVersions].Version\"}]}",
-        "size": 0,
+        "query": "{\"version\":\"Merge/1.0\",\"merges\":[{\"id\":\"414f4d03-24ed-43be-8e7b-58d78fe3e0c7\",\"mergeType\":\"leftanti\",\"leftTable\":\"InstalledModules\",\"rightTable\":\"CurrentModuleVersions\",\"leftColumn\":\"Version\",\"rightColumn\":\"Version\"},{\"id\":\"2121964a-3b1b-4013-b3de-a93cad3a3271\",\"mergeType\":\"innerunique\",\"leftTable\":\"InstalledModules\",\"rightTable\":\"CurrentModuleVersions\",\"leftColumn\":\"InternalName\",\"rightColumn\":\"PlaybookInternalName\"}],\"projectRename\":[{\"originalName\":\"[InstalledModules].Name\",\"mergedName\":\"Name\",\"fromId\":\"unknown\"},{\"originalName\":\"[CurrentModuleVersions].VersionIcon\",\"mergedName\":\"VersionIcon\",\"fromId\":\"2121964a-3b1b-4013-b3de-a93cad3a3271\"},{\"originalName\":\"[InstalledModules].State\"},{\"originalName\":\"[InstalledModules].Location\"},{\"originalName\":\"[InstalledModules].RG\"},{\"originalName\":\"[InstalledModules].Created\"},{\"originalName\":\"[InstalledModules].Modified\"},{\"originalName\":\"[InstalledModules].Version\"},{\"originalName\":\"[InstalledModules].InternalName\"},{\"originalName\":\"[CurrentModuleVersions].PlaybookInternalName\"},{\"originalName\":\"[CurrentModuleVersions].Version\"}]}",
+        "size": 2,
         "title": "Updated Versions Available",
-        "noDataMessage": "All modules seem to be up to date.",
         "queryType": 7
       },
       "conditionalVisibility": {
@@ -302,7 +286,19 @@
         "value": "Versions"
       },
       "customWidth": "40",
-      "name": "MergedVersionUpdate"
+      "name": "MergedVersions"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "You can use this section to monitor the execution of your STAT modules and keep track of their related billable actions."
+      },
+      "conditionalVisibility": {
+        "parameterName": "ActiveTab",
+        "comparison": "isEqualTo",
+        "value": "Statistics"
+      },
+      "name": "IntroStats"
     },
     {
       "type": 10,
@@ -650,7 +646,8 @@
       "name": "Billable Actions"
     }
   ],
-  "fallbackResourceIds": [],
+  "fallbackResourceIds": [
+  ],
   "fromTemplateId": "sentinel-UserWorkbook",
   "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
 }
