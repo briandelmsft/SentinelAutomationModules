@@ -2,13 +2,6 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "enableModulesKind": {
-            "type": "array",
-            "defaultValue": [],
-            "metadata": {
-                "description": "The automation modules you want to deploy"
-            }
-        },
         "OOFPlaybookName": {
             "defaultValue": "Get-OOFDetails",
             "type": "String"
@@ -51,10 +44,6 @@
         },
         "DeployConnector": {
             "defaultValue": true,
-            "type": "bool"
-        },
-        "StandardSetup": {
-            "defaultValue": false,
             "type": "bool"
         },
         "FilePlaybookName": {
@@ -125,7 +114,6 @@
             }
         },
         {
-            "condition": "[or(contains(parameters('enableModulesKind'), 'KQLModule'),parameters('StandardSetup'))]",
             "apiVersion": "2019-10-01",
             "name": "KQLTemplate",
             "type": "Microsoft.Resources/deployments",
@@ -143,7 +131,6 @@
             }
         },
         {
-            "condition": "[or(contains(parameters('enableModulesKind'), 'TIModule'),parameters('StandardSetup'))]",
             "apiVersion": "2019-10-01",
             "name": "TITemplate",
             "type": "Microsoft.Resources/deployments",
@@ -161,7 +148,6 @@
             }
         },
         {
-            "condition": "[or(contains(parameters('enableModulesKind'), 'FileModule'),parameters('StandardSetup'))]",
             "apiVersion": "2019-10-01",
             "name": "FileTemplate",
             "type": "Microsoft.Resources/deployments",
@@ -179,7 +165,6 @@
             }
         },
         {
-            "condition": "[or(contains(parameters('enableModulesKind'), 'OOFModule'),parameters('StandardSetup'))]",
             "apiVersion": "2019-10-01",
             "name": "OOFTemplate",
             "type": "Microsoft.Resources/deployments",
@@ -197,7 +182,6 @@
             }
         },
         {
-            "condition": "[or(contains(parameters('enableModulesKind'), 'WatchlistModule'),parameters('StandardSetup'))]",
             "apiVersion": "2019-10-01",
             "name": "WatchlistTemplate",
             "type": "Microsoft.Resources/deployments",
@@ -215,7 +199,6 @@
             }
         },
         {
-            "condition": "[or(contains(parameters('enableModulesKind'), 'AADModule'),parameters('StandardSetup'))]",
             "apiVersion": "2019-10-01",
             "name": "AADTemplate",
             "type": "Microsoft.Resources/deployments",
@@ -233,7 +216,6 @@
             }
         },
         {
-            "condition": "[or(contains(parameters('enableModulesKind'), 'MCASModule'),parameters('StandardSetup'))]",
             "apiVersion": "2019-10-01",
             "name": "MCASTemplate",
             "type": "Microsoft.Resources/deployments",
@@ -251,7 +233,6 @@
             }
         },
         {
-            "condition": "[or(contains(parameters('enableModulesKind'), 'UEBAModule'),parameters('StandardSetup'))]",
             "apiVersion": "2019-10-01",
             "name": "UEBATemplate",
             "type": "Microsoft.Resources/deployments",
@@ -269,7 +250,6 @@
             }
         },
         {
-            "condition": "[or(contains(parameters('enableModulesKind'), 'MDEModule'),parameters('StandardSetup'))]",
             "apiVersion": "2019-10-01",
             "name": "MDETemplate",
             "type": "Microsoft.Resources/deployments",
@@ -287,7 +267,6 @@
             }
         },
         {
-            "condition": "[or(contains(parameters('enableModulesKind'), 'RelatedAlerts'),parameters('StandardSetup'))]",
             "apiVersion": "2019-10-01",
             "name": "RelatedAlertsTemplate",
             "type": "Microsoft.Resources/deployments",
