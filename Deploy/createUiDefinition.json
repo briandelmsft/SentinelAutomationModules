@@ -35,7 +35,7 @@
                         "type": "Microsoft.Common.TextBlock",
                         "visible": true,
                         "options": {
-                            "text": "A standard deployment allows you to deploy or update the entire STAT solution with minimal input.  An advanced deployment allows for additional configuration such as providing customized names to the Logic Apps",
+                            "text": "A standard deployment allows you to deploy or update the entire STAT solution with minimal input.  An advanced deployment allows for additional configuration such as providing customized names to the Logic Apps.",
                             "link": {
                                 "label": "Learn more",
                                 "uri": "https://github.com/briandelmsft/SentinelAutomationModules/tree/main/Deploy"
@@ -45,7 +45,7 @@
                     {
                         "name": "deploymentType",
                         "type": "Microsoft.Common.OptionsGroup",
-                        "label": "Select the deloyment type",
+                        "label": "Select the deployment type",
                         "defaultValue": "Standard (recommended)",
                         "toolTip": "",
                         "constraints": {
@@ -253,7 +253,7 @@
                                 "type": "Microsoft.Common.TextBox",
                                 "label": "MDE Playbook Name",
                                 "placeholder": "",
-                                "defaultValue": "Get-MDEUsersDevicesRiskScore",
+                                "defaultValue": "Get-MDEInsights",
                                 "toolTip": "",
                                 "constraints": {},
                                 "visible": true
@@ -350,7 +350,7 @@
                         "type": "Microsoft.Common.TextBlock",
                         "visible": true,
                         "options": {
-                            "text": "Sample Playbook Deloyment"
+                            "text": "Sample Playbook Deployment"
                         }
                     },
                     {
@@ -396,7 +396,7 @@
             "KQLPlaybookName": "[coalesce(steps('automationModules').advancedSetup.KQLPlaybookName,'Run-KQLQuery')]",
             "BasePlaybookName": "[coalesce(steps('automationModules').advancedSetup.BasePlaybookName,'Base-Module')]",
             "AADRisksPlaybookName": "[coalesce(steps('automationModules').advancedSetup.AADRisksPlaybookName,'Get-AADUserRisksInfo')]",
-            "MDEPlaybookName": "[coalesce(steps('automationModules').advancedSetup.MDEPlaybookName,'Get-MDEUsersDevicesRiskScore')]",
+            "MDEPlaybookName": "[coalesce(steps('automationModules').advancedSetup.MDEPlaybookName,'Get-MDEInsights')]",
             "MCASPlaybookName": "[coalesce(steps('automationModules').advancedSetup.MCASPlaybookName,'Get-MCASInvestigationScore')]",
             "WatchlistPlaybookName": "[coalesce(steps('automationModules').advancedSetup.WatchlistPlaybookName,'Get-WatchlistInsights')]",
             "DeployBasicSamplePlaybook": "[steps('sampleStep').DeployBasicSamplePlaybook]",
