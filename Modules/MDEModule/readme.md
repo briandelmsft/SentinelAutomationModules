@@ -1,4 +1,4 @@
-﻿# Get-MDEInsight
+﻿# Get-MDEInsights
 
 ## Description
 This module will return the risk score and exposure level from Microsoft Defender for Endpoint of all the machines on which a user logged on interactively and for all machines with specified IP addresses.
