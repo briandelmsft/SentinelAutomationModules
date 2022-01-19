@@ -122,7 +122,7 @@
                   "name": "Workspace",
                   "type": 5,
                   "isRequired": true,
-                  "query": "resources\r\n| where type contains \"workspace\"",
+                  "query": "resources\r\n| where type =~ \"microsoft.operationalinsights/workspaces\"",
                   "crossComponentResources": [
                     "value::all"
                   ],
