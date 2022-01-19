@@ -19,7 +19,7 @@
             "type": "String"
         },
         "MDEPlaybookName": {
-            "defaultValue": "Get-MDEUsersDevicesRiskScore",
+            "defaultValue": "Get-MDEInsights",
             "type": "String"
         },
         "AADRisksPlaybookName": {
