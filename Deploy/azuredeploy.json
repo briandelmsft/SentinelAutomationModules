@@ -383,7 +383,7 @@
         {
             "condition": "[parameters('DeployWorkbook')]",
             "apiVersion": "2019-10-01",
-            "name": "DeloyWorkbook",
+            "name": "DeployWorkbook",
             "type": "Microsoft.Resources/deployments",
             "dependsOn": [],
             "properties": {
