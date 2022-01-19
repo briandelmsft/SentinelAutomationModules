@@ -1,0 +1,731 @@
+{
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "workbookDisplayName": {
+        "type": "string",
+        "defaultValue": "Sentinel Triage AssistanT - Status",
+        "metadata": {
+          "description": "The friendly name for the workbook that is used in the Gallery or Saved List.  This name must be unique within a resource group."
+        }
+      }
+    },
+    "variables": {
+      "workbookType": "workbook",
+      "workbookSourceId": "Azure Monitor",
+      "workbookId": "abe1b49f-3e73-48a7-8987-0714489c294f",
+      "workbookContent": {
+        "version": "Notebook/1.0",
+        "items": [
+          {
+            "type": 11,
+            "content": {
+              "version": "LinkItem/1.0",
+              "style": "tabs",
+              "links": [
+                {
+                  "id": "0635247d-855b-4713-9e59-884725b3a88e",
+                  "cellValue": "ActiveTab",
+                  "linkTarget": "parameter",
+                  "linkLabel": "Statistics",
+                  "subTarget": "Statistics",
+                  "style": "link"
+                },
+                {
+                  "id": "d022c29c-f271-4730-b7de-9bfee50a0397",
+                  "cellValue": "ActiveTab",
+                  "linkTarget": "parameter",
+                  "linkLabel": "Versions",
+                  "subTarget": "Versions",
+                  "style": "link"
+                }
+              ]
+            },
+            "name": "Tabs Menu"
+          },
+          {
+            "type": 9,
+            "content": {
+              "version": "KqlParameterItem/1.0",
+              "crossComponentResources": [
+                "value::all"
+              ],
+              "parameters": [
+                {
+                  "id": "be395998-13d3-4c8a-94df-b18331eaaa3b",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "ListLogicApps",
+                  "label": "Filtre Logic Apps",
+                  "type": 5,
+                  "multiSelect": true,
+                  "quote": "'",
+                  "delimiter": ",",
+                  "query": "resources\r\n| where type == \"microsoft.logic/workflows\"\r\n| where properties.definition.parameters.ProjectName.defaultValue == \"STAT\"\r\n| project id",
+                  "crossComponentResources": [
+                    "value::all"
+                  ],
+                  "isHiddenWhenLocked": true,
+                  "typeSettings": {
+                    "additionalResourceOptions": [
+                      "value::all"
+                    ],
+                    "showDefault": false
+                  },
+                  "timeContext": {
+                    "durationMs": 86400000
+                  },
+                  "defaultValue": "value::all",
+                  "queryType": 1,
+                  "resourceType": "microsoft.resourcegraph/resources"
+                },
+                {
+                  "id": "288479de-c99b-414c-b926-03a86bcecc19",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "TimeRange",
+                  "label": "Filter time range",
+                  "type": 4,
+                  "isHiddenWhenLocked": true,
+                  "typeSettings": {
+                    "selectableValues": [
+                      {
+                        "durationMs": 1800000
+                      },
+                      {
+                        "durationMs": 3600000
+                      },
+                      {
+                        "durationMs": 86400000
+                      },
+                      {
+                        "durationMs": 604800000
+                      },
+                      {
+                        "durationMs": 1209600000
+                      },
+                      {
+                        "durationMs": 2592000000
+                      },
+                      {
+                        "durationMs": 5184000000
+                      },
+                      {
+                        "durationMs": 7776000000
+                      }
+                    ]
+                  },
+                  "value": {
+                    "durationMs": 604800000
+                  }
+                },
+                {
+                  "id": "881623ca-d6b8-48c1-a8ae-c37d3fdfd12b",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "Workspace",
+                  "type": 5,
+                  "isRequired": true,
+                  "query": "resources\r\n| where type =~ \"microsoft.operationalinsights/workspaces\"",
+                  "crossComponentResources": [
+                    "value::all"
+                  ],
+                  "isHiddenWhenLocked": true,
+                  "typeSettings": {
+                    "additionalResourceOptions": [
+                      "value::1"
+                    ],
+                    "showDefault": false
+                  },
+                  "timeContext": {
+                    "durationMs": 86400000
+                  },
+                  "defaultValue": "value::1",
+                  "queryType": 1,
+                  "resourceType": "microsoft.resourcegraph/resources"
+                }
+              ],
+              "style": "pills",
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources"
+            },
+            "name": "Param Menu"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "## Installed STAT Connector Version\r\n\r\nSTAT 🏥 uses a custom connector. This section of the report shows you the installed versions and if a newer version is available. "
+            },
+            "conditionalVisibility": {
+              "parameterName": "ActiveTab",
+              "comparison": "isEqualTo",
+              "value": "Versions"
+            },
+            "name": "TitleConnector"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "externaldata(Stuff:dynamic)\r\n[\r\nh@\"https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Connector/azuredeploy.json\"\r\n]\r\nwith(format=\"multijson\",ingestionMapping=\"[{'Column':'Stuff','Properties':{'Path':'$.resources'}}]\")\r\n| mv-expand Stuff\r\n| where Stuff.type == \"Microsoft.Web/customApis\"\r\n| parse Stuff.properties.description with * 'version ' Version ')'\r\n| project Version, VersionIcon = strcat('🆕 ', Version)",
+              "size": 4,
+              "timeContext": {
+                "durationMs": 86400000
+              },
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "crossComponentResources": [
+                "{Workspace}"
+              ]
+            },
+            "conditionalVisibility": {
+              "parameterName": "ActiveTab",
+              "comparison": "isEqualTo",
+              "value": "Debug"
+            },
+            "name": "CurrentConnectorVersion"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "resources\r\n| where type =~ \"Microsoft.Web/customApis\"\r\n| where properties.description has \"Microsoft Sentinel Triage\"\r\n| parse properties.description with * 'version ' Version ')'\r\n| project DisplayName = id, Name = name, Version",
+              "size": 4,
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "value::all"
+              ],
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "Name",
+                    "formatter": 13,
+                    "formatOptions": {
+                      "linkTarget": null,
+                      "showIcon": true
+                    }
+                  }
+                ]
+              }
+            },
+            "customWidth": "50",
+            "conditionalVisibility": {
+              "parameterName": "ActiveTab",
+              "comparison": "isEqualTo",
+              "value": "Versions"
+            },
+            "name": "InstalledConnector"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "{\"version\":\"Merge/1.0\",\"merges\":[{\"id\":\"414f4d03-24ed-43be-8e7b-58d78fe3e0f5\",\"mergeType\":\"leftanti\",\"leftTable\":\"CurrentConnectorVersion\",\"rightTable\":\"InstalledConnector\",\"leftColumn\":\"Version\",\"rightColumn\":\"Version\"}],\"projectRename\":[{\"originalName\":\"[CurrentConnectorVersion].VersionIcon\",\"mergedName\":\"Updated Version Available\",\"fromId\":\"414f4d03-24ed-43be-8e7b-58d78fe3e0f5\"},{\"originalName\":\"[CurrentConnectorVersion].Version\"}]}",
+              "size": 4,
+              "noDataMessage": "The current version of the connector is up to date.",
+              "noDataMessageStyle": 3,
+              "queryType": 7,
+              "visualization": "table",
+              "textSettings": {
+                "style": "markdown"
+              }
+            },
+            "customWidth": "50",
+            "conditionalVisibility": {
+              "parameterName": "ActiveTab",
+              "comparison": "isEqualTo",
+              "value": "Versions"
+            },
+            "name": "MergedConnector"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "externaldata(Stuff:dynamic)\r\n[\r\nh@\"https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/OOFModule/azuredeploy.json\",\r\nh@\"https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/RelatedAlerts/azuredeploy.json\",\r\nh@\"https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/UEBAModule/azuredeploy.json\",\r\nh@\"https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/MCASModule/azuredeploy.json\",\r\nh@\"https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/MDEModule/azuredeploy.json\",\r\nh@\"https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/AADRisksModule/azuredeploy.json\",\r\nh@\"https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/WatchlistModule/azuredeploy.json\",\r\nh@\"https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/FileModule/azuredeploy.json\",\r\nh@\"https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/KQLModule/azuredeploy.json\",\r\nh@\"https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/TIModule/azuredeploy.json\",\r\nh@\"https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/BaseModule/azuredeploy.json\"\r\n]\r\nwith(format=\"multijson\",ingestionMapping=\"[{'Column':'Stuff','Properties':{'Path':'$.resources'}}]\")\r\n| mv-expand Stuff\r\n| where Stuff.type == \"Microsoft.Logic/workflows\"\r\n| extend Version = Stuff.properties.definition.parameters.PlaybookVersion.defaultValue\r\n| extend PlaybookInternalName = Stuff.properties.definition.parameters.PlaybookInternalName.defaultValue\r\n| project PlaybookInternalName, Version, VersionIcon = strcat('🆕 ', Version)",
+              "size": 0,
+              "timeContext": {
+                "durationMs": 1800000
+              },
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "crossComponentResources": [
+                "{Workspace}"
+              ]
+            },
+            "conditionalVisibility": {
+              "parameterName": "ActiveTab",
+              "comparison": "isEqualTo",
+              "value": "Debug"
+            },
+            "name": "CurrentModuleVersions"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "## Installed Modules Versions\r\n\r\nSTAT 🏥 uses Logic Apps referred to as modules. This section of the report shows you the installed modules and if a newer version is available. \r\n\r\nLegend\r\n\r\n🟢 The module is **enabled**    \r\n🔴 The module is **disabled**"
+            },
+            "conditionalVisibility": {
+              "parameterName": "ActiveTab",
+              "comparison": "isEqualTo",
+              "value": "Versions"
+            },
+            "name": "Menu Installed Versions"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "resources\r\n| where type == \"microsoft.logic/workflows\"\r\n| where properties.definition.parameters.ProjectName.defaultValue == \"STAT\"\r\n| project Name=strcat(iif(properties.state =~ 'Enabled', '🟢', '🔴'), ' ', name), State=properties.state, Location=location, RG=resourceGroup, Created=properties.createdTime, Modified=properties.changedTime, Version=properties.definition.parameters.PlaybookVersion.defaultValue, InternalName=properties.definition.parameters.PlaybookInternalName.defaultValue",
+              "size": 2,
+              "title": "Installed Modules",
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "value::all"
+              ],
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "Location",
+                    "formatter": 5
+                  },
+                  {
+                    "columnMatch": "RG",
+                    "formatter": 5
+                  },
+                  {
+                    "columnMatch": "Created",
+                    "formatter": 6,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "25ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "Modified",
+                    "formatter": 6,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "25ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "InternalName",
+                    "formatter": 5
+                  }
+                ]
+              }
+            },
+            "customWidth": "60",
+            "conditionalVisibility": {
+              "parameterName": "ActiveTab",
+              "comparison": "isEqualTo",
+              "value": "Versions"
+            },
+            "name": "InstalledModules"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "{\"version\":\"Merge/1.0\",\"merges\":[{\"id\":\"414f4d03-24ed-43be-8e7b-58d78fe3e0c7\",\"mergeType\":\"leftanti\",\"leftTable\":\"InstalledModules\",\"rightTable\":\"CurrentModuleVersions\",\"leftColumn\":\"Version\",\"rightColumn\":\"Version\"},{\"id\":\"2121964a-3b1b-4013-b3de-a93cad3a3271\",\"mergeType\":\"innerunique\",\"leftTable\":\"InstalledModules\",\"rightTable\":\"CurrentModuleVersions\",\"leftColumn\":\"InternalName\",\"rightColumn\":\"PlaybookInternalName\"}],\"projectRename\":[{\"originalName\":\"[InstalledModules].Name\",\"mergedName\":\"Name\",\"fromId\":\"unknown\"},{\"originalName\":\"[CurrentModuleVersions].VersionIcon\",\"mergedName\":\"Latest Version Available\",\"fromId\":\"2121964a-3b1b-4013-b3de-a93cad3a3271\"},{\"originalName\":\"[InstalledModules].State\"},{\"originalName\":\"[InstalledModules].Location\"},{\"originalName\":\"[InstalledModules].RG\"},{\"originalName\":\"[InstalledModules].Created\"},{\"originalName\":\"[InstalledModules].Modified\"},{\"originalName\":\"[InstalledModules].Version\"},{\"originalName\":\"[InstalledModules].InternalName\"},{\"originalName\":\"[CurrentModuleVersions].PlaybookInternalName\"},{\"originalName\":\"[CurrentModuleVersions].Version\"}]}",
+              "size": 2,
+              "title": "Updated Versions Available",
+              "noDataMessage": "All modules are up to date.",
+              "noDataMessageStyle": 3,
+              "queryType": 7
+            },
+            "customWidth": "40",
+            "conditionalVisibility": {
+              "parameterName": "ActiveTab",
+              "comparison": "isEqualTo",
+              "value": "Versions"
+            },
+            "name": "MergedVersions"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "You can use this section to monitor the execution of your STAT modules and keep track of their related billable actions."
+            },
+            "conditionalVisibility": {
+              "parameterName": "ActiveTab",
+              "comparison": "isEqualTo",
+              "value": "Statistics"
+            },
+            "name": "IntroStats"
+          },
+          {
+            "type": 10,
+            "content": {
+              "chartId": "workbook6a070870-5181-4cc5-a3c6-c642c7c57c8c",
+              "version": "MetricsItem/2.0",
+              "size": 2,
+              "chartType": 0,
+              "resourceType": "microsoft.logic/workflows",
+              "metricScope": 0,
+              "resourceParameter": "ListLogicApps",
+              "resourceIds": [
+                "{ListLogicApps}"
+              ],
+              "timeContext": {
+                "durationMs": 2592000000
+              },
+              "metrics": [
+                {
+                  "namespace": "microsoft.logic/workflows",
+                  "metric": "microsoft.logic/workflows--RunsStarted",
+                  "aggregation": 1
+                },
+                {
+                  "namespace": "microsoft.logic/workflows",
+                  "metric": "microsoft.logic/workflows--RunsSucceeded",
+                  "aggregation": 1
+                },
+                {
+                  "namespace": "microsoft.logic/workflows",
+                  "metric": "microsoft.logic/workflows--RunsFailed",
+                  "aggregation": 1
+                },
+                {
+                  "namespace": "microsoft.logic/workflows",
+                  "metric": "microsoft.logic/workflows--RunFailurePercentage",
+                  "aggregation": 1
+                }
+              ],
+              "title": "Running Stats",
+              "tileSettings": {
+                "titleContent": {
+                  "columnMatch": "Name",
+                  "formatter": 13,
+                  "formatOptions": {
+                    "linkTarget": null,
+                    "showIcon": true
+                  }
+                },
+                "leftContent": {
+                  "columnMatch": "microsoft.logic/workflows--RunsCompleted",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "auto"
+                  },
+                  "numberFormat": {
+                    "unit": 17,
+                    "options": {
+                      "style": "decimal",
+                      "maximumFractionDigits": 2,
+                      "maximumSignificantDigits": 3
+                    }
+                  }
+                },
+                "rightContent": {
+                  "columnMatch": "microsoft.logic/workflows--RunsCompleted Timeline",
+                  "formatter": 9,
+                  "formatOptions": {
+                    "palette": "blue"
+                  }
+                },
+                "showBorder": false,
+                "sortCriteriaField": "Name",
+                "size": "auto"
+              },
+              "mapSettings": {
+                "locInfo": "AzureResource",
+                "sizeSettings": "Value",
+                "sizeAggregation": "Sum",
+                "legendMetric": "Value",
+                "legendAggregation": "Sum",
+                "itemColorSettings": {
+                  "type": "heatmap",
+                  "colorAggregation": "Sum",
+                  "nodeColorField": "Value",
+                  "heatmapPalette": "greenRed"
+                },
+                "locInfoColumn": "Name"
+              },
+              "graphSettings": {
+                "type": 0,
+                "topContent": {
+                  "columnMatch": "Subscription",
+                  "formatter": 1
+                },
+                "centerContent": {
+                  "columnMatch": "Value",
+                  "formatter": 1,
+                  "numberFormat": {
+                    "unit": 17,
+                    "options": {
+                      "maximumSignificantDigits": 3,
+                      "maximumFractionDigits": 2
+                    }
+                  }
+                }
+              },
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "Subscription",
+                    "formatter": 5
+                  },
+                  {
+                    "columnMatch": "Name",
+                    "formatter": 13,
+                    "formatOptions": {
+                      "linkTarget": "Resource",
+                      "showIcon": true
+                    }
+                  },
+                  {
+                    "columnMatch": "microsoft.logic/workflows--RunsStarted",
+                    "formatter": 22,
+                    "formatOptions": {
+                      "compositeBarSettings": {
+                        "labelText": "",
+                        "columnSettings": [
+                          {
+                            "columnName": "microsoft.logic/workflows--RunsSucceeded",
+                            "color": "green"
+                          },
+                          {
+                            "columnName": "microsoft.logic/workflows--RunsFailed",
+                            "color": "red"
+                          }
+                        ],
+                        "noRowsScaling": true
+                      }
+                    },
+                    "numberFormat": {
+                      "unit": 0,
+                      "options": {
+                        "style": "decimal"
+                      }
+                    }
+                  },
+                  {
+                    "columnMatch": "microsoft.logic/workflows--RunsStarted Timeline",
+                    "formatter": 21,
+                    "formatOptions": {
+                      "palette": "blue"
+                    }
+                  },
+                  {
+                    "columnMatch": "microsoft.logic/workflows--RunsSucceeded",
+                    "formatter": 5,
+                    "numberFormat": {
+                      "unit": 0,
+                      "options": {
+                        "style": "decimal"
+                      }
+                    }
+                  },
+                  {
+                    "columnMatch": "microsoft.logic/workflows--RunsSucceeded Timeline",
+                    "formatter": 5
+                  },
+                  {
+                    "columnMatch": "microsoft.logic/workflows--RunsFailed",
+                    "formatter": 5,
+                    "numberFormat": {
+                      "unit": 0,
+                      "options": {
+                        "style": "decimal"
+                      }
+                    }
+                  },
+                  {
+                    "columnMatch": "microsoft.logic/workflows--RunsFailed Timeline",
+                    "formatter": 5
+                  },
+                  {
+                    "columnMatch": "microsoft.logic/workflows--RunFailurePercentage",
+                    "formatter": 1,
+                    "numberFormat": {
+                      "unit": 1,
+                      "options": null
+                    }
+                  },
+                  {
+                    "columnMatch": "microsoft.logic/workflows--RunFailurePercentage Timeline",
+                    "formatter": 5
+                  },
+                  {
+                    "columnMatch": "microsoft.logic/workflows--RunsCompleted Timeline",
+                    "formatter": 5
+                  },
+                  {
+                    "columnMatch": "microsoft.logic/workflows--RunsCompleted",
+                    "formatter": 1,
+                    "numberFormat": {
+                      "unit": 0,
+                      "options": null
+                    }
+                  }
+                ],
+                "rowLimit": 10000,
+                "labelSettings": [
+                  {
+                    "columnId": "microsoft.logic/workflows--RunsStarted",
+                    "label": "Total Runs"
+                  },
+                  {
+                    "columnId": "microsoft.logic/workflows--RunsStarted Timeline",
+                    "label": "Timeline"
+                  },
+                  {
+                    "columnId": "microsoft.logic/workflows--RunsSucceeded",
+                    "label": "Runs Succeeded (Sum)"
+                  },
+                  {
+                    "columnId": "microsoft.logic/workflows--RunsSucceeded Timeline",
+                    "label": "Runs Succeeded Timeline"
+                  },
+                  {
+                    "columnId": "microsoft.logic/workflows--RunsFailed",
+                    "label": "Runs Failed (Sum)"
+                  },
+                  {
+                    "columnId": "microsoft.logic/workflows--RunsFailed Timeline",
+                    "label": "Runs Failed Timeline"
+                  },
+                  {
+                    "columnId": "microsoft.logic/workflows--RunFailurePercentage",
+                    "label": "Failure Percentage"
+                  },
+                  {
+                    "columnId": "microsoft.logic/workflows--RunFailurePercentage Timeline",
+                    "label": "Run Failure Percentage Timeline"
+                  }
+                ]
+              },
+              "sortBy": []
+            },
+            "customWidth": "55",
+            "conditionalVisibility": {
+              "parameterName": "ActiveTab",
+              "comparison": "isEqualTo",
+              "value": "Statistics"
+            },
+            "name": "Running Stats"
+          },
+          {
+            "type": 10,
+            "content": {
+              "chartId": "workbookf4937d79-d696-4e23-8e0c-fdd7544c3e36",
+              "version": "MetricsItem/2.0",
+              "size": 2,
+              "chartType": 0,
+              "resourceType": "microsoft.logic/workflows",
+              "metricScope": 0,
+              "resourceParameter": "ListLogicApps",
+              "resourceIds": [
+                "{ListLogicApps}"
+              ],
+              "timeContext": {
+                "durationMs": 2592000000
+              },
+              "metrics": [
+                {
+                  "namespace": "microsoft.logic/workflows",
+                  "metric": "microsoft.logic/workflows--BillableActionExecutions",
+                  "aggregation": 1
+                }
+              ],
+              "title": "Billable Actions",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "$gen_group",
+                    "formatter": 13,
+                    "formatOptions": {
+                      "linkTarget": null,
+                      "showIcon": true
+                    }
+                  },
+                  {
+                    "columnMatch": "Subscription",
+                    "formatter": 5
+                  },
+                  {
+                    "columnMatch": "Name",
+                    "formatter": 5,
+                    "formatOptions": {
+                      "linkTarget": "Resource"
+                    }
+                  },
+                  {
+                    "columnMatch": "microsoft.logic/workflows--BillableActionExecutions",
+                    "formatter": 3,
+                    "formatOptions": {
+                      "palette": "blue",
+                      "aggregation": "Sum"
+                    }
+                  },
+                  {
+                    "columnMatch": "microsoft.logic/workflows--BillableActionExecutions Timeline",
+                    "formatter": 9,
+                    "formatOptions": {
+                      "palette": "blue",
+                      "aggregation": "Sum"
+                    }
+                  }
+                ],
+                "rowLimit": 10000,
+                "hierarchySettings": {
+                  "treeType": 1,
+                  "groupBy": [
+                    "Subscription",
+                    "Name"
+                  ],
+                  "expandTopLevel": true
+                },
+                "labelSettings": [
+                  {
+                    "columnId": "microsoft.logic/workflows--BillableActionExecutions",
+                    "label": "Billable Action Executions (Sum)"
+                  },
+                  {
+                    "columnId": "microsoft.logic/workflows--BillableActionExecutions Timeline",
+                    "label": "Billable Action Executions ",
+                    "comment": ""
+                  }
+                ]
+              },
+              "sortBy": []
+            },
+            "customWidth": "45",
+            "conditionalVisibility": {
+              "parameterName": "ActiveTab",
+              "comparison": "isEqualTo",
+              "value": "Statistics"
+            },
+            "name": "Billable Actions"
+          }
+        ],
+        "isLocked": false,
+        "fallbackResourceIds": [
+          "Azure Monitor"
+        ],
+        "fromTemplateId": "sentinel-UserWorkbook"
+      }
+    },
+    "resources": [
+      {
+        "name": "[variables('workbookId')]",
+        "type": "microsoft.insights/workbooks",
+        "location": "[resourceGroup().location]",
+        "apiVersion": "2021-03-08",
+        "dependsOn": [],
+        "kind": "shared",
+        "properties": {
+          "displayName": "[parameters('workbookDisplayName')]",
+          "serializedData": "[string(variables('workbookContent'))]",
+          "version": "1.0",
+          "sourceId": "[variables('workbookSourceId')]",
+          "category": "[variables('workbookType')]"
+        }
+      }
+    ],
+    "outputs": {
+      "workbookId": {
+        "type": "string",
+        "value": "[resourceId( 'microsoft.insights/workbooks', variables('workbookId'))]"
+      }
+    },
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#"
+  }
