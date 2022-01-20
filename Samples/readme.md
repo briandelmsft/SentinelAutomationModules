@@ -1,7 +1,7 @@
 # Sample Playbook
 
 ## Description
-This Playbook shows an example of how to use multiple automation modules together in order to triage an incident in Azure Sentinel.
+This Playbook shows an example of how to use multiple automation modules together in order to triage an incident in Microsoft Sentinel.
 
 ### Basic Sample
 
@@ -9,7 +9,7 @@ The Basic Sample Playbook evaluates the incident entities to look for Related Al
 
 ## Advanced Deployment
 
-Deployment of the Sentinel Triage AssistanT should typically be performed from the [deployment template](/Deploy/readme.md), however in some cases you may wish to deploy just the sample template below.
+Deployment of the Microsoft Sentinel Triage AssistanT should typically be performed from the [deployment template](/Deploy/readme.md), however in some cases you may wish to deploy just the sample template below.
 
 ### Basic Sample
 
