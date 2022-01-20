@@ -1,4 +1,4 @@
-# Sentinel Triage AssistanT (STAT) :hospital: - Documentation Home
+# Microsoft Sentinel Triage AssistanT (STAT) :hospital: - Documentation Home
 
 The Microsoft Sentinel Triage AssistanT (STAT) is a Logic Apps Custom Connector that calls on a library of Automation [Modules](/Modules/) that can be used from Incident based Microsoft Sentinel playbooks.  This connector and modules will simplify automation by moving the complex tasks into these callable modules so they can be performed consistently and with ease from the Logic Apps Connector.
 
