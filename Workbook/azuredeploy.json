@@ -352,257 +352,276 @@
             "name": "IntroStats"
           },
           {
-            "type": 10,
-            "content": {
-              "chartId": "workbook6a070870-5181-4cc5-a3c6-c642c7c57c8c",
-              "version": "MetricsItem/2.0",
-              "size": 2,
-              "chartType": 0,
-              "resourceType": "microsoft.logic/workflows",
-              "metricScope": 0,
-              "resourceParameter": "ListLogicApps",
-              "resourceIds": [
-                "{ListLogicApps}"
-              ],
-              "timeContext": {
-                "durationMs": 2592000000
-              },
-              "metrics": [
-                {
-                  "namespace": "microsoft.logic/workflows",
-                  "metric": "microsoft.logic/workflows--RunsStarted",
-                  "aggregation": 1
+              "type": 10,
+              "content": {
+                "chartId": "workbook6a070870-5181-4cc5-a3c6-c642c7c57c8c",
+                "version": "MetricsItem/2.0",
+                "size": 2,
+                "chartType": 0,
+                "resourceType": "microsoft.logic/workflows",
+                "metricScope": 0,
+                "resourceParameter": "ListLogicApps",
+                "resourceIds": [
+                  "{ListLogicApps}"
+                ],
+                "timeContext": {
+                  "durationMs": 2592000000
                 },
-                {
-                  "namespace": "microsoft.logic/workflows",
-                  "metric": "microsoft.logic/workflows--RunsSucceeded",
-                  "aggregation": 1
-                },
-                {
-                  "namespace": "microsoft.logic/workflows",
-                  "metric": "microsoft.logic/workflows--RunsFailed",
-                  "aggregation": 1
-                },
-                {
-                  "namespace": "microsoft.logic/workflows",
-                  "metric": "microsoft.logic/workflows--RunFailurePercentage",
-                  "aggregation": 1
-                }
-              ],
-              "title": "Running Stats",
-              "tileSettings": {
-                "titleContent": {
-                  "columnMatch": "Name",
-                  "formatter": 13,
-                  "formatOptions": {
-                    "linkTarget": null,
-                    "showIcon": true
-                  }
-                },
-                "leftContent": {
-                  "columnMatch": "microsoft.logic/workflows--RunsCompleted",
-                  "formatter": 12,
-                  "formatOptions": {
-                    "palette": "auto"
-                  },
-                  "numberFormat": {
-                    "unit": 17,
-                    "options": {
-                      "style": "decimal",
-                      "maximumFractionDigits": 2,
-                      "maximumSignificantDigits": 3
-                    }
-                  }
-                },
-                "rightContent": {
-                  "columnMatch": "microsoft.logic/workflows--RunsCompleted Timeline",
-                  "formatter": 9,
-                  "formatOptions": {
-                    "palette": "blue"
-                  }
-                },
-                "showBorder": false,
-                "sortCriteriaField": "Name",
-                "size": "auto"
-              },
-              "mapSettings": {
-                "locInfo": "AzureResource",
-                "sizeSettings": "Value",
-                "sizeAggregation": "Sum",
-                "legendMetric": "Value",
-                "legendAggregation": "Sum",
-                "itemColorSettings": {
-                  "type": "heatmap",
-                  "colorAggregation": "Sum",
-                  "nodeColorField": "Value",
-                  "heatmapPalette": "greenRed"
-                },
-                "locInfoColumn": "Name"
-              },
-              "graphSettings": {
-                "type": 0,
-                "topContent": {
-                  "columnMatch": "Subscription",
-                  "formatter": 1
-                },
-                "centerContent": {
-                  "columnMatch": "Value",
-                  "formatter": 1,
-                  "numberFormat": {
-                    "unit": 17,
-                    "options": {
-                      "maximumSignificantDigits": 3,
-                      "maximumFractionDigits": 2
-                    }
-                  }
-                }
-              },
-              "gridSettings": {
-                "formatters": [
+                "metrics": [
                   {
-                    "columnMatch": "Subscription",
-                    "formatter": 5
+                    "namespace": "microsoft.logic/workflows",
+                    "metric": "microsoft.logic/workflows--RunsStarted",
+                    "aggregation": 1
                   },
                   {
+                    "namespace": "microsoft.logic/workflows",
+                    "metric": "microsoft.logic/workflows--RunsSucceeded",
+                    "aggregation": 1
+                  },
+                  {
+                    "namespace": "microsoft.logic/workflows",
+                    "metric": "microsoft.logic/workflows--RunsFailed",
+                    "aggregation": 1
+                  },
+                  {
+                    "namespace": "microsoft.logic/workflows",
+                    "metric": "microsoft.logic/workflows--RunFailurePercentage",
+                    "aggregation": 1
+                  }
+                ],
+                "title": "Running Stats",
+                "tileSettings": {
+                  "titleContent": {
                     "columnMatch": "Name",
                     "formatter": 13,
                     "formatOptions": {
-                      "linkTarget": "Resource",
+                      "linkTarget": null,
                       "showIcon": true
                     }
                   },
-                  {
-                    "columnMatch": "microsoft.logic/workflows--RunsStarted",
-                    "formatter": 22,
+                  "leftContent": {
+                    "columnMatch": "microsoft.logic/workflows--RunsCompleted",
+                    "formatter": 12,
                     "formatOptions": {
-                      "compositeBarSettings": {
-                        "labelText": "",
-                        "columnSettings": [
-                          {
-                            "columnName": "microsoft.logic/workflows--RunsSucceeded",
-                            "color": "green"
-                          },
-                          {
-                            "columnName": "microsoft.logic/workflows--RunsFailed",
-                            "color": "red"
-                          }
-                        ],
-                        "noRowsScaling": true
-                      }
+                      "palette": "auto"
                     },
                     "numberFormat": {
-                      "unit": 0,
+                      "unit": 17,
                       "options": {
-                        "style": "decimal"
+                        "style": "decimal",
+                        "maximumFractionDigits": 2,
+                        "maximumSignificantDigits": 3
                       }
                     }
                   },
-                  {
-                    "columnMatch": "microsoft.logic/workflows--RunsStarted Timeline",
-                    "formatter": 21,
+                  "rightContent": {
+                    "columnMatch": "microsoft.logic/workflows--RunsCompleted Timeline",
+                    "formatter": 9,
                     "formatOptions": {
                       "palette": "blue"
                     }
                   },
-                  {
-                    "columnMatch": "microsoft.logic/workflows--RunsSucceeded",
-                    "formatter": 5,
-                    "numberFormat": {
-                      "unit": 0,
-                      "options": {
-                        "style": "decimal"
-                      }
-                    }
+                  "showBorder": false,
+                  "sortCriteriaField": "Name",
+                  "size": "auto"
+                },
+                "mapSettings": {
+                  "locInfo": "AzureResource",
+                  "sizeSettings": "Value",
+                  "sizeAggregation": "Sum",
+                  "legendMetric": "Value",
+                  "legendAggregation": "Sum",
+                  "itemColorSettings": {
+                    "type": "heatmap",
+                    "colorAggregation": "Sum",
+                    "nodeColorField": "Value",
+                    "heatmapPalette": "greenRed"
                   },
-                  {
-                    "columnMatch": "microsoft.logic/workflows--RunsSucceeded Timeline",
-                    "formatter": 5
+                  "locInfoColumn": "Name"
+                },
+                "graphSettings": {
+                  "type": 0,
+                  "topContent": {
+                    "columnMatch": "Subscription",
+                    "formatter": 1
                   },
-                  {
-                    "columnMatch": "microsoft.logic/workflows--RunsFailed",
-                    "formatter": 5,
-                    "numberFormat": {
-                      "unit": 0,
-                      "options": {
-                        "style": "decimal"
-                      }
-                    }
-                  },
-                  {
-                    "columnMatch": "microsoft.logic/workflows--RunsFailed Timeline",
-                    "formatter": 5
-                  },
-                  {
-                    "columnMatch": "microsoft.logic/workflows--RunFailurePercentage",
+                  "centerContent": {
+                    "columnMatch": "Value",
                     "formatter": 1,
                     "numberFormat": {
-                      "unit": 1,
-                      "options": null
-                    }
-                  },
-                  {
-                    "columnMatch": "microsoft.logic/workflows--RunFailurePercentage Timeline",
-                    "formatter": 5
-                  },
-                  {
-                    "columnMatch": "microsoft.logic/workflows--RunsCompleted Timeline",
-                    "formatter": 5
-                  },
-                  {
-                    "columnMatch": "microsoft.logic/workflows--RunsCompleted",
-                    "formatter": 1,
-                    "numberFormat": {
-                      "unit": 0,
-                      "options": null
+                      "unit": 17,
+                      "options": {
+                        "maximumSignificantDigits": 3,
+                        "maximumFractionDigits": 2
+                      }
                     }
                   }
-                ],
-                "rowLimit": 10000,
-                "labelSettings": [
-                  {
-                    "columnId": "microsoft.logic/workflows--RunsStarted",
-                    "label": "Total Runs"
+                },
+                "gridSettings": {
+                  "formatters": [
+                    {
+                      "columnMatch": "$gen_group",
+                      "formatter": 13,
+                      "formatOptions": {
+                        "linkTarget": null,
+                        "showIcon": true
+                      }
+                    },
+                    {
+                      "columnMatch": "Subscription",
+                      "formatter": 5
+                    },
+                    {
+                      "columnMatch": "Name",
+                      "formatter": 5
+                    },
+                    {
+                      "columnMatch": "microsoft.logic/workflows--RunsStarted",
+                      "formatter": 22,
+                      "formatOptions": {
+                        "aggregation": "Sum",
+                        "compositeBarSettings": {
+                          "labelText": "",
+                          "columnSettings": [
+                            {
+                              "columnName": "microsoft.logic/workflows--RunsSucceeded",
+                              "color": "green"
+                            },
+                            {
+                              "columnName": "microsoft.logic/workflows--RunsFailed",
+                              "color": "red"
+                            }
+                          ],
+                          "noRowsScaling": true
+                        }
+                      },
+                      "numberFormat": {
+                        "unit": 0,
+                        "options": {
+                          "style": "decimal"
+                        }
+                      }
+                    },
+                    {
+                      "columnMatch": "microsoft.logic/workflows--RunsStarted Timeline",
+                      "formatter": 21,
+                      "formatOptions": {
+                        "palette": "blue",
+                        "aggregation": "Sum"
+                      }
+                    },
+                    {
+                      "columnMatch": "microsoft.logic/workflows--RunsSucceeded",
+                      "formatter": 5,
+                      "numberFormat": {
+                        "unit": 0,
+                        "options": {
+                          "style": "decimal"
+                        }
+                      }
+                    },
+                    {
+                      "columnMatch": "microsoft.logic/workflows--RunsSucceeded Timeline",
+                      "formatter": 5
+                    },
+                    {
+                      "columnMatch": "microsoft.logic/workflows--RunsFailed",
+                      "formatter": 5,
+                      "numberFormat": {
+                        "unit": 0,
+                        "options": {
+                          "style": "decimal"
+                        }
+                      }
+                    },
+                    {
+                      "columnMatch": "microsoft.logic/workflows--RunsFailed Timeline",
+                      "formatter": 5
+                    },
+                    {
+                      "columnMatch": "microsoft.logic/workflows--RunFailurePercentage",
+                      "formatter": 1,
+                      "formatOptions": {
+                        "aggregation": "Average"
+                      },
+                      "numberFormat": {
+                        "unit": 1,
+                        "options": {
+                          "style": "decimal"
+                        }
+                      }
+                    },
+                    {
+                      "columnMatch": "microsoft.logic/workflows--RunFailurePercentage Timeline",
+                      "formatter": 5
+                    },
+                    {
+                      "columnMatch": "microsoft.logic/workflows--RunsCompleted Timeline",
+                      "formatter": 5
+                    },
+                    {
+                      "columnMatch": "microsoft.logic/workflows--RunsCompleted",
+                      "formatter": 1,
+                      "numberFormat": {
+                        "unit": 0,
+                        "options": null
+                      }
+                    }
+                  ],
+                  "rowLimit": 10000,
+                  "hierarchySettings": {
+                    "treeType": 1,
+                    "groupBy": [
+                      "Subscription",
+                      "Name"
+                    ],
+                    "expandTopLevel": true
                   },
-                  {
-                    "columnId": "microsoft.logic/workflows--RunsStarted Timeline",
-                    "label": "Timeline"
-                  },
-                  {
-                    "columnId": "microsoft.logic/workflows--RunsSucceeded",
-                    "label": "Runs Succeeded (Sum)"
-                  },
-                  {
-                    "columnId": "microsoft.logic/workflows--RunsSucceeded Timeline",
-                    "label": "Runs Succeeded Timeline"
-                  },
-                  {
-                    "columnId": "microsoft.logic/workflows--RunsFailed",
-                    "label": "Runs Failed (Sum)"
-                  },
-                  {
-                    "columnId": "microsoft.logic/workflows--RunsFailed Timeline",
-                    "label": "Runs Failed Timeline"
-                  },
-                  {
-                    "columnId": "microsoft.logic/workflows--RunFailurePercentage",
-                    "label": "Failure Percentage"
-                  },
-                  {
-                    "columnId": "microsoft.logic/workflows--RunFailurePercentage Timeline",
-                    "label": "Run Failure Percentage Timeline"
-                  }
-                ]
+                  "labelSettings": [
+                    {
+                      "columnId": "microsoft.logic/workflows--RunsStarted",
+                      "label": "Total Runs"
+                    },
+                    {
+                      "columnId": "microsoft.logic/workflows--RunsStarted Timeline",
+                      "label": "Timeline"
+                    },
+                    {
+                      "columnId": "microsoft.logic/workflows--RunsSucceeded",
+                      "label": "Runs Succeeded (Sum)"
+                    },
+                    {
+                      "columnId": "microsoft.logic/workflows--RunsSucceeded Timeline",
+                      "label": "Runs Succeeded Timeline"
+                    },
+                    {
+                      "columnId": "microsoft.logic/workflows--RunsFailed",
+                      "label": "Runs Failed (Sum)"
+                    },
+                    {
+                      "columnId": "microsoft.logic/workflows--RunsFailed Timeline",
+                      "label": "Runs Failed Timeline"
+                    },
+                    {
+                      "columnId": "microsoft.logic/workflows--RunFailurePercentage",
+                      "label": "Failure Percentage"
+                    },
+                    {
+                      "columnId": "microsoft.logic/workflows--RunFailurePercentage Timeline",
+                      "label": "Run Failure Percentage Timeline"
+                    }
+                  ]
+                },
+                "sortBy": []
               },
-              "sortBy": []
+              "customWidth": "55",
+              "conditionalVisibility": {
+                "parameterName": "ActiveTab",
+                "comparison": "isEqualTo",
+                "value": "Statistics"
+              },
+              "name": "Running Stats"
             },
-            "customWidth": "55",
-            "conditionalVisibility": {
-              "parameterName": "ActiveTab",
-              "comparison": "isEqualTo",
-              "value": "Statistics"
-            },
-            "name": "Running Stats"
-          },
           {
             "type": 10,
             "content": {
