@@ -2288,6 +2288,14 @@
                         "PlaybookVersion": {
                             "defaultValue": "0.0.1",
                             "type": "String"
+                        },
+                        "PlaybookInternalName": {
+                            "defaultValue": "CoordinatorModule",
+                            "type": "String"
+                        },
+                        "ProjectName": {
+                            "defaultValue": "STAT",
+                            "type": "String"
                         }
                     },
                     "triggers": {
