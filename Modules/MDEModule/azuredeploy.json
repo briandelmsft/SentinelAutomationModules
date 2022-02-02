@@ -65,7 +65,7 @@
                             "type": "Object"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.0.3",
+                            "defaultValue": "0.0.4",
                             "type": "String"
                         },
                         "PlaybookInternalName": {
@@ -253,7 +253,7 @@
                                 ]
                             },
                             "runAfter": {
-                                "Response": [
+                                "Compose_response": [
                                     "Succeeded"
                                 ]
                             },
@@ -744,8 +744,9 @@
                             },
                             "kind": "Http",
                             "runAfter": {
-                                "Compose_response": [
-                                    "Succeeded"
+                                "Condition_-_Add_comment": [
+                                    "Succeeded",
+                                    "Failed"
                                 ]
                             },
                             "type": "Response"

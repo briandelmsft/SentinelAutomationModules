@@ -119,7 +119,7 @@
                                             ]
                                         },
                                         "runAfter": {
-                                            "Return_final_response": [
+                                            "Compose_final_response": [
                                                 "Succeeded"
                                             ]
                                         },
@@ -140,8 +140,9 @@
                                         },
                                         "kind": "Http",
                                         "runAfter": {
-                                            "Compose_final_response": [
-                                                "Succeeded"
+                                            "Condition_-_Check_if_comment_is_required": [
+                                                "Succeeded",
+                                                "Failed"
                                             ]
                                         },
                                         "type": "Response"
@@ -777,7 +778,7 @@
                             "type": "String"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.0.2",
+                            "defaultValue": "0.0.3",
                             "type": "String"
                         },
                         "ProjectName": {
