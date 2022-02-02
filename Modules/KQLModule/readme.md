@@ -71,6 +71,21 @@ SigninLogs
 | where FailureCount >= 10
 ```
 
+### The following scalar value is available to you in Sentinel queries
+
+***incidentArmId***
+
+incidentArmId will contain the string value of the Incident ARM Id such as: '/subscriptions/subId/resourceGroups/rgName/providers/Microsoft.OperationalInsights/workspaces/workspacename/providers/Microsoft.SecurityInsights/Incidents/incidentId'
+
+This can be used if you want to retrieve the current incident details in a KQL query, such as the RelatedAnalyticRuleIds, AlertIds or other incident properties
+
+```
+SecurityIncident
+| where IncidentUrl endswith incidentArmId
+| summarize arg_max(TimeGenerated, *) by IncidentNumber
+| project Title, Severity, Status, RelatedAnalyticRuleIds, AlertIds
+```
+
 ## Return Properties
 
 |Property|Description|
