@@ -48,7 +48,7 @@
                             "type": "Object"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.0.2",
+                            "defaultValue": "0.0.3",
                             "type": "String"
                         },
                         "PlaybookInternalName": {
@@ -154,7 +154,7 @@
                                 }
                             },
                             "runAfter": {
-                                "Response": [
+                                "Compose_-_DetailedResults": [
                                     "Succeeded"
                                 ]
                             },
@@ -928,8 +928,9 @@
                         },
                         "Response": {
                             "runAfter": {
-                                "Compose_-_DetailedResults": [
-                                    "Succeeded"
+                                "Condition": [
+                                    "Succeeded",
+                                    "Failed"
                                 ]
                             },
                             "type": "Response",

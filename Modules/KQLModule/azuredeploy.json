@@ -48,7 +48,7 @@
                             "type": "Object"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.0.2",
+                            "defaultValue": "0.0.3",
                             "type": "String"
                         },
                         "PlaybookInternalName": {
@@ -103,7 +103,7 @@
                                     "inputs": {
                                         "body": {
                                             "incidentArmId": "@body('Parse_JSON')?['IncidentARMId']",
-                                            "message": "<p>A toatl of @{variables('ResultCount')} records were found in a @{triggerBody()?['RunQueryAgainst']} search.<br>\nDetails for the first @{min(variables('ResultCount'),10)} records:<br>\n@{body('Create_HTML_table')}</p>"
+                                            "message": "<p>A total of @{variables('ResultCount')} records were found in a @{triggerBody()?['RunQueryAgainst']} search.<br>\n@{take(body('Create_HTML_table'), 2850)}</p>"
                                         },
                                         "host": {
                                             "connection": {
@@ -549,6 +549,24 @@
                                 }
                             }
                         },
+                        "Response_-_Success": {
+                            "runAfter": {
+                                "Condition_-_Add_Comments": [
+                                    "Succeeded",
+                                    "Failed"
+                                ]
+                            },
+                            "type": "Response",
+                            "kind": "Http",
+                            "inputs": {
+                                "body": {
+                                    "DetailedResults": "@variables('Records')",
+                                    "ResultsCount": "@variables('ResultCount')",
+                                    "ResultsFound": "@greater(coalesce(length(body('HTTP_-_Sentinel')?['tables']?[0]?['rows']), length(body('HTTP_-_M365')?['Results'])), 0)"
+                                },
+                                "statusCode": 200
+                            }
+                        },
                         "Switch": {
                             "runAfter": {
                                 "Initialize_variable_-_Result_Count": [
@@ -584,23 +602,6 @@
                                                     "Content-Type": "application/json"
                                                 },
                                                 "uri": "https://api.security.microsoft.com/api/advancedhunting/run"
-                                            }
-                                        },
-                                        "Response_-_M365": {
-                                            "runAfter": {
-                                                "Set_variable_-_ResultCount": [
-                                                    "Succeeded"
-                                                ]
-                                            },
-                                            "type": "Response",
-                                            "kind": "Http",
-                                            "inputs": {
-                                                "body": {
-                                                    "DetailedResults": "@variables('Records')",
-                                                    "ResultsCount": "@variables('ResultCount')",
-                                                    "ResultsFound": "@greater(length(body('HTTP_-_M365')['Results']),0)"
-                                                },
-                                                "statusCode": 200
                                             }
                                         },
                                         "Response_2": {
@@ -655,7 +656,7 @@
                                         "Compose_-_Sentinel_Query": {
                                             "runAfter": {},
                                             "type": "Compose",
-                                            "inputs": "let accountData = '@{body('Parse_JSON')?['Accounts']}';\nlet ipData = '@{body('Parse_JSON')?['IPs']}';\nlet accountEntities = datatable(temp:string)['']\n| extend Entities = parse_json(accountData)\n| mv-expand todynamic(Entities)\n| project UserPrincipalName = tostring(Entities.userPrincipalName), SamAccountName = tostring(Entities.onPremisesSamAccountName), ObjectSID = tostring(Entities.onPremisesSecurityIdentifier), AADUserId = tostring(Entities.id), ManagerUPN = tostring(Entities.manager.userPrincipalName);\nlet ipEntities = datatable(temp:string)['']\n| extend Entities = parse_json(ipData)\n| mv-expand todynamic(Entities)\n| project IPAddress = tostring(Entities.Address), Latitude = todecimal(Entities.GeoData.latitude), Longitude = todecimal(Entities.GeoData.longitude), Country=tostring(Entities.GeoData.country), State=tostring(Entities.GeoData.state);\n@{triggerBody()?['KQLQuery']}\n| extend STATResponse = pack_all()\n| project STATResponse\n\n"
+                                            "inputs": "let accountData = '@{body('Parse_JSON')?['Accounts']}';\nlet ipData = '@{body('Parse_JSON')?['IPs']}';\nlet incidentArmId = '@{body('Parse_JSON')?['IncidentARMId']}';\nlet accountEntities = datatable(temp:string)['']\n| extend Entities = parse_json(accountData)\n| mv-expand todynamic(Entities)\n| project UserPrincipalName = tostring(Entities.userPrincipalName), SamAccountName = tostring(Entities.onPremisesSamAccountName), ObjectSID = tostring(Entities.onPremisesSecurityIdentifier), AADUserId = tostring(Entities.id), ManagerUPN = tostring(Entities.manager.userPrincipalName);\nlet ipEntities = datatable(temp:string)['']\n| extend Entities = parse_json(ipData)\n| mv-expand todynamic(Entities)\n| project IPAddress = tostring(Entities.Address), Latitude = todecimal(Entities.GeoData.latitude), Longitude = todecimal(Entities.GeoData.longitude), Country=tostring(Entities.GeoData.country), State=tostring(Entities.GeoData.state);\n@{triggerBody()?['KQLQuery']}\n| extend STATResponse = pack_all()\n| project STATResponse\n\n"
                                         },
                                         "For_each": {
                                             "foreach": "@take(body('HTTP_-_Sentinel')['tables'][0]['rows'], 10)",
@@ -719,23 +720,6 @@
                                                     "SourceError": "@body('HTTP_-_Sentinel')"
                                                 },
                                                 "statusCode": "@outputs('HTTP_-_Sentinel')['statusCode']"
-                                            }
-                                        },
-                                        "Response_-_Sentinel": {
-                                            "runAfter": {
-                                                "Set_variable_-_ResultCount_2": [
-                                                    "Succeeded"
-                                                ]
-                                            },
-                                            "type": "Response",
-                                            "kind": "Http",
-                                            "inputs": {
-                                                "body": {
-                                                    "DetailedResults": "@variables('Records')",
-                                                    "ResultsCount": "@variables('ResultCount')",
-                                                    "ResultsFound": "@greater(length(body('HTTP_-_Sentinel')['tables'][0]['rows']), 0)"
-                                                },
-                                                "statusCode": 200
                                             }
                                         },
                                         "Set_variable_-_ResultCount_2": {

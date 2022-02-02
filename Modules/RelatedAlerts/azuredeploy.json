@@ -48,7 +48,7 @@
                             "type": "Object"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.0.2",
+                            "defaultValue": "0.0.3",
                             "type": "String"
                         },
                         "PlaybookInternalName": {
@@ -137,7 +137,13 @@
                                         }
                                     },
                                     "runAfter": {
-                                        "Response": [
+                                        "Filter_array_-_Accounts": [
+                                            "Succeeded"
+                                        ],
+                                        "Filter_array_-_Hosts": [
+                                            "Succeeded"
+                                        ],
+                                        "Filter_array_-_IP": [
                                             "Succeeded"
                                         ]
                                     },
@@ -191,14 +197,9 @@
                                 },
                                 "Response": {
                                     "runAfter": {
-                                        "Filter_array_-_Accounts": [
-                                            "Succeeded"
-                                        ],
-                                        "Filter_array_-_Hosts": [
-                                            "Succeeded"
-                                        ],
-                                        "Filter_array_-_IP": [
-                                            "Succeeded"
+                                        "Condition": [
+                                            "Succeeded",
+                                            "Failed"
                                         ]
                                     },
                                     "type": "Response",
