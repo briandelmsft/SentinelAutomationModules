@@ -9,6 +9,8 @@ The deployment of the STAT solution is broken down into 2 steps:
 
 The first step to deploying STAT is to deploy the STAT components into a Resource Group in your Azure subscription.  These components consist of Logic Apps, API Connections and a Custom Logic Apps Connector.  For the best experience, all components of the STAT solution should be deployed at one time and as updates are made avaialble the entire solution should be updated together as well.
 
+When deploying STAT you should use a Resource Group within the same subscription and datacenter region as your other Microsoft Sentinel automation Playbooks.  Logic Apps Custom Connectors can only be used from the same subscription and datacenter as they are created in.  If multiple subscriptions or datacenters must be used, STAT can be deployed to each one.
+
 STAT can be deployed/updated via single ARM deployment
 
 ### Deployment Template
