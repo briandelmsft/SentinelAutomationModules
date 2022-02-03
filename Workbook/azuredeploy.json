@@ -688,10 +688,10 @@
                   "hierarchySettings": {
                     "treeType": 1,
                     "groupBy": [
-                      "Subscription",
-                      "Name"
+                      "Subscription"
                     ],
-                    "expandTopLevel": true
+                    "expandTopLevel": true,
+                    "finalBy": "Name"
                   },
                   "labelSettings": [
                     {
@@ -789,6 +789,13 @@
                       "formatOptions": {
                         "palette": "blue",
                         "aggregation": "Sum"
+                      },
+                      "numberFormat": {
+                        "unit": 0,
+                        "options": {
+                          "style": "decimal"
+                        },
+                        "emptyValCustomText": "0"
                       }
                     },
                     {
@@ -804,10 +811,10 @@
                   "hierarchySettings": {
                     "treeType": 1,
                     "groupBy": [
-                      "Subscription",
-                      "Name"
+                      "Subscription"
                     ],
-                    "expandTopLevel": true
+                    "expandTopLevel": true,
+                    "finalBy": "Name"
                   },
                   "labelSettings": [
                     {
@@ -823,12 +830,12 @@
                 },
                 "sortBy": []
               },
+              "customWidth": "45",
               "conditionalVisibility": {
                 "parameterName": "ActiveTab",
                 "comparison": "isEqualTo",
                 "value": "Statistics"
               },
-              "customWidth": "45",
               "name": "Billable Actions"
             }
           ],
