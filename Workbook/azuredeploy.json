@@ -14,344 +14,460 @@
       "workbookSourceId": "Azure Monitor",
       "workbookId": "abe1b49f-3e73-48a7-8987-0714489c294f",
       "workbookContent": {
-        "version": "Notebook/1.0",
-        "items": [
-          {
-            "type": 11,
-            "content": {
-              "version": "LinkItem/1.0",
-              "style": "tabs",
-              "links": [
-                {
-                  "id": "0635247d-855b-4713-9e59-884725b3a88e",
-                  "cellValue": "ActiveTab",
-                  "linkTarget": "parameter",
-                  "linkLabel": "Statistics",
-                  "subTarget": "Statistics",
-                  "style": "link"
-                },
-                {
-                  "id": "d022c29c-f271-4730-b7de-9bfee50a0397",
-                  "cellValue": "ActiveTab",
-                  "linkTarget": "parameter",
-                  "linkLabel": "Versions",
-                  "subTarget": "Versions",
-                  "style": "link"
-                }
-              ]
+          "version": "Notebook/1.0",
+          "items": [
+            {
+              "type": 11,
+              "content": {
+                "version": "LinkItem/1.0",
+                "style": "tabs",
+                "links": [
+                  {
+                    "id": "0635247d-855b-4713-9e59-884725b3a88e",
+                    "cellValue": "ActiveTab",
+                    "linkTarget": "parameter",
+                    "linkLabel": "Statistics",
+                    "subTarget": "Statistics",
+                    "style": "link"
+                  },
+                  {
+                    "id": "d022c29c-f271-4730-b7de-9bfee50a0397",
+                    "cellValue": "ActiveTab",
+                    "linkTarget": "parameter",
+                    "linkLabel": "Versions",
+                    "subTarget": "Versions",
+                    "style": "link"
+                  }
+                ]
+              },
+              "name": "Tabs Menu"
             },
-            "name": "Tabs Menu"
-          },
-          {
-            "type": 9,
-            "content": {
-              "version": "KqlParameterItem/1.0",
-              "crossComponentResources": [
-                "value::all"
-              ],
-              "parameters": [
-                {
-                  "id": "be395998-13d3-4c8a-94df-b18331eaaa3b",
-                  "version": "KqlParameterItem/1.0",
-                  "name": "ListLogicApps",
-                  "label": "Filtre Logic Apps",
-                  "type": 5,
-                  "multiSelect": true,
-                  "quote": "'",
-                  "delimiter": ",",
-                  "query": "resources\r\n| where type == \"microsoft.logic/workflows\"\r\n| where properties.definition.parameters.ProjectName.defaultValue == \"STAT\"\r\n| project id",
-                  "crossComponentResources": [
-                    "value::all"
-                  ],
-                  "isHiddenWhenLocked": true,
-                  "typeSettings": {
-                    "additionalResourceOptions": [
+            {
+              "type": 9,
+              "content": {
+                "version": "KqlParameterItem/1.0",
+                "crossComponentResources": [
+                  "value::all"
+                ],
+                "parameters": [
+                  {
+                    "id": "be395998-13d3-4c8a-94df-b18331eaaa3b",
+                    "version": "KqlParameterItem/1.0",
+                    "name": "ListLogicApps",
+                    "label": "Filtre Logic Apps",
+                    "type": 5,
+                    "multiSelect": true,
+                    "quote": "'",
+                    "delimiter": ",",
+                    "query": "resources\r\n| where type == \"microsoft.logic/workflows\"\r\n| where properties.definition.parameters.ProjectName.defaultValue == \"STAT\"\r\n| project id",
+                    "crossComponentResources": [
                       "value::all"
                     ],
-                    "showDefault": false
+                    "isHiddenWhenLocked": true,
+                    "typeSettings": {
+                      "additionalResourceOptions": [
+                        "value::all"
+                      ],
+                      "showDefault": false
+                    },
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "defaultValue": "value::all",
+                    "queryType": 1,
+                    "resourceType": "microsoft.resourcegraph/resources"
                   },
-                  "timeContext": {
-                    "durationMs": 86400000
+                  {
+                    "id": "288479de-c99b-414c-b926-03a86bcecc19",
+                    "version": "KqlParameterItem/1.0",
+                    "name": "TimeRange",
+                    "label": "Filter time range",
+                    "type": 4,
+                    "isHiddenWhenLocked": true,
+                    "typeSettings": {
+                      "selectableValues": [
+                        {
+                          "durationMs": 1800000
+                        },
+                        {
+                          "durationMs": 3600000
+                        },
+                        {
+                          "durationMs": 86400000
+                        },
+                        {
+                          "durationMs": 604800000
+                        },
+                        {
+                          "durationMs": 1209600000
+                        },
+                        {
+                          "durationMs": 2592000000
+                        },
+                        {
+                          "durationMs": 5184000000
+                        },
+                        {
+                          "durationMs": 7776000000
+                        }
+                      ]
+                    },
+                    "value": {
+                      "durationMs": 604800000
+                    }
                   },
-                  "defaultValue": "value::all",
-                  "queryType": 1,
-                  "resourceType": "microsoft.resourcegraph/resources"
-                },
-                {
-                  "id": "288479de-c99b-414c-b926-03a86bcecc19",
-                  "version": "KqlParameterItem/1.0",
-                  "name": "TimeRange",
-                  "label": "Filter time range",
-                  "type": 4,
-                  "isHiddenWhenLocked": true,
-                  "typeSettings": {
-                    "selectableValues": [
-                      {
-                        "durationMs": 1800000
-                      },
-                      {
-                        "durationMs": 3600000
-                      },
-                      {
-                        "durationMs": 86400000
-                      },
-                      {
-                        "durationMs": 604800000
-                      },
-                      {
-                        "durationMs": 1209600000
-                      },
-                      {
-                        "durationMs": 2592000000
-                      },
-                      {
-                        "durationMs": 5184000000
-                      },
-                      {
-                        "durationMs": 7776000000
-                      }
-                    ]
-                  },
-                  "value": {
-                    "durationMs": 604800000
-                  }
-                },
-                {
-                  "id": "881623ca-d6b8-48c1-a8ae-c37d3fdfd12b",
-                  "version": "KqlParameterItem/1.0",
-                  "name": "Workspace",
-                  "type": 5,
-                  "isRequired": true,
-                  "query": "resources\r\n| where type =~ \"microsoft.operationalinsights/workspaces\"",
-                  "crossComponentResources": [
-                    "value::all"
-                  ],
-                  "isHiddenWhenLocked": true,
-                  "typeSettings": {
-                    "additionalResourceOptions": [
-                      "value::1"
+                  {
+                    "id": "881623ca-d6b8-48c1-a8ae-c37d3fdfd12b",
+                    "version": "KqlParameterItem/1.0",
+                    "name": "Workspace",
+                    "type": 5,
+                    "isRequired": true,
+                    "query": "resources\r\n| where type =~ \"microsoft.operationalinsights/workspaces\"",
+                    "crossComponentResources": [
+                      "value::all"
                     ],
-                    "showDefault": false
-                  },
-                  "timeContext": {
-                    "durationMs": 86400000
-                  },
-                  "defaultValue": "value::1",
-                  "queryType": 1,
-                  "resourceType": "microsoft.resourcegraph/resources"
+                    "isHiddenWhenLocked": true,
+                    "typeSettings": {
+                      "additionalResourceOptions": [
+                        "value::1"
+                      ],
+                      "showDefault": false
+                    },
+                    "timeContext": {
+                      "durationMs": 86400000
+                    },
+                    "defaultValue": "value::1",
+                    "queryType": 1,
+                    "resourceType": "microsoft.resourcegraph/resources"
+                  }
+                ],
+                "style": "pills",
+                "queryType": 1,
+                "resourceType": "microsoft.resourcegraph/resources"
+              },
+              "name": "Param Menu"
+            },
+            {
+              "type": 1,
+              "content": {
+                "json": "## Installed STAT Connector Version\r\n\r\nSTAT 🏥 uses a custom connector. This section of the report shows you the installed versions and if a newer version is available. "
+              },
+              "conditionalVisibility": {
+                "parameterName": "ActiveTab",
+                "comparison": "isEqualTo",
+                "value": "Versions"
+              },
+              "name": "TitleConnector"
+            },
+            {
+              "type": 1,
+              "content": {
+                "json": "Legend\r\n\r\n✅ The connector is **up to date**       \r\n🆕 A **newer version** of the connector is available"
+              },
+              "conditionalVisibility": {
+                "parameterName": "ActiveTab",
+                "comparison": "isEqualTo",
+                "value": "Versions"
+              },
+              "customWidth": "50",
+              "name": "Legen0"
+            },
+            {
+              "type": 3,
+              "content": {
+                "version": "KqlItem/1.0",
+                "query": "externaldata(Stuff:dynamic)\r\n[\r\nh@\"https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Connector/azuredeploy.json\"\r\n]\r\nwith(format=\"multijson\",ingestionMapping=\"[{'Column':'Stuff','Properties':{'Path':'$.resources'}}]\")\r\n| mv-expand Stuff\r\n| where Stuff.type == \"Microsoft.Web/customApis\"\r\n| parse Stuff.properties.description with * 'version ' Version ')'\r\n| project Connector = \"Connector\", Version, VersionIcon = strcat('🆕 ', Version)",
+                "size": 4,
+                "timeContext": {
+                  "durationMs": 86400000
+                },
+                "queryType": 0,
+                "resourceType": "microsoft.operationalinsights/workspaces",
+                "crossComponentResources": [
+                  "{Workspace}"
+                ]
+              },
+              "conditionalVisibility": {
+                "parameterName": "ActiveTab",
+                "comparison": "isEqualTo",
+                "value": "Debug"
+              },
+              "name": "CurrentConnectorVersion"
+            },
+            {
+              "type": 3,
+              "content": {
+                "version": "KqlItem/1.0",
+                "query": "resources\r\n| where type =~ \"Microsoft.Web/customApis\"\r\n| where properties.description has \"Microsoft Sentinel Triage\"\r\n| parse properties.description with * 'version ' Version ')'\r\n| project DisplayName = id, Connector= \"Connector\" , Version",
+                "size": 4,
+                "queryType": 1,
+                "resourceType": "microsoft.resourcegraph/resources",
+                "crossComponentResources": [
+                  "value::all"
+                ],
+                "gridSettings": {
+                  "formatters": [
+                    {
+                      "columnMatch": "Name",
+                      "formatter": 13,
+                      "formatOptions": {
+                        "linkTarget": null,
+                        "showIcon": true
+                      }
+                    }
+                  ]
                 }
-              ],
-              "style": "pills",
-              "queryType": 1,
-              "resourceType": "microsoft.resourcegraph/resources"
-            },
-            "name": "Param Menu"
-          },
-          {
-            "type": 1,
-            "content": {
-              "json": "## Installed STAT Connector Version\r\n\r\nSTAT 🏥 uses a custom connector. This section of the report shows you the installed versions and if a newer version is available. "
-            },
-            "conditionalVisibility": {
-              "parameterName": "ActiveTab",
-              "comparison": "isEqualTo",
-              "value": "Versions"
-            },
-            "name": "TitleConnector"
-          },
-          {
-            "type": 3,
-            "content": {
-              "version": "KqlItem/1.0",
-              "query": "externaldata(Stuff:dynamic)\r\n[\r\nh@\"https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Connector/azuredeploy.json\"\r\n]\r\nwith(format=\"multijson\",ingestionMapping=\"[{'Column':'Stuff','Properties':{'Path':'$.resources'}}]\")\r\n| mv-expand Stuff\r\n| where Stuff.type == \"Microsoft.Web/customApis\"\r\n| parse Stuff.properties.description with * 'version ' Version ')'\r\n| project Version, VersionIcon = strcat('🆕 ', Version)",
-              "size": 4,
-              "timeContext": {
-                "durationMs": 86400000
               },
-              "queryType": 0,
-              "resourceType": "microsoft.operationalinsights/workspaces",
-              "crossComponentResources": [
-                "{Workspace}"
-              ]
-            },
-            "conditionalVisibility": {
-              "parameterName": "ActiveTab",
-              "comparison": "isEqualTo",
-              "value": "Debug"
-            },
-            "name": "CurrentConnectorVersion"
-          },
-          {
-            "type": 3,
-            "content": {
-              "version": "KqlItem/1.0",
-              "query": "resources\r\n| where type =~ \"Microsoft.Web/customApis\"\r\n| where properties.description has \"Microsoft Sentinel Triage\"\r\n| parse properties.description with * 'version ' Version ')'\r\n| project DisplayName = id, Name = name, Version",
-              "size": 4,
-              "queryType": 1,
-              "resourceType": "microsoft.resourcegraph/resources",
-              "crossComponentResources": [
-                "value::all"
-              ],
-              "gridSettings": {
-                "formatters": [
-                  {
-                    "columnMatch": "Name",
-                    "formatter": 13,
-                    "formatOptions": {
-                      "linkTarget": null,
-                      "showIcon": true
-                    }
-                  }
-                ]
-              }
-            },
-            "customWidth": "50",
-            "conditionalVisibility": {
-              "parameterName": "ActiveTab",
-              "comparison": "isEqualTo",
-              "value": "Versions"
-            },
-            "name": "InstalledConnector"
-          },
-          {
-            "type": 3,
-            "content": {
-              "version": "KqlItem/1.0",
-              "query": "{\"version\":\"Merge/1.0\",\"merges\":[{\"id\":\"414f4d03-24ed-43be-8e7b-58d78fe3e0f5\",\"mergeType\":\"leftanti\",\"leftTable\":\"CurrentConnectorVersion\",\"rightTable\":\"InstalledConnector\",\"leftColumn\":\"Version\",\"rightColumn\":\"Version\"}],\"projectRename\":[{\"originalName\":\"[CurrentConnectorVersion].VersionIcon\",\"mergedName\":\"Updated Version Available\",\"fromId\":\"414f4d03-24ed-43be-8e7b-58d78fe3e0f5\"},{\"originalName\":\"[CurrentConnectorVersion].Version\"}]}",
-              "size": 4,
-              "noDataMessage": "The current version of the connector is up to date.",
-              "noDataMessageStyle": 3,
-              "queryType": 7,
-              "visualization": "table",
-              "textSettings": {
-                "style": "markdown"
-              }
-            },
-            "customWidth": "50",
-            "conditionalVisibility": {
-              "parameterName": "ActiveTab",
-              "comparison": "isEqualTo",
-              "value": "Versions"
-            },
-            "name": "MergedConnector"
-          },
-          {
-            "type": 3,
-            "content": {
-              "version": "KqlItem/1.0",
-              "query": "externaldata(Stuff:dynamic)\r\n[\r\nh@\"https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Connector/azuredeploy.json\",\r\nh@\"https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/OOFModule/azuredeploy.json\",\r\nh@\"https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/RelatedAlerts/azuredeploy.json\",\r\nh@\"https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/UEBAModule/azuredeploy.json\",\r\nh@\"https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/MCASModule/azuredeploy.json\",\r\nh@\"https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/MDEModule/azuredeploy.json\",\r\nh@\"https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/AADRisksModule/azuredeploy.json\",\r\nh@\"https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/WatchlistModule/azuredeploy.json\",\r\nh@\"https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/FileModule/azuredeploy.json\",\r\nh@\"https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/KQLModule/azuredeploy.json\",\r\nh@\"https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/TIModule/azuredeploy.json\",\r\nh@\"https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/BaseModule/azuredeploy.json\"\r\n]\r\nwith(format=\"multijson\",ingestionMapping=\"[{'Column':'Stuff','Properties':{'Path':'$.resources'}}]\")\r\n| mv-expand Stuff\r\n| where Stuff.type == \"Microsoft.Logic/workflows\"\r\n| extend Version = Stuff.properties.definition.parameters.PlaybookVersion.defaultValue\r\n| extend PlaybookInternalName = Stuff.properties.definition.parameters.PlaybookInternalName.defaultValue\r\n| project PlaybookInternalName, Version, VersionIcon = strcat('🆕 ', Version)",
-              "size": 0,
-              "timeContext": {
-                "durationMs": 1800000
+              "conditionalVisibility": {
+                "parameterName": "ActiveTab",
+                "comparison": "isEqualTo",
+                "value": "Debug"
               },
-              "queryType": 0,
-              "resourceType": "microsoft.operationalinsights/workspaces",
-              "crossComponentResources": [
-                "{Workspace}"
-              ]
+              "name": "InstalledConnector"
             },
-            "conditionalVisibility": {
-              "parameterName": "ActiveTab",
-              "comparison": "isEqualTo",
-              "value": "Debug"
-            },
-            "name": "CurrentModuleVersions"
-          },
-          {
-            "type": 1,
-            "content": {
-              "json": "## Installed Modules Versions\r\n\r\nSTAT 🏥 uses Logic Apps referred to as modules. This section of the report shows you the installed modules and if a newer version is available. \r\n\r\nLegend\r\n\r\n🟢 The module is **enabled**    \r\n🔴 The module is **disabled**"
-            },
-            "conditionalVisibility": {
-              "parameterName": "ActiveTab",
-              "comparison": "isEqualTo",
-              "value": "Versions"
-            },
-            "name": "Menu Installed Versions"
-          },
-          {
-            "type": 3,
-            "content": {
-              "version": "KqlItem/1.0",
-              "query": "resources\r\n| where type == \"microsoft.logic/workflows\"\r\n| where properties.definition.parameters.ProjectName.defaultValue == \"STAT\"\r\n| project Name=strcat(iif(properties.state =~ 'Enabled', '🟢', '🔴'), ' ', name), State=properties.state, Location=location, RG=resourceGroup, Created=properties.createdTime, Modified=properties.changedTime, Version=properties.definition.parameters.PlaybookVersion.defaultValue, InternalName=properties.definition.parameters.PlaybookInternalName.defaultValue",
-              "size": 2,
-              "title": "Installed Modules",
-              "queryType": 1,
-              "resourceType": "microsoft.resourcegraph/resources",
-              "crossComponentResources": [
-                "value::all"
-              ],
-              "gridSettings": {
-                "formatters": [
-                  {
-                    "columnMatch": "Location",
-                    "formatter": 5
-                  },
-                  {
-                    "columnMatch": "RG",
-                    "formatter": 5
-                  },
-                  {
-                    "columnMatch": "Created",
-                    "formatter": 6,
-                    "formatOptions": {
-                      "customColumnWidthSetting": "25ch"
+            {
+              "type": 3,
+              "content": {
+                "version": "KqlItem/1.0",
+                "query": "{\"version\":\"Merge/1.0\",\"merges\":[{\"id\":\"fac6cc9b-8da8-49f3-aa4c-a27b60a7d375\",\"mergeType\":\"inner\",\"leftTable\":\"InstalledConnector\",\"rightTable\":\"CurrentConnectorVersion\",\"leftColumn\":\"Connector\",\"rightColumn\":\"Connector\"}],\"projectRename\":[{\"originalName\":\"[InstalledConnector].DisplayName\",\"mergedName\":\"DisplayName\",\"fromId\":\"fac6cc9b-8da8-49f3-aa4c-a27b60a7d375\"},{\"originalName\":\"[InstalledConnector].Connector\",\"mergedName\":\"Connector\",\"fromId\":\"fac6cc9b-8da8-49f3-aa4c-a27b60a7d375\"},{\"originalName\":\"[InstalledConnector].Version\",\"mergedName\":\"Version\",\"fromId\":\"fac6cc9b-8da8-49f3-aa4c-a27b60a7d375\"},{\"originalName\":\"[CurrentConnectorVersion].VersionIcon\",\"mergedName\":\"VersionIcon\",\"fromId\":\"fac6cc9b-8da8-49f3-aa4c-a27b60a7d375\"},{\"originalName\":\"[CurrentConnectorVersion].Version\",\"mergedName\":\"LatestVersion\",\"fromId\":\"fac6cc9b-8da8-49f3-aa4c-a27b60a7d375\"},{\"originalName\":\"[Added column]\",\"mergedName\":\"Version Check\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"leftOperand\":\"Version\",\"operator\":\"!=\",\"rightValType\":\"column\",\"rightVal\":\"LatestVersion\",\"resultValType\":\"column\",\"resultVal\":\"VersionIcon\"}},{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"static\",\"resultVal\":\"✅\"}}]},{\"originalName\":\"[CurrentConnectorVersion].Connector\"}]}",
+                "size": 4,
+                "noDataMessage": "The current version of the connector is up to date.",
+                "noDataMessageStyle": 3,
+                "queryType": 7,
+                "visualization": "table",
+                "gridSettings": {
+                  "formatters": [
+                    {
+                      "columnMatch": "Connector",
+                      "formatter": 5
+                    },
+                    {
+                      "columnMatch": "Version",
+                      "formatter": 1
+                    },
+                    {
+                      "columnMatch": "VersionIcon",
+                      "formatter": 5
+                    },
+                    {
+                      "columnMatch": "LatestVersion",
+                      "formatter": 5
+                    },
+                    {
+                      "columnMatch": "Version Check",
+                      "formatter": 1
                     }
-                  },
-                  {
-                    "columnMatch": "Modified",
-                    "formatter": 6,
-                    "formatOptions": {
-                      "customColumnWidthSetting": "25ch"
+                  ],
+                  "labelSettings": [
+                    {
+                      "columnId": "Version",
+                      "label": "Installed Version"
                     }
-                  },
-                  {
-                    "columnMatch": "InternalName",
-                    "formatter": 5
-                  }
+                  ]
+                },
+                "textSettings": {
+                  "style": "markdown"
+                }
+              },
+              "conditionalVisibility": {
+                "parameterName": "ActiveTab",
+                "comparison": "isEqualTo",
+                "value": "Versions"
+              },
+              "customWidth": "50",
+              "name": "MergedConnector"
+            },
+            {
+              "type": 3,
+              "content": {
+                "version": "KqlItem/1.0",
+                "query": "externaldata(Stuff:dynamic)\r\n[\r\nh@\"https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Connector/azuredeploy.json\",\r\nh@\"https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/OOFModule/azuredeploy.json\",\r\nh@\"https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/RelatedAlerts/azuredeploy.json\",\r\nh@\"https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/UEBAModule/azuredeploy.json\",\r\nh@\"https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/MCASModule/azuredeploy.json\",\r\nh@\"https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/MDEModule/azuredeploy.json\",\r\nh@\"https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/AADRisksModule/azuredeploy.json\",\r\nh@\"https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/WatchlistModule/azuredeploy.json\",\r\nh@\"https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/FileModule/azuredeploy.json\",\r\nh@\"https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/KQLModule/azuredeploy.json\",\r\nh@\"https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/TIModule/azuredeploy.json\",\r\nh@\"https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/BaseModule/azuredeploy.json\"\r\n]\r\nwith(format=\"multijson\",ingestionMapping=\"[{'Column':'Stuff','Properties':{'Path':'$.resources'}}]\")\r\n| mv-expand Stuff\r\n| where Stuff.type == \"Microsoft.Logic/workflows\"\r\n| extend Version = Stuff.properties.definition.parameters.PlaybookVersion.defaultValue\r\n| extend PlaybookInternalName = Stuff.properties.definition.parameters.PlaybookInternalName.defaultValue\r\n| project PlaybookInternalName, Version, VersionIcon = strcat('🆕 ', Version)",
+                "size": 0,
+                "timeContext": {
+                  "durationMs": 1800000
+                },
+                "queryType": 0,
+                "resourceType": "microsoft.operationalinsights/workspaces",
+                "crossComponentResources": [
+                  "{Workspace}"
                 ]
-              }
+              },
+              "conditionalVisibility": {
+                "parameterName": "ActiveTab",
+                "comparison": "isEqualTo",
+                "value": "Debug"
+              },
+              "name": "CurrentModuleVersions"
             },
-            "customWidth": "60",
-            "conditionalVisibility": {
-              "parameterName": "ActiveTab",
-              "comparison": "isEqualTo",
-              "value": "Versions"
+            {
+              "type": 1,
+              "content": {
+                "json": "## Installed Modules Versions\r\n\r\nSTAT 🏥 uses Logic Apps referred to as modules. This section of the report shows you the installed modules and if a newer version is available. \r\n\r\nLegend"
+              },
+              "conditionalVisibility": {
+                "parameterName": "ActiveTab",
+                "comparison": "isEqualTo",
+                "value": "Versions"
+              },
+              "name": "Menu Installed Versions"
             },
-            "name": "InstalledModules"
-          },
-          {
-            "type": 3,
-            "content": {
-              "version": "KqlItem/1.0",
-              "query": "{\"version\":\"Merge/1.0\",\"merges\":[{\"id\":\"414f4d03-24ed-43be-8e7b-58d78fe3e0c7\",\"mergeType\":\"leftanti\",\"leftTable\":\"InstalledModules\",\"rightTable\":\"CurrentModuleVersions\",\"leftColumn\":\"Version\",\"rightColumn\":\"Version\"},{\"id\":\"2121964a-3b1b-4013-b3de-a93cad3a3271\",\"mergeType\":\"innerunique\",\"leftTable\":\"InstalledModules\",\"rightTable\":\"CurrentModuleVersions\",\"leftColumn\":\"InternalName\",\"rightColumn\":\"PlaybookInternalName\"}],\"projectRename\":[{\"originalName\":\"[InstalledModules].Name\",\"mergedName\":\"Name\",\"fromId\":\"unknown\"},{\"originalName\":\"[CurrentModuleVersions].VersionIcon\",\"mergedName\":\"Latest Version Available\",\"fromId\":\"2121964a-3b1b-4013-b3de-a93cad3a3271\"},{\"originalName\":\"[InstalledModules].State\"},{\"originalName\":\"[InstalledModules].Location\"},{\"originalName\":\"[InstalledModules].RG\"},{\"originalName\":\"[InstalledModules].Created\"},{\"originalName\":\"[InstalledModules].Modified\"},{\"originalName\":\"[InstalledModules].Version\"},{\"originalName\":\"[InstalledModules].InternalName\"},{\"originalName\":\"[CurrentModuleVersions].PlaybookInternalName\"},{\"originalName\":\"[CurrentModuleVersions].Version\"}]}",
-              "size": 2,
-              "title": "Updated Versions Available",
-              "noDataMessage": "All modules are up to date.",
-              "noDataMessageStyle": 3,
-              "queryType": 7
+            {
+              "type": 1,
+              "content": {
+                "json": "🟢 The module is **enabled**                     \r\n🔴 The module is **disabled**      "
+              },
+              "conditionalVisibility": {
+                "parameterName": "ActiveTab",
+                "comparison": "isEqualTo",
+                "value": "Versions"
+              },
+              "customWidth": "50",
+              "name": "Legend1"
             },
-            "customWidth": "40",
-            "conditionalVisibility": {
-              "parameterName": "ActiveTab",
-              "comparison": "isEqualTo",
-              "value": "Versions"
+            {
+              "type": 1,
+              "content": {
+                "json": "✅ The module is **up to date**         \r\n🆕 A **newer version** of the module is available"
+              },
+              "conditionalVisibility": {
+                "parameterName": "ActiveTab",
+                "comparison": "isEqualTo",
+                "value": "Versions"
+              },
+              "customWidth": "50",
+              "name": "Legend2"
             },
-            "name": "MergedVersions"
-          },
-          {
-            "type": 1,
-            "content": {
-              "json": "You can use this section to monitor the execution of your STAT modules and keep track of their related billable actions."
+            {
+              "type": 3,
+              "content": {
+                "version": "KqlItem/1.0",
+                "query": "resources\r\n| where type == \"microsoft.logic/workflows\"\r\n| where properties.definition.parameters.ProjectName.defaultValue == \"STAT\"\r\n| project Name=strcat(iif(properties.state =~ 'Enabled', '🟢', '🔴'), ' ', name), State=properties.state, Location=location, RG=resourceGroup, Created=properties.createdTime, Modified=properties.changedTime, Version=properties.definition.parameters.PlaybookVersion.defaultValue, InternalName=properties.definition.parameters.PlaybookInternalName.defaultValue",
+                "size": 2,
+                "title": "Installed Modules",
+                "queryType": 1,
+                "resourceType": "microsoft.resourcegraph/resources",
+                "crossComponentResources": [
+                  "value::all"
+                ],
+                "gridSettings": {
+                  "formatters": [
+                    {
+                      "columnMatch": "Location",
+                      "formatter": 5
+                    },
+                    {
+                      "columnMatch": "RG",
+                      "formatter": 5
+                    },
+                    {
+                      "columnMatch": "Created",
+                      "formatter": 6,
+                      "formatOptions": {
+                        "customColumnWidthSetting": "25ch"
+                      }
+                    },
+                    {
+                      "columnMatch": "Modified",
+                      "formatter": 6,
+                      "formatOptions": {
+                        "customColumnWidthSetting": "25ch"
+                      }
+                    },
+                    {
+                      "columnMatch": "InternalName",
+                      "formatter": 5
+                    }
+                  ]
+                }
+              },
+              "conditionalVisibility": {
+                "parameterName": "ActiveTab",
+                "comparison": "isEqualTo",
+                "value": "Debug"
+              },
+              "name": "InstalledModules"
             },
-            "conditionalVisibility": {
-              "parameterName": "ActiveTab",
-              "comparison": "isEqualTo",
-              "value": "Statistics"
+            {
+              "type": 3,
+              "content": {
+                "version": "KqlItem/1.0",
+                "query": "{\"version\":\"Merge/1.0\",\"merges\":[{\"id\":\"fac6cc9b-8da8-49f3-aa4c-a27b60a7d35f\",\"mergeType\":\"inner\",\"leftTable\":\"InstalledModules\",\"rightTable\":\"CurrentModuleVersions\",\"leftColumn\":\"InternalName\",\"rightColumn\":\"PlaybookInternalName\"}],\"projectRename\":[{\"originalName\":\"[InstalledModules].Name\",\"mergedName\":\"Name\",\"fromId\":\"unknown\"},{\"originalName\":\"[InstalledModules].Created\",\"mergedName\":\"Created\",\"fromId\":\"fac6cc9b-8da8-49f3-aa4c-a27b60a7d35f\"},{\"originalName\":\"[InstalledModules].Modified\",\"mergedName\":\"Modified\",\"fromId\":\"fac6cc9b-8da8-49f3-aa4c-a27b60a7d35f\"},{\"originalName\":\"[InstalledModules].Version\",\"mergedName\":\"Version\",\"fromId\":\"fac6cc9b-8da8-49f3-aa4c-a27b60a7d35f\"},{\"originalName\":\"[InstalledModules].InternalName\",\"mergedName\":\"InternalName\",\"fromId\":\"fac6cc9b-8da8-49f3-aa4c-a27b60a7d35f\"},{\"originalName\":\"[CurrentModuleVersions].PlaybookInternalName\",\"mergedName\":\"PlaybookInternalName\",\"fromId\":\"fac6cc9b-8da8-49f3-aa4c-a27b60a7d35f\"},{\"originalName\":\"[CurrentModuleVersions].Version\",\"mergedName\":\"LatestVersion\",\"fromId\":\"fac6cc9b-8da8-49f3-aa4c-a27b60a7d35f\"},{\"originalName\":\"[CurrentModuleVersions].VersionIcon\",\"mergedName\":\"VersionIcon\",\"fromId\":\"fac6cc9b-8da8-49f3-aa4c-a27b60a7d35f\"},{\"originalName\":\"[Added column]\",\"mergedName\":\"Status\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"leftOperand\":\"Version\",\"operator\":\"!=\",\"rightValType\":\"column\",\"rightVal\":\"LatestVersion\",\"resultValType\":\"column\",\"resultVal\":\"VersionIcon\"}},{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"static\",\"resultVal\":\"✅\"}}]},{\"originalName\":\"[InstalledModules].State\"},{\"originalName\":\"[InstalledModules].Location\"},{\"originalName\":\"[InstalledModules].RG\"},{\"originalName\":\"[InstalledModules].Created\"},{\"originalName\":\"[InstalledModules].Modified\"},{\"originalName\":\"[InstalledModules].Version\"},{\"originalName\":\"[InstalledModules].InternalName\"},{\"originalName\":\"[CurrentModuleVersions].PlaybookInternalName\"},{\"originalName\":\"[CurrentModuleVersions].Version\"}]}",
+                "size": 2,
+                "title": "Installed Modules",
+                "noDataMessage": "No module detected.",
+                "noDataMessageStyle": 4,
+                "queryType": 7,
+                "gridSettings": {
+                  "formatters": [
+                    {
+                      "columnMatch": "Created",
+                      "formatter": 6
+                    },
+                    {
+                      "columnMatch": "Modified",
+                      "formatter": 6
+                    },
+                    {
+                      "columnMatch": "Version",
+                      "formatter": 1,
+                      "formatOptions": {
+                        "armActionContext": {
+                          "headers": [],
+                          "params": [],
+                          "httpMethod": "POST",
+                          "description": "# ARM actions can potentially modify resources.\n## Please use caution and include a confirmation message in this description when authoring this command."
+                        }
+                      }
+                    },
+                    {
+                      "columnMatch": "InternalName",
+                      "formatter": 5
+                    },
+                    {
+                      "columnMatch": "PlaybookInternalName",
+                      "formatter": 5
+                    },
+                    {
+                      "columnMatch": "LatestVersion",
+                      "formatter": 5
+                    },
+                    {
+                      "columnMatch": "VersionIcon",
+                      "formatter": 5
+                    }
+                  ],
+                  "labelSettings": [
+                    {
+                      "columnId": "Version",
+                      "label": "Installed Version"
+                    },
+                    {
+                      "columnId": "PlaybookInternalName",
+                      "label": "Module"
+                    }
+                  ]
+                }
+              },
+              "conditionalVisibility": {
+                "parameterName": "ActiveTab",
+                "comparison": "isEqualTo",
+                "value": "Versions"
+              },
+              "name": "MergedVersions"
             },
-            "name": "IntroStats"
-          },
-          {
+            {
+              "type": 1,
+              "content": {
+                "json": "You can use this section to monitor the execution of your STAT modules and keep track of their related billable actions."
+              },
+              "conditionalVisibility": {
+                "parameterName": "ActiveTab",
+                "comparison": "isEqualTo",
+                "value": "Statistics"
+              },
+              "name": "IntroStats"
+            },
+            {
               "type": 10,
               "content": {
                 "chartId": "workbook6a070870-5181-4cc5-a3c6-c642c7c57c8c",
@@ -614,113 +730,112 @@
                 },
                 "sortBy": []
               },
-              "customWidth": "55",
               "conditionalVisibility": {
                 "parameterName": "ActiveTab",
                 "comparison": "isEqualTo",
                 "value": "Statistics"
               },
+              "customWidth": "55",
               "name": "Running Stats"
             },
-          {
-            "type": 10,
-            "content": {
-              "chartId": "workbookf4937d79-d696-4e23-8e0c-fdd7544c3e36",
-              "version": "MetricsItem/2.0",
-              "size": 2,
-              "chartType": 0,
-              "resourceType": "microsoft.logic/workflows",
-              "metricScope": 0,
-              "resourceParameter": "ListLogicApps",
-              "resourceIds": [
-                "{ListLogicApps}"
-              ],
-              "timeContext": {
-                "durationMs": 2592000000
-              },
-              "metrics": [
-                {
-                  "namespace": "microsoft.logic/workflows",
-                  "metric": "microsoft.logic/workflows--BillableActionExecutions",
-                  "aggregation": 1
-                }
-              ],
-              "title": "Billable Actions",
-              "gridSettings": {
-                "formatters": [
+            {
+              "type": 10,
+              "content": {
+                "chartId": "workbookf4937d79-d696-4e23-8e0c-fdd7544c3e36",
+                "version": "MetricsItem/2.0",
+                "size": 2,
+                "chartType": 0,
+                "resourceType": "microsoft.logic/workflows",
+                "metricScope": 0,
+                "resourceParameter": "ListLogicApps",
+                "resourceIds": [
+                  "{ListLogicApps}"
+                ],
+                "timeContext": {
+                  "durationMs": 2592000000
+                },
+                "metrics": [
                   {
-                    "columnMatch": "$gen_group",
-                    "formatter": 13,
-                    "formatOptions": {
-                      "linkTarget": null,
-                      "showIcon": true
-                    }
-                  },
-                  {
-                    "columnMatch": "Subscription",
-                    "formatter": 5
-                  },
-                  {
-                    "columnMatch": "Name",
-                    "formatter": 5,
-                    "formatOptions": {
-                      "linkTarget": "Resource"
-                    }
-                  },
-                  {
-                    "columnMatch": "microsoft.logic/workflows--BillableActionExecutions",
-                    "formatter": 3,
-                    "formatOptions": {
-                      "palette": "blue",
-                      "aggregation": "Sum"
-                    }
-                  },
-                  {
-                    "columnMatch": "microsoft.logic/workflows--BillableActionExecutions Timeline",
-                    "formatter": 9,
-                    "formatOptions": {
-                      "palette": "blue",
-                      "aggregation": "Sum"
-                    }
+                    "namespace": "microsoft.logic/workflows",
+                    "metric": "microsoft.logic/workflows--BillableActionExecutions",
+                    "aggregation": 1
                   }
                 ],
-                "rowLimit": 10000,
-                "hierarchySettings": {
-                  "treeType": 1,
-                  "groupBy": [
-                    "Subscription",
-                    "Name"
+                "title": "Billable Actions",
+                "gridSettings": {
+                  "formatters": [
+                    {
+                      "columnMatch": "$gen_group",
+                      "formatter": 13,
+                      "formatOptions": {
+                        "linkTarget": null,
+                        "showIcon": true
+                      }
+                    },
+                    {
+                      "columnMatch": "Subscription",
+                      "formatter": 5
+                    },
+                    {
+                      "columnMatch": "Name",
+                      "formatter": 5,
+                      "formatOptions": {
+                        "linkTarget": "Resource"
+                      }
+                    },
+                    {
+                      "columnMatch": "microsoft.logic/workflows--BillableActionExecutions",
+                      "formatter": 3,
+                      "formatOptions": {
+                        "palette": "blue",
+                        "aggregation": "Sum"
+                      }
+                    },
+                    {
+                      "columnMatch": "microsoft.logic/workflows--BillableActionExecutions Timeline",
+                      "formatter": 9,
+                      "formatOptions": {
+                        "palette": "blue",
+                        "aggregation": "Sum"
+                      }
+                    }
                   ],
-                  "expandTopLevel": true
-                },
-                "labelSettings": [
-                  {
-                    "columnId": "microsoft.logic/workflows--BillableActionExecutions",
-                    "label": "Billable Action Executions (Sum)"
+                  "rowLimit": 10000,
+                  "hierarchySettings": {
+                    "treeType": 1,
+                    "groupBy": [
+                      "Subscription",
+                      "Name"
+                    ],
+                    "expandTopLevel": true
                   },
-                  {
-                    "columnId": "microsoft.logic/workflows--BillableActionExecutions Timeline",
-                    "label": "Billable Action Executions ",
-                    "comment": ""
-                  }
-                ]
+                  "labelSettings": [
+                    {
+                      "columnId": "microsoft.logic/workflows--BillableActionExecutions",
+                      "label": "Billable Action Executions (Sum)"
+                    },
+                    {
+                      "columnId": "microsoft.logic/workflows--BillableActionExecutions Timeline",
+                      "label": "Billable Action Executions ",
+                      "comment": ""
+                    }
+                  ]
+                },
+                "sortBy": []
               },
-              "sortBy": []
-            },
-            "customWidth": "45",
-            "conditionalVisibility": {
-              "parameterName": "ActiveTab",
-              "comparison": "isEqualTo",
-              "value": "Statistics"
-            },
-            "name": "Billable Actions"
-          }
-        ],
-        "isLocked": false,
-        "fallbackResourceIds": [
-          "Azure Monitor"
-        ],
-        "fromTemplateId": "sentinel-UserWorkbook"
+              "conditionalVisibility": {
+                "parameterName": "ActiveTab",
+                "comparison": "isEqualTo",
+                "value": "Statistics"
+              },
+              "customWidth": "45",
+              "name": "Billable Actions"
+            }
+          ],
+          "fallbackResourceIds": [
+            "Azure Monitor"
+          ],
+          "fromTemplateId": "sentinel-UserWorkbook"        
       }
     },
     "resources": [
