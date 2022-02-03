@@ -1,6 +1,14 @@
 # Deploy the full solution
 
-This template is used to deploy or update the Microsoft Sentinel Triage AssistanT (STAT) solution.  The template will give you choices of which modules you would like to deploy, including sample templates, and allow for you to provide names for the modules.
+This template is used to deploy or update the Microsoft Sentinel Triage AssistanT (STAT) solution.
+
+## Deployment Considerations
+
+The Microsoft Sentinel Triage AssistanT (STAT) creates a series of Logic Apps, API connections, and a Logic Apps Custom Connector.  To use the STAT solution these items must be deployed in the same subscription and datacenter region as the Microsoft Sentinel playbooks which will use the solution.  In the event you would like to use STAT from multiple subscriptions or datacenter regions, a deployment of STAT will need to be created in each location.
+
+## Upgrade Considerations
+
+To upgrade the Microsoft Sentinel Triage AssistanT you can simply deploy the solution again, using the same settings as your original deployment.  This will update all of the STAT components but will maintain any existing connections to other logic apps you have a built and you will not be required to reassign the permissions as they will also be maintained.  When upgrading an advanced mode deployment, it is important that you use the same module names as the original deployment, otherwise new logic apps will be created.
 
 ## Quick Deployment
 
