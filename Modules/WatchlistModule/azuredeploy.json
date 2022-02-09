@@ -48,7 +48,7 @@
                             "type": "Object"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.0.3",
+                            "defaultValue": "0.0.4",
                             "type": "String"
                         },
                         "PlaybookInternalName": {
@@ -666,6 +666,26 @@
                                 "statusCode": "@outputs('HTTP_-_Check_Watchlist_Validity')['statusCode']"
                             }
                         },
+                        "Response_-_Error_executing_query": {
+                            "runAfter": {
+                                "HTTP": [
+                                    "Failed"
+                                ]
+                            },
+                            "type": "Response",
+                            "kind": "Http",
+                            "inputs": {
+                                "body": {
+                                    "Error": "@{parameters('PlaybookInternalName')} failed to execute with status @{outputs('HTTP')['statusCode']}",
+                                    "PlaybookName": "@{workflow()?['name']}",
+                                    "PlaybookResourceId": "@{workflow()?['id']}",
+                                    "PlaybookRunId": "@{workflow()?['run']?['name']}",
+                                    "PlaybookVersion": "@parameters('PlaybookVersion')",
+                                    "SourceError": "@body('HTTP')"
+                                },
+                                "statusCode": "@outputs('HTTP')['statusCode']"
+                            }
+                        },
                         "Select": {
                             "runAfter": {
                                 "HTTP": [
@@ -694,7 +714,7 @@
                                         "Compose_-_Account": {
                                             "runAfter": {},
                                             "type": "Compose",
-                                            "inputs": "let entityData = '@{body('Parse_JSON')?['Accounts']}';\nlet incidentEntities = datatable(temp:string)['']\n| extend Entities = parse_json(entityData)\n| project-away temp\n| mv-expand todynamic(Entities)\n| extend EntityData = tostring(coalesce(Entities.userPrincipalName, strcat(Entities.RawEntity.accountName, '@', Entities.RawEntity.upnSuffix)))\n| extend Key = tolower(EntityData);\nincidentEntities\n| join kind=leftouter (_GetWatchlist('@{triggerBody()?['WatchlistName']}') | extend @{triggerBody()?['WatchlistKey']} = tolower(@{triggerBody()?['WatchlistKey']})) on $left.Key == $right.@{triggerBody()?['WatchlistKey']}\n| extend OnWatchlist = iff(isempty(_DTItemId), false, true)\n| project OnWatchlist, EntityData"
+                                            "inputs": "let entityData = '@{replace(string(body('Parse_JSON')?['Accounts']), '''', '\\''')}';\nlet incidentEntities = datatable(temp:string)['']\n| extend Entities = parse_json(entityData)\n| project-away temp\n| mv-expand todynamic(Entities)\n| extend EntityData = tostring(coalesce(Entities.userPrincipalName, strcat(Entities.RawEntity.accountName, '@', Entities.RawEntity.upnSuffix)))\n| extend Key = tolower(EntityData);\nincidentEntities\n| join kind=leftouter (_GetWatchlist('@{triggerBody()?['WatchlistName']}') | extend @{triggerBody()?['WatchlistKey']} = tolower(@{triggerBody()?['WatchlistKey']})) on $left.Key == $right.@{triggerBody()?['WatchlistKey']}\n| extend OnWatchlist = iff(isempty(_DTItemId), false, true)\n| project OnWatchlist, EntityData"
                                         }
                                     }
                                 },
@@ -704,7 +724,7 @@
                                         "Compose_-_CIDR": {
                                             "runAfter": {},
                                             "type": "Compose",
-                                            "inputs": "let entityData = '@{body('Parse_JSON')?['IPs']}';\nlet incidentEntities = datatable(temp:string)['']\n| extend Entities = parse_json(entityData)\n| project-away temp\n| mv-expand todynamic(Entities)\n| project EntityData=tostring(coalesce(Entities.Address, Entities.RawEntity.address));\nincidentEntities\n| evaluate ipv4_lookup(_GetWatchlist('@{triggerBody()?['WatchlistName']}'), EntityData, @{triggerBody()?['WatchlistKey']}, true)\n| extend OnWatchlist = iff(isempty(_DTItemId), false, true)\n| project OnWatchlist, EntityData"
+                                            "inputs": "let entityData = '@{replace(string(body('Parse_JSON')?['IPs']), '''', '\\''')}';\nlet incidentEntities = datatable(temp:string)['']\n| extend Entities = parse_json(entityData)\n| project-away temp\n| mv-expand todynamic(Entities)\n| project EntityData=tostring(coalesce(Entities.Address, Entities.RawEntity.address));\nincidentEntities\n| evaluate ipv4_lookup(_GetWatchlist('@{triggerBody()?['WatchlistName']}'), EntityData, @{triggerBody()?['WatchlistKey']}, true)\n| extend OnWatchlist = iff(isempty(_DTItemId), false, true)\n| project OnWatchlist, EntityData"
                                         }
                                     }
                                 },
@@ -714,7 +734,7 @@
                                         "Compose_-_IP": {
                                             "runAfter": {},
                                             "type": "Compose",
-                                            "inputs": "let entityData = '@{body('Parse_JSON')?['IPs']}';\nlet incidentEntities = datatable(temp:string)['']\n| extend Entities = parse_json(entityData)\n| project-away temp\n| mv-expand todynamic(Entities)\n| project EntityData=tostring(coalesce(Entities.Address, Entities.RawEntity.address));\nincidentEntities\n| join kind=leftouter (_GetWatchlist('@{triggerBody()?['WatchlistName']}')) on $left.EntityData == $right.@{triggerBody()?['WatchlistKey']}\n| extend OnWatchlist = iff(isempty(_DTItemId), false, true)\n| project OnWatchlist, EntityData"
+                                            "inputs": "let entityData = '@{replace(string(body('Parse_JSON')?['IPs']), '''', '\\''')}';\nlet incidentEntities = datatable(temp:string)['']\n| extend Entities = parse_json(entityData)\n| project-away temp\n| mv-expand todynamic(Entities)\n| project EntityData=tostring(coalesce(Entities.Address, Entities.RawEntity.address));\nincidentEntities\n| join kind=leftouter (_GetWatchlist('@{triggerBody()?['WatchlistName']}')) on $left.EntityData == $right.@{triggerBody()?['WatchlistKey']}\n| extend OnWatchlist = iff(isempty(_DTItemId), false, true)\n| project OnWatchlist, EntityData"
                                         }
                                     }
                                 }
