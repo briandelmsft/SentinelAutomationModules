@@ -48,7 +48,7 @@
                             "type": "Object"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.0.3",
+                            "defaultValue": "0.0.4",
                             "type": "String"
                         },
                         "PlaybookInternalName": {
@@ -175,7 +175,7 @@
                                 "Compose_-_Domain": {
                                     "runAfter": {},
                                     "type": "Compose",
-                                    "inputs": "let domains = '@{body('Parse_JSON')?['Domains']}';\nlet domainEntities = datatable(temp:string)['']\n| extend Entities = parse_json(domains)\n| mv-expand todynamic(Entities)\n| project DomainName = tolower(tostring(Entities.RawEntity.domainName));\ndomainEntities\n| join kind=inner (ThreatIntelligenceIndicator\n| where isnotempty(DomainName)\n| summarize arg_max(TimeGenerated, *) by IndicatorId\n| where Active == true\n| extend DomainName = tolower(DomainName)) on DomainName\n| project TIData=DomainName, SourceSystem, Description, ThreatType, ConfidenceScore, IndicatorId"
+                                    "inputs": "let domains = '@{replace(string(body('Parse_JSON')?['Domains']), '''', '\\''')}';\nlet domainEntities = datatable(temp:string)['']\n| extend Entities = parse_json(domains)\n| mv-expand todynamic(Entities)\n| project DomainName = tolower(tostring(Entities.RawEntity.domainName));\ndomainEntities\n| join kind=inner (ThreatIntelligenceIndicator\n| where isnotempty(DomainName)\n| summarize arg_max(TimeGenerated, *) by IndicatorId\n| where Active == true\n| extend DomainName = tolower(DomainName)) on DomainName\n| project TIData=DomainName, SourceSystem, Description, ThreatType, ConfidenceScore, IndicatorId"
                                 },
                                 "HTTP_-_Domain": {
                                     "runAfter": {
@@ -266,7 +266,7 @@
                                 "Compose_-_File_Hash": {
                                     "runAfter": {},
                                     "type": "Compose",
-                                    "inputs": "let hashes = '@{body('Parse_JSON')?['FileHashes']}';\nlet hashEntities = datatable(temp:string)['']\n| extend Entities = parse_json(hashes)\n| mv-expand todynamic(Entities)\n| project FileHashValue = tolower(tostring(Entities.RawEntity.hashValue)), Algorithm = tostring(Entities.RawEntity.algorithm);\nhashEntities\n| join kind=inner (ThreatIntelligenceIndicator\n| where isnotempty(FileHashValue)\n| summarize arg_max(TimeGenerated, *) by IndicatorId\n| where Active == true\n| extend FileHashValue = tolower(FileHashValue)) on FileHashValue\n| project TIData=FileHashValue, SourceSystem, Description, ThreatType, ConfidenceScore, IndicatorId"
+                                    "inputs": "let hashes = '@{replace(string(body('Parse_JSON')?['FileHashes']), '''', '\\''')}';\nlet hashEntities = datatable(temp:string)['']\n| extend Entities = parse_json(hashes)\n| mv-expand todynamic(Entities)\n| project FileHashValue = tolower(tostring(Entities.RawEntity.hashValue)), Algorithm = tostring(Entities.RawEntity.algorithm);\nhashEntities\n| join kind=inner (ThreatIntelligenceIndicator\n| where isnotempty(FileHashValue)\n| summarize arg_max(TimeGenerated, *) by IndicatorId\n| where Active == true\n| extend FileHashValue = tolower(FileHashValue)) on FileHashValue\n| project TIData=FileHashValue, SourceSystem, Description, ThreatType, ConfidenceScore, IndicatorId"
                                 },
                                 "HTTP_-_File_Hash": {
                                     "runAfter": {
@@ -357,7 +357,7 @@
                                 "Compose_-_IP": {
                                     "runAfter": {},
                                     "type": "Compose",
-                                    "inputs": "let ipData = '@{body('Parse_JSON')?['IPs']}';\nlet ipEntities = datatable(temp:string)['']\n| extend Entities = parse_json(ipData)\n| mv-expand todynamic(Entities)\n| project IPAddress = tostring(Entities.Address), Latitude = todecimal(Entities.GeoData.latitude), Longitude = todecimal(Entities.GeoData.longitude), Country=tostring(Entities.GeoData.country), State=tostring(Entities.GeoData.state);\nipEntities\n| join kind=inner (ThreatIntelligenceIndicator\n| summarize arg_max(TimeGenerated, *) by IndicatorId\n| where Active == true\n| where isnotempty(NetworkIP) or isnotempty(EmailSourceIpAddress) or isnotempty(NetworkDestinationIP) or isnotempty(NetworkSourceIP)\n| extend tiIP = coalesce(NetworkIP, NetworkDestinationIP, NetworkSourceIP, EmailSourceIpAddress)) on $left.IPAddress == $right.tiIP\n| project TIData=IPAddress, SourceSystem, Description, ThreatType, ConfidenceScore, IndicatorId"
+                                    "inputs": "let ipData = '@{replace(string(body('Parse_JSON')?['IPs']), '''', '\\''')}';\nlet ipEntities = datatable(temp:string)['']\n| extend Entities = parse_json(ipData)\n| mv-expand todynamic(Entities)\n| project IPAddress = tostring(Entities.Address), Latitude = todecimal(Entities.GeoData.latitude), Longitude = todecimal(Entities.GeoData.longitude), Country=tostring(Entities.GeoData.country), State=tostring(Entities.GeoData.state);\nipEntities\n| join kind=inner (ThreatIntelligenceIndicator\n| summarize arg_max(TimeGenerated, *) by IndicatorId\n| where Active == true\n| where isnotempty(NetworkIP) or isnotempty(EmailSourceIpAddress) or isnotempty(NetworkDestinationIP) or isnotempty(NetworkSourceIP)\n| extend tiIP = coalesce(NetworkIP, NetworkDestinationIP, NetworkSourceIP, EmailSourceIpAddress)) on $left.IPAddress == $right.tiIP\n| project TIData=IPAddress, SourceSystem, Description, ThreatType, ConfidenceScore, IndicatorId"
                                 },
                                 "HTTP_-_IP": {
                                     "runAfter": {
@@ -448,7 +448,7 @@
                                 "Compose_-_URL": {
                                     "runAfter": {},
                                     "type": "Compose",
-                                    "inputs": "let urls = '@{body('Parse_JSON')?['URLs']}';\nlet urlEntities = datatable(temp:string)['']\n| extend Entities = parse_json(urls)\n| mv-expand todynamic(Entities)\n| project Url = tolower(tostring(Entities.RawEntity.url));\nurlEntities\n| join kind=inner (ThreatIntelligenceIndicator\n| where isnotempty(Url)\n| summarize arg_max(TimeGenerated, *) by IndicatorId\n| where Active == true\n| extend Url = tolower(Url)) on Url\n| project TIData=Url, SourceSystem, Description, ThreatType, ConfidenceScore, IndicatorId"
+                                    "inputs": "let urls = '@{replace(string(body('Parse_JSON')?['URLs']), '''', '\\''')}';\nlet urlEntities = datatable(temp:string)['']\n| extend Entities = parse_json(urls)\n| mv-expand todynamic(Entities)\n| project Url = tolower(tostring(Entities.RawEntity.url));\nurlEntities\n| join kind=inner (ThreatIntelligenceIndicator\n| where isnotempty(Url)\n| summarize arg_max(TimeGenerated, *) by IndicatorId\n| where Active == true\n| extend Url = tolower(Url)) on Url\n| project TIData=Url, SourceSystem, Description, ThreatType, ConfidenceScore, IndicatorId"
                                 },
                                 "HTTP_-_URL": {
                                     "runAfter": {
