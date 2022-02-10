@@ -58,6 +58,20 @@
                                     "kind": "Http",
                                     "runAfter": {},
                                     "type": "Response"
+                                },
+                                "Terminate_with_REST_API_Call_failure": {
+                                    "inputs": {
+                                        "runError": {
+                                            "code": "@{body('Filter_array_Errors')[0]}"
+                                        },
+                                        "runStatus": "Failed"
+                                    },
+                                    "runAfter": {
+                                        "Response_when_permissions_issues": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Terminate"
                                 }
                             },
                             "else": {
@@ -166,6 +180,95 @@
                             },
                             "type": "If"
                         },
+                        "Check_if_the_APIURL_is_set": {
+                            "actions": {
+                                "For_each_TenantRegions_value": {
+                                    "actions": {
+                                        "Check_for_probe's_response": {
+                                            "actions": {
+                                                "Set_APIURL": {
+                                                    "inputs": {
+                                                        "name": "APIURL",
+                                                        "value": "@{outputs('Compose_URL')}"
+                                                    },
+                                                    "runAfter": {},
+                                                    "type": "SetVariable"
+                                                }
+                                            },
+                                            "expression": {
+                                                "and": [
+                                                    {
+                                                        "not": {
+                                                            "equals": [
+                                                                "@body('HTTP_Probe_URL')?['detail']",
+                                                                "tenant not found"
+                                                            ]
+                                                        }
+                                                    }
+                                                ]
+                                            },
+                                            "runAfter": {
+                                                "HTTP_Probe_URL": [
+                                                    "Succeeded",
+                                                    "Failed"
+                                                ]
+                                            },
+                                            "type": "If"
+                                        },
+                                        "Compose_URL": {
+                                            "inputs": "https://@{item()}.portal.cloudappsecurity.com",
+                                            "runAfter": {},
+                                            "type": "Compose"
+                                        },
+                                        "HTTP_Probe_URL": {
+                                            "inputs": {
+                                                "authentication": {
+                                                    "audience": "05a65629-4c1b-48c1-a78b-804c4abdd4af",
+                                                    "type": "ManagedServiceIdentity"
+                                                },
+                                                "body": {
+                                                    "limit": 1
+                                                },
+                                                "method": "POST",
+                                                "uri": "@{outputs('Compose_URL')}/cas/api/v1/entities/"
+                                            },
+                                            "runAfter": {
+                                                "Compose_URL": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "Http"
+                                        }
+                                    },
+                                    "description": "Brute forcing the URL to find the right one without asking the user",
+                                    "foreach": "@variables('TenantRegions')",
+                                    "runAfter": {},
+                                    "runtimeConfiguration": {
+                                        "concurrency": {
+                                            "repetitions": 20
+                                        }
+                                    },
+                                    "type": "Foreach"
+                                }
+                            },
+                            "description": "If not already set, we will enter in a loop to detect the URL in best effort.",
+                            "expression": {
+                                "and": [
+                                    {
+                                        "equals": [
+                                            "@length(variables('APIURL'))",
+                                            0
+                                        ]
+                                    }
+                                ]
+                            },
+                            "runAfter": {
+                                "Initialize_TenantRegions_array": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "If"
+                        },
                         "Condition_-_Terminate_if_no_accounts": {
                             "actions": {
                                 "Response_-_No_Account_Entities": {
@@ -217,7 +320,7 @@
                                 "where": "@greater(length(coalesce(item()?['id'], '')), 0)"
                             },
                             "runAfter": {
-                                "Condition_-_Terminate_if_no_accounts": [
+                                "Check_if_the_APIURL_is_set": [
                                     "Succeeded"
                                 ]
                             },
@@ -319,7 +422,7 @@
                                             "type": "ManagedServiceIdentity"
                                         },
                                         "method": "GET",
-                                        "uri": "https://portal.cloudappsecurity.com/cas/api/v1/entities/@{outputs('Compose_Base64')}/"
+                                        "uri": "@{variables('APIURL')}/cas/api/v1/entities/@{outputs('Compose_Base64')}/"
                                     },
                                     "runAfter": {
                                         "Compose_Base64": [
@@ -337,6 +440,19 @@
                             },
                             "type": "Foreach"
                         },
+                        "Initialize_APIURL": {
+                            "description": "It is recommended you initialize this variable with your Microsoft Defender for Cloud Apps API URL. Else, we will try to find it for you in a best effort mode. Format https://<tenant name>.<tenantregion>.portal.cloudappsecurity.com (no final \"/\")",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "APIURL",
+                                        "type": "string"
+                                    }
+                                ]
+                            },
+                            "runAfter": {},
+                            "type": "InitializeVariable"
+                        },
                         "Initialize_DetailedResults": {
                             "inputs": {
                                 "variables": [
@@ -348,7 +464,7 @@
                                 ]
                             },
                             "runAfter": {
-                                "Initialize_Scores_array": [
+                                "Condition_-_Terminate_if_no_accounts": [
                                     "Succeeded"
                                 ]
                             },
@@ -366,7 +482,34 @@
                                     }
                                 ]
                             },
-                            "runAfter": {},
+                            "runAfter": {
+                                "Initialize_variable_StatusCodeErrors": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable"
+                        },
+                        "Initialize_TenantRegions_array": {
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "TenantRegions",
+                                        "type": "array",
+                                        "value": [
+                                            "eu",
+                                            "eu2",
+                                            "us",
+                                            "us2",
+                                            "us3"
+                                        ]
+                                    }
+                                ]
+                            },
+                            "runAfter": {
+                                "Initialize_Scores_array": [
+                                    "Succeeded"
+                                ]
+                            },
                             "type": "InitializeVariable"
                         },
                         "Initialize_variable_StatusCodeErrors": {
@@ -759,7 +902,7 @@
                                 }
                             },
                             "runAfter": {
-                                "Initialize_variable_StatusCodeErrors": [
+                                "Initialize_APIURL": [
                                     "Succeeded"
                                 ]
                             },
