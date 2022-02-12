@@ -2286,7 +2286,7 @@
                     "contentVersion": "1.0.0.0",
                     "parameters": {
                         "PlaybookVersion": {
-                            "defaultValue": "0.0.1",
+                            "defaultValue": "0.0.2",
                             "type": "String"
                         },
                         "PlaybookInternalName": {
@@ -2347,11 +2347,11 @@
                                             "type": "Workflow",
                                             "inputs": {
                                                 "body": {
-                                                    "AddIncidentComments": "@triggerBody()?['AddIncidentComments']",
+                                                    "AddIncidentComments": "@coalesce(triggerBody()?['AddIncidentComments'], true)",
                                                     "Entities": "@triggerBody()?['BaseModuleBody']",
                                                     "LookbackInDays": "@triggerBody()?['LookbackInDays']",
-                                                    "MFAFailureLookup": "@triggerBody()?['MFAFailureLookup']",
-                                                    "MFAFraudLookup": "@triggerBody()?['MFAFraudLookup']"
+                                                    "MFAFailureLookup": "@coalesce(triggerBody()?['MFAFailureLookup'], true)",
+                                                    "MFAFraudLookup": "@coalesce(triggerBody()?['MFAFraudLookup'], true)"
                                                 },
                                                 "host": {
                                                     "triggerName": "triage",
@@ -2389,7 +2389,7 @@
                                             "type": "Workflow",
                                             "inputs": {
                                                 "body": {
-                                                    "EnrichIPsWithGeoData": "@triggerBody()?['EnrichIPsWithGeoData']",
+                                                    "EnrichIPsWithGeoData": "@coalesce(triggerBody()?['EnrichIPsWithGeoData'], true)",
                                                     "Entities": "@triggerBody()?['Entities']",
                                                     "IncidentARMId": "@triggerBody()?['IncidentARMId']",
                                                     "WorkspaceId": "@triggerBody()?['WorkspaceId']"
@@ -2430,7 +2430,7 @@
                                             "type": "Workflow",
                                             "inputs": {
                                                 "body": {
-                                                    "AddIncidentComments": "@triggerBody()?['AddIncidentComments']",
+                                                    "AddIncidentComments": "@coalesce(triggerBody()?['AddIncidentComments'], true)",
                                                     "Entities": "@triggerBody()?['BaseModuleBody']"
                                                 },
                                                 "host": {
@@ -2484,7 +2484,7 @@
                                             "type": "Workflow",
                                             "inputs": {
                                                 "body": {
-                                                    "AddIncidentComments": "@triggerBody()?['AddIncidentComments']",
+                                                    "AddIncidentComments": "@coalesce(triggerBody()?['AddIncidentComments'], true)",
                                                     "Entities": "@triggerBody()?['BaseModuleBody']",
                                                     "KQLQuery": "@triggerBody()?['KQLQuery']",
                                                     "LookbackInDays": "@triggerBody()?['LookbackInDays']",
@@ -2511,7 +2511,7 @@
                                             "type": "Workflow",
                                             "inputs": {
                                                 "body": {
-                                                    "AddIncidentComments": "@triggerBody()?['AddIncidentComments']",
+                                                    "AddIncidentComments": "@coalesce(triggerBody()?['AddIncidentComments'], true)",
                                                     "Entities": "@triggerBody()?['BaseModuleBody']",
                                                     "ScoreThreshold": "@triggerBody()?['ScoreThreshold']"
                                                 },
@@ -2551,7 +2551,7 @@
                                             "type": "Workflow",
                                             "inputs": {
                                                 "body": {
-                                                    "AddIncidentComments": "@triggerBody()?['AddIncidentComments']",
+                                                    "AddIncidentComments": "@coalesce(triggerBody()?['AddIncidentComments'], true)",
                                                     "Entities": "@triggerBody()?['BaseModuleBody']",
                                                     "LookbackInDays": "@triggerBody()?['LookbackInDays']"
                                                 },
@@ -2591,7 +2591,7 @@
                                             "type": "Workflow",
                                             "inputs": {
                                                 "body": {
-                                                    "AddIncidentComments": "@triggerBody()?['AddIncidentComments']",
+                                                    "AddIncidentComments": "@coalesce(triggerBody()?['AddIncidentComments'], true)",
                                                     "Entities": "@triggerBody()?['BaseModuleBody']"
                                                 },
                                                 "host": {
@@ -2630,10 +2630,10 @@
                                             "type": "Workflow",
                                             "inputs": {
                                                 "body": {
-                                                    "AddIncidentComments": "@triggerBody()?['AddIncidentComments']",
-                                                    "CheckAccountEntityMatches": "@triggerBody()?['CheckAccounts']",
-                                                    "CheckHostEntityMatches": "@triggerBody()?['CheckHosts']",
-                                                    "CheckIPEntityMatches": "@triggerBody()?['CheckIPs']",
+                                                    "AddIncidentComments": "@coalesce(triggerBody()?['AddIncidentComments'], true)",
+                                                    "CheckAccountEntityMatches": "@coalesce(triggerBody()?['CheckAccounts'], true)",
+                                                    "CheckHostEntityMatches": "@coalesce(triggerBody()?['CheckHosts'], true)",
+                                                    "CheckIPEntityMatches": "@coalesce(triggerBody()?['CheckIPs'], true)",
                                                     "Entities": "@triggerBody()?['BaseModuleBody']",
                                                     "LookbackInDays": "@triggerBody()?['LookbackInDays']"
                                                 },
@@ -2673,11 +2673,11 @@
                                             "type": "Workflow",
                                             "inputs": {
                                                 "body": {
-                                                    "AddIncidentComments": "@triggerBody()?['AddIncidentComments']",
-                                                    "CheckDomains": "@triggerBody()?['CheckDomains']",
-                                                    "CheckFileHashes": "@triggerBody()?['CheckFileHashes']",
-                                                    "CheckIPs": "@triggerBody()?['CheckIPs']",
-                                                    "CheckURLs": "@triggerBody()?['CheckURLs']",
+                                                    "AddIncidentComments": "@coalesce(triggerBody()?['AddIncidentComments'], true)",
+                                                    "CheckDomains": "@coalesce(triggerBody()?['CheckDomains'], true)",
+                                                    "CheckFileHashes": "@coalesce(triggerBody()?['CheckFileHashes'], true)",
+                                                    "CheckIPs": "@coalesce(triggerBody()?['CheckIPs'], true)",
+                                                    "CheckURLs": "@coalesce(triggerBody()?['CheckURLs'], true)",
                                                     "Entities": "@triggerBody()?['BaseModuleBody']",
                                                     "LookbackInDays": "@triggerBody()?['LookbackInDays']"
                                                 },
@@ -2717,7 +2717,7 @@
                                             "type": "Workflow",
                                             "inputs": {
                                                 "body": {
-                                                    "AddIncidentComments": "@triggerBody()?['AddIncidentComments']",
+                                                    "AddIncidentComments": "@coalesce(triggerBody()?['AddIncidentComments'], true)",
                                                     "Entities": "@triggerBody()?['BaseModuleBody']",
                                                     "LookbackInDays": "@triggerBody()?['LookbackInDays']",
                                                     "MinimumInvestigationPriority": "@triggerBody()?['MinimumInvestigationPriority']"
@@ -2758,7 +2758,7 @@
                                             "type": "Workflow",
                                             "inputs": {
                                                 "body": {
-                                                    "AddIncidentComments": "@triggerBody()?['AddIncidentComments']",
+                                                    "AddIncidentComments": "@coalesce(triggerBody()?['AddIncidentComments'], true)",
                                                     "Entities": "@triggerBody()?['BaseModuleBody']",
                                                     "WatchlistKey": "@triggerBody()?['WatchlistKey']",
                                                     "WatchlistKeyDataType": "@triggerBody()?['WatchlistKeyDataType']",
