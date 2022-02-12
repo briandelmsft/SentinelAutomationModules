@@ -11,7 +11,7 @@ This module will check the incident entities to see if there are any matches on 
 
 |Parameter|Expected Values|Description|
 |---|---|---|
-|AddIncidentComments|Yes/No|When set to yes, the results of the query will be added to the Sentinel Incident Comments|
+|AddIncidentComments|True/False (Default:True)|When set to true, the results of the query will be added to the Sentinel Incident Comments|
 |Base Module Body|Body (dynamic content)|The Body should be selected from the Dynamic content of the Base-Module response|
 |WatchlistKey|ColumnName|The column name of the watchlist to match with the entity data, such as the UPN or IP Address |
 |WatchlistKeyDataType|upn, ip, or cidr|The type of data in the WatchlistKey column.  Use CIDR if the WactchlistKey contains subnets using CIDR notation|

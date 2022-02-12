@@ -13,8 +13,8 @@ Trigger name: **triage**
 
 |Parameter|Expected Values|Description|
 |---|---|---|
-|AddIncidentComments|Yes/No|When set to yes, the results of the query will be added to the Sentinel Incident Comments|
-|Entities|EnrichedEntities (dynamic content)|This should be selected from the Dynamic content|
+|AddIncidentComments|True/False (Default:True)|When set to true, the results of the query will be added to the Sentinel Incident Comments|
+|Base Module Body|Body (dynamic content)|The Body should be selected from the Dynamic content of the Base-Module response|
 
 ## Return Properties
 

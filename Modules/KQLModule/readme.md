@@ -11,7 +11,7 @@ This module allows you to run custom KQL queries against Microsoft Sentinel or M
 
 |Parameter|Expected Values|Description|
 |---|---|---|
-|AddIncidentComments|Yes/No|When set to yes, the results of the query will be added to the Sentinel Incident Comments.  A maximum of 10 search results will be included|
+|AddIncidentComments|True/False (Default:True)|When set to true, the results of the query will be added to the Sentinel Incident Comments.  A maximum of 10 search results will be included|
 |Base Module Body|Body (dynamic content)|The Body should be selected from the Dynamic content of the Base-Module response|
 |KQL Query|The KQL Query you wish to execute|
 |LookbackInDays|1-90|This defines how far back to look back in the data, note this is limited to 30 days for Microsoft 365 Advanced Hunting|

@@ -12,10 +12,10 @@ This module will check the incidient entities to see if there are any other aler
 
 |Parameter|Expected Values|Description|
 |---|---|---|
-|AddIncidentComments|Yes/No|When set to yes, the results of the query will be added to the Sentinel Incident Comments|
-|CheckAccountEntityMatches|Yes/No|When set to yes, the module will look for related alerts based on the Account entity type|
-|CheckHostEntityMatches|Yes/No|When set to yes, the module will look for related alerts based on the Host entity type|
-|CheckIPEntityMatches|Yes/No|When set to yes, the module will look for related alerts based on the IP entity type|
+|AddIncidentComments|True/False (Default:True)|When set to true, the results of the query will be added to the Sentinel Incident Comments|
+|CheckAccountEntityMatches|True/False (Default:True)|When set to true, the module will look for related alerts based on the Account entity type|
+|CheckHostEntityMatches|True/False (Default:True)|When set to true, the module will look for related alerts based on the Host entity type|
+|CheckIPEntityMatches|True/False (Default:True)|When set to true, the module will look for related alerts based on the IP entity type|
 |Base Module Body|Body (dynamic content)|The Body should be selected from the Dynamic content of the Base-Module response|
 |LookbackInDays|1-90|This defines how far back to look through the SecurityAlert tables in Sentinel|
 

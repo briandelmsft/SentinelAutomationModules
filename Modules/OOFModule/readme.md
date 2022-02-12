@@ -10,7 +10,7 @@ This module will check the incidient entities to see if a user has configured Au
 
 |Parameter|Expected Values|Description|
 |---|---|---|
-|AddIncidentComments|Yes/No|When set to yes, the results of the query will be added to the Sentinel Incident Comments|
+|AddIncidentComments|True/False (Default:True)|When set to true, the results of the query will be added to the Sentinel Incident Comments|
 |Base Module Body|Body (dynamic content)|The Body should be selected from the Dynamic content of the Base-Module response|
 
 ## Return Properties
