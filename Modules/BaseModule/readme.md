@@ -16,7 +16,9 @@ The base module must be called before any other modules in this solution.  It pe
 
 |Parameter|Expected Values|Description|
 |---|---|---|
-|EnrichIPsWithGeoData|Yes/No|When set to yes, IP address entities will be returned with Geo enrichment data such as Country, City and LAT/LONG|
+|AddAccountComment|True/False (Default:True)|Add comment to Sentinel incident with account enrichments|
+|AddIPComment|True/False (Default:True)|Add comment to Sentinel incident with IP enrichments|
+|EnrichIPsWithGeoData|True/False (Default:True)|When set to true, IP address entities will be returned with Geo enrichment data such as Country, City and LAT/LONG|
 |Entities|Entities (dynamic content)|This should be selected from the Dynamic content of the incident creation rule trigger|
 |IncidentARMId|Incident ARM ID (dynamic content)|This should be selected from the Dynamic content of the incident creation rule trigger|
 |WorkspaceId|Workspace ID (dynamic content)|This should be selected from the Dynamic content of the incident creation rule trigger|
@@ -52,7 +54,8 @@ The base module must be called before any other modules in this solution.  It pe
       "RawEntity": {
         "aadUserId": "f4610870-413b-4716-845c-426820fc9e96",
         "friendlyName": "f4610870-413b-4716-845c-426820fc9e96"
-      }
+      },
+      "isAADPrivileged": false
     }
   ],
   "AccountsCount": 1,

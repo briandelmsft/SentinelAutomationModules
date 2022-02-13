@@ -174,7 +174,26 @@
                                                     "description": "EnrichIPsWithGeoData",
                                                     "title": "",
                                                     "enum": [
-                                                        "",
+                                                        true,
+                                                        false
+                                                    ],
+                                                    "x-ms-visibility": "advanced"
+                                                },
+                                                "AddAccountComments": {
+                                                    "type": "boolean",
+                                                    "description": "Enrich Incident with Account details comment",
+                                                    "title": "",
+                                                    "enum": [
+                                                        true,
+                                                        false
+                                                    ],
+                                                    "x-ms-visibility": "advanced"
+                                                },
+                                                "AddIPComments": {
+                                                    "type": "boolean",
+                                                    "description": "Enrich Incident with IP details comment",
+                                                    "title": "",
+                                                    "enum": [
                                                         true,
                                                         false
                                                     ],
@@ -2288,7 +2307,7 @@
                     "contentVersion": "1.0.0.0",
                     "parameters": {
                         "PlaybookVersion": {
-                            "defaultValue": "0.0.2",
+                            "defaultValue": "0.0.3",
                             "type": "String"
                         },
                         "PlaybookInternalName": {
@@ -2391,6 +2410,8 @@
                                             "type": "Workflow",
                                             "inputs": {
                                                 "body": {
+                                                    "AddAccountComment": "@coalesce(triggerBody()?['AddAccountComments'], true)",
+                                                    "AddIPComment": "@coalesce(triggerBody()?['AddIPComments'], true)",
                                                     "EnrichIPsWithGeoData": "@coalesce(triggerBody()?['EnrichIPsWithGeoData'], true)",
                                                     "Entities": "@triggerBody()?['Entities']",
                                                     "IncidentARMId": "@triggerBody()?['IncidentARMId']",
