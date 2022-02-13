@@ -44,7 +44,7 @@
                     "contentVersion": "1.0.0.0",
                     "parameters": {
                         "PlaybookVersion": {
-                            "defaultValue": "0.1.2",
+                            "defaultValue": "0.2.0",
                             "type": "String"
                         },
                         "PlaybookInternalName": {
