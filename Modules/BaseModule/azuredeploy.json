@@ -48,7 +48,7 @@
                             "type": "Object"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.2.1",
+                            "defaultValue": "0.2.2",
                             "type": "String"
                         },
                         "PlaybookInternalName": {
@@ -320,6 +320,73 @@
                                     {
                                         "greater": [
                                             "@length(variables('IPComment'))",
+                                            0
+                                        ]
+                                    }
+                                ]
+                            },
+                            "type": "If"
+                        },
+                        "Condition_Entity_Check": {
+                            "actions": {
+                                "Add_comment_to_incident_-_No_Entities": {
+                                    "runAfter": {},
+                                    "type": "ApiConnection",
+                                    "inputs": {
+                                        "body": {
+                                            "incidentArmId": "@triggerBody()?['IncidentARMId']",
+                                            "message": "<p>The Microsoft Sentinel Triage AssistanT failed to analyze this incident. This error was due to no incident entities being available at the time the incident was processed.</p>"
+                                        },
+                                        "host": {
+                                            "connection": {
+                                                "name": "@parameters('$connections')['azuresentinel']['connectionId']"
+                                            }
+                                        },
+                                        "method": "post",
+                                        "path": "/Incidents/Comment"
+                                    }
+                                },
+                                "Response_-_No_Entities_Found": {
+                                    "runAfter": {
+                                        "Add_comment_to_incident_-_No_Entities": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Response",
+                                    "kind": "Http",
+                                    "inputs": {
+                                        "body": {
+                                            "Error": "@{parameters('PlaybookInternalName')} failed to execute with status no entities found",
+                                            "PlaybookName": "@{workflow()?['name']}",
+                                            "PlaybookResourceId": "@{workflow()?['id']}",
+                                            "PlaybookRunId": "@{workflow()?['run']?['name']}",
+                                            "PlaybookVersion": "@parameters('PlaybookVersion')"
+                                        },
+                                        "statusCode": 404
+                                    }
+                                },
+                                "Terminate": {
+                                    "runAfter": {
+                                        "Response_-_No_Entities_Found": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Terminate",
+                                    "inputs": {
+                                        "runError": {
+                                            "code": "404",
+                                            "message": "No entities present in incident trigger"
+                                        },
+                                        "runStatus": "Failed"
+                                    }
+                                }
+                            },
+                            "runAfter": {},
+                            "expression": {
+                                "and": [
+                                    {
+                                        "equals": [
+                                            "@length(triggerBody()?['Entities'])",
                                             0
                                         ]
                                     }
@@ -845,7 +912,11 @@
                             "type": "Foreach"
                         },
                         "HTTP_-_Test_API_Access": {
-                            "runAfter": {},
+                            "runAfter": {
+                                "Condition_Entity_Check": [
+                                    "Succeeded"
+                                ]
+                            },
                             "type": "Http",
                             "inputs": {
                                 "authentication": {
