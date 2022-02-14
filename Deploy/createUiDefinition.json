@@ -358,7 +358,7 @@
                         "type": "Microsoft.Common.TextBlock",
                         "visible": true,
                         "options": {
-                            "text": "The Basic Sample Playbook evaluates the incident entities to look for Related Alerts (Account, Host or IP), Threat Intelligence (Domain, FileHash, IP or URL) and Azure AD MFA Fraud reports.",
+                            "text": "The Basic Sample Playbook evaluates the incident entities to look for Related Alerts (Account, Host or IP), Threat Intelligence (Domain, FileHash, IP or URL) and Azure AD MFA Fraud reports. This sample demonstrates how STAT can be used to triage an incident and how the modules can work together. This sample is not meant to be capable of triaging any type of incident; additional playbooks may need to be built using STAT to handle the unique requirements of different incident types.",
                             "link": {
                                 "label": "Learn more",
                                 "uri": "https://github.com/briandelmsft/SentinelAutomationModules/tree/main/Samples"
@@ -379,7 +379,7 @@
                         "type": "Microsoft.Common.TextBox",
                         "label": "Basic Sample Triage Playbook Name",
                         "placeholder": "",
-                        "defaultValue": "Triage-RelatedContent",
+                        "defaultValue": "Sample-STAT-Triage",
                         "toolTip": "",
                         "constraints": {},
                         "visible": "[and(steps('sampleStep').DeployBasicSamplePlaybook,or(if(steps('automationModules').advancedSetup.DeployConnector, true, false), if(equals(steps('deploymentTypeStep').deploymentType, 'standard'), true, false)))]"
@@ -400,7 +400,7 @@
             "MCASPlaybookName": "[coalesce(steps('automationModules').advancedSetup.MCASPlaybookName,'Get-MCASInvestigationScore')]",
             "WatchlistPlaybookName": "[coalesce(steps('automationModules').advancedSetup.WatchlistPlaybookName,'Get-WatchlistInsights')]",
             "DeployBasicSamplePlaybook": "[steps('sampleStep').DeployBasicSamplePlaybook]",
-            "BasicSamplePlaybookName": "[coalesce(steps('sampleStep').BasicSamplePlaybookName,'Triage-RelatedContent')]",
+            "BasicSamplePlaybookName": "[coalesce(steps('sampleStep').BasicSamplePlaybookName,'Sample-STAT-Triage')]",
             "STATCoordinatorPlaybookName": "[coalesce(steps('automationModules').advancedSetup.STATCoordinatorPlaybookName,'STAT-Coordinator')]",
             "CustomConnectorName": "[coalesce(steps('automationModules').advancedSetup.CustomConnectorName,'SentinelTriageAssistant')]",
             "CustomConnectorDisplayName": "[coalesce(steps('automationModules').advancedSetup.CustomConnectorDisplayName,'Sentinel Triage AssistanT - STAT')]",

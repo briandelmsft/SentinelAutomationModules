@@ -3,7 +3,7 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "PlaybookName": {
-            "defaultValue": "Triage-RelatedContent",
+            "defaultValue": "Sample-STAT-Triage",
             "type": "String"
         },
         "STAT_Connector_resourceId": {

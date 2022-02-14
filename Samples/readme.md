@@ -1,7 +1,7 @@
 # Sample Playbook
 
 ## Description
-This Playbook shows an example of how to use multiple automation modules together in order to triage an incident in Microsoft Sentinel.
+This Playbook shows an example of how to use multiple automation modules together in order to triage an incident in Microsoft Sentinel.  This sample is not meant to be capable of triaging any type of incident; additional playbooks may need to be built using STAT to handle the unique requirements of different incident types.
 
 ### Basic Sample
 
