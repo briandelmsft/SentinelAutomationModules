@@ -105,7 +105,7 @@
             "properties": {
                 "connectionParameters": {},
                 "capabilities": [],
-                "description": "The Microsoft Sentinel Triage assistance is an automation toolkit to simplify the construction of automation to analyze Sentinel Incidents (version 0.1.0)",
+                "description": "The Microsoft Sentinel Triage assistance is an automation toolkit to simplify the construction of automation to analyze Sentinel Incidents (version 0.2.0)",
                 "displayName": "[parameters('CustomConnectorDisplayName')]",
                 "iconUri": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACsAAAAtCAYAAAA3BJLdAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAMjSURBVFhH7Zk/TFNRFMa/tg8BkWr8E0uRyGAwOki0NVYTBhIlGISFGnVgrC5EGk1IGBwkMQw6NG7tggtxMDqoiYspEAZJoAZFISAJJFpsGLTUaqDQ1nfvuy20lL7b0vdqTX/JyT3f477ycbjv9N5WExVBgaBlY0FQNKsUCWvW7/djYmKCqdxiMplQWVnJVJYQszEGBweJcUVibGyM/ZbsKdxlMDQ0hMbGRpr79h+j404x/Jijo1hZmM1mmmfL/1HZby9eoaKigubZEgwGUdPeRvNcVHZbs4FAgI47Ra/X01EVs2+CWvjWaUoxCMDlPRGmJNLNiZm12WwwGo0058FisaC5uZkpCVmzt30CPqxoaE6oL4visWGTM5F0c2JmM6WrqwsOh4MpieLbrVKoYpYsKd5oaGhgd21F1ixZe8O1a/FIXq8Enjkr12z4U3smbYTfjbPZqcnLMtC1X0HpUxd23bvLrvCRF7PammrozpuhOXmcXeFDVbOkoiX2W9CeM1GtOVJFNQkeZM2Sht/v3wiik+GZQxCsbdQYqSqBVDjnZp/4dfHYzqzcHEJ0ehaRUQ8iX72SXg5IWgweZM3mklDvI6xctyH8/DXVkalZqknwoKrZnZIXs2sOJ+2rqzdusit8qLJFzOS1WlpaMDIyknIjI27mlIcY6OjogNvthtcrPVzJdHd3Y2BgAJOTk+zKVrgqG7r/UHySvzCVHtJLhavS6YDwtvoEHevq6rC4uEhPD6kgR/WZmRncWZrHp3Ao+y0ieWrDo+NcEfV+Z3dJXCgpp3Fw/itOrYbjOjlKP07Rn+s1OnbnVrgqu/7sJRYWfHD/3thgE4y7BWg3/bn1unUYLKfjTZ/Qe7iWZfI0NTXhwef3GJ6bTVlZ7gesnzb8xH+ExVDGMomLQgiXhFWmJDI5KTidTrhcLng8nuJJQVWKZpWiaFYpCsrstn22p6eHjjGmUY5Rf4gpiaNVBxD+tcwUcPbQXuz7ucSURF9fH8vkaW1tpT2WvC2n6rOqffKdaYhmmasNEipLvk+w2+1M5Rer1YrOzk6mJBLM/usUu4FSFJBZ4C9uB2sPxMPD5QAAAABJRU5ErkJggg==",
                 "swagger": {
@@ -113,7 +113,7 @@
                     "info": {
                         "version": "1.0.0",
                         "title": "STAT",
-                        "description": "The Microsoft Sentinel Triage assistance is an automation toolkit to simplify the construction of automation to analyze Sentinel Incidents (version 0.1.0)"
+                        "description": "The Microsoft Sentinel Triage assistance is an automation toolkit to simplify the construction of automation to analyze Sentinel Incidents (version 0.2.0)"
                     },
                     "host": "[string(split(split(listCallbackUrl(resourceId('Microsoft.Logic/workflows/triggers', parameters('STATCoordinatorPlaybookName'), 'manual'), '2017-07-01').value, ':443')[0], '//')[1])]",
                     "basePath": "/",
@@ -174,10 +174,30 @@
                                                     "description": "EnrichIPsWithGeoData",
                                                     "title": "",
                                                     "enum": [
-                                                        "",
                                                         true,
                                                         false
-                                                    ]
+                                                    ],
+                                                    "x-ms-visibility": "advanced"
+                                                },
+                                                "AddAccountComments": {
+                                                    "type": "boolean",
+                                                    "description": "Enrich Incident with Account details comment",
+                                                    "title": "",
+                                                    "enum": [
+                                                        true,
+                                                        false
+                                                    ],
+                                                    "x-ms-visibility": "advanced"
+                                                },
+                                                "AddIPComments": {
+                                                    "type": "boolean",
+                                                    "description": "Enrich Incident with IP details comment",
+                                                    "title": "",
+                                                    "enum": [
+                                                        true,
+                                                        false
+                                                    ],
+                                                    "x-ms-visibility": "advanced"
                                                 },
                                                 "Entities": {
                                                     "type": "string",
@@ -205,7 +225,6 @@
                                                 "WorkspaceId": "abc"
                                             },
                                             "required": [
-                                                "EnrichIPsWithGeoData",
                                                 "IncidentARMId",
                                                 "WorkspaceId",
                                                 "Entities"
@@ -655,7 +674,8 @@
                                                     "enum": [
                                                         true,
                                                         false
-                                                    ]
+                                                    ],
+                                                    "x-ms-visibility": "advanced"
                                                 },
                                                 "BaseModuleBody": {
                                                     "type": "string",
@@ -669,7 +689,6 @@
                                                 "Entities": ""
                                             },
                                             "required": [
-                                                "AddIncidentComments",
                                                 "BaseModuleBody"
                                             ]
                                         },
@@ -787,7 +806,8 @@
                                                     "enum": [
                                                         true,
                                                         false
-                                                    ]
+                                                    ],
+                                                    "x-ms-visibility": "advanced"
                                                 },
                                                 "BaseModuleBody": {
                                                     "type": "string",
@@ -802,7 +822,8 @@
                                                     "enum": [
                                                         true,
                                                         false
-                                                    ]
+                                                    ],
+                                                    "x-ms-visibility": "advanced"
                                                 },
                                                 "CheckFileHashes": {
                                                     "type": "boolean",
@@ -811,7 +832,8 @@
                                                     "enum": [
                                                         true,
                                                         false
-                                                    ]
+                                                    ],
+                                                    "x-ms-visibility": "advanced"
                                                 },
                                                 "CheckIPs": {
                                                     "type": "boolean",
@@ -820,7 +842,8 @@
                                                     "enum": [
                                                         true,
                                                         false
-                                                    ]
+                                                    ],
+                                                    "x-ms-visibility": "advanced"
                                                 },
                                                 "CheckURLs": {
                                                     "type": "boolean",
@@ -829,7 +852,8 @@
                                                     "enum": [
                                                         true,
                                                         false
-                                                    ]
+                                                    ],
+                                                    "x-ms-visibility": "advanced"
                                                 },
                                                 "LookbackInDays": {
                                                     "type": "integer",
@@ -843,12 +867,7 @@
                                                 "Entities": ""
                                             },
                                             "required": [
-                                                "AddIncidentComments",
                                                 "BaseModuleBody",
-                                                "CheckDomains",
-                                                "CheckFileHashes",
-                                                "CheckIPs",
-                                                "CheckURLs",
                                                 "LookbackInDays"
                                             ]
                                         },
@@ -1016,7 +1035,8 @@
                                                     "enum": [
                                                         true,
                                                         false
-                                                    ]
+                                                    ],
+                                                    "x-ms-visibility": "advanced"
                                                 },
                                                 "BaseModuleBody": {
                                                     "type": "string",
@@ -1031,7 +1051,8 @@
                                                     "enum": [
                                                         true,
                                                         false
-                                                    ]
+                                                    ],
+                                                    "x-ms-visibility": "advanced"
                                                 },
                                                 "CheckHosts": {
                                                     "type": "boolean",
@@ -1040,7 +1061,8 @@
                                                     "enum": [
                                                         true,
                                                         false
-                                                    ]
+                                                    ],
+                                                    "x-ms-visibility": "advanced"
                                                 },
                                                 "CheckIPs": {
                                                     "type": "boolean",
@@ -1049,7 +1071,8 @@
                                                     "enum": [
                                                         true,
                                                         false
-                                                    ]
+                                                    ],
+                                                    "x-ms-visibility": "advanced"
                                                 },
                                                 "LookbackInDays": {
                                                     "type": "integer",
@@ -1063,11 +1086,7 @@
                                                 "Entities": ""
                                             },
                                             "required": [
-                                                "AddIncidentComments",
                                                 "BaseModuleBody",
-                                                "CheckAccounts",
-                                                "CheckHosts",
-                                                "CheckIPs",
                                                 "LookbackInDays"
                                             ]
                                         },
@@ -1218,7 +1237,8 @@
                                                     "enum": [
                                                         true,
                                                         false
-                                                    ]
+                                                    ],
+                                                    "x-ms-visibility": "advanced"
                                                 },
                                                 "BaseModuleBody": {
                                                     "type": "string",
@@ -1249,7 +1269,6 @@
                                                 "Entities": ""
                                             },
                                             "required": [
-                                                "AddIncidentComments",
                                                 "BaseModuleBody",
                                                 "WatchlistKey",
                                                 "WatchlistKeyDataType",
@@ -1357,7 +1376,8 @@
                                                     "enum": [
                                                         true,
                                                         false
-                                                    ]
+                                                    ],
+                                                    "x-ms-visibility": "advanced"
                                                 },
                                                 "BaseModuleBody": {
                                                     "type": "string",
@@ -1388,7 +1408,6 @@
                                                 "Entities": ""
                                             },
                                             "required": [
-                                                "AddIncidentComments",
                                                 "BaseModuleBody",
                                                 "KQLQuery",
                                                 "LookbackInDays",
@@ -1475,7 +1494,8 @@
                                                     "enum": [
                                                         true,
                                                         false
-                                                    ]
+                                                    ],
+                                                    "x-ms-visibility": "advanced"
                                                 },
                                                 "BaseModuleBody": {
                                                     "type": "string",
@@ -1500,7 +1520,6 @@
                                                 "Entities": ""
                                             },
                                             "required": [
-                                                "AddIncidentComments",
                                                 "BaseModuleBody",
                                                 "LookbackInDays",
                                                 "MinimumInvestigationPriority"
@@ -1629,7 +1648,8 @@
                                                     "enum": [
                                                         true,
                                                         false
-                                                    ]
+                                                    ],
+                                                    "x-ms-visibility": "advanced"
                                                 },
                                                 "BaseModuleBody": {
                                                     "type": "string",
@@ -1648,7 +1668,9 @@
                                                     "enum": [
                                                         true,
                                                         false
-                                                    ]
+                                                    ],
+                                                    "title": "",
+                                                    "x-ms-visibility": "advanced"
                                                 },
                                                 "MFAFraudLookup": {
                                                     "type": "boolean",
@@ -1656,7 +1678,9 @@
                                                     "enum": [
                                                         true,
                                                         false
-                                                    ]
+                                                    ],
+                                                    "title": "",
+                                                    "x-ms-visibility": "advanced"
                                                 }
                                             },
                                             "default": {
@@ -1664,11 +1688,8 @@
                                                 "Entities": ""
                                             },
                                             "required": [
-                                                "AddIncidentComments",
                                                 "BaseModuleBody",
-                                                "LookbackInDays",
-                                                "MFAFailureLookup",
-                                                "MFAFraudLookup"
+                                                "LookbackInDays"
                                             ]
                                         },
                                         "required": true
@@ -1787,7 +1808,8 @@
                                                     "enum": [
                                                         true,
                                                         false
-                                                    ]
+                                                    ],
+                                                    "x-ms-visibility": "advanced"
                                                 },
                                                 "BaseModuleBody": {
                                                     "type": "string",
@@ -1801,7 +1823,6 @@
                                                 "Entities": ""
                                             },
                                             "required": [
-                                                "AddIncidentComments",
                                                 "BaseModuleBody"
                                             ]
                                         },
@@ -1983,7 +2004,8 @@
                                                     "enum": [
                                                         true,
                                                         false
-                                                    ]
+                                                    ],
+                                                    "x-ms-visibility": "advanced"
                                                 },
                                                 "BaseModuleBody": {
                                                     "type": "string",
@@ -2004,7 +2026,6 @@
                                                 "Entities": ""
                                             },
                                             "required": [
-                                                "AddIncidentComments",
                                                 "BaseModuleBody",
                                                 "LookbackInDays"
                                             ]
@@ -2182,7 +2203,8 @@
                                                     "enum": [
                                                         true,
                                                         false
-                                                    ]
+                                                    ],
+                                                    "x-ms-visibility": "advanced"
                                                 },
                                                 "BaseModuleBody": {
                                                     "type": "string",
@@ -2203,7 +2225,6 @@
                                                 "Entities": ""
                                             },
                                             "required": [
-                                                "AddIncidentComments",
                                                 "BaseModuleBody",
                                                 "ScoreThreshold"
                                             ]
@@ -2286,7 +2307,7 @@
                     "contentVersion": "1.0.0.0",
                     "parameters": {
                         "PlaybookVersion": {
-                            "defaultValue": "0.0.1",
+                            "defaultValue": "0.2.0",
                             "type": "String"
                         },
                         "PlaybookInternalName": {
@@ -2347,11 +2368,11 @@
                                             "type": "Workflow",
                                             "inputs": {
                                                 "body": {
-                                                    "AddIncidentComments": "@triggerBody()?['AddIncidentComments']",
+                                                    "AddIncidentComments": "@coalesce(triggerBody()?['AddIncidentComments'], true)",
                                                     "Entities": "@triggerBody()?['BaseModuleBody']",
                                                     "LookbackInDays": "@triggerBody()?['LookbackInDays']",
-                                                    "MFAFailureLookup": "@triggerBody()?['MFAFailureLookup']",
-                                                    "MFAFraudLookup": "@triggerBody()?['MFAFraudLookup']"
+                                                    "MFAFailureLookup": "@coalesce(triggerBody()?['MFAFailureLookup'], true)",
+                                                    "MFAFraudLookup": "@coalesce(triggerBody()?['MFAFraudLookup'], true)"
                                                 },
                                                 "host": {
                                                     "triggerName": "triage",
@@ -2389,7 +2410,9 @@
                                             "type": "Workflow",
                                             "inputs": {
                                                 "body": {
-                                                    "EnrichIPsWithGeoData": "@triggerBody()?['EnrichIPsWithGeoData']",
+                                                    "AddAccountComment": "@coalesce(triggerBody()?['AddAccountComments'], true)",
+                                                    "AddIPComment": "@coalesce(triggerBody()?['AddIPComments'], true)",
+                                                    "EnrichIPsWithGeoData": "@coalesce(triggerBody()?['EnrichIPsWithGeoData'], true)",
                                                     "Entities": "@triggerBody()?['Entities']",
                                                     "IncidentARMId": "@triggerBody()?['IncidentARMId']",
                                                     "WorkspaceId": "@triggerBody()?['WorkspaceId']"
@@ -2430,7 +2453,7 @@
                                             "type": "Workflow",
                                             "inputs": {
                                                 "body": {
-                                                    "AddIncidentComments": "@triggerBody()?['AddIncidentComments']",
+                                                    "AddIncidentComments": "@coalesce(triggerBody()?['AddIncidentComments'], true)",
                                                     "Entities": "@triggerBody()?['BaseModuleBody']"
                                                 },
                                                 "host": {
@@ -2484,7 +2507,7 @@
                                             "type": "Workflow",
                                             "inputs": {
                                                 "body": {
-                                                    "AddIncidentComments": "@triggerBody()?['AddIncidentComments']",
+                                                    "AddIncidentComments": "@coalesce(triggerBody()?['AddIncidentComments'], true)",
                                                     "Entities": "@triggerBody()?['BaseModuleBody']",
                                                     "KQLQuery": "@triggerBody()?['KQLQuery']",
                                                     "LookbackInDays": "@triggerBody()?['LookbackInDays']",
@@ -2511,7 +2534,7 @@
                                             "type": "Workflow",
                                             "inputs": {
                                                 "body": {
-                                                    "AddIncidentComments": "@triggerBody()?['AddIncidentComments']",
+                                                    "AddIncidentComments": "@coalesce(triggerBody()?['AddIncidentComments'], true)",
                                                     "Entities": "@triggerBody()?['BaseModuleBody']",
                                                     "ScoreThreshold": "@triggerBody()?['ScoreThreshold']"
                                                 },
@@ -2551,7 +2574,7 @@
                                             "type": "Workflow",
                                             "inputs": {
                                                 "body": {
-                                                    "AddIncidentComments": "@triggerBody()?['AddIncidentComments']",
+                                                    "AddIncidentComments": "@coalesce(triggerBody()?['AddIncidentComments'], true)",
                                                     "Entities": "@triggerBody()?['BaseModuleBody']",
                                                     "LookbackInDays": "@triggerBody()?['LookbackInDays']"
                                                 },
@@ -2591,7 +2614,7 @@
                                             "type": "Workflow",
                                             "inputs": {
                                                 "body": {
-                                                    "AddIncidentComments": "@triggerBody()?['AddIncidentComments']",
+                                                    "AddIncidentComments": "@coalesce(triggerBody()?['AddIncidentComments'], true)",
                                                     "Entities": "@triggerBody()?['BaseModuleBody']"
                                                 },
                                                 "host": {
@@ -2630,10 +2653,10 @@
                                             "type": "Workflow",
                                             "inputs": {
                                                 "body": {
-                                                    "AddIncidentComments": "@triggerBody()?['AddIncidentComments']",
-                                                    "CheckAccountEntityMatches": "@triggerBody()?['CheckAccounts']",
-                                                    "CheckHostEntityMatches": "@triggerBody()?['CheckHosts']",
-                                                    "CheckIPEntityMatches": "@triggerBody()?['CheckIPs']",
+                                                    "AddIncidentComments": "@coalesce(triggerBody()?['AddIncidentComments'], true)",
+                                                    "CheckAccountEntityMatches": "@coalesce(triggerBody()?['CheckAccounts'], true)",
+                                                    "CheckHostEntityMatches": "@coalesce(triggerBody()?['CheckHosts'], true)",
+                                                    "CheckIPEntityMatches": "@coalesce(triggerBody()?['CheckIPs'], true)",
                                                     "Entities": "@triggerBody()?['BaseModuleBody']",
                                                     "LookbackInDays": "@triggerBody()?['LookbackInDays']"
                                                 },
@@ -2673,11 +2696,11 @@
                                             "type": "Workflow",
                                             "inputs": {
                                                 "body": {
-                                                    "AddIncidentComments": "@triggerBody()?['AddIncidentComments']",
-                                                    "CheckDomains": "@triggerBody()?['CheckDomains']",
-                                                    "CheckFileHashes": "@triggerBody()?['CheckFileHashes']",
-                                                    "CheckIPs": "@triggerBody()?['CheckIPs']",
-                                                    "CheckURLs": "@triggerBody()?['CheckURLs']",
+                                                    "AddIncidentComments": "@coalesce(triggerBody()?['AddIncidentComments'], true)",
+                                                    "CheckDomains": "@coalesce(triggerBody()?['CheckDomains'], true)",
+                                                    "CheckFileHashes": "@coalesce(triggerBody()?['CheckFileHashes'], true)",
+                                                    "CheckIPs": "@coalesce(triggerBody()?['CheckIPs'], true)",
+                                                    "CheckURLs": "@coalesce(triggerBody()?['CheckURLs'], true)",
                                                     "Entities": "@triggerBody()?['BaseModuleBody']",
                                                     "LookbackInDays": "@triggerBody()?['LookbackInDays']"
                                                 },
@@ -2717,7 +2740,7 @@
                                             "type": "Workflow",
                                             "inputs": {
                                                 "body": {
-                                                    "AddIncidentComments": "@triggerBody()?['AddIncidentComments']",
+                                                    "AddIncidentComments": "@coalesce(triggerBody()?['AddIncidentComments'], true)",
                                                     "Entities": "@triggerBody()?['BaseModuleBody']",
                                                     "LookbackInDays": "@triggerBody()?['LookbackInDays']",
                                                     "MinimumInvestigationPriority": "@triggerBody()?['MinimumInvestigationPriority']"
@@ -2758,7 +2781,7 @@
                                             "type": "Workflow",
                                             "inputs": {
                                                 "body": {
-                                                    "AddIncidentComments": "@triggerBody()?['AddIncidentComments']",
+                                                    "AddIncidentComments": "@coalesce(triggerBody()?['AddIncidentComments'], true)",
                                                     "Entities": "@triggerBody()?['BaseModuleBody']",
                                                     "WatchlistKey": "@triggerBody()?['WatchlistKey']",
                                                     "WatchlistKeyDataType": "@triggerBody()?['WatchlistKeyDataType']",

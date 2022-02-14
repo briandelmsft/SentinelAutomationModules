@@ -11,8 +11,8 @@ This module will return the risk score and exposure level from Microsoft Defende
 
 |Parameter|Expected Values|Description|
 |---|---|---|
-|AddIncidentComments|Yes/No|When set to yes, the results of the query will be added to the Sentinel Incident Comments|
-|Entities|EnrichedEntities (dynamic content)|This should be selected from the Dynamic content of the incident creation rule trigger|
+|AddIncidentComments|True/False (Default:True)|When set to true, the results of the query will be added to the Sentinel Incident Comments|
+|Base Module Body|Body (dynamic content)|The Body should be selected from the Dynamic content of the Base-Module response|
 |LookbackInDays|1-30|This defines how far back to look through the DeviceLogonEvents table in Microsoft Defender for Endpoint|
 
 ## Return Properties

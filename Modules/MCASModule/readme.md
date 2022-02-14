@@ -10,8 +10,8 @@ This module will get the MCAS Investigation Score of the account entities of the
 
 |Parameter|Expected Values|Description|
 |---|---|---|
-|AddIncidentComments|Yes/No|When set to yes, the results of the query will be added to the Sentinel Incident Comments|
-|Entities|Entities (dynamic content)|This should be selected from the Dynamic content|
+|AddIncidentComments|True/False (Default:True)|When set to true, the results of the query will be added to the Sentinel Incident Comments|
+|Base Module Body|Body (dynamic content)|The Body should be selected from the Dynamic content of the Base-Module response|
 |ScoreThreshold|Score (integer)|Minimum investigation score for a user|
 
 ## Return Properties
