@@ -48,7 +48,7 @@
                             "type": "Object"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.2.0",
+                            "defaultValue": "0.2.1",
                             "type": "String"
                         },
                         "PlaybookInternalName": {
@@ -183,7 +183,7 @@
                                         "columns": [
                                             {
                                                 "header": "UserPrincipalName",
-                                                "value": "@item()?['userPrincipalName']"
+                                                "value": "@coalesce(item()?['userPrincipalName'], concat(item()?['RawEntity']?['friendlyName'], ' (Unresolved Entity)'))"
                                             },
                                             {
                                                 "header": "City",
