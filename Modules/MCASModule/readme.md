@@ -57,7 +57,7 @@ Then you can add this URL (as-is, without a trainling slash) in the logic app it
 
   ![image](https://user-images.githubusercontent.com/22434561/153331924-2c67e3f0-1685-4996-a8a4-1e3a167f4b0b.png)
 
-If you do not add the URL, the module will try to determine the correct URL alone by trying all common tenant regions. This will be in a best effort mode and might not work consistently. 
+If you do not add the URL, the module will try to determine the correct URL alone by trying all common tenant regions. This will be in a best effort mode and might not work consistently. If no valid URL can be identified, the module will fail and return a 404 error.
   
 You also need to grant the following permissions:
 - Grant the Logic app managed identity access to the Microsoft Cloud App Security application permissions investigation.read (GrantPermissions.ps1)
