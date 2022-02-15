@@ -204,6 +204,14 @@
                                                                 "tenant not found"
                                                             ]
                                                         }
+                                                    },
+                                                    {
+                                                        "not": {
+                                                            "equals": [
+                                                                "@body('HTTP_Probe_URL')?['detail']",
+                                                                "tenant is disabled"
+                                                            ]
+                                                        }
                                                     }
                                                 ]
                                             },
@@ -921,7 +929,7 @@
                             "type": "String"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.0.4",
+                            "defaultValue": "0.0.5",
                             "type": "String"
                         },
                         "ProjectName": {
