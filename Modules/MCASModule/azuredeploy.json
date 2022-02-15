@@ -212,6 +212,14 @@
                                                                 "tenant is disabled"
                                                             ]
                                                         }
+                                                    },
+                                                    {
+                                                        "not": {
+                                                            "equals": [
+                                                                "@body('HTTP_Probe_URL')?['detail']",
+                                                                "Invalid token"
+                                                            ]
+                                                        }
                                                     }
                                                 ]
                                             },
@@ -322,13 +330,62 @@
                             },
                             "type": "If"
                         },
+                        "Fail_if_no_APIURL_were_selected_or_present": {
+                            "actions": {
+                                "Response_no_APIURL": {
+                                    "inputs": {
+                                        "body": {
+                                            "Error": "@{parameters('PlaybookInternalName')} failed to execute. There are no API URL configured or automatically detectable.",
+                                            "PlaybookName": "@{workflow()?['name']}",
+                                            "PlaybookResourceId": "@{workflow()?['id']}",
+                                            "PlaybookRunId": "@{workflow()?['run']?['name']}",
+                                            "PlaybookVersion": "@{parameters('PlaybookVersion')}"
+                                        },
+                                        "statusCode": 404
+                                    },
+                                    "kind": "Http",
+                                    "runAfter": {},
+                                    "type": "Response"
+                                },
+                                "Terminate_no_APIURL": {
+                                    "inputs": {
+                                        "runError": {
+                                            "code": "404"
+                                        },
+                                        "runStatus": "Failed"
+                                    },
+                                    "runAfter": {
+                                        "Response_no_APIURL": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Terminate"
+                                }
+                            },
+                            "expression": {
+                                "and": [
+                                    {
+                                        "equals": [
+                                            "@length(variables('APIURL'))",
+                                            0
+                                        ]
+                                    }
+                                ]
+                            },
+                            "runAfter": {
+                                "Check_if_the_APIURL_is_set": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "If"
+                        },
                         "Filter_array_-_Get_only_accounts_with_id": {
                             "inputs": {
                                 "from": "@body('Parse_JSON')?['Accounts']",
                                 "where": "@greater(length(coalesce(item()?['id'], '')), 0)"
                             },
                             "runAfter": {
-                                "Check_if_the_APIURL_is_set": [
+                                "Fail_if_no_APIURL_were_selected_or_present": [
                                     "Succeeded"
                                 ]
                             },
