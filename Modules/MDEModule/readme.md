@@ -33,11 +33,13 @@ This module will return the risk score and exposure level from Microsoft Defende
 
 ```
 {
-    "AnalyzedEntities": 3,
+    "AnalyzedEntities": 4,
     "IPsHighestExposureLevel": "Unknown",
     "IPsHighestRiskScore": "Unknown",
     "UsersHighestExposureLevel": "Medium",
     "UsersHighestRiskScore": "High",
+    "HostsHighestExposureLevel": "Medium",
+    "HostsHighestRiskScore": "Low",
     "DetailedResults":
     {
         "Accounts": [
@@ -80,7 +82,7 @@ This module will return the risk score and exposure level from Microsoft Defende
         {
             "id": "b9e57eb3ab888957a952f2b9fedd719264f5dbd9",
             "computerDnsName": "server91.contoso.com",
-            "riskScore": "High",
+            "riskScore": "Low",
             "exposureLevel": "Medium"
         }]
     }
