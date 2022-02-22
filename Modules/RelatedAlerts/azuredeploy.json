@@ -48,7 +48,7 @@
                             "type": "Object"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.0.6",
+                            "defaultValue": "0.0.7",
                             "type": "String"
                         },
                         "PlaybookInternalName": {
@@ -108,7 +108,7 @@
                                     "actions": {
                                         "Add_comment_to_incident_(V3)": {
                                             "runAfter": {
-                                                "Create_HTML_table": [
+                                                "Fix_HTML_Links": [
                                                     "Succeeded"
                                                 ]
                                             },
@@ -116,7 +116,7 @@
                                             "inputs": {
                                                 "body": {
                                                     "incidentArmId": "@body('Parse_JSON')?['IncidentARMId']",
-                                                    "message": "<p>There were @{length(body('HTTP')['tables'][0]['rows'])} related alerts found.<br>\n<br>\n@{body('Create_HTML_table')}<br>\n<br>\n</p>"
+                                                    "message": "<p>There were @{length(body('HTTP')['tables'][0]['rows'])} related alerts found. &nbsp;@{if(greater(length(body('HTTP')['tables'][0]['rows']), 10), 'A maximum of 10 alerts will be shown below', '')}<br>\n<br>\n<br>\n@{outputs('Fix_HTML_Links')}<br>\n<br>\n</p>"
                                                 },
                                                 "host": {
                                                     "connection": {
@@ -132,8 +132,17 @@
                                             "type": "Table",
                                             "inputs": {
                                                 "format": "HTML",
-                                                "from": "@body('Select')"
+                                                "from": "@take(body('Select'), 10)"
                                             }
+                                        },
+                                        "Fix_HTML_Links": {
+                                            "runAfter": {
+                                                "Create_HTML_table": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "Compose",
+                                            "inputs": "@replace(replace(replace(body('Create_HTML_table'), '&lt;', '<'), '&gt;', '>'), '&quot;', '\"')"
                                         }
                                     },
                                     "runAfter": {
@@ -228,12 +237,11 @@
                                             "@{body('HTTP')['tables'][0]['columns'][0]['name']}": "@item()[0]",
                                             "@{body('HTTP')['tables'][0]['columns'][1]['name']}": "@item()[1]",
                                             "@{body('HTTP')['tables'][0]['columns'][2]['name']}": "@item()[2]",
-                                            "@{body('HTTP')['tables'][0]['columns'][3]['name']}": "@item()[3]",
+                                            "@{body('HTTP')['tables'][0]['columns'][3]['name']}": "<a href=\"https://portal.azure.com/#blade/Microsoft_Azure_Monitoring_Logs/LogsBlade/scope/%7B%22resources%22%3A%5B%7B%22resourceId%22%3A%22%2Fsubscriptions%2F@{split(body('Parse_JSON')?['IncidentARMId'], '/')[2]}%2FresourceGroups%2F@{split(body('Parse_JSON')?['IncidentARMId'], '/')[4]}%2Fproviders%2FMicrosoft.OperationalInsights%2Fworkspaces%2F@{split(body('Parse_JSON')?['IncidentARMId'], '/')[8]}%22%7D%5D%7D/initiator/ASI_Hunting/query/SecurityAlert%0A%7C%20where%20SystemAlertId%20%3D%3D%20%22@{item()[3]}%22%0A%7C%20summarize%20arg_max%28TimeGenerated%2C%20%2A%29%20by%20SystemAlertId%0A/timespanInIsoFormat/@{addDays(utcNow(), int(concat('-', triggerBody()?['LookbackInDays'])))}%2F@{utcNow()}\">@{item()[3]}</a>",
                                             "@{body('HTTP')['tables'][0]['columns'][4]['name']}": "@item()[4]",
                                             "@{body('HTTP')['tables'][0]['columns'][5]['name']}": "@item()[5]",
                                             "@{body('HTTP')['tables'][0]['columns'][6]['name']}": "@item()[6]",
-                                            "@{body('HTTP')['tables'][0]['columns'][7]['name']}": "@item()[7]",
-                                            "@{body('HTTP')['tables'][0]['columns'][8]['name']}": "@item()[8]"
+                                            "@{body('HTTP')['tables'][0]['columns'][7]['name']}": "@item()[7]"
                                         }
                                     }
                                 }
@@ -285,7 +293,7 @@
                                 ]
                             },
                             "type": "Compose",
-                            "inputs": "let incidentARMId = '@{body('Parse_JSON')?['IncidentARMId']}';\nlet accountData = '@{replace(string(body('Parse_JSON')?['Accounts']), '''', '\\''')}';\nlet ipData = '@{replace(string(body('Parse_JSON')?['IPs']), '''', '\\''')}';\nlet hostData = '@{replace(string(body('Parse_JSON')?['Hosts']), '''', '\\''')}';\nlet checkAccountEntity = @{triggerBody()?['CheckAccountEntityMatches']};\nlet checkIPEntity = @{triggerBody()?['CheckIPEntityMatches']};\nlet checkHostEntity = @{triggerBody()?['CheckHostEntityMatches']};\nlet lookback = @{triggerBody()?['LookbackInDays']}d;\nlet currentIncident = materialize (\nSecurityIncident\n| where TimeGenerated > ago(lookback)\n| where IncidentUrl endswith incidentARMId\n| summarize arg_max(TimeGenerated, *) by IncidentNumber);\nlet isFusionIncident = toscalar(currentIncident\n| project isFusion = iff(RelatedAnalyticRuleIds has \"BuiltInFusion\", true, false));\nlet accountEntities = toscalar(datatable(temp:string)['']\n| where checkAccountEntity\n| extend Entities = parse_json(accountData)\n| mv-expand todynamic(Entities)\n| project SamAccountName=Entities.onPremisesSamAccountName, SID=Entities.onPremisesSecurityIdentifier, UPNName=split(Entities.userPrincipalName,'@')[0], Friendly=Entities.RawEntity.friendlyName\n| extend EntityData = pack_array(SamAccountName, SID, UPNName, Friendly)\n| mv-apply EntityData on (where isnotempty(EntityData))\n| summarize EntityData=make_set(EntityData));\nlet ipEntities = toscalar(datatable(temp:string)['']\n| where checkIPEntity\n| extend Entities = parse_json(ipData)\n| mv-expand todynamic(Entities)\n| project IP= coalesce(Entities.Address, Entities.RawEntity.address, Entities.RawEntity.friendlyName)\n| where isnotempty( IP)\n| summarize EntityData=make_set(IP));\nlet hostEntities = toscalar(datatable(temp:string)['']\n| where checkHostEntity\n| extend Entities = parse_json(hostData)\n| mv-expand todynamic(Entities)\n| project FQDN=Entities.FQDN, Hostname=coalesce(Entities.Hostname, Entities.RawEntity.hostName, Entities.RawEntity.friendlyName)\n| extend EntityData = pack_array(FQDN, Hostname)\n| mv-apply EntityData on (where isnotempty(EntityData))\n| summarize EntityData=make_set(EntityData));\nlet currentIncidentAlerts = currentIncident\n| mv-expand AlertIds\n| project SystemAlertId=tostring(AlertIds);\nSecurityAlert \n| where TimeGenerated > ago(lookback) \n| summarize arg_max(TimeGenerated, *) by SystemAlertId \n| where SystemAlertId !in (currentIncidentAlerts) or isFusionIncident\n| mv-expand todynamic(Entities) \n| where Entities has_any (accountEntities) or ( Entities has_any (ipEntities) and Entities.Type == \"ip\") or Entities has_any (hostEntities) or (SystemAlertId in (currentIncidentAlerts) and isFusionIncident)\n| extend AccountEntityMatch = iff(Entities has_any (accountEntities), true, false), HostEntityMatch = iff(Entities has_any (hostEntities), true, false), IPEntityMatch = iff(Entities has_any (ipEntities) , true, false) \n| summarize AccountEntityMatch = max(AccountEntityMatch), IPEntityMatch=max(IPEntityMatch),HostEntityMatch=max(HostEntityMatch) by StartTime, DisplayName, AlertName, AlertSeverity, SystemAlertId, ProviderName"
+                            "inputs": "let startTime = todatetime('@{addDays(utcNow(), int(concat('-', triggerBody()?['LookbackInDays'])))}');\nlet endTime = todatetime('@{utcNow()}');\nlet incidentARMId = '@{body('Parse_JSON')?['IncidentARMId']}';\nlet accountData = '@{replace(string(body('Parse_JSON')?['Accounts']), '''', '\\''')}';\nlet ipData = '@{replace(string(body('Parse_JSON')?['IPs']), '''', '\\''')}';\nlet hostData = '@{replace(string(body('Parse_JSON')?['Hosts']), '''', '\\''')}';\nlet checkAccountEntity = @{triggerBody()?['CheckAccountEntityMatches']};\nlet checkIPEntity = @{triggerBody()?['CheckIPEntityMatches']};\nlet checkHostEntity = @{triggerBody()?['CheckHostEntityMatches']};\nlet currentIncident = materialize (\nSecurityIncident\n| where TimeGenerated between (startTime..endTime)\n| where IncidentUrl endswith incidentARMId\n| summarize arg_max(TimeGenerated, *) by IncidentNumber);\nlet isFusionIncident = toscalar(currentIncident\n| project isFusion = iff(RelatedAnalyticRuleIds has \"BuiltInFusion\", true, false));\nlet accountEntities = toscalar(datatable(temp:string)['']\n| where checkAccountEntity\n| extend Entities = parse_json(accountData)\n| mv-expand todynamic(Entities)\n| project SamAccountName=Entities.onPremisesSamAccountName, SID=Entities.onPremisesSecurityIdentifier, UPNName=split(Entities.userPrincipalName,'@')[0], Friendly=Entities.RawEntity.friendlyName\n| extend EntityData = pack_array(SamAccountName, SID, UPNName, Friendly)\n| mv-apply EntityData on (where isnotempty(EntityData))\n| summarize EntityData=make_set(EntityData));\nlet ipEntities = toscalar(datatable(temp:string)['']\n| where checkIPEntity\n| extend Entities = parse_json(ipData)\n| mv-expand todynamic(Entities)\n| project IP= coalesce(Entities.Address, Entities.RawEntity.address, Entities.RawEntity.friendlyName)\n| where isnotempty( IP)\n| summarize EntityData=make_set(IP));\nlet hostEntities = toscalar(datatable(temp:string)['']\n| where checkHostEntity\n| extend Entities = parse_json(hostData)\n| mv-expand todynamic(Entities)\n| project FQDN=Entities.FQDN, Hostname=coalesce(Entities.Hostname, Entities.RawEntity.hostName, Entities.RawEntity.friendlyName)\n| extend EntityData = pack_array(FQDN, Hostname)\n| mv-apply EntityData on (where isnotempty(EntityData))\n| summarize EntityData=make_set(EntityData));\nlet currentIncidentAlerts = currentIncident\n| mv-expand AlertIds\n| project SystemAlertId=tostring(AlertIds);\nSecurityAlert \n| where TimeGenerated between (startTime..endTime)\n| summarize arg_max(TimeGenerated, *) by SystemAlertId \n| where SystemAlertId !in (currentIncidentAlerts) or isFusionIncident\n| mv-expand todynamic(Entities) \n| where Entities has_any (accountEntities) or ( Entities has_any (ipEntities) and Entities.Type == \"ip\") or Entities has_any (hostEntities) or (SystemAlertId in (currentIncidentAlerts) and isFusionIncident)\n| extend AccountEntityMatch = iff(Entities has_any (accountEntities), true, false), HostEntityMatch = iff(Entities has_any (hostEntities), true, false), IPEntityMatch = iff(Entities has_any (ipEntities) , true, false) \n| summarize AccountEntityMatch = max(AccountEntityMatch), IPEntityMatch=max(IPEntityMatch),HostEntityMatch=max(HostEntityMatch) by StartTime, DisplayName, AlertSeverity, SystemAlertId, ProviderName"
                         },
                         "HTTP": {
                             "runAfter": {
