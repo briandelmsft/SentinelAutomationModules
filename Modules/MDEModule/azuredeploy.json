@@ -93,7 +93,7 @@
                                     "inputs": {
                                         "body": {
                                             "incidentArmId": "@body('Parse_JSON')?['IncidentARMId']",
-                                            "message": "Lookback in days: @{triggerBody()?['LookbackInDays']}<br/><ul><li>Users Highest Risk Score: @{outputs('Compose_response')['UsersHighestRiskScore']}</li><li>Users Highest Exposure Level: @{outputs('Compose_response')['UsersHighestExposureLevel']}</li></ul>@{outputs('Compose_UserDevices_output')}<br/><ul><li>IP Highest Risk Score: @{outputs('Compose_response')['IPsHighestRiskScore']}</li><li>IP Highest Exposure Level: @{outputs('Compose_response')['IPsHighestExposureLevel']}</li></ul>@{outputs('Compose_IPDevices_output')}<br/><ul><li>Host Highest Risk Score: @{outputs('Compose_response')['HostsHighestRiskScore']}</li><li>Host Highest Exposure Level: @{outputs('Compose_response')['HostsHighestExposureLevel']}</li></ul>@{variables('Comments')}"
+                                            "message": "Lookback in days: @{triggerBody()?['LookbackInDays']}<br/><ul><li>Users Highest Risk Score: @{outputs('Compose_response')['UsersHighestRiskScore']}</li><li>Users Highest Exposure Level: @{outputs('Compose_response')['UsersHighestExposureLevel']}</li></ul>@{outputs('Compose_UserDevices_output')}<br/><ul><li>IP Highest Risk Score: @{outputs('Compose_response')['IPsHighestRiskScore']}</li><li>IP Highest Exposure Level: @{outputs('Compose_response')['IPsHighestExposureLevel']}</li></ul>@{outputs('Compose_IPDevices_output')}<br/><ul><li>Host Highest Risk Score: @{outputs('Compose_response')['HostsHighestRiskScore']}</li><li>Host Highest Exposure Level: @{outputs('Compose_response')['HostsHighestExposureLevel']}</li></ul>@{if(equals(length(variables('DetailedResultsHosts')), 0),'No hosts found',outputs('Create_HTML_table_for_Hosts')['body'])}"
                                         },
                                         "host": {
                                             "connection": {
@@ -104,7 +104,7 @@
                                         "path": "/Incidents/Comment"
                                     },
                                     "runAfter": {
-                                        "For_each_DetailedResultsHosts": [
+                                        "Create_HTML_table_for_Hosts": [
                                             "Succeeded"
                                         ]
                                     },
@@ -127,6 +127,18 @@
                                         ]
                                     },
                                     "type": "Compose"
+                                },
+                                "Create_HTML_table_for_Hosts": {
+                                    "inputs": {
+                                        "format": "HTML",
+                                        "from": "@variables('DetailedResultsHosts')"
+                                    },
+                                    "runAfter": {
+                                        "Compose_IPDevices_output": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Table"
                                 },
                                 "For_each_DetailedResultsAccounts": {
                                     "actions": {
@@ -157,37 +169,6 @@
                                         "concurrency": {
                                             "repetitions": 1
                                         }
-                                    },
-                                    "type": "Foreach"
-                                },
-                                "For_each_DetailedResultsHosts": {
-                                    "actions": {
-                                        "Append_to_string_variable_Comments_a_last_time": {
-                                            "inputs": {
-                                                "name": "Comments",
-                                                "value": "@if(equals(length(items('For_each_DetailedResultsHosts')['Hosts']),0),' - No hosts found',body('Create_HTML_table_for_Hosts'))"
-                                            },
-                                            "runAfter": {
-                                                "Create_HTML_table_for_Hosts": [
-                                                    "Succeeded"
-                                                ]
-                                            },
-                                            "type": "AppendToStringVariable"
-                                        },
-                                        "Create_HTML_table_for_Hosts": {
-                                            "inputs": {
-                                                "format": "HTML",
-                                                "from": "@items('For_each_DetailedResultsHosts')['Hosts']"
-                                            },
-                                            "runAfter": {},
-                                            "type": "Table"
-                                        }
-                                    },
-                                    "foreach": "@variables('DetailedResultsHosts')",
-                                    "runAfter": {
-                                        "Reset_variable_Comments_again": [
-                                            "Succeeded"
-                                        ]
                                     },
                                     "type": "Foreach"
                                 },
@@ -234,18 +215,6 @@
                                     },
                                     "runAfter": {
                                         "Compose_UserDevices_output": [
-                                            "Succeeded"
-                                        ]
-                                    },
-                                    "type": "SetVariable"
-                                },
-                                "Reset_variable_Comments_again": {
-                                    "inputs": {
-                                        "name": "Comments",
-                                        "value": "@{null}"
-                                    },
-                                    "runAfter": {
-                                        "Compose_IPDevices_output": [
                                             "Succeeded"
                                         ]
                                     },
@@ -819,11 +788,11 @@
                                 },
                                 "statusCode": "@result('For_each_host')[0]['outputs'][0]['outputs']['statusCode']"
                             },
-                            "kind": "http",
+                            "kind": "Http",
                             "runAfter": {
                                 "Scope_Host": [
-                                    "TIMEDOUT",
-                                    "FAILED"
+                                    "TimedOut",
+                                    "Failed"
                                 ]
                             },
                             "type": "Response"
@@ -1022,7 +991,7 @@
                                         "columns": [
                                             {
                                                 "header": "",
-                                                "value": "@item()['HostHighestExposureLevel']"
+                                                "value": "@item()['exposureLevel']"
                                             }
                                         ],
                                         "format": "CSV",
@@ -1040,7 +1009,7 @@
                                         "columns": [
                                             {
                                                 "header": "",
-                                                "value": "@item()['HostHighestRiskScore']"
+                                                "value": "@item()['riskScore']"
                                             }
                                         ],
                                         "format": "CSV",
@@ -1055,57 +1024,24 @@
                                 },
                                 "For_each_host": {
                                     "actions": {
-                                        "Append_to_array_variable_DetailedResultsHosts": {
-                                            "inputs": {
-                                                "name": "DetailedResultsHosts",
-                                                "value": {
-                                                    "HostHighestExposureLevel": "@{if(contains(body('Create_table_to_check_HostHighestExposureLevel'), 'High'), 'High', if(contains(body('Create_table_to_check_HostHighestExposureLevel'), 'Medium'), 'Medium', if(contains(body('Create_table_to_check_HostHighestExposureLevel'), 'Low'), 'Low', if(contains(body('Create_table_to_check_HostHighestExposureLevel'), 'None'),'None','Unknown'))))}",
-                                                    "HostHighestRiskScore": "@{if(contains(body('Create_table_to_check_HostHighestRiskScore'), 'High'), 'High', if(contains(body('Create_table_to_check_HostHighestRiskScore'), 'Medium'), 'Medium', if(contains(body('Create_table_to_check_HostHighestRiskScore'), 'Low'), 'Low', if(contains(body('Create_table_to_check_HostHighestRiskScore'), 'Informational'), 'Informational', if(contains(body('Create_table_to_check_HostHighestRiskScore'), 'None'), 'None', 'Unknown')))))}",
-                                                    "Hosts": "@body('Machines_-_Get_list_of_machines_-_Host_path')?['value']"
+                                        "For_each_machine": {
+                                            "actions": {
+                                                "Append_to_array_variable_DetailedResultsHosts": {
+                                                    "inputs": {
+                                                        "name": "DetailedResultsHosts",
+                                                        "value": "@items('For_each_machine')"
+                                                    },
+                                                    "runAfter": {},
+                                                    "type": "AppendToArrayVariable"
                                                 }
                                             },
-                                            "runAfter": {
-                                                "Create_table_to_check_HostHighestExposureLevel": [
-                                                    "Succeeded"
-                                                ]
-                                            },
-                                            "type": "AppendToArrayVariable"
-                                        },
-                                        "Create_table_to_check_HostHighestExposureLevel": {
-                                            "inputs": {
-                                                "columns": [
-                                                    {
-                                                        "header": "",
-                                                        "value": "@item()?['exposureLevel']"
-                                                    }
-                                                ],
-                                                "format": "CSV",
-                                                "from": "@body('Machines_-_Get_list_of_machines_-_Host_path')?['value']"
-                                            },
-                                            "runAfter": {
-                                                "Create_table_to_check_HostHighestRiskScore": [
-                                                    "Succeeded"
-                                                ]
-                                            },
-                                            "type": "Table"
-                                        },
-                                        "Create_table_to_check_HostHighestRiskScore": {
-                                            "inputs": {
-                                                "columns": [
-                                                    {
-                                                        "header": "",
-                                                        "value": "@item()['riskScore']"
-                                                    }
-                                                ],
-                                                "format": "CSV",
-                                                "from": "@body('Machines_-_Get_list_of_machines_-_Host_path')?['value']"
-                                            },
+                                            "foreach": "@body('Machines_-_Get_list_of_machines_-_Host_path')?['value']",
                                             "runAfter": {
                                                 "Machines_-_Get_list_of_machines_-_Host_path": [
                                                     "Succeeded"
                                                 ]
                                             },
-                                            "type": "Table"
+                                            "type": "Foreach"
                                         },
                                         "Machines_-_Get_list_of_machines_-_Host_path": {
                                             "inputs": {
@@ -1117,7 +1053,7 @@
                                                 "method": "get",
                                                 "path": "/api/machines",
                                                 "queries": {
-                                                    "$filter": "id eq '@{coalesce(item()['RawEntity']?['additionalData']?['MdatpDeviceId'],'unknown')}' or computerDnsName eq '@{coalesce(concat(item()['RawEntity']?['hostName'],'.',item()['RawEntity']?['dnsDomain']),item()['FQDN'])}'",
+                                                    "$filter": "id eq '@{coalesce(item()['RawEntity']?['additionalData']?['MdatpDeviceId'],'unknown')}' or  computerDnsName eq '@{coalesce(concat(item()['RawEntity']?['hostName'],'.',item()['RawEntity']?['dnsDomain']),item()['FQDN'])}'",
                                                     "$select": "id,computerDnsName,riskScore,exposureLevel"
                                                 }
                                             },
@@ -1338,7 +1274,7 @@
                             "type": "String"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.0.5",
+                            "defaultValue": "0.0.6",
                             "type": "String"
                         },
                         "ProjectName": {
