@@ -55,6 +55,28 @@
                         "type": "object"
                     },
                     "type": "array"
+                },
+                 "Hosts": {
+                    "description": "Array of hosts",
+                    "items": {
+                        "properties": {
+                            "id": {
+                                "type": "string"
+                            },
+                            "computerDnsName": {
+                                "type": "string"
+                            },
+                            "riskScore": {
+                                "type": "string"
+                            },
+                            "riskScore": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [],
+                        "type": "object"
+                    },
+                    "type": "array"
                 }
             },
             "type": "object"
@@ -72,7 +94,15 @@
             "type": "string"
         },
         "UsersHighestRiskScore": {
-            "description": "Highest risk score found for on devices all accounts",
+            "description": "Highest risk score found on devices for all accounts",
+            "type": "string"
+        },
+        "HostsHighestExposureLevel": {
+            "description": "Highest exposure level found on all hosts",
+            "type": "string"
+        },
+        "HostsHighestRiskScore": {
+            "description": "Highest risk score found on all hosts",
             "type": "string"
         }
     },
