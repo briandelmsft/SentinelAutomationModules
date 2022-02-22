@@ -17,7 +17,7 @@ $RelatedAlertsLogicAppName="Get-RelatedAlerts"   #Name of the Related Alerts Log
 $TILogicAppName="Get-ThreatIntel"                #Name of the TI Logic App
 $WatchlistLogicAppName="Get-WatchlistInsights"   #Name of the Watchlists Logic App
 
-$SampleLogicAppName="Triage-RelatedContent"      #Name of the Sample Logic App
+$SampleLogicAppName="Sample-STAT-Triage"      #Name of the Sample Logic App
 
 Connect-AzureAD -TenantId $TenantID
 Login-AzAccount
