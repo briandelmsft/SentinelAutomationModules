@@ -6,6 +6,7 @@ This module will return the risk score and exposure level from Microsoft Defende
 ## Suported Entity Types
 * Accounts (if the accounts have objectSid available)
 * IPs
+* Hosts (using the MdatpDeviceId if present, else construct the FQDN from the raw entitiy)
 
 ## Trigger Parameters
 
@@ -24,6 +25,8 @@ This module will return the risk score and exposure level from Microsoft Defende
 |UsersHighestExposureLevel|The highest exposure level found for all machines of a specific user|
 |IPsHighestExposureLevel|The highest risk score level found for all machines with a specific IP|
 |IPsHighestRiskScore|The highest exposure level found for all machines with a specific IP|
+|HostsHighestExposureLevel|The highest risk score level found for all hosts matching the MdatpDeviceId or the FQDN|
+|HostsHighestRiskScore|The highest exposure level found for all hosts matching the MdatpDeviceId or the FQDN|
 |DetailedResults|An array of the accounts and IPs analyzed|
 
 ## Sample Return
@@ -72,6 +75,13 @@ This module will return the risk score and exposure level from Microsoft Defende
             "IPDevices": [],
             "IPHighestExposureLevel": "Unknown",
             "IPHighestRiskScore": "Unknown"
+        }],
+        "Hosts": [
+        {
+            "id": "b9e57eb3ab888957a952f2b9fedd719264f5dbd9",
+            "computerDnsName": "server91.contoso.com",
+            "riskScore": "High",
+            "exposureLevel": "Medium"
         }]
     }
 }
