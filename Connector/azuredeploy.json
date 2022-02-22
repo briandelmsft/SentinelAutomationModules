@@ -2060,6 +2060,14 @@
                                                     "type": "string",
                                                     "description": "UsersHighestRiskScore"
                                                 },
+                                                "HostsHighestExposureLevel": {
+                                                    "type": "string",
+                                                    "description": "HostsHighestExposureLevel"
+                                                },
+                                                "HostsHighestRiskScore": {
+                                                    "type": "string",
+                                                    "description": "HostsHighestRiskScore"
+                                                },
                                                 "DetailedResults": {
                                                     "type": "object",
                                                     "properties": {
@@ -2142,7 +2150,33 @@
                                                                 }
                                                             },
                                                             "description": "IPs"
+                                                        },
+                                                        "Hosts": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "id": {
+                                                                        "type": "string",
+                                                                        "description": "id"
+                                                                    },
+                                                                    "computerDnsName": {
+                                                                        "type": "string",
+                                                                        "description": "computerDnsName"
+                                                                    },
+                                                                    "riskScore": {
+                                                                        "type": "string",
+                                                                        "description": "riskScore"
+                                                                    },
+                                                                    "exposureLevel": {
+                                                                        "type": "string",
+                                                                        "description": "exposureLevel"
+                                                                    }
+                                                                }
+                                                            },
+                                                            "description": "Hosts"
                                                         }
+
                                                     },
                                                     "description": "Array of DetailedResults"
                                                 }
