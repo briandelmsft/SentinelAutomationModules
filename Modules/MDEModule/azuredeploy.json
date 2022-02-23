@@ -111,7 +111,7 @@
                                     "type": "ApiConnection"
                                 },
                                 "Compose_IPDevices_output": {
-                                    "inputs": "@variables('Comments')",
+                                    "inputs": "if(equals(length(variables('Comments')),0),'No IPs found',variables('Comments'))",
                                     "runAfter": {
                                         "For_each_DetailedResultsIPs": [
                                             "Succeeded"
@@ -1274,7 +1274,7 @@
                             "type": "String"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.1.1",
+                            "defaultValue": "0.1.2",
                             "type": "String"
                         },
                         "ProjectName": {
