@@ -145,7 +145,7 @@
                                         "Append_to_string_variable_Comments": {
                                             "inputs": {
                                                 "name": "Comments",
-                                                "value": "@{if(not(equals(item()['UserPrincipalName'], '')), item()['UserPrincipalName'], item()['UserSid'])} @{if(equals(length(items('For_each_DetailedResultsAccounts')['UserDevices']),0),' - No devices found',body('Create_HTML_table_for_UserDevices'))}"
+                                                "value": "@{if(not(equals(item()['UserPrincipalName'], '')), item()['UserPrincipalName'], item()['UserSid'])} @{if(equals(length(items('For_each_DetailedResultsAccounts')['UserDevices']),0),' - No devices found',body('Create_HTML_table_for_UserDevices'))} <br />"
                                             },
                                             "runAfter": {
                                                 "Create_HTML_table_for_UserDevices": [
@@ -177,7 +177,7 @@
                                         "Append_to_string_variable_Comments_again": {
                                             "inputs": {
                                                 "name": "Comments",
-                                                "value": "@{items('For_each_DetailedResultsIPs')['Address']}@{if(equals(length(items('For_each_DetailedResultsIPs')['IPDevices']),0),' - No devices found',body('Create_HTML_table_for_IPDevices'))}"
+                                                "value": "@{items('For_each_DetailedResultsIPs')['Address']}@{if(equals(length(items('For_each_DetailedResultsIPs')['IPDevices']),0),' - No devices found',body('Create_HTML_table_for_IPDevices'))} <br />"
                                             },
                                             "runAfter": {
                                                 "Create_HTML_table_for_IPDevices": [
@@ -1274,7 +1274,7 @@
                             "type": "String"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.1.0",
+                            "defaultValue": "0.1.1",
                             "type": "String"
                         },
                         "ProjectName": {
