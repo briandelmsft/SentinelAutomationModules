@@ -48,7 +48,7 @@
                             "type": "Object"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.0.4",
+                            "defaultValue": "0.0.5",
                             "type": "String"
                         },
                         "PlaybookInternalName": {
@@ -712,9 +712,25 @@
                                     "case": "upn",
                                     "actions": {
                                         "Compose_-_Account": {
-                                            "runAfter": {},
+                                            "runAfter": {
+                                                "Select_-_Account": [
+                                                    "Succeeded"
+                                                ]
+                                            },
                                             "type": "Compose",
-                                            "inputs": "let entityData = '@{replace(string(body('Parse_JSON')?['Accounts']), '''', '\\''')}';\nlet incidentEntities = datatable(temp:string)['']\n| extend Entities = parse_json(entityData)\n| project-away temp\n| mv-expand todynamic(Entities)\n| extend EntityData = tostring(coalesce(Entities.userPrincipalName, strcat(Entities.RawEntity.accountName, '@', Entities.RawEntity.upnSuffix)))\n| extend Key = tolower(EntityData);\nincidentEntities\n| join kind=leftouter (_GetWatchlist('@{triggerBody()?['WatchlistName']}') | extend @{triggerBody()?['WatchlistKey']} = tolower(@{triggerBody()?['WatchlistKey']})) on $left.Key == $right.@{triggerBody()?['WatchlistKey']}\n| extend OnWatchlist = iff(isempty(_DTItemId), false, true)\n| project OnWatchlist, EntityData"
+                                            "inputs": "let entityData = @'@{replace(string(body('Select_-_Account')), '''', '\\''')}';\nlet incidentEntities = datatable(temp:string)['']\n| extend Entities = parse_json(entityData)\n| project-away temp\n| mv-expand todynamic(Entities)\n| extend EntityData = tostring(coalesce(Entities.userPrincipalName, strcat(Entities.accountName, '@', Entities.upnSuffix)))\n| extend Key = tolower(EntityData);\nincidentEntities\n| join kind=leftouter (_GetWatchlist('@{triggerBody()?['WatchlistName']}') | extend @{triggerBody()?['WatchlistKey']} = tolower(@{triggerBody()?['WatchlistKey']})) on $left.Key == $right.@{triggerBody()?['WatchlistKey']}\n| extend OnWatchlist = iff(isempty(_DTItemId), false, true)\n| project OnWatchlist, EntityData"
+                                        },
+                                        "Select_-_Account": {
+                                            "runAfter": {},
+                                            "type": "Select",
+                                            "inputs": {
+                                                "from": "@body('Parse_JSON')?['Accounts']",
+                                                "select": {
+                                                    "accountName": "@item()?['RawEntity']?['accountName']",
+                                                    "upnSuffix": "@item()?['RawEntity']?['upnSuffix']",
+                                                    "userPrincipalName": "@item()?['userPrincipalName']"
+                                                }
+                                            }
                                         }
                                     }
                                 },

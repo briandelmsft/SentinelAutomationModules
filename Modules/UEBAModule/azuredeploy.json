@@ -48,7 +48,7 @@
                             "type": "Object"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.0.4",
+                            "defaultValue": "0.0.5",
                             "type": "String"
                         },
                         "PlaybookInternalName": {
@@ -247,12 +247,12 @@
                         },
                         "Compose": {
                             "runAfter": {
-                                "Parse_JSON": [
+                                "Select_-_Account_Entity": [
                                     "Succeeded"
                                 ]
                             },
                             "type": "Compose",
-                            "inputs": "let entityData = '@{replace(string(body('Parse_JSON')?['Accounts']), '''', '\\''')}';\nlet minPriority = @{triggerBody()?['MinimumInvestigationPriority']};\nlet lookback = @{triggerBody()?['LookbackInDays']}d;\nlet incidentEntities = datatable(temp:string)['']\n| extend Entities = parse_json(entityData)\n| mv-expand todynamic(Entities)\n| project EntityUPN = tostring(Entities.userPrincipalName)\n| distinct EntityUPN\n| where isnotempty(EntityUPN);\nlet userDetails = BehaviorAnalytics\n| where TimeGenerated > ago(lookback)\n| where UserPrincipalName in~ (incidentEntities)\n| where InvestigationPriority >= minPriority\n| summarize InvestigationPrioritySum=sum(InvestigationPriority), InvestigationPriorityAverage=avg(InvestigationPriority), InvestigationPriorityMax=max(InvestigationPriority), EventCount=count() by UserPrincipalName;\nuserDetails\n| summarize InvestigationPrioritySum=sum(InvestigationPrioritySum), InvestigationPriorityAverage=avg(InvestigationPriorityAverage), InvestigationPriorityMax=max(InvestigationPriorityMax), EventCount=sum(EventCount)\n| extend UserPrincipalName=\"Total\"\n| union userDetails"
+                            "inputs": "let entityData = @'@{replace(string(body('Select_-_Account_Entity')), '''', '\\''')}';\nlet minPriority = @{triggerBody()?['MinimumInvestigationPriority']};\nlet lookback = @{triggerBody()?['LookbackInDays']}d;\nlet incidentEntities = datatable(temp:string)['']\n| extend Entities = parse_json(entityData)\n| mv-expand todynamic(Entities)\n| project EntityUPN = tostring(Entities.userPrincipalName)\n| distinct EntityUPN\n| where isnotempty(EntityUPN);\nlet userDetails = BehaviorAnalytics\n| where TimeGenerated > ago(lookback)\n| where UserPrincipalName in~ (incidentEntities)\n| where InvestigationPriority >= minPriority\n| summarize InvestigationPrioritySum=sum(InvestigationPriority), InvestigationPriorityAverage=avg(InvestigationPriority), InvestigationPriorityMax=max(InvestigationPriority), EventCount=count() by UserPrincipalName;\nuserDetails\n| summarize InvestigationPrioritySum=sum(InvestigationPrioritySum), InvestigationPriorityAverage=avg(InvestigationPriorityAverage), InvestigationPriorityMax=max(InvestigationPriorityMax), EventCount=sum(EventCount)\n| extend UserPrincipalName=\"Total\"\n| union userDetails"
                         },
                         "HTTP": {
                             "runAfter": {
@@ -667,6 +667,20 @@
                                     "SourceError": "@body('HTTP')"
                                 },
                                 "statusCode": "@outputs('HTTP')['statusCode']"
+                            }
+                        },
+                        "Select_-_Account_Entity": {
+                            "runAfter": {
+                                "Parse_JSON": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Select",
+                            "inputs": {
+                                "from": "@body('Parse_JSON')?['Accounts']",
+                                "select": {
+                                    "userPrincipalName": "@item()?['userPrincipalName']"
+                                }
                             }
                         }
                     },
