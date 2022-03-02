@@ -48,7 +48,7 @@
                             "type": "Object"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.0.6",
+                            "defaultValue": "0.0.7",
                             "type": "String"
                         },
                         "PlaybookInternalName": {
@@ -280,12 +280,12 @@
                         },
                         "Compose": {
                             "runAfter": {
-                                "Parse_JSON": [
+                                "Select_-_Account_Entities": [
                                     "Succeeded"
                                 ]
                             },
                             "type": "Compose",
-                            "inputs": "let incidentARMId = '@{body('Parse_JSON')?['IncidentARMId']}';\nlet accountData = '@{replace(string(body('Parse_JSON')?['Accounts']), '''', '\\''')}';\nlet ipData = '@{replace(string(body('Parse_JSON')?['IPs']), '''', '\\''')}';\nlet hostData = '@{replace(string(body('Parse_JSON')?['Hosts']), '''', '\\''')}';\nlet checkAccountEntity = @{triggerBody()?['CheckAccountEntityMatches']};\nlet checkIPEntity = @{triggerBody()?['CheckIPEntityMatches']};\nlet checkHostEntity = @{triggerBody()?['CheckHostEntityMatches']};\nlet lookback = @{triggerBody()?['LookbackInDays']}d;\nlet currentIncident = materialize (\nSecurityIncident\n| where TimeGenerated > ago(lookback)\n| where IncidentUrl endswith incidentARMId\n| summarize arg_max(TimeGenerated, *) by IncidentNumber);\nlet isFusionIncident = toscalar(currentIncident\n| project isFusion = iff(RelatedAnalyticRuleIds has \"BuiltInFusion\", true, false));\nlet accountEntities = toscalar(datatable(temp:string)['']\n| where checkAccountEntity\n| extend Entities = parse_json(accountData)\n| mv-expand todynamic(Entities)\n| project SamAccountName=Entities.onPremisesSamAccountName, SID=Entities.onPremisesSecurityIdentifier, UPNName=split(Entities.userPrincipalName,'@')[0], Friendly=Entities.RawEntity.friendlyName\n| extend EntityData = pack_array(SamAccountName, SID, UPNName, Friendly)\n| mv-apply EntityData on (where isnotempty(EntityData))\n| summarize EntityData=make_set(EntityData));\nlet ipEntities = toscalar(datatable(temp:string)['']\n| where checkIPEntity\n| extend Entities = parse_json(ipData)\n| mv-expand todynamic(Entities)\n| project IP= coalesce(Entities.Address, Entities.RawEntity.address, Entities.RawEntity.friendlyName)\n| where isnotempty( IP)\n| summarize EntityData=make_set(IP));\nlet hostEntities = toscalar(datatable(temp:string)['']\n| where checkHostEntity\n| extend Entities = parse_json(hostData)\n| mv-expand todynamic(Entities)\n| project FQDN=Entities.FQDN, Hostname=coalesce(Entities.Hostname, Entities.RawEntity.hostName, Entities.RawEntity.friendlyName)\n| extend EntityData = pack_array(FQDN, Hostname)\n| mv-apply EntityData on (where isnotempty(EntityData))\n| summarize EntityData=make_set(EntityData));\nlet currentIncidentAlerts = currentIncident\n| mv-expand AlertIds\n| project SystemAlertId=tostring(AlertIds);\nSecurityAlert \n| where TimeGenerated > ago(lookback) \n| summarize arg_max(TimeGenerated, *) by SystemAlertId \n| where SystemAlertId !in (currentIncidentAlerts) or isFusionIncident\n| mv-expand todynamic(Entities) \n| where Entities has_any (accountEntities) or ( Entities has_any (ipEntities) and Entities.Type == \"ip\") or Entities has_any (hostEntities) or (SystemAlertId in (currentIncidentAlerts) and isFusionIncident)\n| extend AccountEntityMatch = iff(Entities has_any (accountEntities), true, false), HostEntityMatch = iff(Entities has_any (hostEntities), true, false), IPEntityMatch = iff(Entities has_any (ipEntities) , true, false) \n| summarize AccountEntityMatch = max(AccountEntityMatch), IPEntityMatch=max(IPEntityMatch),HostEntityMatch=max(HostEntityMatch) by StartTime, DisplayName, AlertName, AlertSeverity, SystemAlertId, ProviderName"
+                            "inputs": "let incidentARMId = '@{body('Parse_JSON')?['IncidentARMId']}';\nlet accountData = @'@{replace(string(body('Select_-_Account_Entities')), '''', '\\''')}';\nlet ipData = @'@{replace(string(body('Parse_JSON')?['IPs']), '''', '\\''')}';\nlet hostData = @'@{replace(string(body('Parse_JSON')?['Hosts']), '''', '\\''')}';\nlet checkAccountEntity = @{triggerBody()?['CheckAccountEntityMatches']};\nlet checkIPEntity = @{triggerBody()?['CheckIPEntityMatches']};\nlet checkHostEntity = @{triggerBody()?['CheckHostEntityMatches']};\nlet lookback = @{triggerBody()?['LookbackInDays']}d;\nlet currentIncident = materialize (\nSecurityIncident\n| where TimeGenerated > ago(lookback)\n| where IncidentUrl endswith incidentARMId\n| summarize arg_max(TimeGenerated, *) by IncidentNumber);\nlet isFusionIncident = toscalar(currentIncident\n| project isFusion = iff(RelatedAnalyticRuleIds has \"BuiltInFusion\", true, false));\nlet accountEntities = toscalar(datatable(temp:string)['']\n| where checkAccountEntity\n| extend Entities = parse_json(accountData)\n| mv-expand todynamic(Entities)\n| project SamAccountName=Entities.onPremisesSamAccountName, SID=Entities.onPremisesSecurityIdentifier, UPNName=split(Entities.userPrincipalName,'@')[0], Friendly=Entities.friendlyName\n| extend EntityData = pack_array(SamAccountName, SID, UPNName, Friendly)\n| mv-apply EntityData on (where isnotempty(EntityData))\n| summarize EntityData=make_set(EntityData));\nlet ipEntities = toscalar(datatable(temp:string)['']\n| where checkIPEntity\n| extend Entities = parse_json(ipData)\n| mv-expand todynamic(Entities)\n| project IP= coalesce(Entities.Address, Entities.RawEntity.address, Entities.RawEntity.friendlyName)\n| where isnotempty( IP)\n| summarize EntityData=make_set(IP));\nlet hostEntities = toscalar(datatable(temp:string)['']\n| where checkHostEntity\n| extend Entities = parse_json(hostData)\n| mv-expand todynamic(Entities)\n| project FQDN=Entities.FQDN, Hostname=coalesce(Entities.Hostname, Entities.RawEntity.hostName, Entities.RawEntity.friendlyName)\n| extend EntityData = pack_array(FQDN, Hostname)\n| mv-apply EntityData on (where isnotempty(EntityData))\n| summarize EntityData=make_set(EntityData));\nlet currentIncidentAlerts = currentIncident\n| mv-expand AlertIds\n| project SystemAlertId=tostring(AlertIds);\nSecurityAlert \n| where TimeGenerated > ago(lookback) \n| summarize arg_max(TimeGenerated, *) by SystemAlertId \n| where SystemAlertId !in (currentIncidentAlerts) or isFusionIncident\n| mv-expand todynamic(Entities) \n| where Entities has_any (accountEntities) or ( Entities has_any (ipEntities) and Entities.Type == \"ip\") or Entities has_any (hostEntities) or (SystemAlertId in (currentIncidentAlerts) and isFusionIncident)\n| extend AccountEntityMatch = iff(Entities has_any (accountEntities), true, false), HostEntityMatch = iff(Entities has_any (hostEntities), true, false), IPEntityMatch = iff(Entities has_any (ipEntities) , true, false) \n| summarize AccountEntityMatch = max(AccountEntityMatch), IPEntityMatch=max(IPEntityMatch),HostEntityMatch=max(HostEntityMatch) by StartTime, DisplayName, AlertName, AlertSeverity, SystemAlertId, ProviderName"
                         },
                         "HTTP": {
                             "runAfter": {
@@ -700,6 +700,23 @@
                                     "SourceError": "@body('HTTP')"
                                 },
                                 "statusCode": "@outputs('HTTP')['statusCode']"
+                            }
+                        },
+                        "Select_-_Account_Entities": {
+                            "runAfter": {
+                                "Parse_JSON": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Select",
+                            "inputs": {
+                                "from": "@body('Parse_JSON')?['Accounts']",
+                                "select": {
+                                    "friendlyName": "@item()?['RawEntity']?['friendlyName']",
+                                    "onPremisesSamAccountName": "@item()?['onPremisesSamAccountName']",
+                                    "onPremisesSecurityIdentifier": "@item()?['onPremisesSecurityIdentifier']",
+                                    "userPrincipalName": "@item()?['userPrincipalName']"
+                                }
                             }
                         }
                     },
