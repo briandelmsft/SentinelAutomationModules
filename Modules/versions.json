@@ -1,0 +1,13 @@
+{
+    "AADRisksModule": "0.0.4",
+    "BaseModule": "0.2.2",
+    "FileModule": "0.0.3",
+    "KQLModule": "0.0.5",
+    "MCASModule": "0.0.5",
+    "MDEModule": "0.1.1",
+    "OOFModule": "0.0.3",
+    "RelatedAlerts": "0.0.7",
+    "TIModule": "0.0.4",
+    "UEBAModule": "0.0.5",
+    "WatchlistModule": "0.0.5"
+}
