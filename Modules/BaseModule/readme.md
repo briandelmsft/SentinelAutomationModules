@@ -118,6 +118,19 @@ The base module must be called before any other modules in this solution.  It pe
   ],
   "IPsCount": 1,
   "IncidentARMId": "/subscriptions/397caaaa-d999-4abc-acdd-f3a40db41234/resourceGroups/sentinel-rg/providers/Microsoft.OperationalInsights/workspaces/sentinel-workspace/providers/Microsoft.SecurityInsights/Incidents/afdffc57-0ae5-4323-b75e-48a64fcb3280",
+  "ModuleVersions": {
+    "AADRisksModule": "0.0.4",
+    "BaseModule": "0.3.0",
+    "FileModule": "0.0.3",
+    "KQLModule": "0.0.5",
+    "MCASModule": "0.0.5",
+    "MDEModule": "0.1.1",
+    "OOFModule": "0.0.3",
+    "RelatedAlerts": "0.0.7",
+    "TIModule": "0.0.4",
+    "UEBAModule": "0.0.5",
+    "WatchlistModule": "0.0.5"
+  },
   "OtherEntities": [
     {
       "id": "/subscriptions/.../Entities/",

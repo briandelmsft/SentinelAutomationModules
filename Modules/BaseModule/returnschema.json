@@ -334,6 +334,44 @@
             "description": "The ARM Id of the Azure Sentinel Incident",
             "type": "string"
         },
+        "ModuleVersions": {
+            "type": "object",
+            "properties": {
+                "AADRisksModule": {
+                    "type": "string"
+                },
+                "BaseModule": {
+                    "type": "string"
+                },
+                "FileModule": {
+                    "type": "string"
+                },
+                "KQLModule": {
+                    "type": "string"
+                },
+                "MCASModule": {
+                    "type": "string"
+                },
+                "MDEModule": {
+                    "type": "string"
+                },
+                "OOFModule": {
+                    "type": "string"
+                },
+                "RelatedAlerts": {
+                    "type": "string"
+                },
+                "TIModule": {
+                    "type": "string"
+                },
+                "UEBAModule": {
+                    "type": "string"
+                },
+                "WatchlistModule": {
+                    "type": "string"
+                }
+            }
+        },
         "URLs": {
             "type": "array",
             "description": "Array of URLs",

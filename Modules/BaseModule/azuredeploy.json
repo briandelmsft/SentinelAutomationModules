@@ -48,7 +48,7 @@
                             "type": "Object"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.2.2",
+                            "defaultValue": "0.3.0",
                             "type": "String"
                         },
                         "PlaybookInternalName": {
@@ -97,6 +97,10 @@
                     "actions": {
                         "Compose": {
                             "runAfter": {
+                                "Convert_to_JSON": [
+                                    "Succeeded",
+                                    "Failed"
+                                ],
                                 "Filter_array_-_Other": [
                                     "Succeeded",
                                     "Failed"
@@ -146,6 +150,7 @@
                                 "IPs": "@variables('IPArray')",
                                 "IPsCount": "@length(variables('IPArray'))",
                                 "IncidentARMId": "@triggerBody()?['IncidentARMId']",
+                                "ModuleVersions": "@outputs('Convert_to_JSON')",
                                 "OtherEntities": "@body('Filter_array_-_Other')",
                                 "OtherEntitiesCount": "@length(body('Filter_array_-_Other'))",
                                 "URLs": "@variables('URLArray')",
@@ -165,7 +170,7 @@
                                     "inputs": {
                                         "body": {
                                             "incidentArmId": "@triggerBody()?['IncidentARMId']",
-                                            "message": "<p>@{body('Create_HTML_table_-_Accounts')}</p>"
+                                            "message": "<p>@{body('Create_HTML_table_-_Accounts')}@{if(not(equals(outputs('Compose')?['ModuleVersions'], null)), if(equals(parameters('PlaybookVersion'),outputs('Compose')?['ModuleVersions']?[parameters('PlaybookInternalName')]), '', concat('<br>Sentinel Triage AssistanT - Update Available: Installed Version: ', parameters('PlaybookVersion'), ', Available Version: ', outputs('Compose')?['ModuleVersions']?[parameters('PlaybookInternalName')])) , '')}</p>"
                                         },
                                         "host": {
                                             "connection": {
@@ -393,6 +398,16 @@
                                 ]
                             },
                             "type": "If"
+                        },
+                        "Convert_to_JSON": {
+                            "runAfter": {
+                                "HTTP_-_Version_Download": [
+                                    "Succeeded",
+                                    "Failed"
+                                ]
+                            },
+                            "type": "Compose",
+                            "inputs": "@json(body('HTTP_-_Version_Download'))"
                         },
                         "Filter_array_-_Accounts": {
                             "runAfter": {
@@ -925,6 +940,41 @@
                                 },
                                 "method": "GET",
                                 "uri": "https://graph.microsoft.com/v1.0/users?$top=1&$select=id"
+                            }
+                        },
+                        "HTTP_-_Version_Download": {
+                            "runAfter": {
+                                "HTTP_-_Version_Redirect": [
+                                    "Succeeded",
+                                    "Failed"
+                                ]
+                            },
+                            "type": "Http",
+                            "inputs": {
+                                "method": "GET",
+                                "retryPolicy": {
+                                    "count": 2,
+                                    "interval": "PT10S",
+                                    "type": "fixed"
+                                },
+                                "uri": "@{outputs('HTTP_-_Version_Redirect')['headers']?['Location']}"
+                            }
+                        },
+                        "HTTP_-_Version_Redirect": {
+                            "runAfter": {
+                                "HTTP_-_Test_API_Access": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Http",
+                            "inputs": {
+                                "method": "GET",
+                                "retryPolicy": {
+                                    "count": 2,
+                                    "interval": "PT10S",
+                                    "type": "fixed"
+                                },
+                                "uri": "https://aka.ms/mstatversion"
                             }
                         },
                         "Initialize_AccountsArray": {
