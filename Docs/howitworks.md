@@ -25,6 +25,7 @@ The Logic Apps Custom Connector (STAT Connector) serves as the user interface of
 The STAT Coordinator operates behind the scenes and it does not need to be called or used directly.  This component of the solution serves as a routing engine for the Logic Apps Custom Connector.  Based on the actions chosen in the STAT Connector, the STAT Coordinator will forward the relevant data to the Automation Module and then return the response back to the STAT Connector.
 
 Here is a more detailed look of the information flow, including the coordinator:
+
 ![STAT Detailed Information Flow](images/statdetailedview.png)
 
 ## Automation Modules
