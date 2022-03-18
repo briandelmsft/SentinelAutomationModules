@@ -10,7 +10,7 @@ Deployment of the Microsoft Sentinel Triage AssistanT should typically be perfor
 
 ## Make the workbook visible in the Workbooks blade
 Use the deploy to Azure link above and before creating the deployment, click the **Edit template** link.
-Replace the line 13 and 14 of the ARM template by the following data:
+Replace the lines 13 and 14 of the ARM template with the following data:
 
 `"workbookType": "workbook",` becomes `"workbookType": "sentinel",`     
 `"workbookSourceId": "Azure Monitor",` becomes `"workbookSourceId": "{resource ID}",`
