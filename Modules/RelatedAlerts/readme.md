@@ -24,6 +24,7 @@ This module will check the incidient entities to see if there are any other aler
 |Property|Description|
 |---|---|
 |DetailedResults|An array of each related alert that was found|
+|HighestSeverityAlert|The severity of the highest severity alert found (High, Medium, Low or Informational)|
 |RelatedAlertsCount|Number of related alerts found. This number may exceed the sum of other related alert counts as an alert may be related to more than one entity type.|
 |RelatedAlertsFound|true/false indicating if related alerts were found|
 |RelatedAccountAlertsCount|Number of alerts related to account entity found|
@@ -41,10 +42,10 @@ This module will check the incidient entities to see if there are any other aler
     {
       "StartTime": "2021-11-03T12:16:29.541Z",
       "DisplayName": "Alert1",
-      "AlertName": "Alert1",
       "AlertSeverity": "Informational",
       "SystemAlertId": "55d2036d-e471-4210-bfcd-fead43b85cf8",
       "ProviderName": "ASI Scheduled Alerts",
+      "Tactics": "InitialAccess",
       "AccountEntityMatch": true,
       "IPEntityMatch": true,
       "HostEntityMatch": true
@@ -52,15 +53,16 @@ This module will check the incidient entities to see if there are any other aler
     {
       "StartTime": "2021-11-01T20:23:45.386Z",
       "DisplayName": "Alert2",
-      "AlertName": "Alert2",
       "AlertSeverity": "Informational",
       "SystemAlertId": "5342baa5-531d-7496-6f5f-b3e9c4a077dd",
       "ProviderName": "ASI Scheduled Alerts",
+      "Tactics": "InitialAccess",
       "AccountEntityMatch": true,
       "IPEntityMatch": false,
       "HostEntityMatch": true
     }
   ],
+  "HighestSeverityAlert": "Informational",
   "RelatedAccountAlertsCount": 2,
   "RelatedAccountAlertsFound": true,
   "RelatedAlertsCount": 2,
