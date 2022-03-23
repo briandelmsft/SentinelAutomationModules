@@ -48,7 +48,7 @@
                             "type": "Object"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.0.4",
+                            "defaultValue": "0.1.0",
                             "type": "String"
                         },
                         "PlaybookInternalName": {
