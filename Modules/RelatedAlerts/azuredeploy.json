@@ -48,7 +48,7 @@
                             "type": "Object"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.1.0",
+                            "defaultValue": "0.1.1",
                             "type": "String"
                         },
                         "PlaybookInternalName": {
@@ -240,7 +240,7 @@
                                 }
                             },
                             "runAfter": {
-                                "HTTP": [
+                                "Scope_-_API_Calls": [
                                     "Succeeded"
                                 ]
                             },
@@ -279,70 +279,6 @@
                                 ]
                             },
                             "type": "If"
-                        },
-                        "Compose": {
-                            "runAfter": {
-                                "HTTP_-_Get_Incident": [
-                                    "Succeeded"
-                                ],
-                                "Select_-_Alert_Info": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "Compose",
-                            "inputs": "let incidentARMId = '@{body('Parse_JSON')?['IncidentARMId']}';\nlet alertData = @'@{body('Select_-_Alert_Info')}';\nlet relatedRules = @'@{body('HTTP_-_Get_Incident')?['properties']?['relatedAnalyticRuleIds']}';\nlet accountData = @'@{replace(string(body('Select_-_Account_Entities')), '''', '\\''')}';\nlet ipData = @'@{replace(string(body('Parse_JSON')?['IPs']), '''', '\\''')}';\nlet hostData = @'@{replace(string(body('Parse_JSON')?['Hosts']), '''', '\\''')}';\nlet checkAccountEntity = @{triggerBody()?['CheckAccountEntityMatches']};\nlet checkIPEntity = @{triggerBody()?['CheckIPEntityMatches']};\nlet checkHostEntity = @{triggerBody()?['CheckHostEntityMatches']};\nlet lookback = @{triggerBody()?['LookbackInDays']}d;\nlet severityOrder = datatable (AlertSeverity:string, Order:int)['Informational', 1, 'Low', 2, 'Medium', 3, 'High', 4];\nlet isFusionIncident = toscalar(datatable (temp:string)['']\n| extend analyticRules = relatedRules\n| extend fusion = iff(analyticRules has 'BuiltInFusion', true, false)\n| project fusion);\nlet accountEntities = toscalar(datatable(temp:string)['']\n| where checkAccountEntity\n| extend Entities = parse_json(accountData)\n| mv-expand todynamic(Entities)\n| project SamAccountName=Entities.onPremisesSamAccountName, SID=Entities.onPremisesSecurityIdentifier, UPNName=split(Entities.userPrincipalName,'@')[0], Friendly=Entities.friendlyName\n| extend EntityData = pack_array(SamAccountName, SID, UPNName, Friendly)\n| mv-apply EntityData on (where isnotempty(EntityData))\n| summarize EntityData=make_set(EntityData));\nlet ipEntities = toscalar(datatable(temp:string)['']\n| where checkIPEntity\n| extend Entities = parse_json(ipData)\n| mv-expand todynamic(Entities)\n| project IP= coalesce(Entities.Address, Entities.RawEntity.address, Entities.RawEntity.friendlyName)\n| where isnotempty( IP)\n| summarize EntityData=make_set(IP));\nlet hostEntities = toscalar(datatable(temp:string)['']\n| where checkHostEntity\n| extend Entities = parse_json(hostData)\n| mv-expand todynamic(Entities)\n| project FQDN=Entities.FQDN, Hostname=coalesce(Entities.Hostname, Entities.RawEntity.hostName, Entities.RawEntity.friendlyName)\n| extend EntityData = pack_array(FQDN, Hostname)\n| mv-apply EntityData on (where isnotempty(EntityData))\n| summarize EntityData=make_set(EntityData));\nlet currentIncidentAlerts = datatable (temp:string)['']\n| extend alertData = todynamic(alertData)\n| mv-expand alertData\n| project alertData.systemAlertId;\nSecurityAlert \n| where TimeGenerated > ago(lookback) \n| summarize arg_max(TimeGenerated, *) by SystemAlertId \n| where SystemAlertId !in (currentIncidentAlerts) or isFusionIncident\n| mv-expand todynamic(Entities) \n| where Entities has_any (accountEntities) or ( Entities has_any (ipEntities) and Entities.Type == \"ip\") or Entities has_any (hostEntities) or (SystemAlertId in (currentIncidentAlerts) and isFusionIncident)\n| extend AccountEntityMatch = iff(Entities has_any (accountEntities), true, false), HostEntityMatch = iff(Entities has_any (hostEntities), true, false), IPEntityMatch = iff(Entities has_any (ipEntities) , true, false) \n| summarize AccountEntityMatch = max(AccountEntityMatch), IPEntityMatch=max(IPEntityMatch),HostEntityMatch=max(HostEntityMatch) by StartTime, DisplayName, AlertSeverity, SystemAlertId, ProviderName, Tactics\n| join kind=leftouter severityOrder on AlertSeverity\n| sort by Order desc\n| project-away Order, AlertSeverity1"
-                        },
-                        "HTTP": {
-                            "runAfter": {
-                                "Compose": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "Http",
-                            "inputs": {
-                                "authentication": {
-                                    "audience": "https://api.loganalytics.io",
-                                    "type": "ManagedServiceIdentity"
-                                },
-                                "body": {
-                                    "query": "@{outputs('Compose')}",
-                                    "timespan": "P@{triggerBody()?['LookbackInDays']}D"
-                                },
-                                "method": "POST",
-                                "uri": "https://api.loganalytics.io/v1/workspaces/@{body('Parse_JSON')?['WorkspaceId']}/query"
-                            }
-                        },
-                        "HTTP_-_Get_Alerts": {
-                            "runAfter": {
-                                "Select_-_Account_Entities": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "Http",
-                            "inputs": {
-                                "authentication": {
-                                    "audience": "https://management.azure.com",
-                                    "type": "ManagedServiceIdentity"
-                                },
-                                "method": "POST",
-                                "uri": "https://management.azure.com@{body('Parse_JSON')?['IncidentARMId']}/alerts?api-version=2021-10-01"
-                            }
-                        },
-                        "HTTP_-_Get_Incident": {
-                            "runAfter": {
-                                "Select_-_Account_Entities": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "Http",
-                            "inputs": {
-                                "authentication": {
-                                    "audience": "https://management.azure.com",
-                                    "type": "ManagedServiceIdentity"
-                                },
-                                "method": "GET",
-                                "uri": "https://management.azure.com@{body('Parse_JSON')?['IncidentARMId']}?api-version=2021-10-01"
-                            }
                         },
                         "Parse_JSON": {
                             "runAfter": {},
@@ -759,7 +695,7 @@
                         },
                         "Response_-_API_Failure": {
                             "runAfter": {
-                                "HTTP": [
+                                "Scope_-_API_Calls": [
                                     "Failed"
                                 ]
                             },
@@ -767,47 +703,114 @@
                             "kind": "Http",
                             "inputs": {
                                 "body": {
-                                    "Error": "@{parameters('PlaybookInternalName')} module failed to execute with status @{outputs('HTTP')['statusCode']}",
+                                    "Error": "@{parameters('PlaybookInternalName')} module failed to execute with status @{coalesce(outputs('HTTP')?['statusCode'],outputs('HTTP_-_Get_Alerts')?['statusCode'],outputs('HTTP_-_Get_Incident')?['statusCode'])}",
                                     "PlaybookName": "@{workflow()?['name']}",
                                     "PlaybookResourceId": "@{workflow()?['id']}",
                                     "PlaybookRunId": "@{workflow()?['run']?['name']}",
                                     "PlaybookVersion": "@parameters('PlaybookVersion')",
-                                    "SourceError": "@body('HTTP')"
+                                    "SourceError": "@coalesce(body('HTTP'),body('HTTP_-_Get_Alerts'),body('HTTP_-_Get_Incident'))"
                                 },
-                                "statusCode": "@outputs('HTTP')['statusCode']"
+                                "statusCode": "@coalesce(outputs('HTTP')?['statusCode'],outputs('HTTP_-_Get_Alerts')?['statusCode'],outputs('HTTP_-_Get_Incident')?['statusCode'])"
                             }
                         },
-                        "Select_-_Account_Entities": {
+                        "Scope_-_API_Calls": {
+                            "actions": {
+                                "Compose": {
+                                    "runAfter": {
+                                        "Select_-_Alert_Info": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Compose",
+                                    "inputs": "let incidentARMId = '@{body('Parse_JSON')?['IncidentARMId']}';\nlet alertData = @'@{body('Select_-_Alert_Info')}';\nlet relatedRules = @'@{body('HTTP_-_Get_Incident')?['properties']?['relatedAnalyticRuleIds']}';\nlet accountData = @'@{replace(string(body('Select_-_Account_Entities')), '''', '\\''')}';\nlet ipData = @'@{replace(string(body('Parse_JSON')?['IPs']), '''', '\\''')}';\nlet hostData = @'@{replace(string(body('Parse_JSON')?['Hosts']), '''', '\\''')}';\nlet checkAccountEntity = @{triggerBody()?['CheckAccountEntityMatches']};\nlet checkIPEntity = @{triggerBody()?['CheckIPEntityMatches']};\nlet checkHostEntity = @{triggerBody()?['CheckHostEntityMatches']};\nlet lookback = @{triggerBody()?['LookbackInDays']}d;\nlet severityOrder = datatable (AlertSeverity:string, Order:int)['Informational', 1, 'Low', 2, 'Medium', 3, 'High', 4];\nlet isFusionIncident = toscalar(datatable (temp:string)['']\n| extend analyticRules = relatedRules\n| extend fusion = iff(analyticRules has 'BuiltInFusion', true, false)\n| project fusion);\nlet accountEntities = toscalar(datatable(temp:string)['']\n| where checkAccountEntity\n| extend Entities = parse_json(accountData)\n| mv-expand todynamic(Entities)\n| project SamAccountName=Entities.onPremisesSamAccountName, SID=Entities.onPremisesSecurityIdentifier, UPNName=split(Entities.userPrincipalName,'@')[0], Friendly=Entities.friendlyName\n| extend EntityData = pack_array(SamAccountName, SID, UPNName, Friendly)\n| mv-apply EntityData on (where isnotempty(EntityData))\n| summarize EntityData=make_set(EntityData));\nlet ipEntities = toscalar(datatable(temp:string)['']\n| where checkIPEntity\n| extend Entities = parse_json(ipData)\n| mv-expand todynamic(Entities)\n| project IP= coalesce(Entities.Address, Entities.RawEntity.address, Entities.RawEntity.friendlyName)\n| where isnotempty( IP)\n| summarize EntityData=make_set(IP));\nlet hostEntities = toscalar(datatable(temp:string)['']\n| where checkHostEntity\n| extend Entities = parse_json(hostData)\n| mv-expand todynamic(Entities)\n| project FQDN=Entities.FQDN, Hostname=coalesce(Entities.Hostname, Entities.RawEntity.hostName, Entities.RawEntity.friendlyName)\n| extend EntityData = pack_array(FQDN, Hostname)\n| mv-apply EntityData on (where isnotempty(EntityData))\n| summarize EntityData=make_set(EntityData));\nlet currentIncidentAlerts = datatable (temp:string)['']\n| extend alertData = todynamic(alertData)\n| mv-expand alertData\n| project alertData.systemAlertId;\nSecurityAlert \n| where TimeGenerated > ago(lookback) \n| summarize arg_max(TimeGenerated, *) by SystemAlertId \n| where SystemAlertId !in (currentIncidentAlerts) or isFusionIncident\n| mv-expand todynamic(Entities) \n| where Entities has_any (accountEntities) or ( Entities has_any (ipEntities) and Entities.Type == \"ip\") or Entities has_any (hostEntities) or (SystemAlertId in (currentIncidentAlerts) and isFusionIncident)\n| extend AccountEntityMatch = iff(Entities has_any (accountEntities), true, false), HostEntityMatch = iff(Entities has_any (hostEntities), true, false), IPEntityMatch = iff(Entities has_any (ipEntities) , true, false) \n| summarize AccountEntityMatch = max(AccountEntityMatch), IPEntityMatch=max(IPEntityMatch),HostEntityMatch=max(HostEntityMatch) by StartTime, DisplayName, AlertSeverity, SystemAlertId, ProviderName, Tactics\n| join kind=leftouter severityOrder on AlertSeverity\n| sort by Order desc\n| project-away Order, AlertSeverity1"
+                                },
+                                "HTTP": {
+                                    "runAfter": {
+                                        "Compose": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Http",
+                                    "inputs": {
+                                        "authentication": {
+                                            "audience": "https://api.loganalytics.io",
+                                            "type": "ManagedServiceIdentity"
+                                        },
+                                        "body": {
+                                            "query": "@{outputs('Compose')}",
+                                            "timespan": "P@{triggerBody()?['LookbackInDays']}D"
+                                        },
+                                        "method": "POST",
+                                        "uri": "https://api.loganalytics.io/v1/workspaces/@{body('Parse_JSON')?['WorkspaceId']}/query"
+                                    }
+                                },
+                                "HTTP_-_Get_Alerts": {
+                                    "runAfter": {
+                                        "HTTP_-_Get_Incident": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Http",
+                                    "inputs": {
+                                        "authentication": {
+                                            "audience": "https://management.azure.com",
+                                            "type": "ManagedServiceIdentity"
+                                        },
+                                        "method": "POST",
+                                        "uri": "https://management.azure.com@{body('Parse_JSON')?['IncidentARMId']}/alerts?api-version=2021-10-01"
+                                    }
+                                },
+                                "HTTP_-_Get_Incident": {
+                                    "runAfter": {
+                                        "Select_-_Account_Entities": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Http",
+                                    "inputs": {
+                                        "authentication": {
+                                            "audience": "https://management.azure.com",
+                                            "type": "ManagedServiceIdentity"
+                                        },
+                                        "method": "GET",
+                                        "uri": "https://management.azure.com@{body('Parse_JSON')?['IncidentARMId']}?api-version=2021-10-01"
+                                    }
+                                },
+                                "Select_-_Account_Entities": {
+                                    "runAfter": {},
+                                    "type": "Select",
+                                    "inputs": {
+                                        "from": "@body('Parse_JSON')?['Accounts']",
+                                        "select": {
+                                            "friendlyName": "@item()?['RawEntity']?['friendlyName']",
+                                            "onPremisesSamAccountName": "@item()?['onPremisesSamAccountName']",
+                                            "onPremisesSecurityIdentifier": "@item()?['onPremisesSecurityIdentifier']",
+                                            "userPrincipalName": "@item()?['userPrincipalName']"
+                                        }
+                                    }
+                                },
+                                "Select_-_Alert_Info": {
+                                    "runAfter": {
+                                        "HTTP_-_Get_Alerts": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Select",
+                                    "inputs": {
+                                        "from": "@body('HTTP_-_Get_Alerts')?['value']",
+                                        "select": {
+                                            "systemAlertId": "@item()?['properties']?['systemAlertId']",
+                                            "tactics": "@item()?['properties']?['tactics']"
+                                        }
+                                    }
+                                }
+                            },
                             "runAfter": {
                                 "Parse_JSON": [
                                     "Succeeded"
                                 ]
                             },
-                            "type": "Select",
-                            "inputs": {
-                                "from": "@body('Parse_JSON')?['Accounts']",
-                                "select": {
-                                    "friendlyName": "@item()?['RawEntity']?['friendlyName']",
-                                    "onPremisesSamAccountName": "@item()?['onPremisesSamAccountName']",
-                                    "onPremisesSecurityIdentifier": "@item()?['onPremisesSecurityIdentifier']",
-                                    "userPrincipalName": "@item()?['userPrincipalName']"
-                                }
-                            }
-                        },
-                        "Select_-_Alert_Info": {
-                            "runAfter": {
-                                "HTTP_-_Get_Alerts": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "Select",
-                            "inputs": {
-                                "from": "@body('HTTP_-_Get_Alerts')?['value']",
-                                "select": {
-                                    "systemAlertId": "@item()?['properties']?['systemAlertId']",
-                                    "tactics": "@item()?['properties']?['tactics']"
-                                }
-                            }
+                            "type": "Scope"
                         }
                     },
                     "outputs": {}
