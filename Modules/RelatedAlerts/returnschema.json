@@ -24,6 +24,9 @@
                     "ProviderName": {
                         "type": "string"
                     },
+                    "Tactics": {
+                        "type": "string"
+                    },
                     "AccountEntityMatch": {
                         "type": "boolean"
                     },
@@ -35,6 +38,9 @@
                     }
                 }
             }
+        },
+        "HighestSeverityAlert": {
+            "type": "string"
         },
         "RelatedAlertsCount": {
             "type": "integer"

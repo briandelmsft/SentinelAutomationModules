@@ -48,7 +48,7 @@
                             "type": "Object"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.0.7",
+                            "defaultValue": "0.1.0",
                             "type": "String"
                         },
                         "PlaybookInternalName": {
@@ -116,7 +116,7 @@
                                             "inputs": {
                                                 "body": {
                                                     "incidentArmId": "@body('Parse_JSON')?['IncidentARMId']",
-                                                    "message": "<p>There were @{length(body('HTTP')['tables'][0]['rows'])} related alerts found.<br>\n<br>\n@{body('Create_HTML_table')}<br>\n<br>\n</p>"
+                                                    "message": "<p>There were @{length(body('Select'))} related alerts found. @{if(greater(length(body('Select')), 6), 'A maximum of 6 results have been displayed', '')}<br>\n<br>\n@{body('Create_HTML_table')}<br>\n@{if(equals(body('Parse_JSON')?['ModuleVersions']?['RelatedAlerts'], null), '', if(not(equals(body('Parse_JSON')?['ModuleVersions']?['RelatedAlerts'], parameters('PlaybookVersion'))), concat('<br>Sentinel Triage AssistanT - RelatedAlerts Update Available: Installed Version: ', parameters('PlaybookVersion'), ', Available Version: ', body('Parse_JSON')?['ModuleVersions']?['RelatedAlerts']), ''))}</p>"
                                                 },
                                                 "host": {
                                                     "connection": {
@@ -132,7 +132,7 @@
                                             "type": "Table",
                                             "inputs": {
                                                 "format": "HTML",
-                                                "from": "@body('Select')"
+                                                "from": "@take(body('Select'), 6)"
                                             }
                                         }
                                     },
@@ -207,6 +207,7 @@
                                     "inputs": {
                                         "body": {
                                             "DetailedResults": "@body('Select')",
+                                            "HighestSeverityAlert": "@{body('Select')?[0]?['AlertSeverity']}",
                                             "RelatedAccountAlertsCount": "@length(body('Filter_array_-_Accounts'))",
                                             "RelatedAccountAlertsFound": "@if(greater(length(body('Filter_array_-_Accounts')), 0), true, false)",
                                             "RelatedAlertsCount": "@length(body('HTTP')['tables'][0]['rows'])",
@@ -252,6 +253,7 @@
                                         "inputs": {
                                             "body": {
                                                 "DetailedResults": [],
+                                                "HighestSeverityAlert": null,
                                                 "RelatedAccountAlertsCount": 0,
                                                 "RelatedAccountAlertsFound": false,
                                                 "RelatedAlertsCount": 0,
@@ -280,12 +282,15 @@
                         },
                         "Compose": {
                             "runAfter": {
-                                "Select_-_Account_Entities": [
+                                "HTTP_-_Get_Incident": [
+                                    "Succeeded"
+                                ],
+                                "Select_-_Alert_Info": [
                                     "Succeeded"
                                 ]
                             },
                             "type": "Compose",
-                            "inputs": "let incidentARMId = '@{body('Parse_JSON')?['IncidentARMId']}';\nlet accountData = @'@{replace(string(body('Select_-_Account_Entities')), '''', '\\''')}';\nlet ipData = @'@{replace(string(body('Parse_JSON')?['IPs']), '''', '\\''')}';\nlet hostData = @'@{replace(string(body('Parse_JSON')?['Hosts']), '''', '\\''')}';\nlet checkAccountEntity = @{triggerBody()?['CheckAccountEntityMatches']};\nlet checkIPEntity = @{triggerBody()?['CheckIPEntityMatches']};\nlet checkHostEntity = @{triggerBody()?['CheckHostEntityMatches']};\nlet lookback = @{triggerBody()?['LookbackInDays']}d;\nlet currentIncident = materialize (\nSecurityIncident\n| where TimeGenerated > ago(lookback)\n| where IncidentUrl endswith incidentARMId\n| summarize arg_max(TimeGenerated, *) by IncidentNumber);\nlet isFusionIncident = toscalar(currentIncident\n| project isFusion = iff(RelatedAnalyticRuleIds has \"BuiltInFusion\", true, false));\nlet accountEntities = toscalar(datatable(temp:string)['']\n| where checkAccountEntity\n| extend Entities = parse_json(accountData)\n| mv-expand todynamic(Entities)\n| project SamAccountName=Entities.onPremisesSamAccountName, SID=Entities.onPremisesSecurityIdentifier, UPNName=split(Entities.userPrincipalName,'@')[0], Friendly=Entities.friendlyName\n| extend EntityData = pack_array(SamAccountName, SID, UPNName, Friendly)\n| mv-apply EntityData on (where isnotempty(EntityData))\n| summarize EntityData=make_set(EntityData));\nlet ipEntities = toscalar(datatable(temp:string)['']\n| where checkIPEntity\n| extend Entities = parse_json(ipData)\n| mv-expand todynamic(Entities)\n| project IP= coalesce(Entities.Address, Entities.RawEntity.address, Entities.RawEntity.friendlyName)\n| where isnotempty( IP)\n| summarize EntityData=make_set(IP));\nlet hostEntities = toscalar(datatable(temp:string)['']\n| where checkHostEntity\n| extend Entities = parse_json(hostData)\n| mv-expand todynamic(Entities)\n| project FQDN=Entities.FQDN, Hostname=coalesce(Entities.Hostname, Entities.RawEntity.hostName, Entities.RawEntity.friendlyName)\n| extend EntityData = pack_array(FQDN, Hostname)\n| mv-apply EntityData on (where isnotempty(EntityData))\n| summarize EntityData=make_set(EntityData));\nlet currentIncidentAlerts = currentIncident\n| mv-expand AlertIds\n| project SystemAlertId=tostring(AlertIds);\nSecurityAlert \n| where TimeGenerated > ago(lookback) \n| summarize arg_max(TimeGenerated, *) by SystemAlertId \n| where SystemAlertId !in (currentIncidentAlerts) or isFusionIncident\n| mv-expand todynamic(Entities) \n| where Entities has_any (accountEntities) or ( Entities has_any (ipEntities) and Entities.Type == \"ip\") or Entities has_any (hostEntities) or (SystemAlertId in (currentIncidentAlerts) and isFusionIncident)\n| extend AccountEntityMatch = iff(Entities has_any (accountEntities), true, false), HostEntityMatch = iff(Entities has_any (hostEntities), true, false), IPEntityMatch = iff(Entities has_any (ipEntities) , true, false) \n| summarize AccountEntityMatch = max(AccountEntityMatch), IPEntityMatch=max(IPEntityMatch),HostEntityMatch=max(HostEntityMatch) by StartTime, DisplayName, AlertName, AlertSeverity, SystemAlertId, ProviderName"
+                            "inputs": "let incidentARMId = '@{body('Parse_JSON')?['IncidentARMId']}';\nlet alertData = @'@{body('Select_-_Alert_Info')}';\nlet relatedRules = @'@{body('HTTP_-_Get_Incident')?['properties']?['relatedAnalyticRuleIds']}';\nlet accountData = @'@{replace(string(body('Select_-_Account_Entities')), '''', '\\''')}';\nlet ipData = @'@{replace(string(body('Parse_JSON')?['IPs']), '''', '\\''')}';\nlet hostData = @'@{replace(string(body('Parse_JSON')?['Hosts']), '''', '\\''')}';\nlet checkAccountEntity = @{triggerBody()?['CheckAccountEntityMatches']};\nlet checkIPEntity = @{triggerBody()?['CheckIPEntityMatches']};\nlet checkHostEntity = @{triggerBody()?['CheckHostEntityMatches']};\nlet lookback = @{triggerBody()?['LookbackInDays']}d;\nlet severityOrder = datatable (AlertSeverity:string, Order:int)['Informational', 1, 'Low', 2, 'Medium', 3, 'High', 4];\nlet isFusionIncident = toscalar(datatable (temp:string)['']\n| extend analyticRules = relatedRules\n| extend fusion = iff(analyticRules has 'BuiltInFusion', true, false)\n| project fusion);\nlet accountEntities = toscalar(datatable(temp:string)['']\n| where checkAccountEntity\n| extend Entities = parse_json(accountData)\n| mv-expand todynamic(Entities)\n| project SamAccountName=Entities.onPremisesSamAccountName, SID=Entities.onPremisesSecurityIdentifier, UPNName=split(Entities.userPrincipalName,'@')[0], Friendly=Entities.friendlyName\n| extend EntityData = pack_array(SamAccountName, SID, UPNName, Friendly)\n| mv-apply EntityData on (where isnotempty(EntityData))\n| summarize EntityData=make_set(EntityData));\nlet ipEntities = toscalar(datatable(temp:string)['']\n| where checkIPEntity\n| extend Entities = parse_json(ipData)\n| mv-expand todynamic(Entities)\n| project IP= coalesce(Entities.Address, Entities.RawEntity.address, Entities.RawEntity.friendlyName)\n| where isnotempty( IP)\n| summarize EntityData=make_set(IP));\nlet hostEntities = toscalar(datatable(temp:string)['']\n| where checkHostEntity\n| extend Entities = parse_json(hostData)\n| mv-expand todynamic(Entities)\n| project FQDN=Entities.FQDN, Hostname=coalesce(Entities.Hostname, Entities.RawEntity.hostName, Entities.RawEntity.friendlyName)\n| extend EntityData = pack_array(FQDN, Hostname)\n| mv-apply EntityData on (where isnotempty(EntityData))\n| summarize EntityData=make_set(EntityData));\nlet currentIncidentAlerts = datatable (temp:string)['']\n| extend alertData = todynamic(alertData)\n| mv-expand alertData\n| project alertData.systemAlertId;\nSecurityAlert \n| where TimeGenerated > ago(lookback) \n| summarize arg_max(TimeGenerated, *) by SystemAlertId \n| where SystemAlertId !in (currentIncidentAlerts) or isFusionIncident\n| mv-expand todynamic(Entities) \n| where Entities has_any (accountEntities) or ( Entities has_any (ipEntities) and Entities.Type == \"ip\") or Entities has_any (hostEntities) or (SystemAlertId in (currentIncidentAlerts) and isFusionIncident)\n| extend AccountEntityMatch = iff(Entities has_any (accountEntities), true, false), HostEntityMatch = iff(Entities has_any (hostEntities), true, false), IPEntityMatch = iff(Entities has_any (ipEntities) , true, false) \n| summarize AccountEntityMatch = max(AccountEntityMatch), IPEntityMatch=max(IPEntityMatch),HostEntityMatch=max(HostEntityMatch) by StartTime, DisplayName, AlertSeverity, SystemAlertId, ProviderName, Tactics\n| join kind=leftouter severityOrder on AlertSeverity\n| sort by Order desc\n| project-away Order, AlertSeverity1"
                         },
                         "HTTP": {
                             "runAfter": {
@@ -305,6 +310,38 @@
                                 },
                                 "method": "POST",
                                 "uri": "https://api.loganalytics.io/v1/workspaces/@{body('Parse_JSON')?['WorkspaceId']}/query"
+                            }
+                        },
+                        "HTTP_-_Get_Alerts": {
+                            "runAfter": {
+                                "Select_-_Account_Entities": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Http",
+                            "inputs": {
+                                "authentication": {
+                                    "audience": "https://management.azure.com",
+                                    "type": "ManagedServiceIdentity"
+                                },
+                                "method": "POST",
+                                "uri": "https://management.azure.com@{body('Parse_JSON')?['IncidentARMId']}/alerts?api-version=2021-10-01"
+                            }
+                        },
+                        "HTTP_-_Get_Incident": {
+                            "runAfter": {
+                                "Select_-_Account_Entities": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Http",
+                            "inputs": {
+                                "authentication": {
+                                    "audience": "https://management.azure.com",
+                                    "type": "ManagedServiceIdentity"
+                                },
+                                "method": "GET",
+                                "uri": "https://management.azure.com@{body('Parse_JSON')?['IncidentARMId']}?api-version=2021-10-01"
                             }
                         },
                         "Parse_JSON": {
@@ -647,6 +684,44 @@
                                             "description": "The ARM Id of the Azure Sentinel Incident",
                                             "type": "string"
                                         },
+                                        "ModuleVersions": {
+                                            "properties": {
+                                                "AADRisksModule": {
+                                                    "type": "string"
+                                                },
+                                                "BaseModule": {
+                                                    "type": "string"
+                                                },
+                                                "FileModule": {
+                                                    "type": "string"
+                                                },
+                                                "KQLModule": {
+                                                    "type": "string"
+                                                },
+                                                "MCASModule": {
+                                                    "type": "string"
+                                                },
+                                                "MDEModule": {
+                                                    "type": "string"
+                                                },
+                                                "OOFModule": {
+                                                    "type": "string"
+                                                },
+                                                "RelatedAlerts": {
+                                                    "type": "string"
+                                                },
+                                                "TIModule": {
+                                                    "type": "string"
+                                                },
+                                                "UEBAModule": {
+                                                    "type": "string"
+                                                },
+                                                "WatchlistModule": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
                                         "URLs": {
                                             "description": "Array of URLs",
                                             "items": {
@@ -716,6 +791,21 @@
                                     "onPremisesSamAccountName": "@item()?['onPremisesSamAccountName']",
                                     "onPremisesSecurityIdentifier": "@item()?['onPremisesSecurityIdentifier']",
                                     "userPrincipalName": "@item()?['userPrincipalName']"
+                                }
+                            }
+                        },
+                        "Select_-_Alert_Info": {
+                            "runAfter": {
+                                "HTTP_-_Get_Alerts": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Select",
+                            "inputs": {
+                                "from": "@body('HTTP_-_Get_Alerts')?['value']",
+                                "select": {
+                                    "systemAlertId": "@item()?['properties']?['systemAlertId']",
+                                    "tactics": "@item()?['properties']?['tactics']"
                                 }
                             }
                         }
