@@ -48,7 +48,7 @@
                             "type": "Object"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.0.4",
+                            "defaultValue": "0.1.0",
                             "type": "String"
                         },
                         "PlaybookInternalName": {
@@ -133,7 +133,7 @@
                                     "inputs": {
                                         "body": {
                                             "incidentArmId": "@body('Parse_JSON')?['IncidentARMId']",
-                                            "message": "<p>A total of @{length(outputs('Compose_-_DetailedResults'))} matching TI indicators were found.<br>\n<br>\n@{body('Create_HTML_table')}</p>"
+                                            "message": "<p>A total of @{length(outputs('Compose_-_DetailedResults'))} matching TI indicators were found.<br>\n<br>\n@{body('Create_HTML_table')}<br>\n@{if(equals(body('Parse_JSON')?['ModuleVersions']?['TIModule'], null), '', if(not(equals(body('Parse_JSON')?['ModuleVersions']?['TIModule'], parameters('PlaybookVersion'))), concat('<br>Sentinel Triage AssistanT - Threat Intel Update Available: Installed Version: ', parameters('PlaybookVersion'), ', Available Version: ', body('Parse_JSON')?['ModuleVersions']?['TIModule']), ''))}</p>"
                                         },
                                         "host": {
                                             "connection": {
@@ -191,7 +191,7 @@
                                         },
                                         "body": {
                                             "query": "@{outputs('Compose_-_Domain')}",
-                                            "timespan": "P@{triggerBody()?['LookbackInDays']}D"
+                                            "timespan": "P@{variables('Lookback')}D"
                                         },
                                         "method": "POST",
                                         "uri": "https://api.loganalytics.io/v1/workspaces/@{body('Parse_JSON')?['WorkspaceId']}/query"
@@ -282,7 +282,7 @@
                                         },
                                         "body": {
                                             "query": "@{outputs('Compose_-_File_Hash')}",
-                                            "timespan": "P@{triggerBody()?['LookbackInDays']}D"
+                                            "timespan": "P@{variables('Lookback')}D"
                                         },
                                         "method": "POST",
                                         "uri": "https://api.loganalytics.io/v1/workspaces/@{body('Parse_JSON')?['WorkspaceId']}/query"
@@ -373,7 +373,7 @@
                                         },
                                         "body": {
                                             "query": "@{outputs('Compose_-_IP')}",
-                                            "timespan": "P@{triggerBody()?['LookbackInDays']}D"
+                                            "timespan": "P@{variables('Lookback')}D"
                                         },
                                         "method": "POST",
                                         "uri": "https://api.loganalytics.io/v1/workspaces/@{body('Parse_JSON')?['WorkspaceId']}/query"
@@ -464,7 +464,7 @@
                                         },
                                         "body": {
                                             "query": "@{outputs('Compose_-_URL')}",
-                                            "timespan": "P@{triggerBody()?['LookbackInDays']}D"
+                                            "timespan": "P@{variables('Lookback')}D"
                                         },
                                         "method": "POST",
                                         "uri": "https://api.loganalytics.io/v1/workspaces/@{body('Parse_JSON')?['WorkspaceId']}/query"
@@ -536,7 +536,7 @@
                         },
                         "Initialize_variable": {
                             "runAfter": {
-                                "Parse_JSON": [
+                                "Initialize_variable_-_Lookback": [
                                     "Succeeded"
                                 ]
                             },
@@ -547,6 +547,23 @@
                                         "name": "emptyArray",
                                         "type": "array",
                                         "value": []
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_variable_-_Lookback": {
+                            "runAfter": {
+                                "Parse_JSON": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "Lookback",
+                                        "type": "string",
+                                        "value": "@{coalesce(triggerBody()?['LookbackInDays'], '14')}"
                                     }
                                 ]
                             }
@@ -890,6 +907,44 @@
                                         "IncidentARMId": {
                                             "description": "The ARM Id of the Azure Sentinel Incident",
                                             "type": "string"
+                                        },
+                                        "ModuleVersions": {
+                                            "properties": {
+                                                "AADRisksModule": {
+                                                    "type": "string"
+                                                },
+                                                "BaseModule": {
+                                                    "type": "string"
+                                                },
+                                                "FileModule": {
+                                                    "type": "string"
+                                                },
+                                                "KQLModule": {
+                                                    "type": "string"
+                                                },
+                                                "MCASModule": {
+                                                    "type": "string"
+                                                },
+                                                "MDEModule": {
+                                                    "type": "string"
+                                                },
+                                                "OOFModule": {
+                                                    "type": "string"
+                                                },
+                                                "RelatedAlerts": {
+                                                    "type": "string"
+                                                },
+                                                "TIModule": {
+                                                    "type": "string"
+                                                },
+                                                "UEBAModule": {
+                                                    "type": "string"
+                                                },
+                                                "WatchlistModule": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "type": "object"
                                         },
                                         "URLs": {
                                             "description": "Array of URLs",
