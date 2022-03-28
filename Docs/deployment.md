@@ -19,9 +19,9 @@ STAT can be deployed/updated via single ARM deployment
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fbriandelmsft%2FSentinelAutomationModules%2Fmain%2FDeploy%2Fazuredeploy.json/createUIDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2Fbriandelmsft%2FSentinelAutomationModules%2Fmain%2FDeploy%2FcreateUiDefinition.json)
 
-## Granting Permissions
+## Post Deloyment
 
-After the STAT template is deployed it will need to be granted permissions to various APIs and Sentinel itself to operate.  All components of STAT run as System Assigned Managed Identities.
+After the STAT template is deployed it will need to be granted permissions to various APIs and Sentinel itself to operate.  All components of STAT run as System Assigned Managed Identities.  You may also wish to restrict calls to the STAT Coordinator logic app to specified Azure data center regions.
 
 ### Grant Permissions
 
@@ -49,6 +49,20 @@ STAT Uses the following permissions
 |investigation.read|Microsoft Defender for Cloud Apps API|Retrieve user investigation priorities|
 |AdvancedHunting.Read.All|Microsoft 365 Security API|Execute KQL queries against the Microsoft 365 Security service|
 |Microsoft Sentinel Responder|Azure RBAC Role|Gives permissions to update incidents and read data from Sentinel. This is typically used by STAT to add comments to incidents.|
+
+### Restrict Calls to STAT Coordinator (optional)
+
+All STAT modules, except the STAT Coordinator, are restricted to only being called from a Logic Apps IP and with a valid Shared Access Signature.  However, by default the STAT coordinator is only protected by the Shared Access Signature.  This is due to the Logic Apps Custom connector using IP addresses outside of the standard Logic Apps IP ranges.
+
+To restrict the STAT coordinator to only accept calls from the Logic apps custom connector:
+1. Locate the appropriate IP ranges for your Azure datacenter region [here](https://www.microsoft.com/download/details.aspx?id=56519) under the section **AzureConnectors.&lt;AzureRegion&gt;**
+2. Navigate in the Azure Portal to the **STAT-Coordinator** logic app
+3. Locate **Settings -> Workflow settings**
+4. Change the drop down menu from **Any IP** to **Specific IP ranges**
+5. Add the IP ranges obtained in step 1
+6. **Save**
+
+> Note: To maintain these IP restrictions, these steps will need to be repated when updating the STAT solution.
 
 
 ---
