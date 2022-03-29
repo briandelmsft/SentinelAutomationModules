@@ -42,12 +42,6 @@
                 "accessControl": {
                     "triggers": {
                         "allowedCallerIpAddresses": []
-                    },
-                    "actions": {
-                        "allowedCallerIpAddresses": []
-                    },
-                    "contents": {
-                        "allowedCallerIpAddresses": []
                     }
                 },
                 "definition": {
