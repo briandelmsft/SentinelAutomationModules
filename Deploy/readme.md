@@ -36,4 +36,4 @@ To restrict the STAT coordinator to only accept calls from the Logic apps custom
 5. Add the IP ranges obtained in step 1
 6. **Save**
 
-> Note: To maintain these IP restrictions, these steps will need to be repated when updating the STAT solution.
+> Note: To maintain these IP restrictions, these steps will need to be repeated when updating the STAT solution.
