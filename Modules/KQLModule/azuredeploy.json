@@ -53,7 +53,7 @@
                             "type": "Object"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.0.5",
+                            "defaultValue": "0.1.0",
                             "type": "String"
                         },
                         "PlaybookInternalName": {
@@ -85,6 +85,10 @@
                                             "description": "Enter the number of days you want to lookback in the KQL data",
                                             "type": "integer"
                                         },
+                                        "QueryDescription": {
+                                            "description": "This description will be added to the incident comment for additional context on the query",
+                                            "type": "string"
+                                        },
                                         "RunQueryAgainst": {
                                             "description": "Enter Sentinel or M365",
                                             "type": "string"
@@ -108,7 +112,7 @@
                                     "inputs": {
                                         "body": {
                                             "incidentArmId": "@body('Parse_JSON')?['IncidentARMId']",
-                                            "message": "<p>A total of @{variables('ResultCount')} records were found in a @{triggerBody()?['RunQueryAgainst']} search.<br>\n@{take(body('Create_HTML_table'), 2850)}</p>"
+                                            "message": "<p>@{if(not(equals(triggerBody()?['QueryDescription'], null)), concat(triggerBody()?['QueryDescription'], '<p>'),null)}A total of @{variables('ResultCount')} records were found in a @{triggerBody()?['RunQueryAgainst']} search.<br>\n@{take(body('Create_HTML_table'), 2800)}@{if(equals(body('Parse_JSON')?['ModuleVersions']?['KQLModule'], null), '', if(not(equals(body('Parse_JSON')?['ModuleVersions']?['KQLModule'], parameters('PlaybookVersion'))), concat('<br>Sentinel Triage AssistanT - KQL Module Update Available: Installed Version: ', parameters('PlaybookVersion'), ', Available Version: ', body('Parse_JSON')?['ModuleVersions']?['KQLModule']), ''))}</p>"
                                         },
                                         "host": {
                                             "connection": {
@@ -518,6 +522,44 @@
                                         "IncidentARMId": {
                                             "description": "The ARM Id of the Azure Sentinel Incident",
                                             "type": "string"
+                                        },
+                                        "ModuleVersions": {
+                                            "properties": {
+                                                "AADRisksModule": {
+                                                    "type": "string"
+                                                },
+                                                "BaseModule": {
+                                                    "type": "string"
+                                                },
+                                                "FileModule": {
+                                                    "type": "string"
+                                                },
+                                                "KQLModule": {
+                                                    "type": "string"
+                                                },
+                                                "MCASModule": {
+                                                    "type": "string"
+                                                },
+                                                "MDEModule": {
+                                                    "type": "string"
+                                                },
+                                                "OOFModule": {
+                                                    "type": "string"
+                                                },
+                                                "RelatedAlerts": {
+                                                    "type": "string"
+                                                },
+                                                "TIModule": {
+                                                    "type": "string"
+                                                },
+                                                "UEBAModule": {
+                                                    "type": "string"
+                                                },
+                                                "WatchlistModule": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "type": "object"
                                         },
                                         "URLs": {
                                             "description": "Array of URLs",

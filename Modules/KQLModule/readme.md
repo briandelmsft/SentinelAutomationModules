@@ -15,6 +15,7 @@ This module allows you to run custom KQL queries against Microsoft Sentinel or M
 |Base Module Body|Body (dynamic content)|The Body should be selected from the Dynamic content of the Base-Module response|
 |KQL Query|The KQL Query you wish to execute|
 |LookbackInDays|1-90|This defines how far back to look back in the data, note this is limited to 30 days for Microsoft 365 Advanced Hunting|
+|QueryDescription|Text String (optional)|This description will be added to the incident comments to provide additional context on the query|
 |RunQueryAgainst|Sentinel/M365|This defines if the KQL query will run against the Microsoft Sentinel data or the M365 Defender Advanced Hunting data|
 
 ## Building your KQL Query
