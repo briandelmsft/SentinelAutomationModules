@@ -139,7 +139,7 @@
                                                 "inputs": {
                                                     "body": {
                                                         "incidentArmId": "@body('Parse_JSON')?['IncidentARMId']",
-                                                        "message": "<p>Number of analyzed entities: @{length(variables('DetailedResults'))}<br>\nHighest risk level found: @{if(contains(body('Create_CSV_table_to_calculate_HighestRiskLevel'), 'High'), 'High', if(contains(body('Create_CSV_table_to_calculate_HighestRiskLevel'), 'Medium'), 'Medium', if(contains(body('Create_CSV_table_to_calculate_HighestRiskLevel'), 'Low'), 'Low', if(contains(body('Create_CSV_table_to_calculate_HighestRiskLevel'), 'None'),'None','Unknown'))))}<br>\nTotal failed MFA attempts: @{variables('FailedMFATotalCount')} (lookup enabled:@{triggerBody()?['MFAFailureLookup']})<br>\nTotal MFA fraud reports: @{variables('MFAFraudTotalCount')} (lookup enabled:@{triggerBody()?['MFAFraudLookup']})<br>\n<br>\nDetailed results :&nbsp;@{if(equals(length(outputs('Compose_response')['DetailedResults']),0),'No results',body('Create_HTML_table_for_comments'))}<br>\n</p>"
+                                                        "message": "<p>Number of analyzed entities: @{length(variables('DetailedResults'))}<br>\nHighest risk level found: @{if(contains(body('Create_CSV_table_to_calculate_HighestRiskLevel'), 'high'), 'high', if(contains(body('Create_CSV_table_to_calculate_HighestRiskLevel'), 'medium'), 'medium', if(contains(body('Create_CSV_table_to_calculate_HighestRiskLevel'), 'low'), 'low', if(contains(body('Create_CSV_table_to_calculate_HighestRiskLevel'), 'none'),'none','unknown'))))}<br>\nTotal failed MFA attempts: @{variables('FailedMFATotalCount')} (lookup enabled:@{triggerBody()?['MFAFailureLookup']})<br>\nTotal MFA fraud reports: @{variables('MFAFraudTotalCount')} (lookup enabled:@{triggerBody()?['MFAFraudLookup']})<br>\n<br>\nDetailed results :&nbsp;@{if(equals(length(outputs('Compose_response')['DetailedResults']),0),'No results',body('Create_HTML_table_for_comments'))}<br>\n</p>"
                                                     },
                                                     "host": {
                                                         "connection": {
@@ -915,7 +915,7 @@
                             "type": "Object"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.0.4",
+                            "defaultValue": "0.0.5",
                             "type": "String"
                         },
                         "PlaybookInternalName": {
