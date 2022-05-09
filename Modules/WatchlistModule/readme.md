@@ -6,6 +6,9 @@ This module will check the incident entities to see if there are any matches on 
 ## Suported Entity Types
 * Account (UPN)
 * IP Address
+* Host (FQDN)
+
+> Note: For best results with host entities, the WatchlistKey should be in FQDN format (hostname.contoso.com) although the module will also attempt hostname matches.
 
 ## Trigger Parameters
 
@@ -14,7 +17,7 @@ This module will check the incident entities to see if there are any matches on 
 |AddIncidentComments|True/False (Default:True)|When set to true, the results of the query will be added to the Sentinel Incident Comments|
 |Base Module Body|Body (dynamic content)|The Body should be selected from the Dynamic content of the Base-Module response|
 |WatchlistKey|ColumnName|The column name of the watchlist to match with the entity data, such as the UPN or IP Address.  If the WatchlistKey has a space in it, you must enter the key in the following format: ['Key Name'] |
-|WatchlistKeyDataType|upn, ip, or cidr|The type of data in the WatchlistKey column.  Use CIDR if the WactchlistKey contains subnets using CIDR notation|
+|WatchlistKeyDataType|upn, ip, cidr or fqdn|The type of data in the WatchlistKey column.  Use CIDR if the WactchlistKey contains subnets using CIDR notation|
 |WatchlistAlias|Sentinel Watchlist Alias|This is the Alias of the Watchlist in Sentinel you want to check.|
 
 ## Return Properties
