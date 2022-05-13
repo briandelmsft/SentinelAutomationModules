@@ -53,7 +53,7 @@
                             "type": "Object"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.1.0",
+                            "defaultValue": "0.1.1",
                             "type": "String"
                         },
                         "PlaybookInternalName": {
@@ -112,7 +112,7 @@
                                     "inputs": {
                                         "body": {
                                             "incidentArmId": "@body('Parse_JSON')?['IncidentARMId']",
-                                            "message": "<p>@{if(not(equals(triggerBody()?['QueryDescription'], null)), concat(triggerBody()?['QueryDescription'], '<p>'),null)}A total of @{variables('ResultCount')} records were found in a @{triggerBody()?['RunQueryAgainst']} search.<br>\n@{take(body('Create_HTML_table'), 2800)}@{if(equals(body('Parse_JSON')?['ModuleVersions']?['KQLModule'], null), '', if(not(equals(body('Parse_JSON')?['ModuleVersions']?['KQLModule'], parameters('PlaybookVersion'))), concat('<br>Sentinel Triage AssistanT - KQL Module Update Available: Installed Version: ', parameters('PlaybookVersion'), ', Available Version: ', body('Parse_JSON')?['ModuleVersions']?['KQLModule']), ''))}</p>"
+                                            "message": "<p>@{if(not(equals(triggerBody()?['QueryDescription'], null)), concat(triggerBody()?['QueryDescription'], '<p>'),null)}A total of @{variables('ResultCount')} records were found in a @{triggerBody()?['RunQueryAgainst']} search.<br>\n@{take(body('Create_HTML_table'), 28000)}@{if(equals(body('Parse_JSON')?['ModuleVersions']?['KQLModule'], null), '', if(not(equals(body('Parse_JSON')?['ModuleVersions']?['KQLModule'], parameters('PlaybookVersion'))), concat('<br>Sentinel Triage AssistanT - KQL Module Update Available: Installed Version: ', parameters('PlaybookVersion'), ', Available Version: ', body('Parse_JSON')?['ModuleVersions']?['KQLModule']), ''))}</p>"
                                         },
                                         "host": {
                                             "connection": {
@@ -179,6 +179,23 @@
                                         "name": "ResultCount",
                                         "type": "integer",
                                         "value": 0
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_variable_-_Results_Found": {
+                            "runAfter": {
+                                "Initialize_variable_-_Result_Count": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "ResultsFound",
+                                        "type": "boolean",
+                                        "value": false
                                     }
                                 ]
                             }
@@ -598,7 +615,7 @@
                         },
                         "Response_-_Success": {
                             "runAfter": {
-                                "Condition_-_Add_Comments": [
+                                "Set_variable_-_ResultsFound": [
                                     "Succeeded",
                                     "Failed"
                                 ]
@@ -609,14 +626,14 @@
                                 "body": {
                                     "DetailedResults": "@variables('Records')",
                                     "ResultsCount": "@variables('ResultCount')",
-                                    "ResultsFound": "@greater(coalesce(length(body('HTTP_-_Sentinel')?['tables']?[0]?['rows']), length(body('HTTP_-_M365')?['Results'])), 0)"
+                                    "ResultsFound": "@variables('ResultsFound')"
                                 },
                                 "statusCode": 200
                             }
                         },
                         "Select_-_Accounts_Array": {
                             "runAfter": {
-                                "Initialize_variable_-_Result_Count": [
+                                "Initialize_variable_-_Results_Found": [
                                     "Succeeded"
                                 ]
                             },
@@ -630,6 +647,19 @@
                                     "onPremisesSecurityIdentifier": "@item()?['onPremisesSecurityIdentifier']",
                                     "userPrincipalName": "@item()?['userPrincipalName']"
                                 }
+                            }
+                        },
+                        "Set_variable_-_ResultsFound": {
+                            "runAfter": {
+                                "Condition_-_Add_Comments": [
+                                    "Succeeded",
+                                    "Failed"
+                                ]
+                            },
+                            "type": "SetVariable",
+                            "inputs": {
+                                "name": "ResultsFound",
+                                "value": "@greater(variables('ResultCount'), 0)"
                             }
                         },
                         "Switch": {
