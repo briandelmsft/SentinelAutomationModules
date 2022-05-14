@@ -6,8 +6,8 @@
     "MCASModule": "0.0.5",
     "MDEModule": "0.1.1",
     "OOFModule": "0.0.3",
-    "RelatedAlerts": "0.1.1",
+    "RelatedAlerts": "0.1.2",
     "TIModule": "0.1.0",
-    "UEBAModule": "0.0.5",
+    "UEBAModule": "0.0.6",
     "WatchlistModule": "0.0.6"
 }
