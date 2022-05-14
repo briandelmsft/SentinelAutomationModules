@@ -649,6 +649,24 @@
                                 }
                             }
                         },
+                        "Select_-_IP_Array": {
+                            "runAfter": {
+                                "Select_-_Accounts_Array": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Select",
+                            "inputs": {
+                                "from": "@body('Parse_JSON')?['IPs']",
+                                "select": {
+                                    "Address": "@item()?['Address']",
+                                    "Country": "@item()?['GeoData']?['country']",
+                                    "Latitude": "@item()?['GeoData']?['latitude']",
+                                    "Longitude": "@item()?['GeoData']?['longitude']",
+                                    "State": "@item()?['GeoData']?['state']"
+                                }
+                            }
+                        },
                         "Set_variable_-_ResultsFound": {
                             "runAfter": {
                                 "Condition_-_Add_Comments": [
@@ -664,7 +682,7 @@
                         },
                         "Switch": {
                             "runAfter": {
-                                "Select_-_Accounts_Array": [
+                                "Select_-_IP_Array": [
                                     "Succeeded"
                                 ]
                             },
@@ -675,7 +693,7 @@
                                         "Compose_-_M365_Query": {
                                             "runAfter": {},
                                             "type": "Compose",
-                                            "inputs": "let accountData = @'@{replace(string(body('Select_-_Accounts_Array')), '''', '\\''')}';\nlet ipData = @'@{replace(string(body('Parse_JSON')?['IPs']), '''', '\\''')}';\nlet accountEntities = datatable(temp:string)['']\n| extend Entities = parse_json(accountData)\n| mv-expand todynamic(Entities)\n| project UserPrincipalName = tostring(Entities.userPrincipalName), SamAccountName = tostring(Entities.onPremisesSamAccountName), ObjectSID = tostring(Entities.onPremisesSecurityIdentifier), AADUserId = tostring(Entities.id), ManagerUPN = tostring(Entities.managerUPN);\nlet ipEntities = datatable(temp:string)['']\n| extend Entities = parse_json(ipData)\n| mv-expand todynamic(Entities)\n| project IPAddress = tostring(Entities.Address), Latitude = todecimal(Entities.GeoData.latitude), Longitude = todecimal(Entities.GeoData.longitude), Country=tostring(Entities.GeoData.country), State=tostring(Entities.GeoData.state);\n@{triggerBody()?['KQLQuery']}"
+                                            "inputs": "let accountData = @'@{replace(string(body('Select_-_Accounts_Array')), '''', '''''')}';\nlet ipData = @'@{replace(string(body('Select_-_IP_Array')), '''', '''''')}';\nlet accountEntities = datatable(temp:string)['']\n| extend Entities = parse_json(accountData)\n| mv-expand todynamic(Entities)\n| project UserPrincipalName = tostring(Entities.userPrincipalName), SamAccountName = tostring(Entities.onPremisesSamAccountName), ObjectSID = tostring(Entities.onPremisesSecurityIdentifier), AADUserId = tostring(Entities.id), ManagerUPN = tostring(Entities.managerUPN);\nlet ipEntities = datatable(temp:string)['']\n| extend Entities = parse_json(ipData)\n| mv-expand todynamic(Entities)\n| project IPAddress = tostring(Entities.Address), Latitude = todecimal(Entities.Latitude), Longitude = todecimal(Entities.Longitude), Country=tostring(Entities.Country), State=tostring(Entities.State);\n@{triggerBody()?['KQLQuery']}"
                                         },
                                         "HTTP_-_M365": {
                                             "runAfter": {
@@ -751,7 +769,7 @@
                                         "Compose_-_Sentinel_Query": {
                                             "runAfter": {},
                                             "type": "Compose",
-                                            "inputs": "let accountData = @'@{replace(string(body('Select_-_Accounts_Array')), '''', '\\''')}';\nlet ipData = @'@{replace(string(body('Parse_JSON')?['IPs']), '''', '\\''')}';\nlet incidentArmId = '@{body('Parse_JSON')?['IncidentARMId']}';\nlet accountEntities = datatable(temp:string)['']\n| extend Entities = parse_json(accountData)\n| mv-expand todynamic(Entities)\n| project UserPrincipalName = tostring(Entities.userPrincipalName), SamAccountName = tostring(Entities.onPremisesSamAccountName), ObjectSID = tostring(Entities.onPremisesSecurityIdentifier), AADUserId = tostring(Entities.id), ManagerUPN = tostring(Entities.managerUPN);\nlet ipEntities = datatable(temp:string)['']\n| extend Entities = parse_json(ipData)\n| mv-expand todynamic(Entities)\n| project IPAddress = tostring(Entities.Address), Latitude = todecimal(Entities.GeoData.latitude), Longitude = todecimal(Entities.GeoData.longitude), Country=tostring(Entities.GeoData.country), State=tostring(Entities.GeoData.state);\n@{triggerBody()?['KQLQuery']}\n| extend STATResponse = pack_all()\n| project STATResponse\n\n"
+                                            "inputs": "let accountData = @'@{replace(string(body('Select_-_Accounts_Array')), '''', '''''')}';\nlet ipData = @'@{replace(string(body('Select_-_IP_Array')), '''', '''''')}';\nlet incidentArmId = '@{body('Parse_JSON')?['IncidentARMId']}';\nlet accountEntities = datatable(temp:string)['']\n| extend Entities = parse_json(accountData)\n| mv-expand todynamic(Entities)\n| project UserPrincipalName = tostring(Entities.userPrincipalName), SamAccountName = tostring(Entities.onPremisesSamAccountName), ObjectSID = tostring(Entities.onPremisesSecurityIdentifier), AADUserId = tostring(Entities.id), ManagerUPN = tostring(Entities.managerUPN);\nlet ipEntities = datatable(temp:string)['']\n| extend Entities = parse_json(ipData)\n| mv-expand todynamic(Entities)\n| project IPAddress = tostring(Entities.Address), Latitude = todecimal(Entities.Latitude), Longitude = todecimal(Entities.Longitude), Country=tostring(Entities.Country), State=tostring(Entities.State);\n@{triggerBody()?['KQLQuery']}\n| extend STATResponse = pack_all()\n| project STATResponse\n\n"
                                         },
                                         "For_each": {
                                             "foreach": "@take(body('HTTP_-_Sentinel')['tables'][0]['rows'], 10)",
