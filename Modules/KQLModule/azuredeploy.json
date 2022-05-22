@@ -53,7 +53,7 @@
                             "type": "Object"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.1.0",
+                            "defaultValue": "0.1.1",
                             "type": "String"
                         },
                         "PlaybookInternalName": {
@@ -112,7 +112,7 @@
                                     "inputs": {
                                         "body": {
                                             "incidentArmId": "@body('Parse_JSON')?['IncidentARMId']",
-                                            "message": "<p>@{if(not(equals(triggerBody()?['QueryDescription'], null)), concat(triggerBody()?['QueryDescription'], '<p>'),null)}A total of @{variables('ResultCount')} records were found in a @{triggerBody()?['RunQueryAgainst']} search.<br>\n@{take(body('Create_HTML_table'), 2800)}@{if(equals(body('Parse_JSON')?['ModuleVersions']?['KQLModule'], null), '', if(not(equals(body('Parse_JSON')?['ModuleVersions']?['KQLModule'], parameters('PlaybookVersion'))), concat('<br>Sentinel Triage AssistanT - KQL Module Update Available: Installed Version: ', parameters('PlaybookVersion'), ', Available Version: ', body('Parse_JSON')?['ModuleVersions']?['KQLModule']), ''))}</p>"
+                                            "message": "<p>@{if(not(equals(triggerBody()?['QueryDescription'], null)), concat(triggerBody()?['QueryDescription'], '<p>'),null)}A total of @{variables('ResultCount')} records were found in a @{triggerBody()?['RunQueryAgainst']} search.<br>\n@{take(body('Create_HTML_table'), 28000)}@{if(equals(body('Parse_JSON')?['ModuleVersions']?['KQLModule'], null), '', if(not(equals(body('Parse_JSON')?['ModuleVersions']?['KQLModule'], parameters('PlaybookVersion'))), concat('<br>Sentinel Triage AssistanT - KQL Module Update Available: Installed Version: ', parameters('PlaybookVersion'), ', Available Version: ', body('Parse_JSON')?['ModuleVersions']?['KQLModule']), ''))}</p>"
                                         },
                                         "host": {
                                             "connection": {
@@ -179,6 +179,23 @@
                                         "name": "ResultCount",
                                         "type": "integer",
                                         "value": 0
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_variable_-_Results_Found": {
+                            "runAfter": {
+                                "Initialize_variable_-_Result_Count": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "ResultsFound",
+                                        "type": "boolean",
+                                        "value": false
                                     }
                                 ]
                             }
@@ -598,7 +615,7 @@
                         },
                         "Response_-_Success": {
                             "runAfter": {
-                                "Condition_-_Add_Comments": [
+                                "Set_variable_-_ResultsFound": [
                                     "Succeeded",
                                     "Failed"
                                 ]
@@ -609,14 +626,14 @@
                                 "body": {
                                     "DetailedResults": "@variables('Records')",
                                     "ResultsCount": "@variables('ResultCount')",
-                                    "ResultsFound": "@greater(coalesce(length(body('HTTP_-_Sentinel')?['tables']?[0]?['rows']), length(body('HTTP_-_M365')?['Results'])), 0)"
+                                    "ResultsFound": "@variables('ResultsFound')"
                                 },
                                 "statusCode": 200
                             }
                         },
                         "Select_-_Accounts_Array": {
                             "runAfter": {
-                                "Initialize_variable_-_Result_Count": [
+                                "Initialize_variable_-_Results_Found": [
                                     "Succeeded"
                                 ]
                             },
@@ -632,9 +649,40 @@
                                 }
                             }
                         },
-                        "Switch": {
+                        "Select_-_IP_Array": {
                             "runAfter": {
                                 "Select_-_Accounts_Array": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Select",
+                            "inputs": {
+                                "from": "@body('Parse_JSON')?['IPs']",
+                                "select": {
+                                    "Address": "@item()?['Address']",
+                                    "Country": "@item()?['GeoData']?['country']",
+                                    "Latitude": "@item()?['GeoData']?['latitude']",
+                                    "Longitude": "@item()?['GeoData']?['longitude']",
+                                    "State": "@item()?['GeoData']?['state']"
+                                }
+                            }
+                        },
+                        "Set_variable_-_ResultsFound": {
+                            "runAfter": {
+                                "Condition_-_Add_Comments": [
+                                    "Succeeded",
+                                    "Failed"
+                                ]
+                            },
+                            "type": "SetVariable",
+                            "inputs": {
+                                "name": "ResultsFound",
+                                "value": "@greater(variables('ResultCount'), 0)"
+                            }
+                        },
+                        "Switch": {
+                            "runAfter": {
+                                "Select_-_IP_Array": [
                                     "Succeeded"
                                 ]
                             },
@@ -645,7 +693,7 @@
                                         "Compose_-_M365_Query": {
                                             "runAfter": {},
                                             "type": "Compose",
-                                            "inputs": "let accountData = @'@{replace(string(body('Select_-_Accounts_Array')), '''', '\\''')}';\nlet ipData = @'@{replace(string(body('Parse_JSON')?['IPs']), '''', '\\''')}';\nlet accountEntities = datatable(temp:string)['']\n| extend Entities = parse_json(accountData)\n| mv-expand todynamic(Entities)\n| project UserPrincipalName = tostring(Entities.userPrincipalName), SamAccountName = tostring(Entities.onPremisesSamAccountName), ObjectSID = tostring(Entities.onPremisesSecurityIdentifier), AADUserId = tostring(Entities.id), ManagerUPN = tostring(Entities.managerUPN);\nlet ipEntities = datatable(temp:string)['']\n| extend Entities = parse_json(ipData)\n| mv-expand todynamic(Entities)\n| project IPAddress = tostring(Entities.Address), Latitude = todecimal(Entities.GeoData.latitude), Longitude = todecimal(Entities.GeoData.longitude), Country=tostring(Entities.GeoData.country), State=tostring(Entities.GeoData.state);\n@{triggerBody()?['KQLQuery']}"
+                                            "inputs": "let accountData = @'@{replace(string(body('Select_-_Accounts_Array')), '''', '''''')}';\nlet ipData = @'@{replace(string(body('Select_-_IP_Array')), '''', '''''')}';\nlet accountEntities = datatable(temp:string)['']\n| extend Entities = parse_json(accountData)\n| mv-expand todynamic(Entities)\n| project UserPrincipalName = tostring(Entities.userPrincipalName), SamAccountName = tostring(Entities.onPremisesSamAccountName), ObjectSID = tostring(Entities.onPremisesSecurityIdentifier), AADUserId = tostring(Entities.id), ManagerUPN = tostring(Entities.managerUPN);\nlet ipEntities = datatable(temp:string)['']\n| extend Entities = parse_json(ipData)\n| mv-expand todynamic(Entities)\n| project IPAddress = tostring(Entities.Address), Latitude = todecimal(Entities.Latitude), Longitude = todecimal(Entities.Longitude), Country=tostring(Entities.Country), State=tostring(Entities.State);\n@{triggerBody()?['KQLQuery']}"
                                         },
                                         "HTTP_-_M365": {
                                             "runAfter": {
@@ -721,7 +769,7 @@
                                         "Compose_-_Sentinel_Query": {
                                             "runAfter": {},
                                             "type": "Compose",
-                                            "inputs": "let accountData = @'@{replace(string(body('Select_-_Accounts_Array')), '''', '\\''')}';\nlet ipData = @'@{replace(string(body('Parse_JSON')?['IPs']), '''', '\\''')}';\nlet incidentArmId = '@{body('Parse_JSON')?['IncidentARMId']}';\nlet accountEntities = datatable(temp:string)['']\n| extend Entities = parse_json(accountData)\n| mv-expand todynamic(Entities)\n| project UserPrincipalName = tostring(Entities.userPrincipalName), SamAccountName = tostring(Entities.onPremisesSamAccountName), ObjectSID = tostring(Entities.onPremisesSecurityIdentifier), AADUserId = tostring(Entities.id), ManagerUPN = tostring(Entities.managerUPN);\nlet ipEntities = datatable(temp:string)['']\n| extend Entities = parse_json(ipData)\n| mv-expand todynamic(Entities)\n| project IPAddress = tostring(Entities.Address), Latitude = todecimal(Entities.GeoData.latitude), Longitude = todecimal(Entities.GeoData.longitude), Country=tostring(Entities.GeoData.country), State=tostring(Entities.GeoData.state);\n@{triggerBody()?['KQLQuery']}\n| extend STATResponse = pack_all()\n| project STATResponse\n\n"
+                                            "inputs": "let accountData = @'@{replace(string(body('Select_-_Accounts_Array')), '''', '''''')}';\nlet ipData = @'@{replace(string(body('Select_-_IP_Array')), '''', '''''')}';\nlet incidentArmId = '@{body('Parse_JSON')?['IncidentARMId']}';\nlet accountEntities = datatable(temp:string)['']\n| extend Entities = parse_json(accountData)\n| mv-expand todynamic(Entities)\n| project UserPrincipalName = tostring(Entities.userPrincipalName), SamAccountName = tostring(Entities.onPremisesSamAccountName), ObjectSID = tostring(Entities.onPremisesSecurityIdentifier), AADUserId = tostring(Entities.id), ManagerUPN = tostring(Entities.managerUPN);\nlet ipEntities = datatable(temp:string)['']\n| extend Entities = parse_json(ipData)\n| mv-expand todynamic(Entities)\n| project IPAddress = tostring(Entities.Address), Latitude = todecimal(Entities.Latitude), Longitude = todecimal(Entities.Longitude), Country=tostring(Entities.Country), State=tostring(Entities.State);\n@{triggerBody()?['KQLQuery']}\n| extend STATResponse = pack_all()\n| project STATResponse\n\n"
                                         },
                                         "For_each": {
                                             "foreach": "@take(body('HTTP_-_Sentinel')['tables'][0]['rows'], 10)",

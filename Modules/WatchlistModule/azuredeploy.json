@@ -53,7 +53,7 @@
                             "type": "Object"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.0.5",
+                            "defaultValue": "0.0.6",
                             "type": "String"
                         },
                         "PlaybookInternalName": {
@@ -229,7 +229,7 @@
                                     "type": "ManagedServiceIdentity"
                                 },
                                 "body": {
-                                    "query": "@{coalesce(outputs('Compose_-_IP'),outputs('Compose_-_Account'),outputs('Compose_-_CIDR'))}",
+                                    "query": "@{coalesce(outputs('Compose_-_IP'),outputs('Compose_-_Account'),outputs('Compose_-_CIDR'),outputs('Compose_-_Host'))}",
                                     "timespan": "P7D"
                                 },
                                 "method": "POST",
@@ -746,6 +746,31 @@
                                             "runAfter": {},
                                             "type": "Compose",
                                             "inputs": "let entityData = '@{replace(string(body('Parse_JSON')?['IPs']), '''', '\\''')}';\nlet incidentEntities = datatable(temp:string)['']\n| extend Entities = parse_json(entityData)\n| project-away temp\n| mv-expand todynamic(Entities)\n| project EntityData=tostring(coalesce(Entities.Address, Entities.RawEntity.address));\nincidentEntities\n| evaluate ipv4_lookup(_GetWatchlist('@{triggerBody()?['WatchlistName']}'), EntityData, @{triggerBody()?['WatchlistKey']}, true)\n| extend OnWatchlist = iff(isempty(_DTItemId), false, true)\n| project OnWatchlist, EntityData"
+                                        }
+                                    }
+                                },
+                                "Case_-_Host": {
+                                    "case": "fqdn",
+                                    "actions": {
+                                        "Compose_-_Host": {
+                                            "runAfter": {
+                                                "Select_-_Host": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "Compose",
+                                            "inputs": "let entityData = '@{replace(string(body('Select_-_Host')), '''', '\\\\''')}';\nlet incidentEntities = datatable(temp:string)['']\n| extend Entities = parse_json(entityData)\n| project-away temp\n| mv-expand todynamic(Entities)\n| project EntityFQDN=tostring(Entities.FQDN), EntityFQDNKey=toupper(tostring(Entities.FQDN)), EntityHostname=tostring(Entities.Hostname), EntityHostnameKey=toupper(tostring(Entities.Hostname));\nlet watchListItems = materialize (_GetWatchlist('@{triggerBody()?['WatchlistName']}') | project SearchKey=toupper(@{triggerBody()?['WatchlistKey']}), _DTItemId | extend Hostname=toupper(tostring(split(SearchKey, '.')[0])));\nincidentEntities\n| join kind=leftouter (watchListItems) on $left.EntityFQDNKey == $right.SearchKey\n| join kind=leftouter (watchListItems) on $left.EntityHostnameKey == $right.Hostname\n| extend OnWatchlist = iff(isempty(_DTItemId) and isempty(_DTItemId1), false, true)\n| project OnWatchlist, EntityData=EntityFQDN"
+                                        },
+                                        "Select_-_Host": {
+                                            "runAfter": {},
+                                            "type": "Select",
+                                            "inputs": {
+                                                "from": "@body('Parse_JSON')?['Hosts']",
+                                                "select": {
+                                                    "FQDN": "@item()?['FQDN']",
+                                                    "Hostname": "@item()?['Hostname']"
+                                                }
+                                            }
                                         }
                                     }
                                 },
