@@ -58,6 +58,10 @@
             "defaultValue": "Base-Module",
             "type": "String"
         },
+        "ScoringPlaybookName": {
+            "defaultValue": "Calculate-RiskScore",
+            "type": "String"
+        },
         "STATCoordinatorPlaybookName": {
             "defaultValue": "STAT-Coordinator",
             "type": "String"
@@ -90,6 +94,7 @@
         "FileTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/FileModule/azuredeploy.json",
         "KQLTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/KQLModule/azuredeploy.json",
         "TITemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/TIModule/azuredeploy.json",
+        "ScoringTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/ScoringModule/azuredeploy.json",
         "BaseTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/BaseModule/azuredeploy.json",
         "BasicSampleTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Samples/basicsample.json",
         "ConnectorTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Connector/azuredeploy.json",
@@ -126,6 +131,23 @@
                 "parameters": {
                     "PlaybookName": {
                         "value": "[parameters('KQLPlaybookName')]"
+                    }
+                }
+            }
+        },
+        {
+            "apiVersion": "2019-10-01",
+            "name": "ScoringTemplate",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[variables('ScoringTemplate')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "PlaybookName": {
+                        "value": "[parameters('ScoringPlaybookName')]"
                     }
                 }
             }
@@ -326,6 +348,7 @@
                 "[resourceId('Microsoft.Resources/deployments', 'WatchlistTemplate')]",
                 "[resourceId('Microsoft.Resources/deployments', 'FileTemplate')]",
                 "[resourceId('Microsoft.Resources/deployments', 'KQLTemplate')]",
+                "[resourceId('Microsoft.Resources/deployments', 'ScoringTemplate')]",
                 "[resourceId('Microsoft.Resources/deployments', 'TITemplate')]"
             ],
             "properties": {
@@ -373,6 +396,9 @@
                     },
                     "ThreatIntelModule_resourceid": {
                         "value": "[reference('TITemplate').outputs.resourceID.value]"
+                    },
+                    "ScoringModule_resourceid": {
+                        "value": "[reference('ScoringTemplate').outputs.resourceID.value]"
                     },
                     "WatchlistModule_resourceid": {
                         "value": "[reference('WatchlistTemplate').outputs.resourceID.value]"

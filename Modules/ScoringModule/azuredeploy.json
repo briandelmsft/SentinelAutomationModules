@@ -1,0 +1,1077 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "PlaybookName": {
+            "defaultValue": "Calculate-RiskScore",
+            "type": "string"
+        }
+    },
+    "variables": {
+        "AzureSentinelConnectionName": "[concat('azuresentinel-', parameters('PlaybookName'))]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[variables('AzureSentinelConnectionName')]",
+            "location": "[resourceGroup().location]",
+            "kind": "V1",
+            "properties": {
+                "displayName": "[variables('AzureSentinelConnectionName')]",
+                "customParameterValues": {},
+                "parameterValueType": "Alternative",
+                "api": {
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azuresentinel')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2017-07-01",
+            "name": "[parameters('PlaybookName')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/connections', variables('AzureSentinelConnectionName'))]"
+            ],
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "state": "Enabled",
+                "accessControl": {
+                    "triggers": {
+                        "allowedCallerIpAddresses": []
+                    }
+                },
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {},
+                            "type": "Object"
+                        },
+                        "PlaybookVersion": {
+                            "defaultValue": "0.0.1",
+                            "type": "String"
+                        },
+                        "PlaybookInternalName": {
+                            "defaultValue": "ScoringModule",
+                            "type": "String"
+                        },
+                        "ProjectName": {
+                            "defaultValue": "STAT",
+                            "type": "String"
+                        }
+                    },
+                    "triggers": {
+                        "calculatescore": {
+                            "type": "Request",
+                            "kind": "Http",
+                            "inputs": {
+                                "schema": {
+                                    "properties": {
+                                        "AddIncidentComments": {
+                                            "title": "Add comments to the incident",
+                                            "type": "boolean"
+                                        },
+                                        "BaseModuleBody": {
+                                            "description": "Click here and select the Body object from the Base-Module output in the Dynamic content menu",
+                                            "title": "Base Module Body",
+                                            "type": "array"
+                                        },
+                                        "ScoringData": {
+                                            "items": {
+                                                "properties": {
+                                                    "ModuleBody": {},
+                                                    "ScoreLabel": {},
+                                                    "ScoreMultiplier": {},
+                                                    "ScorePerItem": {
+                                                        "type": "boolean"
+                                                    }
+                                                },
+                                                "required": [],
+                                                "type": "object"
+                                            },
+                                            "type": "array"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "actions": {
+                        "Condition": {
+                            "actions": {
+                                "Condition_-_Add_Comments": {
+                                    "actions": {
+                                        "Add_comment_to_incident_(V3)": {
+                                            "runAfter": {},
+                                            "type": "ApiConnection",
+                                            "inputs": {
+                                                "body": {
+                                                    "incidentArmId": "@body('Parse_JSON')?['IncidentARMId']",
+                                                    "message": "<p>The calculated risk score for this incident is @{variables('scoreTotal')}.<br>\n@{body('Detailed_Results_Table')}</p>"
+                                                },
+                                                "host": {
+                                                    "connection": {
+                                                        "name": "@parameters('$connections')['azuresentinel']['connectionId']"
+                                                    }
+                                                },
+                                                "method": "post",
+                                                "path": "/Incidents/Comment"
+                                            }
+                                        }
+                                    },
+                                    "runAfter": {
+                                        "Detailed_Results_Table": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "expression": {
+                                        "and": [
+                                            {
+                                                "equals": [
+                                                    "@triggerBody()?['AddIncidentComments']",
+                                                    true
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    "type": "If"
+                                },
+                                "DEBUG_-_Final_Score": {
+                                    "runAfter": {},
+                                    "trackedProperties": {
+                                        "TotalScore": "@action()['outputs']"
+                                    },
+                                    "type": "Compose",
+                                    "inputs": "@variables('scoreTotal')"
+                                },
+                                "Detailed_Results_Table": {
+                                    "runAfter": {
+                                        "DEBUG_-_Final_Score": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Table",
+                                    "inputs": {
+                                        "format": "HTML",
+                                        "from": "@variables('DetailedResults')"
+                                    }
+                                },
+                                "Response_-_Success": {
+                                    "runAfter": {
+                                        "Condition_-_Add_Comments": [
+                                            "Succeeded",
+                                            "Failed"
+                                        ]
+                                    },
+                                    "type": "Response",
+                                    "kind": "Http",
+                                    "inputs": {
+                                        "body": {
+                                            "DetailedResults": "@variables('DetailedResults')",
+                                            "TotalScore": "@variables('scoreTotal')"
+                                        },
+                                        "statusCode": 200
+                                    }
+                                }
+                            },
+                            "runAfter": {
+                                "For_each": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "else": {
+                                "actions": {
+                                    "Response_-_Unsupported_Module": {
+                                        "runAfter": {},
+                                        "type": "Response",
+                                        "kind": "Http",
+                                        "inputs": {
+                                            "body": {
+                                                "Error": "Data from an unsupported module was sent to the scoring module"
+                                            },
+                                            "statusCode": 404
+                                        }
+                                    },
+                                    "Terminate": {
+                                        "runAfter": {
+                                            "Response_-_Unsupported_Module": [
+                                                "Succeeded"
+                                            ]
+                                        },
+                                        "type": "Terminate",
+                                        "inputs": {
+                                            "runStatus": "Failed"
+                                        }
+                                    }
+                                }
+                            },
+                            "expression": {
+                                "and": [
+                                    {
+                                        "equals": [
+                                            "@variables('invalidModule')",
+                                            false
+                                        ]
+                                    }
+                                ]
+                            },
+                            "type": "If"
+                        },
+                        "For_each": {
+                            "foreach": "@triggerBody()?['ScoringData']",
+                            "actions": {
+                                "DEBUG_-_Show_Item": {
+                                    "runAfter": {},
+                                    "type": "Compose",
+                                    "inputs": "@item()"
+                                },
+                                "Switch_by_Module": {
+                                    "runAfter": {
+                                        "DEBUG_-_Show_Item": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "cases": {
+                                        "Case_-_KQL": {
+                                            "case": "KQLModule",
+                                            "actions": {
+                                                "If_-_KQL_Results_Found": {
+                                                    "actions": {
+                                                        "Append_to_DetailedResults_-_KQL": {
+                                                            "runAfter": {
+                                                                "Increment_scoreTotal_-_KQL": [
+                                                                    "Succeeded"
+                                                                ]
+                                                            },
+                                                            "type": "AppendToArrayVariable",
+                                                            "inputs": {
+                                                                "name": "DetailedResults",
+                                                                "value": {
+                                                                    "Score": "@if(item()['ScorePerItem'], mul(mul(5, item()['ModuleBody']['ResultsCount']),item()['ScoreMultiplier']), mul(5, item()['ScoreMultiplier']))",
+                                                                    "ScoreSource": "@{items('For_each')['ScoreLabel']}"
+                                                                }
+                                                            }
+                                                        },
+                                                        "Increment_scoreTotal_-_KQL": {
+                                                            "runAfter": {},
+                                                            "type": "IncrementVariable",
+                                                            "inputs": {
+                                                                "name": "scoreTotal",
+                                                                "value": "@if(item()['ScorePerItem'], mul(mul(5, item()['ModuleBody']['ResultsCount']),item()['ScoreMultiplier']), mul(5, item()['ScoreMultiplier']))"
+                                                            }
+                                                        }
+                                                    },
+                                                    "runAfter": {},
+                                                    "else": {
+                                                        "actions": {
+                                                            "Append_to_DetailedResults_-_No_KQL": {
+                                                                "runAfter": {},
+                                                                "type": "AppendToArrayVariable",
+                                                                "inputs": {
+                                                                    "name": "DetailedResults",
+                                                                    "value": {
+                                                                        "Score": 0,
+                                                                        "ScoreSource": "@{items('For_each')['ScoreLabel']}"
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    },
+                                                    "expression": {
+                                                        "and": [
+                                                            {
+                                                                "greater": [
+                                                                    "@item()['ModuleBody']['ResultsCount']",
+                                                                    0
+                                                                ]
+                                                            }
+                                                        ]
+                                                    },
+                                                    "type": "If"
+                                                }
+                                            }
+                                        },
+                                        "Case_-_RelatedAlerts": {
+                                            "case": "RelatedAlerts",
+                                            "actions": {
+                                                "If_-_RelatedAlerts_Found": {
+                                                    "actions": {
+                                                        "RelatedAlerts_-_ScorePerItem": {
+                                                            "actions": {
+                                                                "For_each_related_alert": {
+                                                                    "foreach": "@item()['ModuleBody']['DetailedResults']",
+                                                                    "actions": {
+                                                                        "Switch": {
+                                                                            "runAfter": {},
+                                                                            "cases": {
+                                                                                "Case_-_high": {
+                                                                                    "case": "high",
+                                                                                    "actions": {
+                                                                                        "Append_to_DetailedResults_-_RA_high": {
+                                                                                            "runAfter": {
+                                                                                                "Increment_scoreTotal_-_RA_high": [
+                                                                                                    "Succeeded"
+                                                                                                ]
+                                                                                            },
+                                                                                            "type": "AppendToArrayVariable",
+                                                                                            "inputs": {
+                                                                                                "name": "DetailedResults",
+                                                                                                "value": {
+                                                                                                    "Score": "@mul(10, items('For_each')['ScoreMultiplier'])",
+                                                                                                    "ScoreSource": "@{items('For_each')['ScoreLabel']} - @{item()?['DisplayName']}"
+                                                                                                }
+                                                                                            }
+                                                                                        },
+                                                                                        "Increment_scoreTotal_-_RA_high": {
+                                                                                            "runAfter": {},
+                                                                                            "type": "IncrementVariable",
+                                                                                            "inputs": {
+                                                                                                "name": "scoreTotal",
+                                                                                                "value": "@mul(10, items('For_each')['ScoreMultiplier'])"
+                                                                                            }
+                                                                                        }
+                                                                                    }
+                                                                                },
+                                                                                "Case_-_informational": {
+                                                                                    "case": "informational",
+                                                                                    "actions": {
+                                                                                        "Append_to_DetailedResults_-_RA_info": {
+                                                                                            "runAfter": {
+                                                                                                "Increment_scoreTotal_-_RA_info": [
+                                                                                                    "Succeeded"
+                                                                                                ]
+                                                                                            },
+                                                                                            "type": "AppendToArrayVariable",
+                                                                                            "inputs": {
+                                                                                                "name": "DetailedResults",
+                                                                                                "value": {
+                                                                                                    "Score": "@mul(1, items('For_each')['ScoreMultiplier'])",
+                                                                                                    "ScoreSource": "@{items('For_each')['ScoreLabel']} - @{item()?['DisplayName']}"
+                                                                                                }
+                                                                                            }
+                                                                                        },
+                                                                                        "Increment_scoreTotal_-_RA_info": {
+                                                                                            "runAfter": {},
+                                                                                            "type": "IncrementVariable",
+                                                                                            "inputs": {
+                                                                                                "name": "scoreTotal",
+                                                                                                "value": "@mul(1, items('For_each')['ScoreMultiplier'])"
+                                                                                            }
+                                                                                        }
+                                                                                    }
+                                                                                },
+                                                                                "Case_-_low": {
+                                                                                    "case": "low",
+                                                                                    "actions": {
+                                                                                        "Append_to_DetailedResults_-_RA_low": {
+                                                                                            "runAfter": {
+                                                                                                "Increment_scoreTotal_-_RA_low": [
+                                                                                                    "Succeeded"
+                                                                                                ]
+                                                                                            },
+                                                                                            "type": "AppendToArrayVariable",
+                                                                                            "inputs": {
+                                                                                                "name": "DetailedResults",
+                                                                                                "value": {
+                                                                                                    "Score": "@mul(3, items('For_each')['ScoreMultiplier'])",
+                                                                                                    "ScoreSource": "@{items('For_each')['ScoreLabel']} - @{item()?['DisplayName']}"
+                                                                                                }
+                                                                                            }
+                                                                                        },
+                                                                                        "Increment_scoreTotal_-_RA_low": {
+                                                                                            "runAfter": {},
+                                                                                            "type": "IncrementVariable",
+                                                                                            "inputs": {
+                                                                                                "name": "scoreTotal",
+                                                                                                "value": "@mul(3, items('For_each')['ScoreMultiplier'])"
+                                                                                            }
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            },
+                                                                            "default": {
+                                                                                "actions": {
+                                                                                    "Append_to_DetailedResults_-_RA_medium": {
+                                                                                        "runAfter": {
+                                                                                            "Increment_scoreTotal_-_RA_medium": [
+                                                                                                "Succeeded"
+                                                                                            ]
+                                                                                        },
+                                                                                        "type": "AppendToArrayVariable",
+                                                                                        "inputs": {
+                                                                                            "name": "DetailedResults",
+                                                                                            "value": {
+                                                                                                "Score": "@mul(5, items('For_each')['ScoreMultiplier'])",
+                                                                                                "ScoreSource": "@{items('For_each')['ScoreLabel']} - @{item()?['DisplayName']}"
+                                                                                            }
+                                                                                        }
+                                                                                    },
+                                                                                    "Increment_scoreTotal_-_RA_medium": {
+                                                                                        "runAfter": {},
+                                                                                        "type": "IncrementVariable",
+                                                                                        "inputs": {
+                                                                                            "name": "scoreTotal",
+                                                                                            "value": "@mul(5, items('For_each')['ScoreMultiplier'])"
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            },
+                                                                            "expression": "@toLower(item()['AlertSeverity'])",
+                                                                            "type": "Switch"
+                                                                        }
+                                                                    },
+                                                                    "runAfter": {},
+                                                                    "type": "Foreach"
+                                                                }
+                                                            },
+                                                            "runAfter": {},
+                                                            "else": {
+                                                                "actions": {
+                                                                    "Switch_-_HighestSeverity": {
+                                                                        "runAfter": {},
+                                                                        "cases": {
+                                                                            "Case_-_high": {
+                                                                                "case": "high",
+                                                                                "actions": {
+                                                                                    "Append_to_DetailedResults_-_RA_high_-_single": {
+                                                                                        "runAfter": {
+                                                                                            "Increment_scoreTotal_-_RA_high_-_single": [
+                                                                                                "Succeeded"
+                                                                                            ]
+                                                                                        },
+                                                                                        "type": "AppendToArrayVariable",
+                                                                                        "inputs": {
+                                                                                            "name": "DetailedResults",
+                                                                                            "value": {
+                                                                                                "Score": "@mul(10, items('For_each')['ScoreMultiplier'])",
+                                                                                                "ScoreSource": "@{items('For_each')['ScoreLabel']}"
+                                                                                            }
+                                                                                        }
+                                                                                    },
+                                                                                    "Increment_scoreTotal_-_RA_high_-_single": {
+                                                                                        "runAfter": {},
+                                                                                        "type": "IncrementVariable",
+                                                                                        "inputs": {
+                                                                                            "name": "scoreTotal",
+                                                                                            "value": "@mul(10, items('For_each')['ScoreMultiplier'])"
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            },
+                                                                            "Case_-_info": {
+                                                                                "case": "informational",
+                                                                                "actions": {
+                                                                                    "Append_to_DetailedResults_-_RA_info_-_single": {
+                                                                                        "runAfter": {
+                                                                                            "Increment_scoreTotal_-_RA_info_-_single": [
+                                                                                                "Succeeded"
+                                                                                            ]
+                                                                                        },
+                                                                                        "type": "AppendToArrayVariable",
+                                                                                        "inputs": {
+                                                                                            "name": "DetailedResults",
+                                                                                            "value": {
+                                                                                                "Score": "@mul(1, items('For_each')['ScoreMultiplier'])",
+                                                                                                "ScoreSource": "@{items('For_each')['ScoreLabel']}"
+                                                                                            }
+                                                                                        }
+                                                                                    },
+                                                                                    "Increment_scoreTotal_-_RA_info_-_single": {
+                                                                                        "runAfter": {},
+                                                                                        "type": "IncrementVariable",
+                                                                                        "inputs": {
+                                                                                            "name": "scoreTotal",
+                                                                                            "value": "@mul(1, items('For_each')['ScoreMultiplier'])"
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            },
+                                                                            "Case_-_low": {
+                                                                                "case": "low",
+                                                                                "actions": {
+                                                                                    "Append_to_DetailedResults_-_RA_low_-_single": {
+                                                                                        "runAfter": {
+                                                                                            "Increment_scoreTotal_-_RA_low_-_single": [
+                                                                                                "Succeeded"
+                                                                                            ]
+                                                                                        },
+                                                                                        "type": "AppendToArrayVariable",
+                                                                                        "inputs": {
+                                                                                            "name": "DetailedResults",
+                                                                                            "value": {
+                                                                                                "Score": "@mul(3, items('For_each')['ScoreMultiplier'])",
+                                                                                                "ScoreSource": "@{items('For_each')['ScoreLabel']}"
+                                                                                            }
+                                                                                        }
+                                                                                    },
+                                                                                    "Increment_scoreTotal_-_RA_low_-_single": {
+                                                                                        "runAfter": {},
+                                                                                        "type": "IncrementVariable",
+                                                                                        "inputs": {
+                                                                                            "name": "scoreTotal",
+                                                                                            "value": "@mul(3, items('For_each')['ScoreMultiplier'])"
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        },
+                                                                        "default": {
+                                                                            "actions": {
+                                                                                "Append_to_DetailedResults_-_RA_medium_-_single": {
+                                                                                    "runAfter": {
+                                                                                        "Increment_scoreTotal_-_RA_medium_-_single": [
+                                                                                            "Succeeded"
+                                                                                        ]
+                                                                                    },
+                                                                                    "type": "AppendToArrayVariable",
+                                                                                    "inputs": {
+                                                                                        "name": "DetailedResults",
+                                                                                        "value": {
+                                                                                            "Score": "@mul(5, items('For_each')['ScoreMultiplier'])",
+                                                                                            "ScoreSource": "@{items('For_each')['ScoreLabel']}"
+                                                                                        }
+                                                                                    }
+                                                                                },
+                                                                                "Increment_scoreTotal_-_RA_medium_-_single": {
+                                                                                    "runAfter": {},
+                                                                                    "type": "IncrementVariable",
+                                                                                    "inputs": {
+                                                                                        "name": "scoreTotal",
+                                                                                        "value": "@mul(5, items('For_each')['ScoreMultiplier'])"
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        },
+                                                                        "expression": "@toLower(item()['ModuleBody']['HighestSeverityAlert'])",
+                                                                        "type": "Switch"
+                                                                    }
+                                                                }
+                                                            },
+                                                            "expression": {
+                                                                "and": [
+                                                                    {
+                                                                        "equals": [
+                                                                            "@item()['ScorePerItem']",
+                                                                            true
+                                                                        ]
+                                                                    }
+                                                                ]
+                                                            },
+                                                            "type": "If"
+                                                        }
+                                                    },
+                                                    "runAfter": {},
+                                                    "else": {
+                                                        "actions": {
+                                                            "Append_to_DetailedResults_-_No_RA": {
+                                                                "runAfter": {},
+                                                                "type": "AppendToArrayVariable",
+                                                                "inputs": {
+                                                                    "name": "DetailedResults",
+                                                                    "value": {
+                                                                        "Score": 0,
+                                                                        "ScoreSource": "@{items('For_each')['ScoreLabel']}"
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    },
+                                                    "expression": {
+                                                        "and": [
+                                                            {
+                                                                "greater": [
+                                                                    "@length(item()['ModuleBody']['DetailedResults'])",
+                                                                    0
+                                                                ]
+                                                            }
+                                                        ]
+                                                    },
+                                                    "type": "If"
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "default": {
+                                        "actions": {
+                                            "Set_variable": {
+                                                "runAfter": {},
+                                                "type": "SetVariable",
+                                                "inputs": {
+                                                    "name": "invalidModule",
+                                                    "value": true
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "expression": "@coalesce(item()['ModuleBody']?['ModuleName'], 'InvalidModuleName')",
+                                    "type": "Switch"
+                                }
+                            },
+                            "runAfter": {
+                                "Initialize_variable_-_DetailedResults": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Foreach"
+                        },
+                        "Initialize_variable_-_DetailedResults": {
+                            "runAfter": {
+                                "Initialize_variable_-_invalidModule": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "DetailedResults",
+                                        "type": "array",
+                                        "value": []
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_variable_-_invalidModule": {
+                            "runAfter": {
+                                "Initialize_variable_-_scoreTotal": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "invalidModule",
+                                        "type": "boolean",
+                                        "value": false
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_variable_-_scoreTotal": {
+                            "runAfter": {
+                                "Parse_JSON": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "scoreTotal",
+                                        "type": "float",
+                                        "value": 0
+                                    }
+                                ]
+                            }
+                        },
+                        "Parse_JSON": {
+                            "runAfter": {},
+                            "type": "ParseJson",
+                            "inputs": {
+                                "content": "@triggerBody()?['BaseModuleBody']",
+                                "schema": {
+                                    "properties": {
+                                        "Accounts": {
+                                            "description": "Array of User Accounts",
+                                            "items": {
+                                                "properties": {
+                                                    "AssignedRoles": {
+                                                        "description": "Array of assigned roles in Accounts array",
+                                                        "items": {
+                                                            "properties": {
+                                                                "Role": {
+                                                                    "description": "Array property in AssignedRoles array"
+                                                                }
+                                                            },
+                                                            "required": [],
+                                                            "type": "object"
+                                                        },
+                                                        "type": "array"
+                                                    },
+                                                    "RawEntity": {
+                                                        "description": "Object containing Raw unenriched entity data in Accounts array",
+                                                        "properties": {
+                                                            "accountName": {
+                                                                "description": "accountName from RawEntity object in Accounts array"
+                                                            },
+                                                            "displayName": {
+                                                                "description": "dislayName from RawEntity object in Accounts array"
+                                                            },
+                                                            "friendlyName": {
+                                                                "description": "friendlyName from RawEntity object in Accounts array"
+                                                            },
+                                                            "isDomainJoined": {
+                                                                "description": "isDomainJoined from RawEntity object in Accounts array"
+                                                            },
+                                                            "sid": {
+                                                                "description": "sid from RawEntity object in Accounts array"
+                                                            },
+                                                            "upnSuffix": {
+                                                                "description": "upnSuffix from RawEntity object in Accounts array"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "accountEnabled": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "city": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "country": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "department": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "id": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "jobTitle": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "mail": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "manager": {
+                                                        "description": "Array property in Accounts array",
+                                                        "properties": {
+                                                            "@@odata.type": {
+                                                                "description": "Array property in Accounts array manager object"
+                                                            },
+                                                            "id": {
+                                                                "description": "Array property in Accounts array manager object"
+                                                            },
+                                                            "mail": {
+                                                                "description": "Array property in Accounts array manager object"
+                                                            },
+                                                            "userPrincipalName": {
+                                                                "description": "Array property in Accounts array manager object"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "officeLocation": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "onPremisesDistinguishedName": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "onPremisesDomainName": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "onPremisesSamAccountName": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "onPremisesSecurityIdentifier": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "onPremisesSyncEnabled": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "state": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "userPrincipalName": {
+                                                        "description": "Array property in Accounts array"
+                                                    }
+                                                },
+                                                "required": [],
+                                                "type": "object"
+                                            },
+                                            "type": "array"
+                                        },
+                                        "AccountsCount": {
+                                            "description": "Count of accounts processed by module",
+                                            "type": "integer"
+                                        },
+                                        "Domains": {
+                                            "description": "Array of Domains",
+                                            "items": {
+                                                "properties": {
+                                                    "RawEntity": {
+                                                        "description": "Object containing Raw unenriched entity data in Domains array",
+                                                        "properties": {
+                                                            "domainName": {
+                                                                "description": "domainName from RawEntity object in Domains array"
+                                                            },
+                                                            "friendlyName": {
+                                                                "description": "friendlyName from RawEntity object in Domains array"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "required": [],
+                                                "type": "object"
+                                            },
+                                            "type": "array"
+                                        },
+                                        "DomainsCount": {
+                                            "description": "Count of Domains processed by module",
+                                            "type": "integer"
+                                        },
+                                        "EntitiesCount": {
+                                            "description": "Count of all entities processed by enrichment module",
+                                            "type": "integer"
+                                        },
+                                        "FileHashes": {
+                                            "description": "Array of FileHashes",
+                                            "items": {
+                                                "properties": {
+                                                    "RawEntity": {
+                                                        "description": "Object containing Raw unenriched entity data in FileHashes array",
+                                                        "properties": {
+                                                            "algorithm": {
+                                                                "description": "algorithm from RawEntity object in FileHashes array"
+                                                            },
+                                                            "friendlyName": {
+                                                                "description": "friendlyName from RawEntity object in FileHashes array"
+                                                            },
+                                                            "hashValue": {
+                                                                "description": "hashValue from RawEntity object in FileHashes array"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "required": [],
+                                                "type": "object"
+                                            },
+                                            "type": "array"
+                                        },
+                                        "FileHashesCount": {
+                                            "description": "Count of File Hashes processed by module",
+                                            "type": "integer"
+                                        },
+                                        "Files": {
+                                            "description": "Array of Files",
+                                            "items": {
+                                                "properties": {
+                                                    "RawEntity": {
+                                                        "description": "Object containing Raw unenriched entity data in Files array",
+                                                        "properties": {
+                                                            "directory": {
+                                                                "description": "directory from RawEntity object in Files array"
+                                                            },
+                                                            "fileName": {
+                                                                "description": "fileName from RawEntity object in Files array"
+                                                            },
+                                                            "friendlyName": {
+                                                                "description": "friendlyName from RawEntity object in Files array"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "required": [],
+                                                "type": "object"
+                                            },
+                                            "type": "array"
+                                        },
+                                        "FilesCount": {
+                                            "description": "Count of Files processed by module",
+                                            "type": "integer"
+                                        },
+                                        "Hosts": {
+                                            "description": "Array of Hosts",
+                                            "items": {
+                                                "properties": {
+                                                    "DnsDomain": {
+                                                        "description": "Array property in Hosts array"
+                                                    },
+                                                    "FQDN": {
+                                                        "description": "Array property in Hosts array"
+                                                    },
+                                                    "Hostname": {
+                                                        "description": "Array property in Hosts array"
+                                                    },
+                                                    "RawEntity": {
+                                                        "description": "Object containing Raw unenriched entity data in Hosts array",
+                                                        "properties": {
+                                                            "dnsDomain": {
+                                                                "description": "dnsDomain from RawEntity object in Hosts array"
+                                                            },
+                                                            "friendlyName": {
+                                                                "description": "friendlyName from RawEntity object in Hosts array"
+                                                            },
+                                                            "hostName": {
+                                                                "description": "hostName from RawEntity object in Hosts array"
+                                                            },
+                                                            "netBiosName": {
+                                                                "description": "netBiosName from RawEntity object in Hosts array"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "required": [],
+                                                "type": "object"
+                                            },
+                                            "type": "array"
+                                        },
+                                        "HostsCount": {
+                                            "description": "Count of Hosts processed by module",
+                                            "type": "integer"
+                                        },
+                                        "IPs": {
+                                            "description": "Array of IP Addresses",
+                                            "items": {
+                                                "properties": {
+                                                    "Address": {
+                                                        "description": "Array property in IPs array"
+                                                    },
+                                                    "GeoData": {
+                                                        "description": "Array object in IPs array",
+                                                        "properties": {
+                                                            "asn": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "carrier": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "city": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "cityCf": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "continent": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "country": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "countryCf": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "ipAddr": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "ipRoutingType": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "latitude": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "longitude": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "organization": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "organizationType": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "region": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "state": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "stateCf": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "stateCode": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "RawEntity": {
+                                                        "description": "Object containing Raw unenriched entity data in IPs array",
+                                                        "properties": {
+                                                            "address": {
+                                                                "description": "address from RawEntity object in IPs array"
+                                                            },
+                                                            "friendlyName": {
+                                                                "description": "friendlyName from RawEntity object in IPs array"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "required": [],
+                                                "type": "object"
+                                            },
+                                            "type": "array"
+                                        },
+                                        "IPsCount": {
+                                            "description": "Count of IPs processed by module",
+                                            "type": "integer"
+                                        },
+                                        "IncidentARMId": {
+                                            "description": "The ARM Id of the Azure Sentinel Incident",
+                                            "type": "string"
+                                        },
+                                        "URLs": {
+                                            "description": "Array of URLs",
+                                            "items": {
+                                                "properties": {
+                                                    "RawEntity": {
+                                                        "description": "Object containing Raw unenriched entity data in URLs array",
+                                                        "properties": {
+                                                            "friendlyName": {
+                                                                "description": "friendlyName from RawEntity object in URLs array"
+                                                            },
+                                                            "url": {
+                                                                "description": "url from RawEntity object in URLs array"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "required": [],
+                                                "type": "object"
+                                            },
+                                            "type": "array"
+                                        },
+                                        "URLsCount": {
+                                            "description": "Count of URLs processed by module",
+                                            "type": "integer"
+                                        },
+                                        "WorkspaceId": {
+                                            "description": "The Log Analytics Workspace Id of the Azure Sentinel Incident",
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "outputs": {}
+                },
+                "parameters": {
+                    "$connections": {
+                        "value": {
+                            "azuresentinel": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('AzureSentinelConnectionName'))]",
+                                "connectionName": "[variables('AzureSentinelConnectionName')]",
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azuresentinel')]",
+                                "connectionProperties": {
+                                    "authentication": {
+                                        "type": "ManagedServiceIdentity"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ],
+    "outputs": {
+        "resourceID": {
+            "type": "string",
+            "value": "[resourceId('Microsoft.Logic/workflows', parameters('PlaybookName'))]"
+        }
+    }
+}

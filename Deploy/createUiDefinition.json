@@ -229,6 +229,16 @@
                                 "visible": true
                             },
                             {
+                                "name": "ScoringPlaybookName",
+                                "type": "Microsoft.Common.TextBox",
+                                "label": "Scoring Playbook Name",
+                                "placeholder": "",
+                                "defaultValue": "Calculate-RiskScore",
+                                "toolTip": "",
+                                "constraints": {},
+                                "visible": true
+                            },
+                            {
                                 "name": "TIPlaybookName",
                                 "type": "Microsoft.Common.TextBox",
                                 "label": "Threat Intelligence Playbook Name",
@@ -396,6 +406,7 @@
             "KQLPlaybookName": "[coalesce(steps('automationModules').advancedSetup.KQLPlaybookName,'Run-KQLQuery')]",
             "BasePlaybookName": "[coalesce(steps('automationModules').advancedSetup.BasePlaybookName,'Base-Module')]",
             "AADRisksPlaybookName": "[coalesce(steps('automationModules').advancedSetup.AADRisksPlaybookName,'Get-AADUserRisksInfo')]",
+            "ScoringPlaybookName": "[coalesce(steps('automationModules').advancedSetup.ScoringPlaybookName,'Calculate-RiskScore')]",
             "MDEPlaybookName": "[coalesce(steps('automationModules').advancedSetup.MDEPlaybookName,'Get-MDEInsights')]",
             "MCASPlaybookName": "[coalesce(steps('automationModules').advancedSetup.MCASPlaybookName,'Get-MCASInvestigationScore')]",
             "WatchlistPlaybookName": "[coalesce(steps('automationModules').advancedSetup.WatchlistPlaybookName,'Get-WatchlistInsights')]",
