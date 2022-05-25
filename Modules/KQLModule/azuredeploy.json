@@ -53,7 +53,7 @@
                             "type": "Object"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.1.1",
+                            "defaultValue": "0.1.2",
                             "type": "String"
                         },
                         "PlaybookInternalName": {
@@ -625,6 +625,7 @@
                             "inputs": {
                                 "body": {
                                     "DetailedResults": "@variables('Records')",
+                                    "ModuleName": "@{parameters('PlaybookInternalName')}",
                                     "ResultsCount": "@variables('ResultCount')",
                                     "ResultsFound": "@variables('ResultsFound')"
                                 },
