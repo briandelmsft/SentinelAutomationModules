@@ -70,6 +70,13 @@
             "defaultValue": "/subscriptions/<subscriptionId>/resourceGroups/<resourceGroupName>/providers/Microsoft.Logic/workflows/<RelatedAlertsModuleName>",
             "type": "String"
         },
+        "ScoringModule_resourceid": {
+            "metadata": {
+                "description": "Resource Id of the ScoringModule Playbook"
+            },
+            "defaultValue": "/subscriptions/<subscriptionId>/resourceGroups/<resourceGroupName>/providers/Microsoft.Logic/workflows/<ScoringModuleName>",
+            "type": "String"
+        },
         "ThreatIntelModule_resourceid": {
             "metadata": {
                 "description": "Resource Id of the TI Module Playbook"
