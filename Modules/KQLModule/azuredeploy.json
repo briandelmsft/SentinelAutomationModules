@@ -53,7 +53,7 @@
                             "type": "Object"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.1.2",
+                            "defaultValue": "0.1.3",
                             "type": "String"
                         },
                         "PlaybookInternalName": {
@@ -650,6 +650,21 @@
                                 }
                             }
                         },
+                        "Select_-_Hosts_Array": {
+                            "runAfter": {
+                                "Select_-_IP_Array": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Select",
+                            "inputs": {
+                                "from": "@body('Parse_JSON')?['Hosts']",
+                                "select": {
+                                    "FQDN": "@item()?['FQDN']",
+                                    "Hostname": "@item()?['Hostname']"
+                                }
+                            }
+                        },
                         "Select_-_IP_Array": {
                             "runAfter": {
                                 "Select_-_Accounts_Array": [
@@ -683,7 +698,7 @@
                         },
                         "Switch": {
                             "runAfter": {
-                                "Select_-_IP_Array": [
+                                "Select_-_Hosts_Array": [
                                     "Succeeded"
                                 ]
                             },
@@ -694,7 +709,7 @@
                                         "Compose_-_M365_Query": {
                                             "runAfter": {},
                                             "type": "Compose",
-                                            "inputs": "let accountData = @'@{replace(string(body('Select_-_Accounts_Array')), '''', '''''')}';\nlet ipData = @'@{replace(string(body('Select_-_IP_Array')), '''', '''''')}';\nlet accountEntities = datatable(temp:string)['']\n| extend Entities = parse_json(accountData)\n| mv-expand todynamic(Entities)\n| project UserPrincipalName = tostring(Entities.userPrincipalName), SamAccountName = tostring(Entities.onPremisesSamAccountName), ObjectSID = tostring(Entities.onPremisesSecurityIdentifier), AADUserId = tostring(Entities.id), ManagerUPN = tostring(Entities.managerUPN);\nlet ipEntities = datatable(temp:string)['']\n| extend Entities = parse_json(ipData)\n| mv-expand todynamic(Entities)\n| project IPAddress = tostring(Entities.Address), Latitude = todecimal(Entities.Latitude), Longitude = todecimal(Entities.Longitude), Country=tostring(Entities.Country), State=tostring(Entities.State);\n@{triggerBody()?['KQLQuery']}"
+                                            "inputs": "let accountData = @'@{replace(string(body('Select_-_Accounts_Array')), '''', '''''')}';\nlet ipData = @'@{replace(string(body('Select_-_IP_Array')), '''', '''''')}';\nlet hostData = @'@{replace(string(body('Select_-_Hosts_Array')), '''', '''''')}';\nlet accountEntities = datatable(temp:string)['']\n| extend Entities = parse_json(accountData)\n| mv-expand todynamic(Entities)\n| project UserPrincipalName = tostring(Entities.userPrincipalName), SamAccountName = tostring(Entities.onPremisesSamAccountName), ObjectSID = tostring(Entities.onPremisesSecurityIdentifier), AADUserId = tostring(Entities.id), ManagerUPN = tostring(Entities.managerUPN);\nlet ipEntities = datatable(temp:string)['']\n| extend Entities = parse_json(ipData)\n| mv-expand todynamic(Entities)\n| project IPAddress = tostring(Entities.Address), Latitude = todecimal(Entities.Latitude), Longitude = todecimal(Entities.Longitude), Country=tostring(Entities.Country), State=tostring(Entities.State);\nlet hostEntities = datatable(temp:string)['']\n| extend Entities = parse_json(hostData)\n| mv-expand todynamic(Entities)\n| project FQDN = tostring(Entities.FQDN), Hostname = tostring(Entities.Hostname);\n@{triggerBody()?['KQLQuery']}"
                                         },
                                         "HTTP_-_M365": {
                                             "runAfter": {
@@ -770,7 +785,7 @@
                                         "Compose_-_Sentinel_Query": {
                                             "runAfter": {},
                                             "type": "Compose",
-                                            "inputs": "let accountData = @'@{replace(string(body('Select_-_Accounts_Array')), '''', '''''')}';\nlet ipData = @'@{replace(string(body('Select_-_IP_Array')), '''', '''''')}';\nlet incidentArmId = '@{body('Parse_JSON')?['IncidentARMId']}';\nlet accountEntities = datatable(temp:string)['']\n| extend Entities = parse_json(accountData)\n| mv-expand todynamic(Entities)\n| project UserPrincipalName = tostring(Entities.userPrincipalName), SamAccountName = tostring(Entities.onPremisesSamAccountName), ObjectSID = tostring(Entities.onPremisesSecurityIdentifier), AADUserId = tostring(Entities.id), ManagerUPN = tostring(Entities.managerUPN);\nlet ipEntities = datatable(temp:string)['']\n| extend Entities = parse_json(ipData)\n| mv-expand todynamic(Entities)\n| project IPAddress = tostring(Entities.Address), Latitude = todecimal(Entities.Latitude), Longitude = todecimal(Entities.Longitude), Country=tostring(Entities.Country), State=tostring(Entities.State);\n@{triggerBody()?['KQLQuery']}\n| extend STATResponse = pack_all()\n| project STATResponse\n\n"
+                                            "inputs": "let accountData = @'@{replace(string(body('Select_-_Accounts_Array')), '''', '''''')}';\nlet ipData = @'@{replace(string(body('Select_-_IP_Array')), '''', '''''')}';\nlet hostData = @'@{replace(string(body('Select_-_Hosts_Array')), '''', '''''')}';\nlet incidentArmId = '@{body('Parse_JSON')?['IncidentARMId']}';\nlet accountEntities = datatable(temp:string)['']\n| extend Entities = parse_json(accountData)\n| mv-expand todynamic(Entities)\n| project UserPrincipalName = tostring(Entities.userPrincipalName), SamAccountName = tostring(Entities.onPremisesSamAccountName), ObjectSID = tostring(Entities.onPremisesSecurityIdentifier), AADUserId = tostring(Entities.id), ManagerUPN = tostring(Entities.managerUPN);\nlet ipEntities = datatable(temp:string)['']\n| extend Entities = parse_json(ipData)\n| mv-expand todynamic(Entities)\n| project IPAddress = tostring(Entities.Address), Latitude = todecimal(Entities.Latitude), Longitude = todecimal(Entities.Longitude), Country=tostring(Entities.Country), State=tostring(Entities.State);\nlet hostEntities = datatable(temp:string)['']\n| extend Entities = parse_json(hostData)\n| mv-expand todynamic(Entities)\n| project FQDN = tostring(Entities.FQDN), Hostname = tostring(Entities.Hostname);\n@{triggerBody()?['KQLQuery']}\n| extend STATResponse = pack_all()\n| project STATResponse\n\n"
                                         },
                                         "For_each": {
                                             "foreach": "@take(body('HTTP_-_Sentinel')['tables'][0]['rows'], 10)",

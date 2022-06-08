@@ -6,6 +6,7 @@ This module allows you to run custom KQL queries against Microsoft Sentinel or M
 ## Suported Entity Types
 * Account
 * IP Address
+* Host
 
 ## Trigger Parameters
 
@@ -20,7 +21,7 @@ This module allows you to run custom KQL queries against Microsoft Sentinel or M
 
 ## Building your KQL Query
 
-In your KQL query you will have access to 2 tables built from the entity data of your Sentinel Incident.  You can use these tables through join or where clauses in your query to locate the results you are looking for.
+In your KQL query you will have access to 3 tables built from the entity data of your Sentinel Incident.  You can use these tables through join or where clauses in your query to locate the results you are looking for.
 
 For best results, limit your query results to as few columns of data as possible.  Including many columns may result in the ability to add comments to the incident to fail.  Also, while you query may return many records and the count will always be returned, on the the first 10 records will include detailed column data.  Consider using project and/or summarize in your query to optimize the returned results to just the data that is needed.
 
@@ -54,6 +55,12 @@ DeviceLogonEvents
 |IPAddress|Latitude|Longitude|Country|State|
 |---|---|---|---|---|
 |40.82.187.199|43.64280|-79.38705|canada|ontario|
+
+***hostEntities***
+
+|FQDN|Hostname|
+|---|---|
+|computer01.contoso.com|computer01|
 
 These tables can be used in your KQL queries in any way you like.  For example, if you wanted to check if any of the users in your Incident have failed to login to Azure AD due to a bad password more than 10 times, you could write a query like this:
 
