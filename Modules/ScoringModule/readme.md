@@ -7,6 +7,24 @@ This module will take the outputs from other STAT modules and calculate a cumula
 * RelatedAlerts
 * KQLModule
 
+### Related Alerts Scoring
+
+When scoring the Related Alerts module consider the following default scores are assigned based on the Alert Severity:
+
+|AlertSeverity|Score|
+|---|---|
+|High|10|
+|Medium|5|
+|Low|3|
+|Informational|1|
+
+> Note: If ScorePerItem=True, the sum of all alert scores will be returned.  If ScorePerItem=False, only the score of the highest severity alert will be returned.
+
+
+### KQL Module Scoring
+
+When scoring the KQL Module if ScorePerItem=True then the returned score will be 5 * ItemCount * ScoreMultiplier.  If ScorePerItem=False the returned score will be 5 * ScoreMultiplier regardless of the number of results returned
+
 ## Trigger Parameters
 
 |Parameter|Expected Values|Description|

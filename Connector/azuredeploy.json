@@ -112,7 +112,7 @@
             "properties": {
                 "connectionParameters": {},
                 "capabilities": [],
-                "description": "The Microsoft Sentinel Triage assistance is an automation toolkit to simplify the construction of automation to analyze Sentinel Incidents (version 0.3.2)",
+                "description": "The Microsoft Sentinel Triage assistance is an automation toolkit to simplify the construction of automation to analyze Sentinel Incidents (version 0.4.0)",
                 "displayName": "[parameters('CustomConnectorDisplayName')]",
                 "iconUri": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACsAAAAtCAYAAAA3BJLdAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAMjSURBVFhH7Zk/TFNRFMa/tg8BkWr8E0uRyGAwOki0NVYTBhIlGISFGnVgrC5EGk1IGBwkMQw6NG7tggtxMDqoiYspEAZJoAZFISAJJFpsGLTUaqDQ1nfvuy20lL7b0vdqTX/JyT3f477ycbjv9N5WExVBgaBlY0FQNKsUCWvW7/djYmKCqdxiMplQWVnJVJYQszEGBweJcUVibGyM/ZbsKdxlMDQ0hMbGRpr79h+j404x/Jijo1hZmM1mmmfL/1HZby9eoaKigubZEgwGUdPeRvNcVHZbs4FAgI47Ra/X01EVs2+CWvjWaUoxCMDlPRGmJNLNiZm12WwwGo0058FisaC5uZkpCVmzt30CPqxoaE6oL4visWGTM5F0c2JmM6WrqwsOh4MpieLbrVKoYpYsKd5oaGhgd21F1ixZe8O1a/FIXq8Enjkr12z4U3smbYTfjbPZqcnLMtC1X0HpUxd23bvLrvCRF7PammrozpuhOXmcXeFDVbOkoiX2W9CeM1GtOVJFNQkeZM2Sht/v3wiik+GZQxCsbdQYqSqBVDjnZp/4dfHYzqzcHEJ0ehaRUQ8iX72SXg5IWgweZM3mklDvI6xctyH8/DXVkalZqknwoKrZnZIXs2sOJ+2rqzdusit8qLJFzOS1WlpaMDIyknIjI27mlIcY6OjogNvthtcrPVzJdHd3Y2BgAJOTk+zKVrgqG7r/UHySvzCVHtJLhavS6YDwtvoEHevq6rC4uEhPD6kgR/WZmRncWZrHp3Ao+y0ieWrDo+NcEfV+Z3dJXCgpp3Fw/itOrYbjOjlKP07Rn+s1OnbnVrgqu/7sJRYWfHD/3thgE4y7BWg3/bn1unUYLKfjTZ/Qe7iWZfI0NTXhwef3GJ6bTVlZ7gesnzb8xH+ExVDGMomLQgiXhFWmJDI5KTidTrhcLng8nuJJQVWKZpWiaFYpCsrstn22p6eHjjGmUY5Rf4gpiaNVBxD+tcwUcPbQXuz7ucSURF9fH8vkaW1tpT2WvC2n6rOqffKdaYhmmasNEipLvk+w2+1M5Rer1YrOzk6mJBLM/usUu4FSFJBZ4C9uB2sPxMPD5QAAAABJRU5ErkJggg==",
                 "swagger": {
@@ -120,7 +120,7 @@
                     "info": {
                         "version": "1.0.0",
                         "title": "STAT",
-                        "description": "The Microsoft Sentinel Triage assistance is an automation toolkit to simplify the construction of automation to analyze Sentinel Incidents (version 0.3.2)"
+                        "description": "The Microsoft Sentinel Triage assistance is an automation toolkit to simplify the construction of automation to analyze Sentinel Incidents (version 0.4.0)"
                     },
                     "host": "[string(split(split(listCallbackUrl(resourceId('Microsoft.Logic/workflows/triggers', parameters('STATCoordinatorPlaybookName'), 'manual'), '2017-07-01').value, ':443')[0], '//')[1])]",
                     "basePath": "/",
@@ -2198,7 +2198,6 @@
                                                             },
                                                             "description": "Hosts"
                                                         }
-
                                                     },
                                                     "description": "Array of DetailedResults"
                                                 }
@@ -2336,6 +2335,135 @@
                                     }
                                 }
                             }
+                        },
+                        "[concat(string(split(split(listCallbackUrl(resourceId('Microsoft.Logic/workflows/triggers', parameters('STATCoordinatorPlaybookName'), 'manual'), '2017-07-01').value, ':443')[1],'?')[0]), '/func/scoring')]": {
+                            "post": {
+                                "summary": "Risk Scoring Module",
+                                "description": "Sentinel Triage AssistanT Module for determining the risk score of your incident based on the inputs of other STAT modules.",
+                                "operationId": "ScoringModule",
+                                "parameters": [
+                                    {
+                                        "name": "api-version",
+                                        "default": "2016-10-01",
+                                        "in": "query",
+                                        "type": "string",
+                                        "required": true,
+                                        "x-ms-visibility": "internal"
+                                    },
+                                    {
+                                        "name": "sp",
+                                        "default": "/triggers/manual/run",
+                                        "in": "query",
+                                        "type": "string",
+                                        "required": true,
+                                        "x-ms-visibility": "internal"
+                                    },
+                                    {
+                                        "name": "sv",
+                                        "default": "1.0",
+                                        "in": "query",
+                                        "type": "string",
+                                        "required": true,
+                                        "x-ms-visibility": "internal"
+                                    },
+                                    {
+                                        "name": "sig",
+                                        "default": "[string(split(listCallbackUrl(resourceId('Microsoft.Logic/workflows/triggers', parameters('STATCoordinatorPlaybookName'), 'manual'), '2017-07-01').value, 'sig=')[1])]",
+                                        "in": "query",
+                                        "type": "string",
+                                        "required": true,
+                                        "x-ms-visibility": "internal"
+                                    },
+                                    {
+                                        "name": "body",
+                                        "in": "body",
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "AddIncidentComments": {
+                                                    "type": "boolean",
+                                                    "description": "Add Comments to Microsoft Sentinel Incident",
+                                                    "title": "",
+                                                    "enum": [
+                                                        true,
+                                                        false
+                                                    ],
+                                                    "x-ms-visibility": "advanced"
+                                                },
+                                                "BaseModuleBody": {
+                                                    "type": "string",
+                                                    "description": "Body from STAT Base Module",
+                                                    "title": "",
+                                                    "x-ms-visibility": "important"
+                                                },
+                                                "ScoringData": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "ModuleBody": {
+                                                                "type": "object",
+                                                                "description": "Body of Module to Score"
+                                                            },
+                                                            "ScoreLabel": {
+                                                                "type": "string",
+                                                                "description": "Friendly Name for Scored Data"
+                                                            },
+                                                            "ScoreMultiplier": {
+                                                                "type": "number",
+                                                                "format": "float",
+                                                                "description": "Score Multiplier"
+                                                            },
+                                                            "ScorePerItem": {
+                                                                "type": "boolean",
+                                                                "description": "Score Per Item"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            "required": [
+                                                "BaseModuleBody",
+                                                "ScoringData"
+                                            ]
+                                        },
+                                        "required": true
+                                    }
+                                ],
+                                "responses": {
+                                    "default": {
+                                        "description": "default",
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "DetailedResults": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "Score": {
+                                                                "type": "integer",
+                                                                "format": "int32",
+                                                                "description": "Item level score in DetailedResults array"
+                                                            },
+                                                            "ScoreSource": {
+                                                                "type": "string",
+                                                                "description": "Item level score source in DetailedResults array"
+                                                            }
+                                                        }
+                                                    },
+                                                    "description": "An array of individual scored items that make up the Total score"
+                                                },
+                                                "TotalScore": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "Total score (Sum of all scored items)"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
                     },
                     "definitions": {},
@@ -2363,7 +2491,7 @@
                     "contentVersion": "1.0.0.0",
                     "parameters": {
                         "PlaybookVersion": {
-                            "defaultValue": "0.3.0",
+                            "defaultValue": "0.4.0",
                             "type": "String"
                         },
                         "PlaybookInternalName": {
@@ -2741,6 +2869,43 @@
                                             "inputs": {
                                                 "body": "@body('Get-RelatedAlerts')",
                                                 "statusCode": "@outputs('Get-RelatedAlerts')['statusCode']"
+                                            }
+                                        }
+                                    }
+                                },
+                                "Case_-_Scoring": {
+                                    "case": "scoring",
+                                    "actions": {
+                                        "Calculate-RiskScore": {
+                                            "runAfter": {},
+                                            "type": "Workflow",
+                                            "inputs": {
+                                                "body": {
+                                                    "AddIncidentComments": "@coalesce(triggerBody()?['AddIncidentComments'], true)",
+                                                    "BaseModuleBody": "@triggerBody()?['BaseModuleBody']",
+                                                    "ScoringData": "@triggerBody()?['ScoringData']"
+                                                },
+                                                "host": {
+                                                    "triggerName": "calculatescore",
+                                                    "workflow": {
+                                                        "id": "[parameters('ScoringModule_resourceid')]"
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "Response_-_Calculate-RiskScore": {
+                                            "runAfter": {
+                                                "Calculate-RiskScore": [
+                                                    "Succeeded",
+                                                    "TimedOut",
+                                                    "Failed"
+                                                ]
+                                            },
+                                            "type": "Response",
+                                            "kind": "Http",
+                                            "inputs": {
+                                                "body": "@body('Calculate-RiskScore')",
+                                                "statusCode": "@outputs('Calculate-RiskScore')['statusCode']"
                                             }
                                         }
                                     }
