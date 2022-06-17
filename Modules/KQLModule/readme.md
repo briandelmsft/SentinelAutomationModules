@@ -99,6 +99,7 @@ SecurityIncident
 |Property|Description|
 |---|---|
 |DetailedResults|An array of each record found by the KQL query|
+|ModuleName|The internal Name of the Playbook|
 |ResultsCount|Number of results found by the KQL query|
 |ResultsFound|true/false indicating if results were found by the KQL query|
 
@@ -122,6 +123,7 @@ SecurityIncident
       "Result2Column5Name": "Column5Value"
     }
   ],
+  "ModuleName": "KQLModule",
   "ResultsCount": 2,
   "ResultsFound": true,
 }

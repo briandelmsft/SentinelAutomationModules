@@ -42,6 +42,9 @@
         "HighestSeverityAlert": {
             "type": "string"
         },
+        "ModuleName": {
+            "type": "string"
+        },
         "RelatedAlertsCount": {
             "type": "integer"
         },

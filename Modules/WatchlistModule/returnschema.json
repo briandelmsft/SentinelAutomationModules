@@ -30,6 +30,9 @@
             "description": "Total number of entities found on the Watchlist",
             "type": "integer"
         },
+        "ModuleName": {
+            "type": "string"
+        },
         "WatchlistName": {
             "description": "Name of the Watchlist that was analyzed",
             "type": "string"

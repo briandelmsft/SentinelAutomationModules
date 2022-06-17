@@ -72,6 +72,13 @@
             "description": "true if any TI matches were found for IP entity type",
             "type": "boolean"
         },
+        "ModuleName": {
+            "type": "string"
+        },
+        "TotalTIMatchCount": {
+            "description": "Sum of all TI matches",
+            "type": "integer"
+        },
         "URLEntitiesCount": {
             "description": "Count of URL Entities in Incident",
             "type": "integer"

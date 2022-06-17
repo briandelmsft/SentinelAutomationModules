@@ -4,6 +4,9 @@
         "DetailedResults": {
             "type": "array"
         },
+        "ModuleName": {
+            "type": "string"
+        },
         "RelultsCount": {
             "type": "integer"
         },

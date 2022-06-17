@@ -36,6 +36,8 @@ This module will check the incident entities to see if there is corresponding th
 |IPEntitiesCount|Count of IP Entities in Incident|
 |IPEntitiesWithTI|Count of IP Entities with Threat Intelligence matches|
 |IPTIFound|true/false if IP Threat Intelligence was found|
+|ModuleName|The internal Name of the Playbook|
+|TotalTIMatchCount|Count of all Threat Intelligence matches|
 |URLEntitiesCount|Count of URL Entities in Incident|
 |URLEntitiesWithTI|Count of URL Entities with Threat Intelligence matches|
 |URLTIFound|true/false if URL Threat Intelligence was found|
@@ -83,6 +85,8 @@ This module will check the incident entities to see if there is corresponding th
   "IPEntitiesCount": 1,
   "IPEntitiesWithTI": 1,
   "IPTIFound": true,
+  "ModuleName": "TIModule",
+  "TotalTIMatchCount": 3,
   "URLEntitiesCount": 1,
   "URLEntitiesWithTI": 1,
   "URLTIFound": true

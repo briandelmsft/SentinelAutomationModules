@@ -25,6 +25,7 @@ This module will check the incidient entities to see if there are any other aler
 |---|---|
 |DetailedResults|An array of each related alert that was found|
 |HighestSeverityAlert|The severity of the highest severity alert found (High, Medium, Low or Informational)|
+|ModuleName|The internal Name of the Playbook|
 |RelatedAlertsCount|Number of related alerts found. This number may exceed the sum of other related alert counts as an alert may be related to more than one entity type.|
 |RelatedAlertsFound|true/false indicating if related alerts were found|
 |RelatedAccountAlertsCount|Number of alerts related to account entity found|
@@ -63,6 +64,7 @@ This module will check the incidient entities to see if there are any other aler
     }
   ],
   "HighestSeverityAlert": "Informational",
+  "ModuleName": "RelatedAlerts",
   "RelatedAccountAlertsCount": 2,
   "RelatedAccountAlertsFound": true,
   "RelatedAlertsCount": 2,
