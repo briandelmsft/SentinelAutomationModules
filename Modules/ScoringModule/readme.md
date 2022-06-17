@@ -4,8 +4,10 @@
 This module will take the outputs from other STAT modules and calculate a cumulative risk score based on the inputs
 
 ## Suported Module Inputs
-* RelatedAlerts
-* KQLModule
+* Related Alerts Module
+* KQL Module
+* Threat Intelligence Module
+* Watchlist Module
 
 ### Related Alerts Scoring
 
@@ -23,7 +25,15 @@ When scoring the Related Alerts module consider the following default scores are
 
 ### KQL Module Scoring
 
-When scoring the KQL Module if ScorePerItem=True then the returned score will be 5 * ItemCount * ScoreMultiplier.  If ScorePerItem=False the returned score will be 5 * ScoreMultiplier regardless of the number of results returned
+When scoring the KQL Module if ScorePerItem=True then the returned score will be 5 * ItemCount * ScoreMultiplier.  If ScorePerItem=False the returned score will be 5 * ScoreMultiplier if 1 or more results are returned
+
+### Threat Intelligence Module Scoring
+
+When scoring the Threat Intelligence Module if ScorePerItem=True then the returned score will be 10 * MatchedTIItemCount * ScoreMultiplier.  If ScorePerItem=False the returned score will be 10 * ScoreMultiplier if 1 or more matching pieces of TI is found
+
+### Watchlist Module Scoring
+
+When scoring the Watchlist Module if ScorePerItem=True then the returned score will be 10 * WatchlistMatchCount * ScoreMultiplier.  If ScorePerItem=False the returned score will be 10 * ScoreMultiplier if 1 or more watchlist match is found
 
 ## Trigger Parameters
 
@@ -58,9 +68,14 @@ When scoring the KQL Module if ScorePerItem=True then the returned score will be
     {
       "Score": 5,
       "ScoreSource": "Related Alerts - Multiple Password changes"
+    },
+    {
+      "Score": -10,
+      "ScoreSource": "Watchlist - Check for Trusted IP Location"
     }
   ],
-  "TotalScore": 40
+  "TotalScore": 30
+}
 ```
 
 ## Advanced Deployment

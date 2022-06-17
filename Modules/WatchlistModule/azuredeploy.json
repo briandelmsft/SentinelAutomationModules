@@ -53,7 +53,7 @@
                             "type": "Object"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.0.6",
+                            "defaultValue": "0.0.7",
                             "type": "String"
                         },
                         "PlaybookInternalName": {
@@ -646,6 +646,7 @@
                                     "EntitiesAnalyzedCount": "@length(body('Select'))",
                                     "EntitiesOnWatchlist": "@greater(length(body('Filter_array')),0)",
                                     "EntitiesOnWatchlistCount": "@length(body('Filter_array'))",
+                                    "ModuleName": "@{parameters('PlaybookInternalName')}",
                                     "WatchlistName": "@triggerBody()?['WatchlistName']"
                                 },
                                 "statusCode": 200

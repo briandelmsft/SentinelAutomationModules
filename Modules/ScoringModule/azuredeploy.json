@@ -53,7 +53,7 @@
                             "type": "Object"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.0.1",
+                            "defaultValue": "0.0.2",
                             "type": "String"
                         },
                         "PlaybookInternalName": {
@@ -588,6 +588,148 @@
                                                                 "greater": [
                                                                     "@length(item()['ModuleBody']['DetailedResults'])",
                                                                     0
+                                                                ]
+                                                            }
+                                                        ]
+                                                    },
+                                                    "type": "If"
+                                                }
+                                            }
+                                        },
+                                        "Case_-_TIModule": {
+                                            "case": "TIModule",
+                                            "actions": {
+                                                "TI_ScorePerItem": {
+                                                    "actions": {
+                                                        "Append_to_array_DetailedResults_-_TI_PerItem": {
+                                                            "runAfter": {
+                                                                "Increment_scoreTotal_-_TI_PerItem": [
+                                                                    "Succeeded"
+                                                                ]
+                                                            },
+                                                            "type": "AppendToArrayVariable",
+                                                            "inputs": {
+                                                                "name": "DetailedResults",
+                                                                "value": {
+                                                                    "Score": "@mul(mul(10, item()['ModuleBody']['TotalTIMatchCount']), items('For_each')['ScoreMultiplier'])",
+                                                                    "ScoreSource": "@items('For_each')?['ScoreLabel']"
+                                                                }
+                                                            }
+                                                        },
+                                                        "Increment_scoreTotal_-_TI_PerItem": {
+                                                            "runAfter": {},
+                                                            "type": "IncrementVariable",
+                                                            "inputs": {
+                                                                "name": "scoreTotal",
+                                                                "value": "@mul(mul(10, item()['ModuleBody']['TotalTIMatchCount']), items('For_each')['ScoreMultiplier'])"
+                                                            }
+                                                        }
+                                                    },
+                                                    "runAfter": {},
+                                                    "else": {
+                                                        "actions": {
+                                                            "Append_to_array_DetailedResults_-_TI": {
+                                                                "runAfter": {
+                                                                    "Increment_scoreTotal_-_TI": [
+                                                                        "Succeeded"
+                                                                    ]
+                                                                },
+                                                                "type": "AppendToArrayVariable",
+                                                                "inputs": {
+                                                                    "name": "DetailedResults",
+                                                                    "value": {
+                                                                        "Score": "@if(greater(item()['ModuleBody']['TotalTIMatchCount'],0), mul(10, items('For_each')['ScoreMultiplier']), 0)",
+                                                                        "ScoreSource": "@items('For_each')?['ScoreLabel']"
+                                                                    }
+                                                                }
+                                                            },
+                                                            "Increment_scoreTotal_-_TI": {
+                                                                "runAfter": {},
+                                                                "type": "IncrementVariable",
+                                                                "inputs": {
+                                                                    "name": "scoreTotal",
+                                                                    "value": "@if(greater(item()['ModuleBody']['TotalTIMatchCount'],0), mul(10, items('For_each')['ScoreMultiplier']), 0)"
+                                                                }
+                                                            }
+                                                        }
+                                                    },
+                                                    "expression": {
+                                                        "and": [
+                                                            {
+                                                                "equals": [
+                                                                    "@items('For_each')?['ScorePerItem']",
+                                                                    true
+                                                                ]
+                                                            }
+                                                        ]
+                                                    },
+                                                    "type": "If"
+                                                }
+                                            }
+                                        },
+                                        "Case_-_WatchlistModule": {
+                                            "case": "WatchlistModule",
+                                            "actions": {
+                                                "Watchlist_-_ScorePerItem": {
+                                                    "actions": {
+                                                        "Append_to_array_DetailedResults_-_WatchlistPer_Item": {
+                                                            "runAfter": {
+                                                                "Increment_scoreTotal_-_Watchlist_PerItem": [
+                                                                    "Succeeded"
+                                                                ]
+                                                            },
+                                                            "type": "AppendToArrayVariable",
+                                                            "inputs": {
+                                                                "name": "DetailedResults",
+                                                                "value": {
+                                                                    "Score": "@mul(mul(10, item()['ModuleBody']['EntitiesOnWatchlistCount']), items('For_each')['ScoreMultiplier'])",
+                                                                    "ScoreSource": "@items('For_each')?['ScoreLabel']"
+                                                                }
+                                                            }
+                                                        },
+                                                        "Increment_scoreTotal_-_Watchlist_PerItem": {
+                                                            "runAfter": {},
+                                                            "type": "IncrementVariable",
+                                                            "inputs": {
+                                                                "name": "scoreTotal",
+                                                                "value": "@mul(mul(10, item()['ModuleBody']['EntitiesOnWatchlistCount']), items('For_each')['ScoreMultiplier'])"
+                                                            }
+                                                        }
+                                                    },
+                                                    "runAfter": {},
+                                                    "else": {
+                                                        "actions": {
+                                                            "Append_to_array_DetailedResults_-_Watchlist": {
+                                                                "runAfter": {
+                                                                    "Increment_scoreTotal_-_Watchlist": [
+                                                                        "Succeeded"
+                                                                    ]
+                                                                },
+                                                                "type": "AppendToArrayVariable",
+                                                                "inputs": {
+                                                                    "name": "DetailedResults",
+                                                                    "value": {
+                                                                        "Score": "@if(greater(item()['ModuleBody']['EntitiesOnWatchlistCount'],0), mul(10, items('For_each')['ScoreMultiplier']), 0)",
+                                                                        "ScoreSource": "@items('For_each')?['ScoreLabel']"
+                                                                    }
+                                                                }
+                                                            },
+                                                            "Increment_scoreTotal_-_Watchlist": {
+                                                                "runAfter": {},
+                                                                "type": "IncrementVariable",
+                                                                "inputs": {
+                                                                    "name": "scoreTotal",
+                                                                    "value": "@if(greater(item()['ModuleBody']['EntitiesOnWatchlistCount'],0), mul(10, items('For_each')['ScoreMultiplier']), 0)"
+                                                                }
+                                                            }
+                                                        }
+                                                    },
+                                                    "expression": {
+                                                        "and": [
+                                                            {
+                                                                "equals": [
+                                                                    "@items('For_each')?['ScorePerItem']",
+                                                                    true
                                                                 ]
                                                             }
                                                         ]
