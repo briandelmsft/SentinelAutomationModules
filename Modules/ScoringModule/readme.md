@@ -41,8 +41,8 @@ When scoring the Watchlist Module if ScorePerItem=True then the returned score w
 |---|---|---|
 |AddIncidentComments|True/False (Default:True)|When set to true, the results of the scoring module will be added to the Sentinel Incident Comments|
 |Base Module Body|Body (dynamic content)|The Body should be selected from the Dynamic content of the Base-Module response|
-|ScoringData-ModuleBody|Body (dynamic content)||
-|ScoringData-ScoreMultiplier|Decimal value (1 for default scoring)|Default scores will be multiplied by this value, this can be a negative value if needed to reduce cumulative score|
+|ScoringData-ModuleBody|Body (dynamic content)|The *Body* of a supported module you want to score|
+|ScoringData-ScoreMultiplier|Decimal value (1 for default scoring)|Default scores will be multiplied by this value, this can be a negative value which will result in the cummulative score being reduced
 |ScoreingData-ScorePerItem|true/false|true if you want to score the input on a row level (per alert or record)|
 
 ## Return Properties
