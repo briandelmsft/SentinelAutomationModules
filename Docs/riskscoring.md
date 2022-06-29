@@ -39,6 +39,8 @@ With risk scoring added:
 
 The ScorindData may be provided multiple times, for each module you wish to be included in the risk score.  For example if you want to evaluate Related Alerts and 2 custom KQL queries, you would provide 3 sets of Scoring data.
 
+![Risk Scoring Input Sample](images/riskscoringsample.jpg)
+
 ## Risk Scoring Outputs
 
 The return from the risk scoring module includes a TotalScore which can be easily evalucated in Condition or Switch statements inside your Logic App.  Additionally, a DetailedResults array is returned indicated the modules that contributed to the risk score.
