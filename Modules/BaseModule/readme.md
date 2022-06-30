@@ -155,6 +155,8 @@ The base module must be called before any other modules in this solution.  It pe
     }
   ],
   "OtherEntitiesCount": 2,
+  "TenantDisplayName": "Contoso",
+  "TenantId": "b85d1087-e1a5-4d3e-bccf-3683b206a77e",
   "URLs": [
     {
       "RawEntity": {
