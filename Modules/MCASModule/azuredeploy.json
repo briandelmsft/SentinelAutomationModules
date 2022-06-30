@@ -101,7 +101,7 @@
                                                 "inputs": {
                                                     "body": {
                                                         "incidentArmId": "@body('Parse_JSON')?['IncidentARMId']",
-                                                        "message": "<p>MCAS Users' investigation priority scores per user: @{body('Create_HTML_table_for_comment')}</p>"
+                                                        "message": "<p>MCAS Users' investigation priority scores per user: @{replace(replace(replace(body('Create_HTML_table_for_comment'), '&lt;', '<'), '&gt;', '>'), '&quot;', '\"')}</p>"
                                                     },
                                                     "host": {
                                                         "connection": {
@@ -435,7 +435,7 @@
                                                 "name": "DetailedResults",
                                                 "value": {
                                                     "ThreatScore": "@coalesce(body('HTTP_-_MCAS_API_Call')['threatScore'],0)",
-                                                    "UserId": "@{items('For_each_account')['id']}",
+                                                    "UserId": "<a href=\"https://security.microsoft.com/user/?aad=@{items('For_each_account')?['id']}&tid=@{body('Parse_JSON')?['TenantId']}\">@{items('For_each_account')?['id']}</a>",
                                                     "UserPrincipalName": "@{coalesce(item()?['UserPrincipalName'],null)}"
                                                 }
                                             },
@@ -937,6 +937,52 @@
                                             "description": "The ARM Id of the Azure Sentinel Incident",
                                             "type": "string"
                                         },
+                                        "ModuleVersions": {
+                                            "properties": {
+                                                "AADRisksModule": {
+                                                    "type": "string"
+                                                },
+                                                "BaseModule": {
+                                                    "type": "string"
+                                                },
+                                                "FileModule": {
+                                                    "type": "string"
+                                                },
+                                                "KQLModule": {
+                                                    "type": "string"
+                                                },
+                                                "MCASModule": {
+                                                    "type": "string"
+                                                },
+                                                "MDEModule": {
+                                                    "type": "string"
+                                                },
+                                                "OOFModule": {
+                                                    "type": "string"
+                                                },
+                                                "RelatedAlerts": {
+                                                    "type": "string"
+                                                },
+                                                "TIModule": {
+                                                    "type": "string"
+                                                },
+                                                "UEBAModule": {
+                                                    "type": "string"
+                                                },
+                                                "WatchlistModule": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "TenantDisplayName": {
+                                            "description": "Azure AD Tenant Display Name",
+                                            "type": "string"
+                                        },
+                                        "TenantId": {
+                                            "description": "Azure AD Tenant Id",
+                                            "type": "string"
+                                        },
                                         "URLs": {
                                             "description": "Array of URLs",
                                             "items": {
@@ -991,7 +1037,7 @@
                             "type": "String"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.0.5",
+                            "defaultValue": "0.0.6",
                             "type": "String"
                         },
                         "ProjectName": {

@@ -53,7 +53,7 @@
                             "type": "Object"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.3.0",
+                            "defaultValue": "0.3.1",
                             "type": "String"
                         },
                         "PlaybookInternalName": {
@@ -158,6 +158,8 @@
                                 "ModuleVersions": "@outputs('Convert_to_JSON')",
                                 "OtherEntities": "@body('Filter_array_-_Other')",
                                 "OtherEntitiesCount": "@length(body('Filter_array_-_Other'))",
+                                "TenantDisplayName": "@{body('HTTP_-_Get_Tenant')?['value']?[0]?['displayName']}",
+                                "TenantId": "@{body('HTTP_-_Get_Tenant')?['value']?[0]?['id']}",
                                 "URLs": "@variables('URLArray')",
                                 "URLsCount": "@length(variables('URLArray'))",
                                 "WorkspaceId": "@triggerBody()?['WorkspaceId']"
@@ -488,8 +490,9 @@
                         },
                         "Filter_array_-_Other": {
                             "runAfter": {
-                                "HTTP_-_Test_API_Access": [
-                                    "Succeeded"
+                                "HTTP_-_Get_Tenant": [
+                                    "Succeeded",
+                                    "Failed"
                                 ]
                             },
                             "type": "Query",
@@ -930,6 +933,22 @@
                                 ]
                             },
                             "type": "Foreach"
+                        },
+                        "HTTP_-_Get_Tenant": {
+                            "runAfter": {
+                                "HTTP_-_Test_API_Access": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Http",
+                            "inputs": {
+                                "authentication": {
+                                    "audience": "https://graph.microsoft.com",
+                                    "type": "ManagedServiceIdentity"
+                                },
+                                "method": "GET",
+                                "uri": "https://graph.microsoft.com/v1.0/organization"
+                            }
                         },
                         "HTTP_-_Test_API_Access": {
                             "runAfter": {

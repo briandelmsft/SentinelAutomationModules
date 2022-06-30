@@ -372,6 +372,14 @@
                 }
             }
         },
+        "TenantDisplayName": {
+            "type":"string",
+            "description": "Azure AD Tenant Display Name"
+        },
+        "TenantId": {
+            "type":"string",
+            "description": "Azure AD Tenant Id"
+        },     
         "URLs": {
             "type": "array",
             "description": "Array of URLs",
