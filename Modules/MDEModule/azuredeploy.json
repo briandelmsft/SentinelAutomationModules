@@ -125,7 +125,7 @@
                                     "type": "Compose"
                                 },
                                 "Compose_UserDevices_output": {
-                                    "inputs": "@variables('Comments')",
+                                    "inputs": "@replace(replace(replace(variables('Comments'), '&lt;', '<'), '&gt;', '>'), '&quot;', '\"')",
                                     "runAfter": {
                                         "For_each_DetailedResultsAccounts": [
                                             "Succeeded"
@@ -150,7 +150,7 @@
                                         "Append_to_string_variable_Comments": {
                                             "inputs": {
                                                 "name": "Comments",
-                                                "value": "@{if(not(equals(item()['UserPrincipalName'], '')), item()['UserPrincipalName'], item()['UserSid'])} @{if(equals(length(items('For_each_DetailedResultsAccounts')['UserDevices']),0),' - No devices found',body('Create_HTML_table_for_UserDevices'))} <br />"
+                                                "value": "@{if(not(equals(item()['UserPrincipalName'], '')), concat('<a href=\"https://security.microsoft.com/user/?aad=',item()['UserId'],'&tid=',body('Parse_JSON')?['TenantId'],'\">',item()['UserPrincipalName'],'</a>'), item()['UserSid'])} @{if(equals(length(items('For_each_DetailedResultsAccounts')['UserDevices']),0),' - No devices found',body('Create_table_for_Machines')[0])} <br />"
                                             },
                                             "runAfter": {
                                                 "Create_HTML_table_for_UserDevices": [
@@ -709,6 +709,52 @@
                                             "description": "The ARM Id of the Azure Sentinel Incident",
                                             "type": "string"
                                         },
+                                        "ModuleVersions": {
+                                            "properties": {
+                                                "AADRisksModule": {
+                                                    "type": "string"
+                                                },
+                                                "BaseModule": {
+                                                    "type": "string"
+                                                },
+                                                "FileModule": {
+                                                    "type": "string"
+                                                },
+                                                "KQLModule": {
+                                                    "type": "string"
+                                                },
+                                                "MCASModule": {
+                                                    "type": "string"
+                                                },
+                                                "MDEModule": {
+                                                    "type": "string"
+                                                },
+                                                "OOFModule": {
+                                                    "type": "string"
+                                                },
+                                                "RelatedAlerts": {
+                                                    "type": "string"
+                                                },
+                                                "TIModule": {
+                                                    "type": "string"
+                                                },
+                                                "UEBAModule": {
+                                                    "type": "string"
+                                                },
+                                                "WatchlistModule": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "TenantDisplayName": {
+                                            "description": "Azure AD Tenant Display Name",
+                                            "type": "string"
+                                        },
+                                        "TenantId": {
+                                            "description": "Azure AD Tenant Id",
+                                            "type": "string"
+                                        },
                                         "URLs": {
                                             "description": "Array of URLs",
                                             "items": {
@@ -904,7 +950,7 @@
                                                 }
                                             },
                                             "runAfter": {
-                                                "Create_table_to_check_UserHighestExposureLevel": [
+                                                "Create_table_for_Machines": [
                                                     "Succeeded"
                                                 ]
                                             },
@@ -914,6 +960,36 @@
                                             "inputs": [],
                                             "runAfter": {},
                                             "type": "Compose"
+                                        },
+                                        "Create_table_for_Machines": {
+                                            "inputs": {
+                                                "columns": [
+                                                    {
+                                                        "header": "id",
+                                                        "value": "<a href=\"https://security.microsoft.com/machines/@{item()?['id']}?tid=@{body('Parse_JSON')?['TenantId']}\">@{item()?['id']}</a>"
+                                                    },
+                                                    {
+                                                        "header": "computer",
+                                                        "value": "@item()?['computerDnsName']"
+                                                    },
+                                                    {
+                                                        "header": "riskScore",
+                                                        "value": "@item()?['riskScore']"
+                                                    },
+                                                    {
+                                                        "header": "exposureLevel",
+                                                        "value": "@item()['exposureLevel']"
+                                                    }
+                                                ],
+                                                "format": "HTML",
+                                                "from": "@body('Machines_-_Get_list_of_machines_-_SID_path')?['value']"
+                                            },
+                                            "runAfter": {
+                                                "Create_table_to_check_UserHighestExposureLevel": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "Table"
                                         },
                                         "Create_table_to_check_UserHighestExposureLevel": {
                                             "inputs": {
@@ -1279,7 +1355,7 @@
                             "type": "String"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.1.1",
+                            "defaultValue": "0.1.2",
                             "type": "String"
                         },
                         "ProjectName": {
