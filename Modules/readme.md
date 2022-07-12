@@ -59,3 +59,7 @@ The UEBA module allows you to take user entity data and lookup those users in th
 ### Microsoft Sentinel Watchlists
 
 The Microsoft Sentinel Watchlists module allows you to compare entity data from an incident against a watchlist to determine if that entity is present.  This supports watchlists containing columns with UserPrincipalNames, IP Addresses, or CIDR address blocks.
+
+### Risk Scoring
+
+The Risk Scoring module takes the output from other STAT modules to calculate a relative risk score.  This score can then be consumed by the calling Logic app to define different outcomes based on the score returned.

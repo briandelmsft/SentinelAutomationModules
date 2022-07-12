@@ -53,7 +53,7 @@
                             "type": "Object"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.1.0",
+                            "defaultValue": "0.1.1",
                             "type": "String"
                         },
                         "PlaybookInternalName": {
@@ -1008,6 +1008,8 @@
                                     "IPEntitiesCount": "@body('Parse_JSON')?['IPsCount']",
                                     "IPEntitiesWithTI": "@length(coalesce(body('Select_-_IP'), variables('emptyArray')))",
                                     "IPTIFound": "@greater(length(coalesce(body('Select_-_IP'), variables('emptyArray'))),0)",
+                                    "ModuleName": "@{parameters('PlaybookInternalName')}",
+                                    "TotalTIMatchCount": "@add(add(length(coalesce(body('Select_-_Domain'), variables('emptyArray'))),length(coalesce(body('Select_-_File_Hash'), variables('emptyArray')))),add(length(coalesce(body('Select_-_IP'), variables('emptyArray'))),length(coalesce(body('Select_-_URL'), variables('emptyArray')))))",
                                     "URLEntitiesCount": "@body('Parse_JSON')?['URLsCount']",
                                     "URLEntitiesWithTI": "@length(coalesce(body('Select_-_URL'), variables('emptyArray')))",
                                     "URLTIFound": "@greater(length(coalesce(body('Select_-_URL'), variables('emptyArray'))),0)"

@@ -14,6 +14,7 @@ $OOFLogicAppName="Get-OOFDetails"                #Name of the OOF Logic App
 $MDELogicAppName="Get-MDEInsights"               #Name of the MDE Logic App
 $MCASLogicAppName="Get-MCASInvestigationScore"   #Name of the MCAS Logic App
 $RelatedAlertsLogicAppName="Get-RelatedAlerts"   #Name of the Related Alerts Logic App
+$ScoringLogicAppName="Calculate-RiskScore"       #Name of the Risk Scoring Logic App
 $TILogicAppName="Get-ThreatIntel"                #Name of the TI Logic App
 $WatchlistLogicAppName="Get-WatchlistInsights"   #Name of the Watchlists Logic App
 
@@ -92,3 +93,6 @@ Set-RBACPermissions -MSIName $TILogicAppName -Role "Microsoft Sentinel Responder
 
 #Triage-Content Sample
 Set-RBACPermissions -MSIName $SampleLogicAppName -Role "Microsoft Sentinel Responder"
+
+#Calculate-RiskScore
+Set-RBACPermissions -MSIName $ScoringLogicAppName -Role "Microsoft Sentinel Responder"

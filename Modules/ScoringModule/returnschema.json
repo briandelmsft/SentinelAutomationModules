@@ -1,0 +1,24 @@
+{
+    "type": "object",
+    "properties": {
+        "DetailedResults": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "Score": {
+                        "description": "Item level score in DetailedResults array"
+                    },
+                    "ScoreSource": {
+                        "description": "Item level score label in DetailedResults array"
+                    }
+                },
+                "required": []
+            }
+        },
+        "TotalScore": {
+            "description": "Total calculated risk score",
+            "type": "integer"
+        }
+    }
+}

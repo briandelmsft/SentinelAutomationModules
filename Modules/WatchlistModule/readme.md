@@ -28,6 +28,7 @@ This module will check the incident entities to see if there are any matches on 
 |EntitiesAnalyzedCount|Count of entities checked against the watchlist|
 |EntitiesOnWatchlist|True if any entities were found on the watchlist|
 |EntitiesOnWatchlistCount|Count of entities found on the watchlist|
+|ModuleName|The internal Name of the Playbook|
 |WatchListName|Name of the watchlist that was queried|
 
 
@@ -44,6 +45,7 @@ This module will check the incident entities to see if there are any matches on 
   "EntitiesAnalyzedCount": 1,
   "EntitiesOnWatchlist": false,
   "EntitiesOnWatchlistCount": 0,
+  "ModuleName": "WatchlistModule",
   "WatchlistName": "TrustedNetworks"
 }
 ```
