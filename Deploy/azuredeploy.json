@@ -54,6 +54,10 @@
             "defaultValue": "Run-KQLQuery",
             "type": "String"
         },
+        "RunPlaybookPlaybookName": {
+            "defaultValue": "Run-Playbook",
+            "type": "String"
+        },
         "BasePlaybookName": {
             "defaultValue": "Base-Module",
             "type": "String"
@@ -92,6 +96,7 @@
         "AADTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/AADRisksModule/azuredeploy.json",
         "WatchlistTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/WatchlistModule/azuredeploy.json",
         "FileTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/FileModule/azuredeploy.json",
+        "RunPlaybookTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/RunPlaybook/azuredeploy.json",
         "KQLTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/KQLModule/azuredeploy.json",
         "TITemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/TIModule/azuredeploy.json",
         "ScoringTemplate": "https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/main/Modules/ScoringModule/azuredeploy.json",
@@ -148,6 +153,23 @@
                 "parameters": {
                     "PlaybookName": {
                         "value": "[parameters('ScoringPlaybookName')]"
+                    }
+                }
+            }
+        },
+        {
+            "apiVersion": "2019-10-01",
+            "name": "RunPlaybookTemplate",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[variables('RunPlaybookTemplate')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "PlaybookName": {
+                        "value": "[parameters('RunPlaybookPlaybookName')]"
                     }
                 }
             }
@@ -349,6 +371,7 @@
                 "[resourceId('Microsoft.Resources/deployments', 'FileTemplate')]",
                 "[resourceId('Microsoft.Resources/deployments', 'KQLTemplate')]",
                 "[resourceId('Microsoft.Resources/deployments', 'ScoringTemplate')]",
+                "[resourceId('Microsoft.Resources/deployments', 'RunPlaybookTemplate')]",
                 "[resourceId('Microsoft.Resources/deployments', 'TITemplate')]"
             ],
             "properties": {
@@ -399,6 +422,9 @@
                     },
                     "ScoringModule_resourceid": {
                         "value": "[reference('ScoringTemplate').outputs.resourceID.value]"
+                    },
+                    "RunPlaybook_resourceid": {
+                        "value": "[reference('RunPlaybookTemplate').outputs.resourceID.value]"
                     },
                     "WatchlistModule_resourceid": {
                         "value": "[reference('WatchlistTemplate').outputs.resourceID.value]"

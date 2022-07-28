@@ -15,6 +15,8 @@ Automation Modules make it easier to perform routine tasks by using a common set
 * Microsoft Sentinel Threat Intelligence
 * Microsoft Sentinel User Entity Behavior Analytics
 * Microsoft Sentinel Watchlists
+* Risk Scoring
+* Run Playbook
 
 ### Base Module
 
@@ -63,3 +65,7 @@ The Microsoft Sentinel Watchlists module allows you to compare entity data from 
 ### Risk Scoring
 
 The Risk Scoring module takes the output from other STAT modules to calculate a relative risk score.  This score can then be consumed by the calling Logic app to define different outcomes based on the score returned.
+
+### Run Playbook
+
+The Run Playbook module can be used to invoke other Microsoft Sentinel Playbooks.  In situations where you are analyzing an incident using STAT, under certain conditions you may want to initiate other playbooks instead of incorporating the logic of those playbooks into your main STAT triage playbooks.  This module allows you to reuse other playbooks as needed during an incident triage.

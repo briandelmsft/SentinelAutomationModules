@@ -229,6 +229,16 @@
                                 "visible": true
                             },
                             {
+                                "name": "RunPlaybookPlaybookName",
+                                "type": "Microsoft.Common.TextBox",
+                                "label": "Run-Playbook Playbook Name",
+                                "placeholder": "",
+                                "defaultValue": "Run-Playbook",
+                                "toolTip": "",
+                                "constraints": {},
+                                "visible": true
+                            },
+                            {
                                 "name": "ScoringPlaybookName",
                                 "type": "Microsoft.Common.TextBox",
                                 "label": "Scoring Playbook Name",
@@ -404,6 +414,7 @@
             "UEBAPlaybookName": "[coalesce(steps('automationModules').advancedSetup.UEBAPlaybookName,'Get-UEBAInsights')]",
             "FilePlaybookName": "[coalesce(steps('automationModules').advancedSetup.FilePlaybookName,'Get-FileInsights')]",
             "KQLPlaybookName": "[coalesce(steps('automationModules').advancedSetup.KQLPlaybookName,'Run-KQLQuery')]",
+            "RunPlaybookPlaybookName": "[coalesce(steps('automationModules').advancedSetup.RunPlaybookPlaybookName,'Run-Playbook')]",
             "BasePlaybookName": "[coalesce(steps('automationModules').advancedSetup.BasePlaybookName,'Base-Module')]",
             "AADRisksPlaybookName": "[coalesce(steps('automationModules').advancedSetup.AADRisksPlaybookName,'Get-AADUserRisksInfo')]",
             "ScoringPlaybookName": "[coalesce(steps('automationModules').advancedSetup.ScoringPlaybookName,'Calculate-RiskScore')]",

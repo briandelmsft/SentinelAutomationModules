@@ -1,0 +1,655 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "PlaybookName": {
+            "defaultValue": "Run-Playbook",
+            "type": "String"
+        }
+    },
+    "variables": {
+        "AzureSentinelConnectionName": "[concat('azuresentinel-', parameters('PlaybookName'))]",
+        "ConversionServiceConnectionName": "[concat('conversionservice-', parameters('PlaybookName'))]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[variables('AzureSentinelConnectionName')]",
+            "location": "[resourceGroup().location]",
+            "kind": "V1",
+            "properties": {
+                "displayName": "[variables('AzureSentinelConnectionName')]",
+                "customParameterValues": {},
+                "parameterValueType": "Alternative",
+                "api": {
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azuresentinel')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2017-07-01",
+            "name": "[parameters('PlaybookName')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/connections', variables('AzureSentinelConnectionName'))]",
+                "[resourceId('Microsoft.Web/connections', variables('ConversionServiceConnectionName'))]"
+            ],
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "state": "Enabled",
+                "accessControl": {
+                    "triggers": {
+                        "allowedCallerIpAddresses": []
+                    }
+                },
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {},
+                            "type": "Object"
+                        },
+                        "PlaybookVersion": {
+                            "defaultValue": "0.0.1",
+                            "type": "String"
+                        },
+                        "PlaybookInternalName": {
+                            "defaultValue": "RunPlaybook",
+                            "type": "String"
+                        },
+                        "ProjectName": {
+                            "defaultValue": "STAT",
+                            "type": "String"
+                        }
+                    },
+                    "triggers": {
+                        "triage": {
+                            "type": "Request",
+                            "kind": "Http",
+                            "inputs": {
+                                "schema": {
+                                    "properties": {
+                                        "AddIncidentComments": {
+                                            "title": "Add comments to the incident",
+                                            "type": "boolean"
+                                        },
+                                        "Entities": {
+                                            "description": "Click here and select the Body object from the Base-Module output in the Dynamic content menu",
+                                            "title": "Base Module Body",
+                                            "type": "array"
+                                        },
+                                        "LogicAppResourceId": {
+                                            "title": "resourceId of the Logic App to execute",
+                                            "type": "string"
+                                        },
+                                        "PlaybookName": {
+                                            "title": "Friendly name for the Playbook to run",
+                                            "type": "string"
+                                        },
+                                        "TenantId": {
+                                            "title": "Azure AD Tenant Id",
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "actions": {
+                        "Condition_-_Comment": {
+                            "actions": {
+                                "Add_comment_to_incident_(V3)": {
+                                    "runAfter": {},
+                                    "type": "ApiConnection",
+                                    "inputs": {
+                                        "body": {
+                                            "incidentArmId": "@body('Parse_JSON')?['IncidentARMId']",
+                                            "message": "<p>@{variables('incidentComment')}<br>\n</p>"
+                                        },
+                                        "host": {
+                                            "connection": {
+                                                "name": "@parameters('$connections')['azuresentinel']['connectionId']"
+                                            }
+                                        },
+                                        "method": "post",
+                                        "path": "/Incidents/Comment"
+                                    }
+                                }
+                            },
+                            "runAfter": {
+                                "Set_Success_Comment": [
+                                    "Succeeded",
+                                    "Skipped"
+                                ],
+                                "Set_variable_-_responseCode": [
+                                    "Succeeded",
+                                    "Skipped"
+                                ]
+                            },
+                            "expression": {
+                                "and": [
+                                    {
+                                        "equals": [
+                                            "@triggerBody()?['AddIncidentComments']",
+                                            true
+                                        ]
+                                    }
+                                ]
+                            },
+                            "type": "If"
+                        },
+                        "HTTP_-_Run_Playbook": {
+                            "runAfter": {
+                                "Initialize_variable_-_responseCode": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Http",
+                            "inputs": {
+                                "authentication": {
+                                    "audience": "https://management.azure.com",
+                                    "type": "ManagedServiceIdentity"
+                                },
+                                "body": {
+                                    "logicAppsResourceId": "@{triggerBody()?['LogicAppResourceId']}",
+                                    "tenantId": "@{triggerBody()?['TenantId']}"
+                                },
+                                "method": "POST",
+                                "queries": {
+                                    "api-version": "2022-07-01-preview"
+                                },
+                                "uri": "https://management.azure.com@{body('Parse_JSON')?['IncidentARMId']}/runPlaybook"
+                            }
+                        },
+                        "Initialize_variable_-_incidentComment": {
+                            "runAfter": {
+                                "Parse_JSON": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "incidentComment",
+                                        "type": "string"
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_variable_-_responseCode": {
+                            "runAfter": {
+                                "Initialize_variable_-_incidentComment": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "responseCode",
+                                        "type": "integer",
+                                        "value": 200
+                                    }
+                                ]
+                            }
+                        },
+                        "Parse_JSON": {
+                            "runAfter": {},
+                            "type": "ParseJson",
+                            "inputs": {
+                                "content": "@triggerBody()?['Entities']",
+                                "schema": {
+                                    "properties": {
+                                        "Accounts": {
+                                            "description": "Array of User Accounts",
+                                            "items": {
+                                                "properties": {
+                                                    "AssignedRoles": {
+                                                        "description": "Array of assigned roles in Accounts array",
+                                                        "items": {
+                                                            "properties": {
+                                                                "Role": {
+                                                                    "description": "Array property in AssignedRoles array"
+                                                                }
+                                                            },
+                                                            "required": [],
+                                                            "type": "object"
+                                                        },
+                                                        "type": "array"
+                                                    },
+                                                    "RawEntity": {
+                                                        "description": "Object containing Raw unenriched entity data in Accounts array",
+                                                        "properties": {
+                                                            "accountName": {
+                                                                "description": "accountName from RawEntity object in Accounts array"
+                                                            },
+                                                            "displayName": {
+                                                                "description": "dislayName from RawEntity object in Accounts array"
+                                                            },
+                                                            "friendlyName": {
+                                                                "description": "friendlyName from RawEntity object in Accounts array"
+                                                            },
+                                                            "isDomainJoined": {
+                                                                "description": "isDomainJoined from RawEntity object in Accounts array"
+                                                            },
+                                                            "sid": {
+                                                                "description": "sid from RawEntity object in Accounts array"
+                                                            },
+                                                            "upnSuffix": {
+                                                                "description": "upnSuffix from RawEntity object in Accounts array"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "accountEnabled": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "city": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "country": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "department": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "id": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "jobTitle": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "mail": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "manager": {
+                                                        "description": "Array property in Accounts array",
+                                                        "properties": {
+                                                            "@@odata.type": {
+                                                                "description": "Array property in Accounts array manager object"
+                                                            },
+                                                            "id": {
+                                                                "description": "Array property in Accounts array manager object"
+                                                            },
+                                                            "mail": {
+                                                                "description": "Array property in Accounts array manager object"
+                                                            },
+                                                            "userPrincipalName": {
+                                                                "description": "Array property in Accounts array manager object"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "officeLocation": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "onPremisesDistinguishedName": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "onPremisesDomainName": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "onPremisesSamAccountName": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "onPremisesSecurityIdentifier": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "onPremisesSyncEnabled": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "state": {
+                                                        "description": "Array property in Accounts array"
+                                                    },
+                                                    "userPrincipalName": {
+                                                        "description": "Array property in Accounts array"
+                                                    }
+                                                },
+                                                "required": [],
+                                                "type": "object"
+                                            },
+                                            "type": "array"
+                                        },
+                                        "AccountsCount": {
+                                            "description": "Count of accounts processed by module",
+                                            "type": "integer"
+                                        },
+                                        "Domains": {
+                                            "description": "Array of Domains",
+                                            "items": {
+                                                "properties": {
+                                                    "RawEntity": {
+                                                        "description": "Object containing Raw unenriched entity data in Domains array",
+                                                        "properties": {
+                                                            "domainName": {
+                                                                "description": "domainName from RawEntity object in Domains array"
+                                                            },
+                                                            "friendlyName": {
+                                                                "description": "friendlyName from RawEntity object in Domains array"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "required": [],
+                                                "type": "object"
+                                            },
+                                            "type": "array"
+                                        },
+                                        "DomainsCount": {
+                                            "description": "Count of Domains processed by module",
+                                            "type": "integer"
+                                        },
+                                        "EntitiesCount": {
+                                            "description": "Count of all entities processed by enrichment module",
+                                            "type": "integer"
+                                        },
+                                        "FileHashes": {
+                                            "description": "Array of FileHashes",
+                                            "items": {
+                                                "properties": {
+                                                    "RawEntity": {
+                                                        "description": "Object containing Raw unenriched entity data in FileHashes array",
+                                                        "properties": {
+                                                            "algorithm": {
+                                                                "description": "algorithm from RawEntity object in FileHashes array"
+                                                            },
+                                                            "friendlyName": {
+                                                                "description": "friendlyName from RawEntity object in FileHashes array"
+                                                            },
+                                                            "hashValue": {
+                                                                "description": "hashValue from RawEntity object in FileHashes array"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "required": [],
+                                                "type": "object"
+                                            },
+                                            "type": "array"
+                                        },
+                                        "FileHashesCount": {
+                                            "description": "Count of File Hashes processed by module",
+                                            "type": "integer"
+                                        },
+                                        "Files": {
+                                            "description": "Array of Files",
+                                            "items": {
+                                                "properties": {
+                                                    "RawEntity": {
+                                                        "description": "Object containing Raw unenriched entity data in Files array",
+                                                        "properties": {
+                                                            "directory": {
+                                                                "description": "directory from RawEntity object in Files array"
+                                                            },
+                                                            "fileName": {
+                                                                "description": "fileName from RawEntity object in Files array"
+                                                            },
+                                                            "friendlyName": {
+                                                                "description": "friendlyName from RawEntity object in Files array"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "required": [],
+                                                "type": "object"
+                                            },
+                                            "type": "array"
+                                        },
+                                        "FilesCount": {
+                                            "description": "Count of Files processed by module",
+                                            "type": "integer"
+                                        },
+                                        "Hosts": {
+                                            "description": "Array of Hosts",
+                                            "items": {
+                                                "properties": {
+                                                    "DnsDomain": {
+                                                        "description": "Array property in Hosts array"
+                                                    },
+                                                    "FQDN": {
+                                                        "description": "Array property in Hosts array"
+                                                    },
+                                                    "Hostname": {
+                                                        "description": "Array property in Hosts array"
+                                                    },
+                                                    "RawEntity": {
+                                                        "description": "Object containing Raw unenriched entity data in Hosts array",
+                                                        "properties": {
+                                                            "dnsDomain": {
+                                                                "description": "dnsDomain from RawEntity object in Hosts array"
+                                                            },
+                                                            "friendlyName": {
+                                                                "description": "friendlyName from RawEntity object in Hosts array"
+                                                            },
+                                                            "hostName": {
+                                                                "description": "hostName from RawEntity object in Hosts array"
+                                                            },
+                                                            "netBiosName": {
+                                                                "description": "netBiosName from RawEntity object in Hosts array"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "required": [],
+                                                "type": "object"
+                                            },
+                                            "type": "array"
+                                        },
+                                        "HostsCount": {
+                                            "description": "Count of Hosts processed by module",
+                                            "type": "integer"
+                                        },
+                                        "IPs": {
+                                            "description": "Array of IP Addresses",
+                                            "items": {
+                                                "properties": {
+                                                    "Address": {
+                                                        "description": "Array property in IPs array"
+                                                    },
+                                                    "GeoData": {
+                                                        "description": "Array object in IPs array",
+                                                        "properties": {
+                                                            "asn": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "carrier": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "city": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "cityCf": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "continent": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "country": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "countryCf": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "ipAddr": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "ipRoutingType": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "latitude": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "longitude": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "organization": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "organizationType": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "region": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "state": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "stateCf": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            },
+                                                            "stateCode": {
+                                                                "description": "Array property in IPs array GeoData object"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "RawEntity": {
+                                                        "description": "Object containing Raw unenriched entity data in IPs array",
+                                                        "properties": {
+                                                            "address": {
+                                                                "description": "address from RawEntity object in IPs array"
+                                                            },
+                                                            "friendlyName": {
+                                                                "description": "friendlyName from RawEntity object in IPs array"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "required": [],
+                                                "type": "object"
+                                            },
+                                            "type": "array"
+                                        },
+                                        "IPsCount": {
+                                            "description": "Count of IPs processed by module",
+                                            "type": "integer"
+                                        },
+                                        "IncidentARMId": {
+                                            "description": "The ARM Id of the Azure Sentinel Incident",
+                                            "type": "string"
+                                        },
+                                        "URLs": {
+                                            "description": "Array of URLs",
+                                            "items": {
+                                                "properties": {
+                                                    "RawEntity": {
+                                                        "description": "Object containing Raw unenriched entity data in URLs array",
+                                                        "properties": {
+                                                            "friendlyName": {
+                                                                "description": "friendlyName from RawEntity object in URLs array"
+                                                            },
+                                                            "url": {
+                                                                "description": "url from RawEntity object in URLs array"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "required": [],
+                                                "type": "object"
+                                            },
+                                            "type": "array"
+                                        },
+                                        "URLsCount": {
+                                            "description": "Count of URLs processed by module",
+                                            "type": "integer"
+                                        },
+                                        "WorkspaceId": {
+                                            "description": "The Log Analytics Workspace Id of the Azure Sentinel Incident",
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        },
+                        "Response": {
+                            "runAfter": {
+                                "Condition_-_Comment": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Response",
+                            "kind": "Http",
+                            "inputs": {
+                                "body": "@body('HTTP_-_Run_Playbook')",
+                                "statusCode": "@variables('responseCode')"
+                            }
+                        },
+                        "Set_Failure_Comment": {
+                            "runAfter": {
+                                "HTTP_-_Run_Playbook": [
+                                    "Failed"
+                                ]
+                            },
+                            "type": "SetVariable",
+                            "inputs": {
+                                "name": "incidentComment",
+                                "value": "The Playbook @{triggerBody()?['PlaybookName']} failed to start on this incident."
+                            }
+                        },
+                        "Set_Success_Comment": {
+                            "runAfter": {
+                                "HTTP_-_Run_Playbook": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "SetVariable",
+                            "inputs": {
+                                "name": "incidentComment",
+                                "value": "The Playbook @{triggerBody()?['PlaybookName']} was successfully started on this incident by the Microsoft Sentinel Triage AssistanT (STAT)"
+                            }
+                        },
+                        "Set_variable_-_responseCode": {
+                            "runAfter": {
+                                "Set_Failure_Comment": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "SetVariable",
+                            "inputs": {
+                                "name": "responseCode",
+                                "value": 500
+                            }
+                        }
+                    },
+                    "outputs": {}
+                },
+                "parameters": {
+                    "$connections": {
+                        "value": {
+                            "azuresentinel": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('AzureSentinelConnectionName'))]",
+                                "connectionName": "[variables('AzureSentinelConnectionName')]",
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azuresentinel')]",
+                                "connectionProperties": {
+                                    "authentication": {
+                                        "type": "ManagedServiceIdentity"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ],
+    "outputs": {
+        "resourceID": {
+            "type": "string",
+            "value": "[resourceId('Microsoft.Logic/workflows', parameters('PlaybookName'))]"
+        }
+    }
+}
