@@ -8,8 +8,7 @@
         }
     },
     "variables": {
-        "AzureSentinelConnectionName": "[concat('azuresentinel-', parameters('PlaybookName'))]",
-        "ConversionServiceConnectionName": "[concat('conversionservice-', parameters('PlaybookName'))]"
+        "AzureSentinelConnectionName": "[concat('azuresentinel-', parameters('PlaybookName'))]"
     },
     "resources": [
         {
@@ -33,8 +32,7 @@
             "name": "[parameters('PlaybookName')]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/connections', variables('AzureSentinelConnectionName'))]",
-                "[resourceId('Microsoft.Web/connections', variables('ConversionServiceConnectionName'))]"
+                "[resourceId('Microsoft.Web/connections', variables('AzureSentinelConnectionName'))]"
             ],
             "identity": {
                 "type": "SystemAssigned"
