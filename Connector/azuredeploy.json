@@ -421,6 +421,22 @@
                                                                 "type": "boolean",
                                                                 "description": "accountEnabled in Accounts array"
                                                             },
+                                                            "isAADPrivileged": {
+                                                                "type": "boolean",
+                                                                "description": "isAADPrivileged in Accounts array"
+                                                            },
+                                                            "isMfaRegistered": {
+                                                                "type": "boolean",
+                                                                "description": "isMfaRegistered in Accounts array"
+                                                            },
+                                                            "isSSPREnabled": {
+                                                                "type": "boolean",
+                                                                "description": "isSSPREnabled in Accounts array"
+                                                            },
+                                                            "isSSPRRegistered": {
+                                                                "type": "boolean",
+                                                                "description": "isSSPRRegistered in Accounts array"
+                                                            },
                                                             "manager": {
                                                                 "type": "object",
                                                                 "properties": {

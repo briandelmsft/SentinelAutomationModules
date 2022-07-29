@@ -52,6 +52,18 @@
                     "officeLocation": {
                         "description": "Array property in Accounts array"
                     },
+                    "isAADPrivileged": {
+                        "description": "Array property in Accounts array"
+                    },
+                    "isMfaRegistered": {
+                        "description": "Array property in Accounts array"
+                    },
+                    "isSSPREnabled": {
+                        "description": "Array property in Accounts array"
+                    },
+                    "isSSPRRegistered": {
+                        "description": "Array property in Accounts array"
+                    },
                     "manager": {
                         "type": "object",
                         "description": "Array property in Accounts array",
