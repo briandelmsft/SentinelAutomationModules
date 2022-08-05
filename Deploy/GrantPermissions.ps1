@@ -14,6 +14,7 @@ $OOFLogicAppName="Get-OOFDetails"                #Name of the OOF Logic App
 $MDELogicAppName="Get-MDEInsights"               #Name of the MDE Logic App
 $MCASLogicAppName="Get-MCASInvestigationScore"   #Name of the MCAS Logic App
 $RelatedAlertsLogicAppName="Get-RelatedAlerts"   #Name of the Related Alerts Logic App
+$RunPlaybookLogicAppName="Run-Playbook"          #Name of the Run-Playbook Logic App
 $ScoringLogicAppName="Calculate-RiskScore"       #Name of the Risk Scoring Logic App
 $TILogicAppName="Get-ThreatIntel"                #Name of the TI Logic App
 $WatchlistLogicAppName="Get-WatchlistInsights"   #Name of the Watchlists Logic App
@@ -69,6 +70,7 @@ Set-RBACPermissions -MSIName $WatchlistLogicAppName -Role "Microsoft Sentinel Re
 
 #Base module
 Set-APIPermissions -MSIName $BaseLogicAppName -AppId "00000003-0000-0000-c000-000000000000" -PermissionName "User.Read.All"
+Set-APIPermissions -MSIName $BaseLogicAppName -AppId "00000003-0000-0000-c000-000000000000" -PermissionName "Reports.Read.All"
 Set-APIPermissions -MSIName $BaseLogicAppName -AppId "00000003-0000-0000-c000-000000000000" -PermissionName "RoleManagement.Read.Directory"
 Set-RBACPermissions -MSIName $BaseLogicAppName -Role "Microsoft Sentinel Responder"
 
@@ -96,3 +98,6 @@ Set-RBACPermissions -MSIName $SampleLogicAppName -Role "Microsoft Sentinel Respo
 
 #Calculate-RiskScore
 Set-RBACPermissions -MSIName $ScoringLogicAppName -Role "Microsoft Sentinel Responder"
+
+#Run-Playbook
+Set-RBACPermissions -MSIName $RunPlaybookLogicAppName -Role "Microsoft Sentinel Responder"

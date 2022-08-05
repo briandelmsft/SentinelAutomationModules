@@ -53,7 +53,7 @@
                             "type": "Object"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.3.1",
+                            "defaultValue": "0.4.0",
                             "type": "String"
                         },
                         "PlaybookInternalName": {
@@ -155,6 +155,7 @@
                                 "IPs": "@variables('IPArray')",
                                 "IPsCount": "@length(variables('IPArray'))",
                                 "IncidentARMId": "@triggerBody()?['IncidentARMId']",
+                                "ModuleName": "@{parameters('PlaybookInternalName')}",
                                 "ModuleVersions": "@outputs('Convert_to_JSON')",
                                 "OtherEntities": "@body('Filter_array_-_Other')",
                                 "OtherEntitiesCount": "@length(body('Filter_array_-_Other'))",
@@ -224,6 +225,18 @@
                                             {
                                                 "header": "ManagerUPN",
                                                 "value": "@item()?['manager']?['userPrincipalName']"
+                                            },
+                                            {
+                                                "header": "MfaRegistered",
+                                                "value": "@coalesce(item()?['isMfaRegistered'], 'Unknown')"
+                                            },
+                                            {
+                                                "header": "SSPREnabled",
+                                                "value": "@coalesce(item()?['isSSPREnabled'], 'Unknown')"
+                                            },
+                                            {
+                                                "header": "SSPRRegistered",
+                                                "value": "@coalesce(item()?['isSSPRRegistered'], 'Unknown')"
                                             }
                                         ],
                                         "format": "HTML",
@@ -624,14 +637,33 @@
                                         "value": "@outputs('Compose_User_Unenriched')"
                                     }
                                 },
-                                "Compose_User": {
+                                "Compose_UPN": {
                                     "runAfter": {
-                                        "Select_Roles": [
+                                        "Compose_UserId": [
                                             "Succeeded"
                                         ]
                                     },
                                     "type": "Compose",
-                                    "inputs": "@addProperty(addProperty(addProperty(coalesce(body('HTTP_-_Email')?['value']?[0],body('HTTP_-_UPN'),body('HTTP_-_AADId'),body('HTTP_-_ObjectSid')?['value']?[0],body('HTTP_-_SamAccountName')?['value']?[0],body('HTTP_-_DistinguishedName')?['value']?[0]), 'AssignedRoles', body('Select_Roles')), 'RawEntity', item()['RawEntity']), 'isAADPrivileged', if(greater(length(body('Select_Roles')), 0), true, false))"
+                                    "inputs": "@coalesce(body('HTTP_-_Email')?['value']?[0]?['userPrincipalName'],body('HTTP_-_UPN')?['userPrincipalName'],body('HTTP_-_AADId')?['userPrincipalName'],body('HTTP_-_ObjectSid')?['value']?[0]?['userPrincipalName'],body('HTTP_-_SamAccountName')?['value']?[0]?['userPrincipalName'],body('HTTP_-_DistinguishedName')?['value']?[0]?['userPrincipalName'])"
+                                },
+                                "Compose_User": {
+                                    "runAfter": {
+                                        "HTTP_-_Security_Info": [
+                                            "Succeeded",
+                                            "Failed"
+                                        ]
+                                    },
+                                    "type": "Compose",
+                                    "inputs": "@addProperty(addProperty(addProperty(addProperty(addProperty(addProperty(coalesce(body('HTTP_-_Email')?['value']?[0],body('HTTP_-_UPN'),body('HTTP_-_AADId'),body('HTTP_-_ObjectSid')?['value']?[0],body('HTTP_-_SamAccountName')?['value']?[0],body('HTTP_-_DistinguishedName')?['value']?[0]), 'AssignedRoles', body('Select_Roles')), 'RawEntity', item()['RawEntity']), 'isAADPrivileged', if(greater(length(body('Select_Roles')), 0), true, false)), 'isMfaRegistered', body('HTTP_-_Security_Info')?['value']?[0]?['isMfaRegistered']), 'isSSPREnabled', body('HTTP_-_Security_Info')?['value']?[0]?['isEnabled']), 'isSSPRRegistered', body('HTTP_-_Security_Info')?['value']?[0]?['isRegistered'])"
+                                },
+                                "Compose_UserId": {
+                                    "runAfter": {
+                                        "Switch": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Compose",
+                                    "inputs": "@coalesce(body('HTTP_-_Email')?['value']?[0]?['id'],body('HTTP_-_UPN')?['id'],body('HTTP_-_AADId')?['id'],body('HTTP_-_ObjectSid')?['value']?[0]?['id'],body('HTTP_-_SamAccountName')?['value']?[0]?['id'],body('HTTP_-_DistinguishedName')?['value']?[0]?['id'])"
                                 },
                                 "Compose_User_Unenriched": {
                                     "runAfter": {
@@ -647,7 +679,7 @@
                                 },
                                 "HTTP_-_Roles": {
                                     "runAfter": {
-                                        "Switch": [
+                                        "Compose_UPN": [
                                             "Succeeded"
                                         ]
                                     },
@@ -658,7 +690,26 @@
                                             "type": "ManagedServiceIdentity"
                                         },
                                         "method": "GET",
-                                        "uri": "https://graph.microsoft.com/v1.0/roleManagement/directory/roleAssignments?$filter=principalId%20eq%20'@{coalesce(body('HTTP_-_Email')?['value']?[0]?['id'],body('HTTP_-_UPN')?['id'],body('HTTP_-_AADId')?['id'],body('HTTP_-_ObjectSid')?['value']?[0]?['id'],body('HTTP_-_SamAccountName')?['value']?[0]?['id'],body('HTTP_-_DistinguishedName')?['value']?[0]?['id'])}'&$expand=roleDefinition"
+                                        "uri": "https://graph.microsoft.com/v1.0/roleManagement/directory/roleAssignments?$filter=principalId%20eq%20'@{outputs('Compose_UserId')}'&$expand=roleDefinition"
+                                    }
+                                },
+                                "HTTP_-_Security_Info": {
+                                    "runAfter": {
+                                        "Select_Roles": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Http",
+                                    "inputs": {
+                                        "authentication": {
+                                            "audience": "https://graph.microsoft.com",
+                                            "type": "ManagedServiceIdentity"
+                                        },
+                                        "headers": {
+                                            "Content-Type": "application/json"
+                                        },
+                                        "method": "GET",
+                                        "uri": "https://graph.microsoft.com/beta/reports/credentialUserRegistrationDetails?$filter=userPrincipalName%20eq%20'@{outputs('Compose_UPN')}'"
                                     }
                                 },
                                 "Select_Roles": {

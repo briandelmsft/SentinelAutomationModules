@@ -5,11 +5,12 @@ $TenantID=""  #Add your AAD Tenant Id
 $AzureSubscriptionId = "" #Azure Subscrition Id of Sentinel Subscription
 $SentinelResourceGroupName = "" #Resource Group Name of Sentinel
 
-$BaseLogicAppName="Base-Module" #Name of the Base Module Logic App
+$OOFLogicAppName="Run-Playbook"                #Name of the Run-Playbook Logic App
 
 Connect-AzureAD -TenantId $TenantID
 Login-AzAccount
 Set-AzContext -Subscription $AzureSubscriptionId
+
 function Set-APIPermissions ($MSIName, $AppId, $PermissionName) {
     $MSI = Get-AppIds -AppName $MSIName
     Start-Sleep -Seconds 2
@@ -27,8 +28,5 @@ function Set-RBACPermissions ($MSIName, $Role) {
     New-AzRoleAssignment -ApplicationId $MSI.AppId -Scope "/subscriptions/$($AzureSubscriptionId)/resourceGroups/$($SentinelResourceGroupName)" -RoleDefinitionName $Role
 }
 
-#Base-Module
-Set-APIPermissions -MSIName $BaseLogicAppName -AppId "00000003-0000-0000-c000-000000000000" -PermissionName "User.Read.All"
-Set-APIPermissions -MSIName $BaseLogicAppName -AppId "00000003-0000-0000-c000-000000000000" -PermissionName "Reports.Read.All"
-Set-APIPermissions -MSIName $BaseLogicAppName -AppId "00000003-0000-0000-c000-000000000000" -PermissionName "RoleManagement.Read.Directory"
-Set-RBACPermissions -MSIName $BaseLogicAppName -Role "Microsoft Sentinel Responder"
+#Run-Playbook
+Set-RBACPermissions -MSIName $OOFLogicAppName -Role "Microsoft Sentinel Responder"

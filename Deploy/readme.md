@@ -14,6 +14,10 @@ In most cases it is only necessary to deploy STAT a single time, but in some cir
 
 To upgrade the Microsoft Sentinel Triage AssistanT you can simply deploy the solution again, using the same settings as your original deployment.  This will update all of the STAT components but will maintain any existing connections to other logic apps you have a built and you will not be required to reassign the permissions as they will also be maintained.  When upgrading an advanced mode deployment, it is important that you use the same module names as the original deployment, otherwise new logic apps will be created.
 
+### Base Module version 0.4.0 and above
+
+When upgrading the base module from versions below 0.4.0 to this version or above the additional Graph API permissions of Reports.Read.All is used by the base module (See GrantPermissions.ps1).  If this permissions is not added, the module will return *Unknown* for all values that use the permission.
+
 ## Quick Deployment
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fbriandelmsft%2FSentinelAutomationModules%2Fmain%2FDeploy%2Fazuredeploy.json/createUIDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2Fbriandelmsft%2FSentinelAutomationModules%2Fmain%2FDeploy%2FcreateUiDefinition.json)
