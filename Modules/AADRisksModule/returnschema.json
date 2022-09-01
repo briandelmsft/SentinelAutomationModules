@@ -40,6 +40,9 @@
         "MFAFraudTotalCount": {
             "type": "integer",
             "description": "Total of MFA fraud reported for all entities"
+        },
+        "ModuleName": {
+            "type": "string"
         }
     }
 }

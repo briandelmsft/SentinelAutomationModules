@@ -29,6 +29,7 @@ Trigger name: **triage**
 |HighestRiskLevel|Returns the highest risk level found in Azure AD for all entities(returns unknown if no Account entities were found)|
 |FailedMFATotalCount|Returns the total failed MFA request in the SigninLogs table for all entities (returns 0 if no Account entities were found)|
 |MFAFraudTotalCount|Returns the total MFA fraud reports in the AuditLogs table for all entities (returns 0 if no Account entities were found)|
+|ModuleName|The internal Name of the Playbook|
 |DetailedResults|An array containing the details for each entity|
 
 ## Sample Return
@@ -39,6 +40,7 @@ Trigger name: **triage**
   "FailedMFATotalCount": 31,
   "HighestRiskLevel": "low",
   "MFAFraudTotalCount": 1,
+  "ModuleName": "AADRisksModule",
   "DetailedResults": [
     {
       "UserFailedMFACount": 0,
