@@ -56,7 +56,8 @@
                                             "DetailedResults": [],
                                             "FailedMFATotalCount": 0,
                                             "HighestRiskyLevel": 0,
-                                            "MFAFraudTotalCount": 0
+                                            "MFAFraudTotalCount": 0,
+                                            "ModuleName": "@{parameters('PlaybookInternalName')}"
                                         },
                                         "statusCode": 200
                                     },
@@ -124,7 +125,8 @@
                                             "DetailedResults": "@variables('DetailedResults')",
                                             "FailedMFATotalCount": "@variables('FailedMFATotalCount')",
                                             "HighestRiskLevel": "@{if(contains(body('Create_CSV_table_to_calculate_HighestRiskLevel'), 'high'), 'high', if(contains(body('Create_CSV_table_to_calculate_HighestRiskLevel'), 'medium'), 'medium', if(contains(body('Create_CSV_table_to_calculate_HighestRiskLevel'), 'low'), 'low', if(contains(body('Create_CSV_table_to_calculate_HighestRiskLevel'), 'none'),'none','unknown'))))}",
-                                            "MFAFraudTotalCount": "@variables('MFAFraudTotalCount')"
+                                            "MFAFraudTotalCount": "@variables('MFAFraudTotalCount')",
+                                            "ModuleName": "@{parameters('PlaybookInternalName')}"
                                         },
                                         "runAfter": {
                                             "Create_CSV_table_to_calculate_HighestRiskLevel": [
@@ -915,7 +917,7 @@
                             "type": "Object"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.0.5",
+                            "defaultValue": "0.0.6",
                             "type": "String"
                         },
                         "PlaybookInternalName": {

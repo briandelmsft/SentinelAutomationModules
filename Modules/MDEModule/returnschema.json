@@ -68,9 +68,6 @@
                             },
                             "riskScore": {
                                 "type": "string"
-                            },
-                            "riskScore": {
-                                "type": "string"
                             }
                         },
                         "required": [],
@@ -87,6 +84,9 @@
         },
         "IPsHighestRiskScore": {
             "description": "Highest risk score found on devices for all IPs",
+            "type": "string"
+        },
+        "ModuleName": {
             "type": "string"
         },
         "UsersHighestExposureLevel": {
