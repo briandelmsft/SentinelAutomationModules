@@ -99,6 +99,7 @@ SecurityIncident
 |Property|Description|
 |---|---|
 |DetailedResults|An array of each record found by the KQL query|
+|LogicAppRunId|Returns the Run id for that instance of the module run history to assist in troubleshooting|
 |ModuleName|The internal Name of the Playbook|
 |ResultsCount|Number of results found by the KQL query|
 |ResultsFound|true/false indicating if results were found by the KQL query|
