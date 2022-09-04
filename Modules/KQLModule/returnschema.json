@@ -4,6 +4,9 @@
         "DetailedResults": {
             "type": "array"
         },
+        "LogicAppRunId": {
+            "type": "string"
+        },
         "ModuleName": {
             "type": "string"
         },
