@@ -1,13 +1,29 @@
 # Calculate-RiskScore
 
 ## Description
+
 This module will take the outputs from other STAT modules and calculate a cumulative risk score based on the inputs
 
 ## Suported Module Inputs
+
+* AAD Risks Module
 * Related Alerts Module
 * KQL Module
 * Threat Intelligence Module
 * Watchlist Module
+
+### AAD Risks Scoring
+
+When scoring AAD Risks module the following default scores are assigned based on the user risk level in Azure AD Identity Protection
+
+|Identity Protection Risk Level|Score|
+|---|---|
+|High|10|
+|Medium|5|
+|Low|3|
+|None|0|
+
+> Note: If ScorePerItem=True, the sum of all user scores will be returned.  If ScorePerItem=False, only the score of the highest severity user will be returned.
 
 ### Related Alerts Scoring
 
@@ -21,7 +37,6 @@ When scoring the Related Alerts module consider the following default scores are
 |Informational|1|
 
 > Note: If ScorePerItem=True, the sum of all alert scores will be returned.  If ScorePerItem=False, only the score of the highest severity alert will be returned.
-
 
 ### KQL Module Scoring
 
