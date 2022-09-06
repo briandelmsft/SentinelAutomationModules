@@ -1,6 +1,15 @@
 {
     "type": "object",
     "properties": {
+        "AllTactics": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "AllTacticsCount": {
+            "type": "integer"
+        },
         "DetailedResults": {
             "type": "array",
             "items": {

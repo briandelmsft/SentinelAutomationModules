@@ -53,7 +53,7 @@
                             "type": "Object"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.1.3",
+                            "defaultValue": "0.2.0",
                             "type": "String"
                         },
                         "PlaybookInternalName": {
@@ -166,7 +166,7 @@
                                 },
                                 "Filter_array_-_Accounts": {
                                     "runAfter": {
-                                        "Select": [
+                                        "Filter_tactics_array": [
                                             "Succeeded"
                                         ]
                                     },
@@ -178,7 +178,7 @@
                                 },
                                 "Filter_array_-_Hosts": {
                                     "runAfter": {
-                                        "Select": [
+                                        "Filter_tactics_array": [
                                             "Succeeded"
                                         ]
                                     },
@@ -190,7 +190,7 @@
                                 },
                                 "Filter_array_-_IP": {
                                     "runAfter": {
-                                        "Select": [
+                                        "Filter_tactics_array": [
                                             "Succeeded"
                                         ]
                                     },
@@ -199,6 +199,37 @@
                                         "from": "@body('Select')",
                                         "where": "@equals(item()['IPEntityMatch'], true)"
                                     }
+                                },
+                                "Filter_tactics_array": {
+                                    "runAfter": {
+                                        "Set_relatedTactics": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Query",
+                                    "inputs": {
+                                        "from": "@union(variables('relatedTactics'),variables('incidentTactics'))",
+                                        "where": "@not(equals(item(), 'Unknown'))"
+                                    }
+                                },
+                                "For_each_alert": {
+                                    "foreach": "@body('Select')",
+                                    "actions": {
+                                        "Append_to_relatedTacticsStr": {
+                                            "runAfter": {},
+                                            "type": "AppendToStringVariable",
+                                            "inputs": {
+                                                "name": "relatedTacticsStr",
+                                                "value": "@{replace(item()?['Tactics'], ' ', '')},"
+                                            }
+                                        }
+                                    },
+                                    "runAfter": {
+                                        "Select": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Foreach"
                                 },
                                 "Response": {
                                     "runAfter": {
@@ -211,6 +242,8 @@
                                     "kind": "Http",
                                     "inputs": {
                                         "body": {
+                                            "AllTactics": "@body('Filter_tactics_array')",
+                                            "AllTacticsCount": "@length(body('Filter_tactics_array'))",
                                             "DetailedResults": "@body('Select')",
                                             "HighestSeverityAlert": "@{body('Select')?[0]?['AlertSeverity']}",
                                             "ModuleName": "@{parameters('PlaybookInternalName')}",
@@ -243,6 +276,18 @@
                                             "@{body('HTTP')['tables'][0]['columns'][8]['name']}": "@item()[8]"
                                         }
                                     }
+                                },
+                                "Set_relatedTactics": {
+                                    "runAfter": {
+                                        "For_each_alert": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "SetVariable",
+                                    "inputs": {
+                                        "name": "relatedTactics",
+                                        "value": "@split(slice(variables('relatedTacticsStr'),0,-1),',')"
+                                    }
                                 }
                             },
                             "runAfter": {
@@ -252,12 +297,26 @@
                             },
                             "else": {
                                 "actions": {
-                                    "Response_-_No_Related": {
+                                    "Filter_array_incidentTactics": {
                                         "runAfter": {},
+                                        "type": "Query",
+                                        "inputs": {
+                                            "from": "@variables('incidentTactics')",
+                                            "where": "@not(equals(item(), 'Unknown'))"
+                                        }
+                                    },
+                                    "Response_-_No_Related": {
+                                        "runAfter": {
+                                            "Filter_array_incidentTactics": [
+                                                "Succeeded"
+                                            ]
+                                        },
                                         "type": "Response",
                                         "kind": "Http",
                                         "inputs": {
                                             "body": {
+                                                "AllTactics": "@body('Filter_array_incidentTactics')",
+                                                "AllTacticsCount": "@length(body('Filter_array_incidentTactics'))",
                                                 "DetailedResults": [],
                                                 "HighestSeverityAlert": null,
                                                 "ModuleName": "@{parameters('PlaybookInternalName')}",
@@ -286,6 +345,56 @@
                                 ]
                             },
                             "type": "If"
+                        },
+                        "Initialize_incidentTactics": {
+                            "runAfter": {
+                                "Parse_JSON": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "incidentTactics",
+                                        "type": "array",
+                                        "value": []
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_relatedTacticsStr": {
+                            "runAfter": {
+                                "Initialize_relatedTactics_array": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "relatedTacticsStr",
+                                        "type": "string"
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_relatedTactics_array": {
+                            "runAfter": {
+                                "Initialize_incidentTactics": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "relatedTactics",
+                                        "type": "array",
+                                        "value": []
+                                    }
+                                ]
+                            }
                         },
                         "Parse_JSON": {
                             "runAfter": {},
@@ -753,7 +862,7 @@
                                 },
                                 "HTTP_-_Get_Alerts": {
                                     "runAfter": {
-                                        "HTTP_-_Get_Incident": [
+                                        "Set_incidentTactics": [
                                             "Succeeded"
                                         ]
                                     },
@@ -810,10 +919,22 @@
                                             "tactics": "@item()?['properties']?['tactics']"
                                         }
                                     }
+                                },
+                                "Set_incidentTactics": {
+                                    "runAfter": {
+                                        "HTTP_-_Get_Incident": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "SetVariable",
+                                    "inputs": {
+                                        "name": "incidentTactics",
+                                        "value": "@body('HTTP_-_Get_Incident')?['properties']?['additionalData']?['tactics']"
+                                    }
                                 }
                             },
                             "runAfter": {
-                                "Parse_JSON": [
+                                "Initialize_relatedTacticsStr": [
                                     "Succeeded"
                                 ]
                             },
