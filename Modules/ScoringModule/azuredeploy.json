@@ -53,7 +53,7 @@
                             "type": "Object"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.0.3",
+                            "defaultValue": "0.0.4",
                             "type": "String"
                         },
                         "PlaybookInternalName": {
@@ -907,6 +907,49 @@
                                                             {
                                                                 "greater": [
                                                                     "@length(item()['ModuleBody']['DetailedResults'])",
+                                                                    0
+                                                                ]
+                                                            }
+                                                        ]
+                                                    },
+                                                    "type": "If"
+                                                },
+                                                "If_-_Tactics_Found": {
+                                                    "actions": {
+                                                        "Append_DetailedResults_-_Tactics_Found": {
+                                                            "runAfter": {
+                                                                "Increment_scoreTotal_-_Tactics_Found": [
+                                                                    "Succeeded"
+                                                                ]
+                                                            },
+                                                            "type": "AppendToArrayVariable",
+                                                            "inputs": {
+                                                                "name": "DetailedResults",
+                                                                "value": {
+                                                                    "Score": "@mul(mul(10, item()['ModuleBody']?['AllTacticsCount']), items('For_each')['ScoreMultiplier'])",
+                                                                    "ScoreSource": "@{items('For_each')['ScoreLabel']} - @{item()['ModuleBody']?['AllTacticsCount']} related MITRE tactics found (@{join(item()['ModuleBody']?['AllTactics'], ', ')})"
+                                                                }
+                                                            }
+                                                        },
+                                                        "Increment_scoreTotal_-_Tactics_Found": {
+                                                            "runAfter": {},
+                                                            "type": "IncrementVariable",
+                                                            "inputs": {
+                                                                "name": "scoreTotal",
+                                                                "value": "@mul(mul(10, item()['ModuleBody']?['AllTacticsCount']), items('For_each')['ScoreMultiplier'])"
+                                                            }
+                                                        }
+                                                    },
+                                                    "runAfter": {
+                                                        "If_-_RelatedAlerts_Found": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "expression": {
+                                                        "and": [
+                                                            {
+                                                                "greater": [
+                                                                    "@item()['ModuleBody']?['AllTacticsCount']",
                                                                     0
                                                                 ]
                                                             }
