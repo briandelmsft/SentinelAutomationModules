@@ -53,7 +53,7 @@
                             "type": "Object"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.2.0",
+                            "defaultValue": "0.2.1",
                             "type": "String"
                         },
                         "PlaybookInternalName": {
@@ -121,7 +121,7 @@
                                             "inputs": {
                                                 "body": {
                                                     "incidentArmId": "@body('Parse_JSON')?['IncidentARMId']",
-                                                    "message": "<p>There were @{length(body('Select'))} related alerts found. @{if(greater(length(body('Select')), 6), 'A maximum of 6 results have been displayed', '')}<br>\n<br>\n@{body('Create_HTML_table')}<br>\n@{if(equals(body('Parse_JSON')?['ModuleVersions']?['RelatedAlerts'], null), '', if(not(equals(body('Parse_JSON')?['ModuleVersions']?['RelatedAlerts'], parameters('PlaybookVersion'))), concat('<br>Sentinel Triage AssistanT - RelatedAlerts Update Available: Installed Version: ', parameters('PlaybookVersion'), ', Available Version: ', body('Parse_JSON')?['ModuleVersions']?['RelatedAlerts']), ''))}</p>"
+                                                    "message": "<p>There were @{length(body('Select'))} related alerts found. @{if(greater(length(body('Select')), 20), 'A maximum of 20 results have been displayed', '')}<br>\n<br>\n@{body('Create_HTML_table')}<br>\n@{if(equals(body('Parse_JSON')?['ModuleVersions']?['RelatedAlerts'], null), '', if(not(equals(body('Parse_JSON')?['ModuleVersions']?['RelatedAlerts'], parameters('PlaybookVersion'))), concat('<br>Sentinel Triage AssistanT - RelatedAlerts Update Available: Installed Version: ', parameters('PlaybookVersion'), ', Available Version: ', body('Parse_JSON')?['ModuleVersions']?['RelatedAlerts']), ''))}</p>"
                                                 },
                                                 "host": {
                                                     "connection": {
@@ -137,7 +137,7 @@
                                             "type": "Table",
                                             "inputs": {
                                                 "format": "HTML",
-                                                "from": "@take(body('Select'), 6)"
+                                                "from": "@take(body('Select'), 20)"
                                             }
                                         }
                                     },
