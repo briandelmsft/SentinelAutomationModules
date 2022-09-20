@@ -53,7 +53,7 @@
                             "type": "Object"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.0.4",
+                            "defaultValue": "0.0.5",
                             "type": "String"
                         },
                         "PlaybookInternalName": {
@@ -108,7 +108,11 @@
                                 "Condition_-_Add_Comments": {
                                     "actions": {
                                         "Add_comment_to_incident_(V3)": {
-                                            "runAfter": {},
+                                            "runAfter": {
+                                                "Detailed_Results_Table": [
+                                                    "Succeeded"
+                                                ]
+                                            },
                                             "type": "ApiConnection",
                                             "inputs": {
                                                 "body": {
@@ -123,10 +127,27 @@
                                                 "method": "post",
                                                 "path": "/Incidents/Comment"
                                             }
+                                        },
+                                        "Detailed_Results_Table": {
+                                            "runAfter": {
+                                                "TEMP_-_Sort_Query": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "Table",
+                                            "inputs": {
+                                                "format": "HTML",
+                                                "from": "@variables('DetailedResults')"
+                                            }
+                                        },
+                                        "TEMP_-_Sort_Query": {
+                                            "runAfter": {},
+                                            "type": "Compose",
+                                            "inputs": "//Potential KQL query to sort output\n\nlet tableData = @'@{replace(string(variables('DetailedResults')), '''', '''''')}';\nlet tableEntries = datatable(temp:string)['']\n| extend Entries = parse_json(tableData)\n| mv-expand todynamic(Entries)\n| project Score = todecimal(Entries.Score), ScoreSource = tostring(Entries.ScoreSource)\n| sort by Score, ScoreSource desc;\ntableEntries"
                                         }
                                     },
                                     "runAfter": {
-                                        "Detailed_Results_Table": [
+                                        "DEBUG_-_Final_Score": [
                                             "Succeeded"
                                         ]
                                     },
@@ -149,18 +170,6 @@
                                     },
                                     "type": "Compose",
                                     "inputs": "@variables('scoreTotal')"
-                                },
-                                "Detailed_Results_Table": {
-                                    "runAfter": {
-                                        "DEBUG_-_Final_Score": [
-                                            "Succeeded"
-                                        ]
-                                    },
-                                    "type": "Table",
-                                    "inputs": {
-                                        "format": "HTML",
-                                        "from": "@variables('DetailedResults')"
-                                    }
                                 },
                                 "Response_-_Success": {
                                     "runAfter": {
@@ -545,6 +554,32 @@
                                                 }
                                             }
                                         },
+                                        "Case_-_Custom": {
+                                            "case": "Custom",
+                                            "actions": {
+                                                "Set_variable_invalidModule_-_Custom": {
+                                                    "runAfter": {},
+                                                    "type": "SetVariable",
+                                                    "inputs": {
+                                                        "name": "invalidModule",
+                                                        "value": true
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "Case_-_FileModule": {
+                                            "case": "FileModule",
+                                            "actions": {
+                                                "Set_variable_invalidModule_-_FileModule": {
+                                                    "runAfter": {},
+                                                    "type": "SetVariable",
+                                                    "inputs": {
+                                                        "name": "invalidModule",
+                                                        "value": true
+                                                    }
+                                                }
+                                            }
+                                        },
                                         "Case_-_KQL": {
                                             "case": "KQLModule",
                                             "actions": {
@@ -604,16 +639,207 @@
                                                 }
                                             }
                                         },
-                                        "Case_-_MDEModule": {
-                                            "case": "MDEModule",
+                                        "Case_-_MCASModule": {
+                                            "case": "MCASModule",
                                             "actions": {
-                                                "Set_variable_invalidModule_-_MDE": {
+                                                "Set_variable_invalidModule_-_MCASModule": {
                                                     "runAfter": {},
                                                     "type": "SetVariable",
                                                     "inputs": {
                                                         "name": "invalidModule",
                                                         "value": true
                                                     }
+                                                }
+                                            }
+                                        },
+                                        "Case_-_MDEModule": {
+                                            "case": "MDEModule",
+                                            "actions": {
+                                                "Compose_-_Host_Risk": {
+                                                    "runAfter": {
+                                                        "Compose_-_User_Risk": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "Compose",
+                                                    "inputs": "@if(equals(item()['ModuleBody']['HostsHighestRiskScore'], 'High'), 10,\r\nif(equals(item()['ModuleBody']['HostsHighestRiskScore'], 'Medium'), 5,\r\nif(equals(item()['ModuleBody']['HostsHighestRiskScore'], 'Low'), 3,\r\nif(equals(item()['ModuleBody']['HostsHighestRiskScore'], 'Informational'), 1, 0))))"
+                                                },
+                                                "Compose_-_IP_Risk": {
+                                                    "runAfter": {
+                                                        "Compose_-_Host_Risk": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "Compose",
+                                                    "inputs": "@if(equals(item()['ModuleBody']['IPsHighestRiskScore'], 'High'), 10,\r\nif(equals(item()['ModuleBody']['IPsHighestRiskScore'], 'Medium'), 5,\r\nif(equals(item()['ModuleBody']['IPsHighestRiskScore'], 'Low'), 3,\r\nif(equals(item()['ModuleBody']['IPsHighestRiskScore'], 'Informational'), 1, 0))))"
+                                                },
+                                                "Compose_-_User_Risk": {
+                                                    "runAfter": {},
+                                                    "type": "Compose",
+                                                    "inputs": "@if(equals(item()['ModuleBody']['UsersHighestRiskScore'], 'High'), 10,\r\nif(equals(item()['ModuleBody']['UsersHighestRiskScore'], 'Medium'), 5,\r\nif(equals(item()['ModuleBody']['UsersHighestRiskScore'], 'Low'), 3,\r\nif(equals(item()['ModuleBody']['UsersHighestRiskScore'], 'Informational'), 1, 0))))"
+                                                },
+                                                "MDE_-_ScorePerItem": {
+                                                    "actions": {
+                                                        "Condition_-_Host_Risk": {
+                                                            "actions": {
+                                                                "Append_to_DetailedResults_-_Host_Risk": {
+                                                                    "runAfter": {},
+                                                                    "type": "AppendToArrayVariable",
+                                                                    "inputs": {
+                                                                        "name": "DetailedResults",
+                                                                        "value": {
+                                                                            "Score": "@mul(outputs('Compose_-_Host_Risk'), items('For_each')['ScoreMultiplier'])",
+                                                                            "ScoreSource": "@{items('For_each')['ScoreLabel']} - Host entity Device Risk"
+                                                                        }
+                                                                    }
+                                                                }
+                                                            },
+                                                            "runAfter": {
+                                                                "Condition_-_IP_Risk": [
+                                                                    "Succeeded"
+                                                                ]
+                                                            },
+                                                            "expression": {
+                                                                "and": [
+                                                                    {
+                                                                        "not": {
+                                                                            "equals": [
+                                                                                "@outputs('Compose_-_Host_Risk')",
+                                                                                0
+                                                                            ]
+                                                                        }
+                                                                    }
+                                                                ]
+                                                            },
+                                                            "type": "If"
+                                                        },
+                                                        "Condition_-_IP_Risk": {
+                                                            "actions": {
+                                                                "Append_to_DetailedResults_-_IP_Risk": {
+                                                                    "runAfter": {},
+                                                                    "type": "AppendToArrayVariable",
+                                                                    "inputs": {
+                                                                        "name": "DetailedResults",
+                                                                        "value": {
+                                                                            "Score": "@mul(outputs('Compose_-_IP_Risk'), items('For_each')['ScoreMultiplier'])",
+                                                                            "ScoreSource": "@{items('For_each')['ScoreLabel']} - IP entity Device Risk"
+                                                                        }
+                                                                    }
+                                                                }
+                                                            },
+                                                            "runAfter": {
+                                                                "Condition_-_User_Risk": [
+                                                                    "Succeeded"
+                                                                ]
+                                                            },
+                                                            "expression": {
+                                                                "and": [
+                                                                    {
+                                                                        "not": {
+                                                                            "equals": [
+                                                                                "@outputs('Compose_-_IP_Risk')",
+                                                                                0
+                                                                            ]
+                                                                        }
+                                                                    }
+                                                                ]
+                                                            },
+                                                            "type": "If"
+                                                        },
+                                                        "Condition_-_User_Risk": {
+                                                            "actions": {
+                                                                "Append_to_DetailedResults_-_User_Risk": {
+                                                                    "runAfter": {},
+                                                                    "type": "AppendToArrayVariable",
+                                                                    "inputs": {
+                                                                        "name": "DetailedResults",
+                                                                        "value": {
+                                                                            "Score": "@mul(outputs('Compose_-_User_Risk'), items('For_each')['ScoreMultiplier'])",
+                                                                            "ScoreSource": "@{items('For_each')['ScoreLabel']} - User entity Device Risk"
+                                                                        }
+                                                                    }
+                                                                }
+                                                            },
+                                                            "runAfter": {},
+                                                            "expression": {
+                                                                "and": [
+                                                                    {
+                                                                        "not": {
+                                                                            "equals": [
+                                                                                "@outputs('Compose_-_User_Risk')",
+                                                                                0
+                                                                            ]
+                                                                        }
+                                                                    }
+                                                                ]
+                                                            },
+                                                            "type": "If"
+                                                        },
+                                                        "Increment_scoreTotal_-_MDE_Risk": {
+                                                            "runAfter": {
+                                                                "Condition_-_Host_Risk": [
+                                                                    "Succeeded"
+                                                                ]
+                                                            },
+                                                            "type": "IncrementVariable",
+                                                            "inputs": {
+                                                                "name": "scoreTotal",
+                                                                "value": "@mul(add(add(outputs('Compose_-_Host_Risk'),outputs('Compose_-_IP_Risk')),outputs('Compose_-_User_Risk')),items('For_each')['ScoreMultiplier']) "
+                                                            }
+                                                        }
+                                                    },
+                                                    "runAfter": {
+                                                        "Compose_-_IP_Risk": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "else": {
+                                                        "actions": {
+                                                            "Append_to_DetailedResults_-_MDE_Highest_Risk": {
+                                                                "runAfter": {
+                                                                    "Increment_scoreTotal_-_MDE_Highest_Risk": [
+                                                                        "Succeeded"
+                                                                    ]
+                                                                },
+                                                                "type": "AppendToArrayVariable",
+                                                                "inputs": {
+                                                                    "name": "DetailedResults",
+                                                                    "value": {
+                                                                        "Score": "@mul(outputs('Compose_-_MDE_Highest_Risk'), items('For_each')['ScoreMultiplier'])",
+                                                                        "ScoreSource": "@{items('For_each')['ScoreLabel']}"
+                                                                    }
+                                                                }
+                                                            },
+                                                            "Compose_-_MDE_Highest_Risk": {
+                                                                "runAfter": {},
+                                                                "type": "Compose",
+                                                                "inputs": "@max(createArray(outputs('Compose_-_Host_Risk'),outputs('Compose_-_IP_Risk'),outputs('Compose_-_User_Risk')))"
+                                                            },
+                                                            "Increment_scoreTotal_-_MDE_Highest_Risk": {
+                                                                "runAfter": {
+                                                                    "Compose_-_MDE_Highest_Risk": [
+                                                                        "Succeeded"
+                                                                    ]
+                                                                },
+                                                                "type": "IncrementVariable",
+                                                                "inputs": {
+                                                                    "name": "scoreTotal",
+                                                                    "value": "@outputs('Compose_-_MDE_Highest_Risk')"
+                                                                }
+                                                            }
+                                                        }
+                                                    },
+                                                    "expression": {
+                                                        "and": [
+                                                            {
+                                                                "equals": [
+                                                                    "@items('For_each')?['ScorePerItem']",
+                                                                    true
+                                                                ]
+                                                            }
+                                                        ]
+                                                    },
+                                                    "type": "If"
                                                 }
                                             }
                                         },
@@ -1027,6 +1253,19 @@
                                                         ]
                                                     },
                                                     "type": "If"
+                                                }
+                                            }
+                                        },
+                                        "Case_-_UEBAModule": {
+                                            "case": "UEBAModule",
+                                            "actions": {
+                                                "Set_variable_invalidModule_-_UEBA": {
+                                                    "runAfter": {},
+                                                    "type": "SetVariable",
+                                                    "inputs": {
+                                                        "name": "invalidModule",
+                                                        "value": true
+                                                    }
                                                 }
                                             }
                                         },

@@ -7,6 +7,7 @@ This module will take the outputs from other STAT modules and calculate a cumula
 ## Suported Module Inputs
 
 * AAD Risks Module
+* Microsoft Defender for Endpoint Module
 * Related Alerts Module
 * KQL Module
 * Threat Intelligence Module
@@ -24,6 +25,17 @@ When scoring AAD Risks module the following default scores are assigned based on
 |None|0|
 
 > Note: If ScorePerItem=True, the sum of all user scores will be returned.  If ScorePerItem=False, only the score of the highest severity user will be returned.
+
+### Microsoft Defender for Endpoint Scoring
+
+When scoring the Defender for Endpoint module, the devices risk score will be calcuated from the UsersHighestRiskScore, HostsHighestRiskScore and IPsHighestRiskScore values from the MDE module.  If ScorePerItem=True, the sum of the 3 values will be returned as the risk score, otherwise only the maximum value will be returned.
+
+|MDE HighestRiskScore|Score|
+|---|---|
+|High|10|
+|Medium|5|
+|Low|3|
+|Informational|1|
 
 ### Related Alerts Scoring
 
