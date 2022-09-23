@@ -12,6 +12,7 @@ This module will take the outputs from other STAT modules and calculate a cumula
 * KQL Module
 * Threat Intelligence Module
 * Watchlist Module
+* Custom Content Scoring
 
 ### AAD Risks Scoring
 
@@ -63,6 +64,42 @@ When scoring the Threat Intelligence Module if ScorePerItem=True then the return
 ### Watchlist Module Scoring
 
 When scoring the Watchlist Module if ScorePerItem=True then the returned score will be 10 * WatchlistMatchCount * ScoreMultiplier.  If ScorePerItem=False the returned score will be 10 * ScoreMultiplier if 1 or more watchlist match is found
+
+### Custom Content Scoring
+
+In addition to scoring STAT modules, the Scoring module can also incorporate score data from other sources such as 3rd party threat intelligence, 3rd party vulnerability management systems and other Microsoft sources not presently covered by STAT.
+
+To add custom content to the scoring module you will need to retieve the necessary information for your score from the source, determine an appropriate score to assign and then format the message to send to the scoring module.
+
+#### Custom Sample input for Scoring Module
+
+<table>
+<tr><td>Module Input</td><td>Value</td></tr>
+<tr><td>Module Body</td><td>
+
+```json
+{
+   "ModuleName": "Custom",
+   "ScoringData": [
+      {
+         "Score": 5,
+         "ScoreLabel": "Virus Total - Medium Risk"
+      },
+      {
+         "Score": 10,
+         "ScoreLabel": "Custom Vulnerability Management Score"
+      },
+   ]
+}
+```
+
+</td></tr>
+<tr><td>Score Label</td><td>This field is ignored when sending custom data, the label from the JSON data in Module Body will be used</td></tr>
+<tr><td>Score Multiplier</td><td>The Score passed in the Module Body will be multiplied by this value</td></tr>
+<tr><td>Score Per Item</td><td>This field is ignored when sending custom data, all scores in the array will be processed regardless of this setting</td></tr>
+</table>
+
+> Note: Each item in the ScoringData array must include a Score property as an integer. If this property is not included, or it is not an integer the score item will be dropped.
 
 ## Trigger Parameters
 

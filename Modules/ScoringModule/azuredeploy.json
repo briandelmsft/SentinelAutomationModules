@@ -53,7 +53,7 @@
                             "type": "Object"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.0.5",
+                            "defaultValue": "0.0.6",
                             "type": "String"
                         },
                         "PlaybookInternalName": {
@@ -273,8 +273,8 @@
                                                                                             "inputs": {
                                                                                                 "name": "DetailedResults",
                                                                                                 "value": {
-                                                                                                    "Score": "@mul(5, items('For_each')['ScoreMultiplier'])",
-                                                                                                    "ScoreSource": "@{items('For_each')['ScoreLabel']} - @{item()['UserPrincipalName']}"
+                                                                                                    "Score": "@mul(10, items('For_each')['ScoreMultiplier'])",
+                                                                                                    "ScoreSource": "@{items('For_each')['ScoreLabel']} - @{items('For_each_aad_risk')['UserPrincipalName']}"
                                                                                                 }
                                                                                             }
                                                                                         },
@@ -557,13 +557,57 @@
                                         "Case_-_Custom": {
                                             "case": "Custom",
                                             "actions": {
-                                                "Set_variable_invalidModule_-_Custom": {
+                                                "For_each_custom_score": {
+                                                    "foreach": "@item()['ModuleBody']?['ScoringData']",
+                                                    "actions": {
+                                                        "Check_for_Score": {
+                                                            "actions": {
+                                                                "Append_to_DetailedResults_-_Custom": {
+                                                                    "runAfter": {
+                                                                        "Increment_scoreTotal_-_Custom": [
+                                                                            "Succeeded"
+                                                                        ]
+                                                                    },
+                                                                    "type": "AppendToArrayVariable",
+                                                                    "inputs": {
+                                                                        "name": "DetailedResults",
+                                                                        "value": {
+                                                                            "Score": "@mul(int(item()?['Score']), items('For_each')['ScoreMultiplier'])",
+                                                                            "ScoreSource": "@{items('For_each_custom_score')?['ScoreLabel']}"
+                                                                        }
+                                                                    }
+                                                                },
+                                                                "Increment_scoreTotal_-_Custom": {
+                                                                    "runAfter": {},
+                                                                    "type": "IncrementVariable",
+                                                                    "inputs": {
+                                                                        "name": "scoreTotal",
+                                                                        "value": "@mul(int(item()?['Score']), items('For_each')['ScoreMultiplier'])"
+                                                                    }
+                                                                }
+                                                            },
+                                                            "runAfter": {},
+                                                            "expression": {
+                                                                "and": [
+                                                                    {
+                                                                        "equals": [
+                                                                            "@if(equals(item()?['Score'], null), false, true)",
+                                                                            true
+                                                                        ]
+                                                                    },
+                                                                    {
+                                                                        "equals": [
+                                                                            "@isInt(string(item()?['Score']))",
+                                                                            true
+                                                                        ]
+                                                                    }
+                                                                ]
+                                                            },
+                                                            "type": "If"
+                                                        }
+                                                    },
                                                     "runAfter": {},
-                                                    "type": "SetVariable",
-                                                    "inputs": {
-                                                        "name": "invalidModule",
-                                                        "value": true
-                                                    }
+                                                    "type": "Foreach"
                                                 }
                                             }
                                         },
