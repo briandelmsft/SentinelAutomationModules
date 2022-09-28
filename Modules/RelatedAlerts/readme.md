@@ -23,6 +23,8 @@ This module will check the incidient entities to see if there are any other aler
 
 |Property|Description|
 |---|---|
+|AllTactics|An array of unique MITRE tactics including all tactics linked directly to the incident as well as any found in related alerts|
+|AllTacticsCount|Count of unique MITRE tactics from AllTactics|
 |DetailedResults|An array of each related alert that was found|
 |HighestSeverityAlert|The severity of the highest severity alert found (High, Medium, Low or Informational)|
 |ModuleName|The internal Name of the Playbook|
@@ -39,6 +41,8 @@ This module will check the incidient entities to see if there are any other aler
 
 ```
 {
+  "AllTactics": ["InitialAccess","Impact"],
+  "AllTacticsCount": 2,
   "DetailedResults": [
     {
       "StartTime": "2021-11-03T12:16:29.541Z",
@@ -57,7 +61,7 @@ This module will check the incidient entities to see if there are any other aler
       "AlertSeverity": "Informational",
       "SystemAlertId": "5342baa5-531d-7496-6f5f-b3e9c4a077dd",
       "ProviderName": "ASI Scheduled Alerts",
-      "Tactics": "InitialAccess",
+      "Tactics": "Impact",
       "AccountEntityMatch": true,
       "IPEntityMatch": false,
       "HostEntityMatch": true

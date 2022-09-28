@@ -27,6 +27,7 @@ This module will return the risk score and exposure level from Microsoft Defende
 |IPsHighestRiskScore|The highest exposure level found for all machines with a specific IP|
 |HostsHighestExposureLevel|The highest risk score level found for all hosts matching the MdatpDeviceId or the FQDN|
 |HostsHighestRiskScore|The highest exposure level found for all hosts matching the MdatpDeviceId or the FQDN|
+|ModuleName|The internal Name of the Playbook|
 |DetailedResults|An array of the accounts and IPs analyzed|
 
 ## Sample Return
@@ -40,6 +41,7 @@ This module will return the risk score and exposure level from Microsoft Defende
     "UsersHighestRiskScore": "High",
     "HostsHighestExposureLevel": "Medium",
     "HostsHighestRiskScore": "Low",
+    "ModuleName": "MDEModule",
     "DetailedResults":
     {
         "Accounts": [

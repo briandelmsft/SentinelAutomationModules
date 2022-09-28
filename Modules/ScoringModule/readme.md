@@ -1,13 +1,42 @@
 # Calculate-RiskScore
 
 ## Description
+
 This module will take the outputs from other STAT modules and calculate a cumulative risk score based on the inputs
 
 ## Suported Module Inputs
+
+* AAD Risks Module
+* Microsoft Defender for Endpoint Module
 * Related Alerts Module
 * KQL Module
 * Threat Intelligence Module
 * Watchlist Module
+* Custom Content Scoring
+
+### AAD Risks Scoring
+
+When scoring AAD Risks module the following default scores are assigned based on the user risk level in Azure AD Identity Protection
+
+|Identity Protection Risk Level|Score|
+|---|---|
+|High|10|
+|Medium|5|
+|Low|3|
+|None|0|
+
+> Note: If ScorePerItem=True, the sum of all user scores will be returned.  If ScorePerItem=False, only the score of the highest severity user will be returned.
+
+### Microsoft Defender for Endpoint Scoring
+
+When scoring the Defender for Endpoint module, the devices risk score will be calcuated from the UsersHighestRiskScore, HostsHighestRiskScore and IPsHighestRiskScore values from the MDE module.  If ScorePerItem=True, the sum of the 3 values will be returned as the risk score, otherwise only the maximum value will be returned.
+
+|MDE HighestRiskScore|Score|
+|---|---|
+|High|10|
+|Medium|5|
+|Low|3|
+|Informational|1|
 
 ### Related Alerts Scoring
 
@@ -22,6 +51,7 @@ When scoring the Related Alerts module consider the following default scores are
 
 > Note: If ScorePerItem=True, the sum of all alert scores will be returned.  If ScorePerItem=False, only the score of the highest severity alert will be returned.
 
+Additionally, a score of 10 is added per unique MITRE tactic associated with the incident and any related alerts.
 
 ### KQL Module Scoring
 
@@ -34,6 +64,42 @@ When scoring the Threat Intelligence Module if ScorePerItem=True then the return
 ### Watchlist Module Scoring
 
 When scoring the Watchlist Module if ScorePerItem=True then the returned score will be 10 * WatchlistMatchCount * ScoreMultiplier.  If ScorePerItem=False the returned score will be 10 * ScoreMultiplier if 1 or more watchlist match is found
+
+### Custom Content Scoring
+
+In addition to scoring STAT modules, the Scoring module can also incorporate score data from other sources such as 3rd party threat intelligence, 3rd party vulnerability management systems and other Microsoft sources not presently covered by STAT.
+
+To add custom content to the scoring module you will need to retieve the necessary information for your score from the source, determine an appropriate score to assign and then format the message to send to the scoring module.
+
+#### Custom Sample input for Scoring Module
+
+<table>
+<tr><td>Module Input</td><td>Value</td></tr>
+<tr><td>Module Body</td><td>
+
+```json
+{
+   "ModuleName": "Custom",
+   "ScoringData": [
+      {
+         "Score": 5,
+         "ScoreLabel": "Virus Total - Medium Risk"
+      },
+      {
+         "Score": 10,
+         "ScoreLabel": "Custom Vulnerability Management Score"
+      },
+   ]
+}
+```
+
+</td></tr>
+<tr><td>Score Label</td><td>This field is ignored when sending custom data, the label from the JSON data in Module Body will be used</td></tr>
+<tr><td>Score Multiplier</td><td>The Score passed in the Module Body will be multiplied by this value</td></tr>
+<tr><td>Score Per Item</td><td>This field is ignored when sending custom data, all scores in the array will be processed regardless of this setting</td></tr>
+</table>
+
+> Note: Each item in the ScoringData array must include a Score property as an integer. If this property is not included, or it is not an integer the score item will be dropped.
 
 ## Trigger Parameters
 

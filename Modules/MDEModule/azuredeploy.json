@@ -76,6 +76,7 @@
                                 "HostsHighestRiskScore": "@{if(contains(body('Create_table_to_check_HostsHighestRiskScore'), 'High'), 'High', if(contains(body('Create_table_to_check_HostsHighestRiskScore'), 'Medium'), 'Medium', if(contains(body('Create_table_to_check_HostsHighestRiskScore'), 'Low'), 'Low', if(contains(body('Create_table_to_check_HostsHighestRiskScore'), 'Informational'), 'Informational', if(contains(body('Create_table_to_check_HostsHighestRiskScore'), 'None'), 'None', 'Unknown')))))}",
                                 "IPsHighestExposureLevel": "@{if(contains(body('Create_table_to_check_IPsHighestExposureLevel'), 'High'), 'High', if(contains(body('Create_table_to_check_IPsHighestExposureLevel'), 'Medium'), 'Medium', if(contains(body('Create_table_to_check_IPsHighestExposureLevel'), 'Low'), 'Low', if(contains(body('Create_table_to_check_IPsHighestExposureLevel'), 'None'),'None','Unknown'))))}",
                                 "IPsHighestRiskScore": "@{if(contains(body('Create_table_to_check_IPsHighestRiskScore'), 'High'), 'High', if(contains(body('Create_table_to_check_IPsHighestRiskScore'), 'Medium'), 'Medium', if(contains(body('Create_table_to_check_IPsHighestRiskScore'), 'Low'), 'Low', if(contains(body('Create_table_to_check_IPsHighestRiskScore'), 'Informational'), 'Informational', if(contains(body('Create_table_to_check_IPsHighestRiskScore'), 'None'), 'None', 'Unknown')))))}",
+                                "ModuleName": "@{parameters('PlaybookInternalName')}",
                                 "UsersHighestExposureLevel": "@{if(contains(body('Create_table_to_check_UsersHighestExposureLevel'), 'High'), 'High', if(contains(body('Create_table_to_check_UsersHighestExposureLevel'), 'Medium'), 'Medium', if(contains(body('Create_table_to_check_UsersHighestExposureLevel'), 'Low'), 'Low', if(contains(body('Create_table_to_check_UsersHighestExposureLevel'), 'None'),'None','Unknown'))))}",
                                 "UsersHighestRiskScore": "@{if(contains(body('Create_table_to_check_UsersHighestRiskScore'), 'High'), 'High', if(contains(body('Create_table_to_check_UsersHighestRiskScore'), 'Medium'), 'Medium', if(contains(body('Create_table_to_check_UsersHighestRiskScore'), 'Low'), 'Low', if(contains(body('Create_table_to_check_UsersHighestRiskScore'), 'Informational'), 'Informational', if(contains(body('Create_table_to_check_UsersHighestRiskScore'), 'None'), 'None', 'Unknown')))))}"
                             },
@@ -254,6 +255,7 @@
                                             "DevicesHighestRiskScore": "Unknown",
                                             "IPsHighestExposureLevel": "Unknown",
                                             "IPsHighestRiskScore": "Unknown",
+                                            "ModuleName": "@{parameters('PlaybookInternalName')}",
                                             "UsersHighestExposureLevel": "Unknown",
                                             "UsersHighestRiskScore": "Unknown"
                                         },
@@ -1355,7 +1357,7 @@
                             "type": "String"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.1.2",
+                            "defaultValue": "0.1.3",
                             "type": "String"
                         },
                         "ProjectName": {

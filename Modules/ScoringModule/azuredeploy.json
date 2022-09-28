@@ -53,7 +53,7 @@
                             "type": "Object"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.0.2",
+                            "defaultValue": "0.0.6",
                             "type": "String"
                         },
                         "PlaybookInternalName": {
@@ -108,7 +108,11 @@
                                 "Condition_-_Add_Comments": {
                                     "actions": {
                                         "Add_comment_to_incident_(V3)": {
-                                            "runAfter": {},
+                                            "runAfter": {
+                                                "Detailed_Results_Table": [
+                                                    "Succeeded"
+                                                ]
+                                            },
                                             "type": "ApiConnection",
                                             "inputs": {
                                                 "body": {
@@ -123,10 +127,27 @@
                                                 "method": "post",
                                                 "path": "/Incidents/Comment"
                                             }
+                                        },
+                                        "Detailed_Results_Table": {
+                                            "runAfter": {
+                                                "TEMP_-_Sort_Query": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "Table",
+                                            "inputs": {
+                                                "format": "HTML",
+                                                "from": "@variables('DetailedResults')"
+                                            }
+                                        },
+                                        "TEMP_-_Sort_Query": {
+                                            "runAfter": {},
+                                            "type": "Compose",
+                                            "inputs": "//Potential KQL query to sort output\n\nlet tableData = @'@{replace(string(variables('DetailedResults')), '''', '''''')}';\nlet tableEntries = datatable(temp:string)['']\n| extend Entries = parse_json(tableData)\n| mv-expand todynamic(Entries)\n| project Score = todecimal(Entries.Score), ScoreSource = tostring(Entries.ScoreSource)\n| sort by Score, ScoreSource desc;\ntableEntries"
                                         }
                                     },
                                     "runAfter": {
-                                        "Detailed_Results_Table": [
+                                        "DEBUG_-_Final_Score": [
                                             "Succeeded"
                                         ]
                                     },
@@ -149,18 +170,6 @@
                                     },
                                     "type": "Compose",
                                     "inputs": "@variables('scoreTotal')"
-                                },
-                                "Detailed_Results_Table": {
-                                    "runAfter": {
-                                        "DEBUG_-_Final_Score": [
-                                            "Succeeded"
-                                        ]
-                                    },
-                                    "type": "Table",
-                                    "inputs": {
-                                        "format": "HTML",
-                                        "from": "@variables('DetailedResults')"
-                                    }
                                 },
                                 "Response_-_Success": {
                                     "runAfter": {
@@ -238,6 +247,383 @@
                                         ]
                                     },
                                     "cases": {
+                                        "Case_-_AADRisksModule": {
+                                            "case": "AADRisksModule",
+                                            "actions": {
+                                                "If_-_AAD_Users_Found": {
+                                                    "actions": {
+                                                        "AADRisks_-_ScorePerItem": {
+                                                            "actions": {
+                                                                "For_each_aad_risk": {
+                                                                    "foreach": "@items('For_each')['ModuleBody']['DetailedResults']",
+                                                                    "actions": {
+                                                                        "Switch_on_AADRisk_level": {
+                                                                            "runAfter": {},
+                                                                            "cases": {
+                                                                                "Case_-_high": {
+                                                                                    "case": "high",
+                                                                                    "actions": {
+                                                                                        "Append_to_DetailedResults_-_high": {
+                                                                                            "runAfter": {
+                                                                                                "Increment_scoreTotal_-_high": [
+                                                                                                    "Succeeded"
+                                                                                                ]
+                                                                                            },
+                                                                                            "type": "AppendToArrayVariable",
+                                                                                            "inputs": {
+                                                                                                "name": "DetailedResults",
+                                                                                                "value": {
+                                                                                                    "Score": "@mul(10, items('For_each')['ScoreMultiplier'])",
+                                                                                                    "ScoreSource": "@{items('For_each')['ScoreLabel']} - @{items('For_each_aad_risk')['UserPrincipalName']}"
+                                                                                                }
+                                                                                            }
+                                                                                        },
+                                                                                        "Increment_scoreTotal_-_high": {
+                                                                                            "runAfter": {},
+                                                                                            "type": "IncrementVariable",
+                                                                                            "inputs": {
+                                                                                                "name": "scoreTotal",
+                                                                                                "value": "@mul(10, items('For_each')['ScoreMultiplier'])"
+                                                                                            }
+                                                                                        }
+                                                                                    }
+                                                                                },
+                                                                                "Case_-_low": {
+                                                                                    "case": "low",
+                                                                                    "actions": {
+                                                                                        "Append_to_DetailedResults_-_low": {
+                                                                                            "runAfter": {
+                                                                                                "Increment_scoreTotal_-_low": [
+                                                                                                    "Succeeded"
+                                                                                                ]
+                                                                                            },
+                                                                                            "type": "AppendToArrayVariable",
+                                                                                            "inputs": {
+                                                                                                "name": "DetailedResults",
+                                                                                                "value": {
+                                                                                                    "Score": "@mul(3, items('For_each')['ScoreMultiplier'])",
+                                                                                                    "ScoreSource": "@{items('For_each')['ScoreLabel']} - @{item()['UserPrincipalName']}"
+                                                                                                }
+                                                                                            }
+                                                                                        },
+                                                                                        "Increment_scoreTotal_-_low": {
+                                                                                            "runAfter": {},
+                                                                                            "type": "IncrementVariable",
+                                                                                            "inputs": {
+                                                                                                "name": "scoreTotal",
+                                                                                                "value": "@mul(3, items('For_each')['ScoreMultiplier'])"
+                                                                                            }
+                                                                                        }
+                                                                                    }
+                                                                                },
+                                                                                "Case_-_medium": {
+                                                                                    "case": "medium",
+                                                                                    "actions": {
+                                                                                        "Append_to_DetailedResults_-_medium": {
+                                                                                            "runAfter": {
+                                                                                                "Increment_scoreTotal_-_medium": [
+                                                                                                    "Succeeded"
+                                                                                                ]
+                                                                                            },
+                                                                                            "type": "AppendToArrayVariable",
+                                                                                            "inputs": {
+                                                                                                "name": "DetailedResults",
+                                                                                                "value": {
+                                                                                                    "Score": "@mul(5, items('For_each')['ScoreMultiplier'])",
+                                                                                                    "ScoreSource": "@{items('For_each')['ScoreLabel']} - @{item()['UserPrincipalName']}"
+                                                                                                }
+                                                                                            }
+                                                                                        },
+                                                                                        "Increment_scoreTotal_-_medium": {
+                                                                                            "runAfter": {},
+                                                                                            "type": "IncrementVariable",
+                                                                                            "inputs": {
+                                                                                                "name": "scoreTotal",
+                                                                                                "value": "@mul(5, items('For_each')['ScoreMultiplier'])"
+                                                                                            }
+                                                                                        }
+                                                                                    }
+                                                                                },
+                                                                                "Case_-_none": {
+                                                                                    "case": "none",
+                                                                                    "actions": {
+                                                                                        "Append_to_DetailedResults_-_none": {
+                                                                                            "runAfter": {},
+                                                                                            "type": "AppendToArrayVariable",
+                                                                                            "inputs": {
+                                                                                                "name": "DetailedResults",
+                                                                                                "value": {
+                                                                                                    "Score": 0,
+                                                                                                    "ScoreSource": "@{items('For_each')['ScoreLabel']} - @{items('For_each_aad_risk')['UserPrincipalName']}"
+                                                                                                }
+                                                                                            }
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            },
+                                                                            "default": {
+                                                                                "actions": {
+                                                                                    "Append_to_DetailedResults_-_Unknown": {
+                                                                                        "runAfter": {},
+                                                                                        "type": "AppendToArrayVariable",
+                                                                                        "inputs": {
+                                                                                            "name": "DetailedResults",
+                                                                                            "value": {
+                                                                                                "Score": 0,
+                                                                                                "ScoreSource": "@{items('For_each')['ScoreLabel']} - Unknown Risk Level: @{item()['UserRiskLevel']}"
+                                                                                            }
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            },
+                                                                            "expression": "@toLower(item()['UserRiskLevel'])",
+                                                                            "type": "Switch"
+                                                                        }
+                                                                    },
+                                                                    "runAfter": {},
+                                                                    "type": "Foreach"
+                                                                }
+                                                            },
+                                                            "runAfter": {},
+                                                            "else": {
+                                                                "actions": {
+                                                                    "Switch_-_Highest_Risk": {
+                                                                        "runAfter": {},
+                                                                        "cases": {
+                                                                            "Case_-_high": {
+                                                                                "case": "high",
+                                                                                "actions": {
+                                                                                    "Append_to_DetailedResults_-_high_-_single": {
+                                                                                        "runAfter": {
+                                                                                            "Increment_scoreTotal_-_high_-_single": [
+                                                                                                "Succeeded"
+                                                                                            ]
+                                                                                        },
+                                                                                        "type": "AppendToArrayVariable",
+                                                                                        "inputs": {
+                                                                                            "name": "DetailedResults",
+                                                                                            "value": {
+                                                                                                "Score": "@mul(10, items('For_each')['ScoreMultiplier'])",
+                                                                                                "ScoreSource": "@{items('For_each')['ScoreLabel']}"
+                                                                                            }
+                                                                                        }
+                                                                                    },
+                                                                                    "Increment_scoreTotal_-_high_-_single": {
+                                                                                        "runAfter": {},
+                                                                                        "type": "IncrementVariable",
+                                                                                        "inputs": {
+                                                                                            "name": "scoreTotal",
+                                                                                            "value": "@mul(10, items('For_each')['ScoreMultiplier'])"
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            },
+                                                                            "Case_-_low": {
+                                                                                "case": "low",
+                                                                                "actions": {
+                                                                                    "Append_to_DetailedResults_-_low_-_single": {
+                                                                                        "runAfter": {
+                                                                                            "Increment_scoreTotal_-_low_-_single": [
+                                                                                                "Succeeded"
+                                                                                            ]
+                                                                                        },
+                                                                                        "type": "AppendToArrayVariable",
+                                                                                        "inputs": {
+                                                                                            "name": "DetailedResults",
+                                                                                            "value": {
+                                                                                                "Score": "@mul(3, items('For_each')['ScoreMultiplier'])",
+                                                                                                "ScoreSource": "@{items('For_each')['ScoreLabel']}"
+                                                                                            }
+                                                                                        }
+                                                                                    },
+                                                                                    "Increment_scoreTotal_-_low_-_single": {
+                                                                                        "runAfter": {},
+                                                                                        "type": "IncrementVariable",
+                                                                                        "inputs": {
+                                                                                            "name": "scoreTotal",
+                                                                                            "value": "@mul(3, items('For_each')['ScoreMultiplier'])"
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            },
+                                                                            "Case_-_medium": {
+                                                                                "case": "medium",
+                                                                                "actions": {
+                                                                                    "Append_to_DetailedResults_-_medium_-_single": {
+                                                                                        "runAfter": {
+                                                                                            "Increment_scoreTotal_-_medium_-_single": [
+                                                                                                "Succeeded"
+                                                                                            ]
+                                                                                        },
+                                                                                        "type": "AppendToArrayVariable",
+                                                                                        "inputs": {
+                                                                                            "name": "DetailedResults",
+                                                                                            "value": {
+                                                                                                "Score": "@mul(5, items('For_each')['ScoreMultiplier'])",
+                                                                                                "ScoreSource": "@{items('For_each')['ScoreLabel']}"
+                                                                                            }
+                                                                                        }
+                                                                                    },
+                                                                                    "Increment_scoreTotal_-_medium_-_single": {
+                                                                                        "runAfter": {},
+                                                                                        "type": "IncrementVariable",
+                                                                                        "inputs": {
+                                                                                            "name": "scoreTotal",
+                                                                                            "value": "@mul(5, items('For_each')['ScoreMultiplier'])"
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            },
+                                                                            "Case_-_none": {
+                                                                                "case": "none",
+                                                                                "actions": {
+                                                                                    "Append_to_DetailedResults_-_none_-_single": {
+                                                                                        "runAfter": {},
+                                                                                        "type": "AppendToArrayVariable",
+                                                                                        "inputs": {
+                                                                                            "name": "DetailedResults",
+                                                                                            "value": {
+                                                                                                "Score": 0,
+                                                                                                "ScoreSource": "@{items('For_each')['ScoreLabel']}"
+                                                                                            }
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        },
+                                                                        "default": {
+                                                                            "actions": {
+                                                                                "Append_to_DetailedResults_-_unknown_-_single": {
+                                                                                    "runAfter": {},
+                                                                                    "type": "AppendToArrayVariable",
+                                                                                    "inputs": {
+                                                                                        "name": "DetailedResults",
+                                                                                        "value": {
+                                                                                            "Score": 0,
+                                                                                            "ScoreSource": "@{items('For_each')['ScoreLabel']} - Unknown Risk Level: @{items('For_each')['ModuleBody']?['HighestRiskLevel']}"
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        },
+                                                                        "expression": "@toLower(items('For_each')['ModuleBody']?['HighestRiskLevel'])",
+                                                                        "type": "Switch"
+                                                                    }
+                                                                }
+                                                            },
+                                                            "expression": {
+                                                                "and": [
+                                                                    {
+                                                                        "equals": [
+                                                                            "@items('For_each')['ScorePerItem']",
+                                                                            true
+                                                                        ]
+                                                                    }
+                                                                ]
+                                                            },
+                                                            "type": "If"
+                                                        }
+                                                    },
+                                                    "runAfter": {},
+                                                    "else": {
+                                                        "actions": {
+                                                            "Append_to_DetailedResults_-_No_AAD_Users": {
+                                                                "runAfter": {},
+                                                                "type": "AppendToArrayVariable",
+                                                                "inputs": {
+                                                                    "name": "DetailedResults",
+                                                                    "value": {
+                                                                        "Score": 0,
+                                                                        "ScoreSource": "@{items('For_each')['ScoreLabel']} - No User Entities"
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    },
+                                                    "expression": {
+                                                        "and": [
+                                                            {
+                                                                "greater": [
+                                                                    "@items('For_each')['ModuleBody']['AnalyzedEntities']",
+                                                                    0
+                                                                ]
+                                                            }
+                                                        ]
+                                                    },
+                                                    "type": "If"
+                                                }
+                                            }
+                                        },
+                                        "Case_-_Custom": {
+                                            "case": "Custom",
+                                            "actions": {
+                                                "For_each_custom_score": {
+                                                    "foreach": "@item()['ModuleBody']?['ScoringData']",
+                                                    "actions": {
+                                                        "Check_for_Score": {
+                                                            "actions": {
+                                                                "Append_to_DetailedResults_-_Custom": {
+                                                                    "runAfter": {
+                                                                        "Increment_scoreTotal_-_Custom": [
+                                                                            "Succeeded"
+                                                                        ]
+                                                                    },
+                                                                    "type": "AppendToArrayVariable",
+                                                                    "inputs": {
+                                                                        "name": "DetailedResults",
+                                                                        "value": {
+                                                                            "Score": "@mul(int(item()?['Score']), items('For_each')['ScoreMultiplier'])",
+                                                                            "ScoreSource": "@{items('For_each_custom_score')?['ScoreLabel']}"
+                                                                        }
+                                                                    }
+                                                                },
+                                                                "Increment_scoreTotal_-_Custom": {
+                                                                    "runAfter": {},
+                                                                    "type": "IncrementVariable",
+                                                                    "inputs": {
+                                                                        "name": "scoreTotal",
+                                                                        "value": "@mul(int(item()?['Score']), items('For_each')['ScoreMultiplier'])"
+                                                                    }
+                                                                }
+                                                            },
+                                                            "runAfter": {},
+                                                            "expression": {
+                                                                "and": [
+                                                                    {
+                                                                        "equals": [
+                                                                            "@if(equals(item()?['Score'], null), false, true)",
+                                                                            true
+                                                                        ]
+                                                                    },
+                                                                    {
+                                                                        "equals": [
+                                                                            "@isInt(string(item()?['Score']))",
+                                                                            true
+                                                                        ]
+                                                                    }
+                                                                ]
+                                                            },
+                                                            "type": "If"
+                                                        }
+                                                    },
+                                                    "runAfter": {},
+                                                    "type": "Foreach"
+                                                }
+                                            }
+                                        },
+                                        "Case_-_FileModule": {
+                                            "case": "FileModule",
+                                            "actions": {
+                                                "Set_variable_invalidModule_-_FileModule": {
+                                                    "runAfter": {},
+                                                    "type": "SetVariable",
+                                                    "inputs": {
+                                                        "name": "invalidModule",
+                                                        "value": true
+                                                    }
+                                                }
+                                            }
+                                        },
                                         "Case_-_KQL": {
                                             "case": "KQLModule",
                                             "actions": {
@@ -289,6 +675,210 @@
                                                                 "greater": [
                                                                     "@item()['ModuleBody']['ResultsCount']",
                                                                     0
+                                                                ]
+                                                            }
+                                                        ]
+                                                    },
+                                                    "type": "If"
+                                                }
+                                            }
+                                        },
+                                        "Case_-_MCASModule": {
+                                            "case": "MCASModule",
+                                            "actions": {
+                                                "Set_variable_invalidModule_-_MCASModule": {
+                                                    "runAfter": {},
+                                                    "type": "SetVariable",
+                                                    "inputs": {
+                                                        "name": "invalidModule",
+                                                        "value": true
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "Case_-_MDEModule": {
+                                            "case": "MDEModule",
+                                            "actions": {
+                                                "Compose_-_Host_Risk": {
+                                                    "runAfter": {
+                                                        "Compose_-_User_Risk": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "Compose",
+                                                    "inputs": "@if(equals(item()['ModuleBody']['HostsHighestRiskScore'], 'High'), 10,\r\nif(equals(item()['ModuleBody']['HostsHighestRiskScore'], 'Medium'), 5,\r\nif(equals(item()['ModuleBody']['HostsHighestRiskScore'], 'Low'), 3,\r\nif(equals(item()['ModuleBody']['HostsHighestRiskScore'], 'Informational'), 1, 0))))"
+                                                },
+                                                "Compose_-_IP_Risk": {
+                                                    "runAfter": {
+                                                        "Compose_-_Host_Risk": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "Compose",
+                                                    "inputs": "@if(equals(item()['ModuleBody']['IPsHighestRiskScore'], 'High'), 10,\r\nif(equals(item()['ModuleBody']['IPsHighestRiskScore'], 'Medium'), 5,\r\nif(equals(item()['ModuleBody']['IPsHighestRiskScore'], 'Low'), 3,\r\nif(equals(item()['ModuleBody']['IPsHighestRiskScore'], 'Informational'), 1, 0))))"
+                                                },
+                                                "Compose_-_User_Risk": {
+                                                    "runAfter": {},
+                                                    "type": "Compose",
+                                                    "inputs": "@if(equals(item()['ModuleBody']['UsersHighestRiskScore'], 'High'), 10,\r\nif(equals(item()['ModuleBody']['UsersHighestRiskScore'], 'Medium'), 5,\r\nif(equals(item()['ModuleBody']['UsersHighestRiskScore'], 'Low'), 3,\r\nif(equals(item()['ModuleBody']['UsersHighestRiskScore'], 'Informational'), 1, 0))))"
+                                                },
+                                                "MDE_-_ScorePerItem": {
+                                                    "actions": {
+                                                        "Condition_-_Host_Risk": {
+                                                            "actions": {
+                                                                "Append_to_DetailedResults_-_Host_Risk": {
+                                                                    "runAfter": {},
+                                                                    "type": "AppendToArrayVariable",
+                                                                    "inputs": {
+                                                                        "name": "DetailedResults",
+                                                                        "value": {
+                                                                            "Score": "@mul(outputs('Compose_-_Host_Risk'), items('For_each')['ScoreMultiplier'])",
+                                                                            "ScoreSource": "@{items('For_each')['ScoreLabel']} - Host entity Device Risk"
+                                                                        }
+                                                                    }
+                                                                }
+                                                            },
+                                                            "runAfter": {
+                                                                "Condition_-_IP_Risk": [
+                                                                    "Succeeded"
+                                                                ]
+                                                            },
+                                                            "expression": {
+                                                                "and": [
+                                                                    {
+                                                                        "not": {
+                                                                            "equals": [
+                                                                                "@outputs('Compose_-_Host_Risk')",
+                                                                                0
+                                                                            ]
+                                                                        }
+                                                                    }
+                                                                ]
+                                                            },
+                                                            "type": "If"
+                                                        },
+                                                        "Condition_-_IP_Risk": {
+                                                            "actions": {
+                                                                "Append_to_DetailedResults_-_IP_Risk": {
+                                                                    "runAfter": {},
+                                                                    "type": "AppendToArrayVariable",
+                                                                    "inputs": {
+                                                                        "name": "DetailedResults",
+                                                                        "value": {
+                                                                            "Score": "@mul(outputs('Compose_-_IP_Risk'), items('For_each')['ScoreMultiplier'])",
+                                                                            "ScoreSource": "@{items('For_each')['ScoreLabel']} - IP entity Device Risk"
+                                                                        }
+                                                                    }
+                                                                }
+                                                            },
+                                                            "runAfter": {
+                                                                "Condition_-_User_Risk": [
+                                                                    "Succeeded"
+                                                                ]
+                                                            },
+                                                            "expression": {
+                                                                "and": [
+                                                                    {
+                                                                        "not": {
+                                                                            "equals": [
+                                                                                "@outputs('Compose_-_IP_Risk')",
+                                                                                0
+                                                                            ]
+                                                                        }
+                                                                    }
+                                                                ]
+                                                            },
+                                                            "type": "If"
+                                                        },
+                                                        "Condition_-_User_Risk": {
+                                                            "actions": {
+                                                                "Append_to_DetailedResults_-_User_Risk": {
+                                                                    "runAfter": {},
+                                                                    "type": "AppendToArrayVariable",
+                                                                    "inputs": {
+                                                                        "name": "DetailedResults",
+                                                                        "value": {
+                                                                            "Score": "@mul(outputs('Compose_-_User_Risk'), items('For_each')['ScoreMultiplier'])",
+                                                                            "ScoreSource": "@{items('For_each')['ScoreLabel']} - User entity Device Risk"
+                                                                        }
+                                                                    }
+                                                                }
+                                                            },
+                                                            "runAfter": {},
+                                                            "expression": {
+                                                                "and": [
+                                                                    {
+                                                                        "not": {
+                                                                            "equals": [
+                                                                                "@outputs('Compose_-_User_Risk')",
+                                                                                0
+                                                                            ]
+                                                                        }
+                                                                    }
+                                                                ]
+                                                            },
+                                                            "type": "If"
+                                                        },
+                                                        "Increment_scoreTotal_-_MDE_Risk": {
+                                                            "runAfter": {
+                                                                "Condition_-_Host_Risk": [
+                                                                    "Succeeded"
+                                                                ]
+                                                            },
+                                                            "type": "IncrementVariable",
+                                                            "inputs": {
+                                                                "name": "scoreTotal",
+                                                                "value": "@mul(add(add(outputs('Compose_-_Host_Risk'),outputs('Compose_-_IP_Risk')),outputs('Compose_-_User_Risk')),items('For_each')['ScoreMultiplier']) "
+                                                            }
+                                                        }
+                                                    },
+                                                    "runAfter": {
+                                                        "Compose_-_IP_Risk": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "else": {
+                                                        "actions": {
+                                                            "Append_to_DetailedResults_-_MDE_Highest_Risk": {
+                                                                "runAfter": {
+                                                                    "Increment_scoreTotal_-_MDE_Highest_Risk": [
+                                                                        "Succeeded"
+                                                                    ]
+                                                                },
+                                                                "type": "AppendToArrayVariable",
+                                                                "inputs": {
+                                                                    "name": "DetailedResults",
+                                                                    "value": {
+                                                                        "Score": "@mul(outputs('Compose_-_MDE_Highest_Risk'), items('For_each')['ScoreMultiplier'])",
+                                                                        "ScoreSource": "@{items('For_each')['ScoreLabel']}"
+                                                                    }
+                                                                }
+                                                            },
+                                                            "Compose_-_MDE_Highest_Risk": {
+                                                                "runAfter": {},
+                                                                "type": "Compose",
+                                                                "inputs": "@max(createArray(outputs('Compose_-_Host_Risk'),outputs('Compose_-_IP_Risk'),outputs('Compose_-_User_Risk')))"
+                                                            },
+                                                            "Increment_scoreTotal_-_MDE_Highest_Risk": {
+                                                                "runAfter": {
+                                                                    "Compose_-_MDE_Highest_Risk": [
+                                                                        "Succeeded"
+                                                                    ]
+                                                                },
+                                                                "type": "IncrementVariable",
+                                                                "inputs": {
+                                                                    "name": "scoreTotal",
+                                                                    "value": "@outputs('Compose_-_MDE_Highest_Risk')"
+                                                                }
+                                                            }
+                                                        }
+                                                    },
+                                                    "expression": {
+                                                        "and": [
+                                                            {
+                                                                "equals": [
+                                                                    "@items('For_each')?['ScorePerItem']",
+                                                                    true
                                                                 ]
                                                             }
                                                         ]
@@ -593,6 +1183,49 @@
                                                         ]
                                                     },
                                                     "type": "If"
+                                                },
+                                                "If_-_Tactics_Found": {
+                                                    "actions": {
+                                                        "Append_DetailedResults_-_Tactics_Found": {
+                                                            "runAfter": {
+                                                                "Increment_scoreTotal_-_Tactics_Found": [
+                                                                    "Succeeded"
+                                                                ]
+                                                            },
+                                                            "type": "AppendToArrayVariable",
+                                                            "inputs": {
+                                                                "name": "DetailedResults",
+                                                                "value": {
+                                                                    "Score": "@mul(mul(10, item()['ModuleBody']?['AllTacticsCount']), items('For_each')['ScoreMultiplier'])",
+                                                                    "ScoreSource": "@{items('For_each')['ScoreLabel']} - @{item()['ModuleBody']?['AllTacticsCount']} related MITRE tactics found (@{join(item()['ModuleBody']?['AllTactics'], ', ')})"
+                                                                }
+                                                            }
+                                                        },
+                                                        "Increment_scoreTotal_-_Tactics_Found": {
+                                                            "runAfter": {},
+                                                            "type": "IncrementVariable",
+                                                            "inputs": {
+                                                                "name": "scoreTotal",
+                                                                "value": "@mul(mul(10, item()['ModuleBody']?['AllTacticsCount']), items('For_each')['ScoreMultiplier'])"
+                                                            }
+                                                        }
+                                                    },
+                                                    "runAfter": {
+                                                        "If_-_RelatedAlerts_Found": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "expression": {
+                                                        "and": [
+                                                            {
+                                                                "greater": [
+                                                                    "@item()['ModuleBody']?['AllTacticsCount']",
+                                                                    0
+                                                                ]
+                                                            }
+                                                        ]
+                                                    },
+                                                    "type": "If"
                                                 }
                                             }
                                         },
@@ -664,6 +1297,19 @@
                                                         ]
                                                     },
                                                     "type": "If"
+                                                }
+                                            }
+                                        },
+                                        "Case_-_UEBAModule": {
+                                            "case": "UEBAModule",
+                                            "actions": {
+                                                "Set_variable_invalidModule_-_UEBA": {
+                                                    "runAfter": {},
+                                                    "type": "SetVariable",
+                                                    "inputs": {
+                                                        "name": "invalidModule",
+                                                        "value": true
+                                                    }
                                                 }
                                             }
                                         },
@@ -741,7 +1387,7 @@
                                     },
                                     "default": {
                                         "actions": {
-                                            "Set_variable": {
+                                            "Set_variable_invalidModule": {
                                                 "runAfter": {},
                                                 "type": "SetVariable",
                                                 "inputs": {
