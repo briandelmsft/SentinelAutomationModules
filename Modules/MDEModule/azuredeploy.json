@@ -251,8 +251,8 @@
                                         "body": {
                                             "AnalyzedEntities": 0,
                                             "DetailedResults": [],
-                                            "DevicesHighestExposureLevel": "Unknown",
-                                            "DevicesHighestRiskScore": "Unknown",
+                                            "HostsHighestExposureLevel": "Unknown",
+                                            "HostsHighestRiskScore": "Unknown",
                                             "IPsHighestExposureLevel": "Unknown",
                                             "IPsHighestRiskScore": "Unknown",
                                             "ModuleName": "@{parameters('PlaybookInternalName')}",
@@ -1357,7 +1357,7 @@
                             "type": "String"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.1.3",
+                            "defaultValue": "0.1.4",
                             "type": "String"
                         },
                         "ProjectName": {
