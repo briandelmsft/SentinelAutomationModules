@@ -251,7 +251,7 @@
                                                     "limit": 1
                                                 },
                                                 "method": "POST",
-                                                "uri": "@{outputs('Compose_URL')}/cas/api/v1/entities/"
+                                                "uri": "@{outputs('Compose_URL')}/api/v1/entities/"
                                             },
                                             "runAfter": {
                                                 "Compose_URL": [
