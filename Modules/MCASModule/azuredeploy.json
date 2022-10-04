@@ -492,7 +492,7 @@
                                             "type": "ManagedServiceIdentity"
                                         },
                                         "method": "GET",
-                                        "uri": "@{variables('APIURL')}/cas/api/v1/entities/@{outputs('Compose_Base64')}/"
+                                        "uri": "@{variables('APIURL')}/api/v1/entities/@{outputs('Compose_Base64')}/"
                                     },
                                     "runAfter": {
                                         "Compose_Base64": [
