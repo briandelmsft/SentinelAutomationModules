@@ -21,6 +21,7 @@ This module will get the MCAS Investigation Score of the account entities of the
 |AnalysedEntities|Number of entities analyzed|
 |AboveThreholdCount|Number of accounts foud above the specified threshold|
 |MaximumScore|Maximum score found for all entities|
+|ModuleName|The internal Name of the Playbook|
 |DetailedResults|An array of user with their respective score|
 
 ## Sample Return
@@ -36,7 +37,8 @@ This module will get the MCAS Investigation Score of the account entities of the
       "UserPrincipalName": "bob@xontoso.com"
     }
   ],
-  "MaximumScore": 270
+  "MaximumScore": 270,
+  "ModuleName": "MCASModule"
 }
 ```
 
