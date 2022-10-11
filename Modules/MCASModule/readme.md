@@ -34,7 +34,23 @@ This module will get the MCAS Investigation Score of the account entities of the
     {
       "ThreatScore": 270,
       "UserId": "312b4fab-fa2e-43d4-9885-5a78ae6772b9",
-      "UserPrincipalName": "bob@xontoso.com"
+      "UserPrincipalName": "bob@xontoso.com",
+      "threatScoreHistory": [
+        {
+          "dateFormatted": "20221011",
+          "dateUtc": 1665531216000,
+          "score": 0,
+          "percentile": 0,
+          "breakdown": {}
+        },
+        {
+          "dateFormatted": "20221010",
+          "dateUtc": 1665444816000,
+          "score": 0,
+          "percentile": 0,
+          "breakdown": {}
+        }
+      ]
     }
   ],
   "MaximumScore": 270,
