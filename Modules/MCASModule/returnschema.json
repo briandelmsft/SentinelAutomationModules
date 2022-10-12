@@ -23,6 +23,9 @@
                     },
                     "UserPrincipalName": {
                         "type": "string"
+                    },
+                    "ThreatScoreHistory": {
+                        "type": "array"
                     }
                 }
             }
@@ -30,6 +33,10 @@
         "MaximumScore": {
             "type": "integer",
             "description": "Maximum score found for all entities"
+        },
+        "ModuleName": {
+            "type": "string",
+            "description": "Name of the STAT module"
         }
     }
 }

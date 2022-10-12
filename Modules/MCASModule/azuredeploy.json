@@ -86,7 +86,8 @@
                                             "AboveThreholdCount": "@length(body('Filter_scores_above_the_threshold'))",
                                             "AnalyzedEntities": "@length(variables('DetailedResults'))",
                                             "DetailedResults": "@variables('DetailedResults')",
-                                            "MaximumScore": "@max(variables('Scores'))"
+                                            "MaximumScore": "@max(variables('Scores'))",
+                                            "ModuleName": "@{parameters('PlaybookInternalName')}"
                                         },
                                         "runAfter": {
                                             "Filter_scores_above_the_threshold": [
@@ -187,92 +188,137 @@
                         },
                         "Check_if_the_APIURL_is_set": {
                             "actions": {
-                                "For_each_TenantRegions_value": {
+                                "Until": {
                                     "actions": {
-                                        "Check_for_probe's_response": {
+                                        "Condition": {
                                             "actions": {
-                                                "Set_APIURL": {
-                                                    "inputs": {
-                                                        "name": "APIURL",
-                                                        "value": "@{outputs('Compose_URL')}"
-                                                    },
+                                                "Delay": {
                                                     "runAfter": {},
-                                                    "type": "SetVariable"
+                                                    "type": "Wait",
+                                                    "inputs": {
+                                                        "interval": {
+                                                            "count": 10,
+                                                            "unit": "Second"
+                                                        }
+                                                    }
                                                 }
+                                            },
+                                            "runAfter": {
+                                                "For_each_TenantRegions_value": [
+                                                    "Succeeded"
+                                                ]
                                             },
                                             "expression": {
                                                 "and": [
                                                     {
-                                                        "not": {
-                                                            "equals": [
-                                                                "@body('HTTP_Probe_URL')?['detail']",
-                                                                "tenant not found"
-                                                            ]
-                                                        }
-                                                    },
-                                                    {
-                                                        "not": {
-                                                            "equals": [
-                                                                "@body('HTTP_Probe_URL')?['detail']",
-                                                                "tenant is disabled"
-                                                            ]
-                                                        }
-                                                    },
-                                                    {
-                                                        "not": {
-                                                            "equals": [
-                                                                "@body('HTTP_Probe_URL')?['detail']",
-                                                                "Invalid token"
-                                                            ]
-                                                        }
+                                                        "equals": [
+                                                            "@length(variables('APIURL'))",
+                                                            0
+                                                        ]
                                                     }
-                                                ]
-                                            },
-                                            "runAfter": {
-                                                "HTTP_Probe_URL": [
-                                                    "Succeeded",
-                                                    "Failed"
                                                 ]
                                             },
                                             "type": "If"
                                         },
-                                        "Compose_URL": {
-                                            "inputs": "https://@{item()}.portal.cloudappsecurity.com",
+                                        "For_each_TenantRegions_value": {
+                                            "foreach": "@variables('TenantRegions')",
+                                            "actions": {
+                                                "Check_for_probe's_response": {
+                                                    "actions": {
+                                                        "Set_APIURL": {
+                                                            "runAfter": {},
+                                                            "type": "SetVariable",
+                                                            "inputs": {
+                                                                "name": "APIURL",
+                                                                "value": "@{outputs('Compose_URL')}"
+                                                            }
+                                                        }
+                                                    },
+                                                    "runAfter": {
+                                                        "HTTP_Probe_URL": [
+                                                            "Succeeded",
+                                                            "Failed"
+                                                        ]
+                                                    },
+                                                    "expression": {
+                                                        "and": [
+                                                            {
+                                                                "not": {
+                                                                    "equals": [
+                                                                        "@body('HTTP_Probe_URL')?['detail']",
+                                                                        "tenant not found"
+                                                                    ]
+                                                                }
+                                                            },
+                                                            {
+                                                                "not": {
+                                                                    "equals": [
+                                                                        "@body('HTTP_Probe_URL')?['detail']",
+                                                                        "tenant is disabled"
+                                                                    ]
+                                                                }
+                                                            },
+                                                            {
+                                                                "not": {
+                                                                    "equals": [
+                                                                        "@body('HTTP_Probe_URL')?['detail']",
+                                                                        "Invalid token"
+                                                                    ]
+                                                                }
+                                                            }
+                                                        ]
+                                                    },
+                                                    "type": "If"
+                                                },
+                                                "Compose_URL": {
+                                                    "runAfter": {},
+                                                    "type": "Compose",
+                                                    "inputs": "https://@{item()}.portal.cloudappsecurity.com"
+                                                },
+                                                "HTTP_Probe_URL": {
+                                                    "runAfter": {
+                                                        "Compose_URL": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "Http",
+                                                    "inputs": {
+                                                        "authentication": {
+                                                            "audience": "05a65629-4c1b-48c1-a78b-804c4abdd4af",
+                                                            "type": "ManagedServiceIdentity"
+                                                        },
+                                                        "body": {
+                                                            "limit": 1
+                                                        },
+                                                        "method": "POST",
+                                                        "uri": "@{outputs('Compose_URL')}/api/v1/entities/"
+                                                    }
+                                                }
+                                            },
                                             "runAfter": {},
-                                            "type": "Compose"
-                                        },
-                                        "HTTP_Probe_URL": {
-                                            "inputs": {
-                                                "authentication": {
-                                                    "audience": "05a65629-4c1b-48c1-a78b-804c4abdd4af",
-                                                    "type": "ManagedServiceIdentity"
-                                                },
-                                                "body": {
-                                                    "limit": 1
-                                                },
-                                                "method": "POST",
-                                                "uri": "@{outputs('Compose_URL')}/cas/api/v1/entities/"
-                                            },
-                                            "runAfter": {
-                                                "Compose_URL": [
-                                                    "Succeeded"
-                                                ]
-                                            },
-                                            "type": "Http"
+                                            "type": "Foreach",
+                                            "description": "Brute forcing the URL to find the right one without asking the user",
+                                            "runtimeConfiguration": {
+                                                "concurrency": {
+                                                    "repetitions": 20
+                                                }
+                                            }
                                         }
                                     },
-                                    "description": "Brute forcing the URL to find the right one without asking the user",
-                                    "foreach": "@variables('TenantRegions')",
                                     "runAfter": {},
-                                    "runtimeConfiguration": {
-                                        "concurrency": {
-                                            "repetitions": 20
-                                        }
+                                    "expression": "@not(equals(length(variables('APIURL')), 0))",
+                                    "limit": {
+                                        "count": 10,
+                                        "timeout": "PT5M"
                                     },
-                                    "type": "Foreach"
+                                    "type": "Until"
                                 }
                             },
-                            "description": "If not already set, we will enter in a loop to detect the URL in best effort.",
+                            "runAfter": {
+                                "Initialize_TenantRegions_array": [
+                                    "Succeeded"
+                                ]
+                            },
                             "expression": {
                                 "and": [
                                     {
@@ -283,22 +329,19 @@
                                     }
                                 ]
                             },
-                            "runAfter": {
-                                "Initialize_TenantRegions_array": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "If"
+                            "type": "If",
+                            "description": "If not already set, we will enter in a loop to detect the URL in best effort."
                         },
                         "Condition_-_Terminate_if_no_accounts": {
                             "actions": {
                                 "Response_-_No_Account_Entities": {
                                     "inputs": {
                                         "body": {
+                                            "AboveThreholdCount": 0,
                                             "AnalyzedEntities": 0,
                                             "DetailedResults": [],
                                             "MaximumScore": 0,
-                                            "UnderThreholdCount": 0
+                                            "ModuleName": "@{parameters('PlaybookInternalName')}"
                                         },
                                         "statusCode": 200
                                     },
@@ -436,7 +479,8 @@
                                                 "value": {
                                                     "ThreatScore": "@coalesce(body('HTTP_-_MCAS_API_Call')['threatScore'],0)",
                                                     "UserId": "<a href=\"https://security.microsoft.com/user/?aad=@{items('For_each_account')?['id']}&tid=@{body('Parse_JSON')?['TenantId']}\">@{items('For_each_account')?['id']}</a>",
-                                                    "UserPrincipalName": "@{coalesce(item()?['UserPrincipalName'],null)}"
+                                                    "UserPrincipalName": "@{item()?['UserPrincipalName']}",
+                                                    "ThreatScoreHistory": "@array(body('HTTP_-_MCAS_API_Call')?['threatScoreHistory'])"
                                                 }
                                             },
                                             "runAfter": {
@@ -492,7 +536,7 @@
                                             "type": "ManagedServiceIdentity"
                                         },
                                         "method": "GET",
-                                        "uri": "@{variables('APIURL')}/cas/api/v1/entities/@{outputs('Compose_Base64')}/"
+                                        "uri": "@{variables('APIURL')}/api/v1/entities/@{outputs('Compose_Base64')}/"
                                     },
                                     "runAfter": {
                                         "Compose_Base64": [
@@ -1037,7 +1081,7 @@
                             "type": "String"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.0.6",
+                            "defaultValue": "0.0.7",
                             "type": "String"
                         },
                         "ProjectName": {
