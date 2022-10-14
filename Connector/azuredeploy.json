@@ -119,7 +119,7 @@
             "properties": {
                 "connectionParameters": {},
                 "capabilities": [],
-                "description": "The Microsoft Sentinel Triage assistance is an automation toolkit to simplify the construction of automation to analyze Sentinel Incidents (version 0.5.1)",
+                "description": "The Microsoft Sentinel Triage assistance is an automation toolkit to simplify the construction of automation to analyze Sentinel Incidents (version 0.5.2)",
                 "displayName": "[parameters('CustomConnectorDisplayName')]",
                 "iconUri": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACsAAAAtCAYAAAA3BJLdAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAMjSURBVFhH7Zk/TFNRFMa/tg8BkWr8E0uRyGAwOki0NVYTBhIlGISFGnVgrC5EGk1IGBwkMQw6NG7tggtxMDqoiYspEAZJoAZFISAJJFpsGLTUaqDQ1nfvuy20lL7b0vdqTX/JyT3f477ycbjv9N5WExVBgaBlY0FQNKsUCWvW7/djYmKCqdxiMplQWVnJVJYQszEGBweJcUVibGyM/ZbsKdxlMDQ0hMbGRpr79h+j404x/Jijo1hZmM1mmmfL/1HZby9eoaKigubZEgwGUdPeRvNcVHZbs4FAgI47Ra/X01EVs2+CWvjWaUoxCMDlPRGmJNLNiZm12WwwGo0058FisaC5uZkpCVmzt30CPqxoaE6oL4visWGTM5F0c2JmM6WrqwsOh4MpieLbrVKoYpYsKd5oaGhgd21F1ixZe8O1a/FIXq8Enjkr12z4U3smbYTfjbPZqcnLMtC1X0HpUxd23bvLrvCRF7PammrozpuhOXmcXeFDVbOkoiX2W9CeM1GtOVJFNQkeZM2Sht/v3wiik+GZQxCsbdQYqSqBVDjnZp/4dfHYzqzcHEJ0ehaRUQ8iX72SXg5IWgweZM3mklDvI6xctyH8/DXVkalZqknwoKrZnZIXs2sOJ+2rqzdusit8qLJFzOS1WlpaMDIyknIjI27mlIcY6OjogNvthtcrPVzJdHd3Y2BgAJOTk+zKVrgqG7r/UHySvzCVHtJLhavS6YDwtvoEHevq6rC4uEhPD6kgR/WZmRncWZrHp3Ao+y0ieWrDo+NcEfV+Z3dJXCgpp3Fw/itOrYbjOjlKP07Rn+s1OnbnVrgqu/7sJRYWfHD/3thgE4y7BWg3/bn1unUYLKfjTZ/Qe7iWZfI0NTXhwef3GJ6bTVlZ7gesnzb8xH+ExVDGMomLQgiXhFWmJDI5KTidTrhcLng8nuJJQVWKZpWiaFYpCsrstn22p6eHjjGmUY5Rf4gpiaNVBxD+tcwUcPbQXuz7ucSURF9fH8vkaW1tpT2WvC2n6rOqffKdaYhmmasNEipLvk+w2+1M5Rer1YrOzk6mJBLM/usUu4FSFJBZ4C9uB2sPxMPD5QAAAABJRU5ErkJggg==",
                 "swagger": {
@@ -127,7 +127,7 @@
                     "info": {
                         "version": "1.0.0",
                         "title": "STAT",
-                        "description": "The Microsoft Sentinel Triage assistance is an automation toolkit to simplify the construction of automation to analyze Sentinel Incidents (version 0.5.1)"
+                        "description": "The Microsoft Sentinel Triage assistance is an automation toolkit to simplify the construction of automation to analyze Sentinel Incidents (version 0.5.2)"
                     },
                     "host": "[string(split(split(listCallbackUrl(resourceId('Microsoft.Logic/workflows/triggers', parameters('STATCoordinatorPlaybookName'), 'manual'), '2017-07-01').value, ':443')[0], '//')[1])]",
                     "basePath": "/",
@@ -1569,7 +1569,7 @@
                                                     "type": "integer",
                                                     "format": "int32",
                                                     "enum":[1,2,3,4,5,6,7,8,9,10],
-                                                    "description": "Minimum investigtaion priority to evaluate"
+                                                    "description": "Minimum investigation priority to evaluate"
                                                 }
                                             },
                                             "default": {
