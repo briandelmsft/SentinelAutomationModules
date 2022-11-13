@@ -1,6 +1,10 @@
 #  Install-Module AzureAD -Force # Install the module (You need admin on the machine)
 #  Install-Module -Name Az -Repository PSGallery -Force  # Install the module (You need admin on the machine)
 
+#  Required Permissions
+#  To execute the Set-APIPermissions function you will need an Azure AD Global Administrator or an Azure AD Privileged Role Administrator
+#  To execute the Set-RBACPermissions function you will need either Resource Group Owner or User Access Administrator on the Microsoft Sentinel resource group
+
 $TenantID=""  #Add your AAD Tenant Id
 $AzureSubscriptionId = "" #Azure Subscrition Id of Sentinel Subscription
 $SentinelResourceGroupName = "" #Resource Group Name of Sentinel

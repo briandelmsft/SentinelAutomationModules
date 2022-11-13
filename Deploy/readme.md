@@ -28,6 +28,15 @@ When upgrading the base module from versions below 0.4.0 to this version or abov
 
 * Run [GrantPermissions.ps1](GrantPermissions.ps1) to grant the necessary API and RBAC permissions to the logic apps deployed by this template.
 
+The GrantPermissions.ps1 script contains 2 types of permissions assignments that are set via PowerShell Functions.  To execute these functions you will require permission:
+
+|Function|Permissions|
+|---|---|
+|Set-APIPermissions|Calls to this function require the user to be either an Azure AD Global Administrator or Azure AD Privileged Role Administrator|
+|Set-RBACPermissions|Calls to this function require the user to be either a Resource Group Owner or User Access Administrator on the Resource Group where Microsoft Sentinel is installed|
+
+> If you do not have a single account with both the necessary Azure AD and Resource group permissions, you can run the Set-APIPermissions and Set-RBACPermissions calls seperately under different accounts.
+
 ### Restrict Calls to STAT Coordinator (optional)
 
 All STAT modules, except the STAT Coordinator, are restricted to only being called from a Logic Apps IP and with a valid Shared Access Signature.  However, by default the STAT coordinator is only protected by the Shared Access Signature.  This is due to the Logic Apps Custom connector using IP addresses outside of the standard Logic Apps IP ranges.

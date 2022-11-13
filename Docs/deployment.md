@@ -35,6 +35,15 @@ The following modifications will need to be made to the script
 
 Additionally, if you have deployed STAT using custom Logic App names the LogicAppName variables will need to be udpated as well.
 
+The GrantPermissions.ps1 script contains 2 types of permissions assignments that are set via PowerShell Functions.  To execute these functions you will require permission:
+
+|Function|Permissions|
+|---|---|
+|Set-APIPermissions|Calls to this function require the user to be either an Azure AD Global Administrator or Azure AD Privileged Role Administrator|
+|Set-RBACPermissions|Calls to this function require the user to be either a Resource Group Owner or User Access Administrator on the Resource Group where Microsoft Sentinel is installed|
+
+> If you do not have a single account with both the necessary Azure AD and Resource group permissions, you can run the Set-APIPermissions and Set-RBACPermissions calls seperately under different accounts.
+
 STAT Uses the following permissions
 
 |Permission|Type|Description|
