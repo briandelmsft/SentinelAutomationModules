@@ -13,4 +13,4 @@ Take for example an impossible travel incident, while this incident could repres
 * [Sample Playbook](sample.md)
 * [Risk Scoring](riskscoring.md)
 * [Remediation](remediation.md)
-* [Troubleshooting](Troubleshooting.md)
+* [Troubleshooting](troubleshooting.md)
