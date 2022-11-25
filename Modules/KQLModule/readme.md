@@ -1,7 +1,7 @@
 # Run-KQLQuery
 
 ## Description
-This module allows you to run custom KQL queries against Microsoft Sentinel or Microsoft 365 Advanced Hunting.  In these queries you can filter the results based on the entities data from you Microsoft Sentinel Incident
+This module allows you to run custom KQL queries against Microsoft Sentinel, Azure Data Explorer or Microsoft 365 Advanced Hunting.  In these queries you can filter the results based on the entities data from you Microsoft Sentinel Incident
 
 ## Suported Entity Types
 * Account
@@ -41,6 +41,20 @@ For best results, limit your query results to as few columns of data as possible
 DeviceLogonEvents
 | where Timestamp > ago(7d)
 ```
+
+### Azure Data Explorer Special Considerations
+
+To send a query Azure Data Explorer using this module select *Sentinel* in the *RunQueryAgainst* input.  To perform this query we use the [Azure Monitor proxy](https://learn.microsoft.com/azure/azure-monitor/logs/azure-monitor-data-explorer-proxy).
+
+Queries to Azure Data Explorer should be formatted as:
+
+```
+adx('https://clustername.kusto.windows.net/DatabaseName').TableName
+```
+
+Additionally, you must give the Run-KQLQuery managed identity access to the Database Viewer role on all ADX databases you wish to query.  This is not done by the GrantPermissions.ps1 PowerShell script.
+
+> More information on granting permissions in ADX can be found [here](https://learn.microsoft.com/azure/data-explorer/manage-database-permissions)
 
 ### The following entity tables are available to you in both Sentinel and M365 Queries
 

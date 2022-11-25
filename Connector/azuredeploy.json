@@ -2625,7 +2625,7 @@
                     "contentVersion": "1.0.0.0",
                     "parameters": {
                         "PlaybookVersion": {
-                            "defaultValue": "0.5.0",
+                            "defaultValue": "0.5.1",
                             "type": "String"
                         },
                         "PlaybookInternalName": {
@@ -3066,6 +3066,9 @@
                                                     "workflow": {
                                                         "id": "[parameters('ScoringModule_resourceid')]"
                                                     }
+                                                },
+                                                "retryPolicy": {
+                                                    "type": "none"
                                                 }
                                             }
                                         },
@@ -3224,7 +3227,7 @@
                                             "body": {
                                                 "Error": "STAT Module not found in the coordinator.  Either the module is invalid or the coordinator needs to be updated."
                                             },
-                                            "statusCode": 500
+                                            "statusCode": 400
                                         }
                                     }
                                 }

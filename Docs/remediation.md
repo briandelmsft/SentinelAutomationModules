@@ -4,12 +4,26 @@ Once you have used STAT to triage your incident and make a decision on the remed
 
 ## Triggering a Remediation Playbook on STAT Output
 
-Let's say you want to use the [Confirm-AADRiskyUser](https://github.com/Azure/Azure-Sentinel/tree/master/Playbooks/Confirm-AADRiskyUser) playbook on an incident that STAT has triaged as a high risk.  How can I this playbook?
+Let's say you want to use the [Confirm-AADRiskyUser](https://github.com/Azure/Azure-Sentinel/tree/master/Playbooks/Confirm-AADRiskyUser) playbook on an incident that STAT has triaged as a high risk.  How can I run this playbook?
 
-There's actually 2 ways to accomplish this:
+There's actually 3 common ways to accomplish this:
 
-* Incident Tags and Automation Rules or
+* Run Playbook Module
 * Run Playbook API
+* Incident Tags and Automation Rules or
+
+### Run Playbook Module
+
+The easiest way to perform an automated remediation playbook based on a STAT triage is to use the Run Playbook STAT Module.  This module allows for you to initiate another automation Playbook using an incident trigger on the incident you are triaging.  More information on calling this module can be found [here](/Modules/RunPlaybook/readme.md).
+
+
+### Run Playbook API
+
+Microsoft Sentinel has an API endpoint that allows for the running of a playbook on an incident.  In this approach, you would use that API endpoint to trigger the Confirm-AADRiskUser playbook
+
+[Incidents - Run Playbook API Documentation](https://docs.microsoft.com/rest/api/securityinsights/preview/incidents/run-playbook)
+
+> The Run Playbook Module uses this API, but simplifies the inputs and authentication needed to call it.
 
 ### Incident Tags and Automation Rules
 
@@ -23,14 +37,6 @@ In this approach, you will configure the STAT playbook to tag the incident where
 With this configuration the STAT playbook will run first, determine if a the remediation action is needed, and then only if the tag has been added will the remeidation action take place.
 
 ![Automation Rule Sample](images/remediation.jpg)
-
-### Run Playbook API
-
-Microsoft Sentinel recently introduced a new API endpoint that allows for the running of a playbook on an incident.  In this approach, you would use that API endpoint to trigger the Confirm-AADRiskUser playbook
-
-[Incidents - Run Playbook API Documentation](https://docs.microsoft.com/rest/api/securityinsights/preview/incidents/run-playbook)
-
-> Note: We will be adding a [module](https://github.com/briandelmsft/SentinelAutomationModules/issues/299) in the future to make calling this API easier from STAT.
 
 ---
 [Documentation Home](readme.md)
