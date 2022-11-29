@@ -20,5 +20,12 @@ The Playbook starts on a Sentinel Incident creation rule trigger and then starts
 
 ![Screenshot of Logic Apps designer](images/sampletriage.png)
 
+## Adding Additional STAT Modules
+
+The sample playbook only makes use of a few of the STAT modules available to you.  To add additional STAT modules to this, or other playbooks you can add additional actions.  When adding a new action, select the Custom tab.  Typically you will see the Sentinel Triage AssistanT right away, but if you have other custom connectors and you cannot locate it, search for Sentinel Triage or STAT to narrow your results.
+
+![STAT Connector View](images/statconnector.jpg)
+
+
 ---
 [Documentation Home](readme.md)
