@@ -28,6 +28,7 @@ Trigger name: **triage**
 |HashesThreatList|List of known threat for hashes parsed witht the function FileProfile()|
 |MaximumGlobalPrevalence|Highest global prevalence score found in the FileProfile() output|
 |MinimumGlobalPrevalence|Lowest global prevalence score found in the FileProfile() output|
+|ModuleName|The internal Name of the Playbook|
 |DetailedResults|An array of Files and HashFiles|
 
 ## Sample Return
@@ -42,6 +43,7 @@ Trigger name: **triage**
     "HashesThreatList": [],
     "MaximumGlobalPrevalence": 948591,
     "MinimumGlobalPrevalence": 751340,
+    "ModuleName": "FileModule",
     "DetailedResults": [
     {
         "EmailAttachmentCount": 0,

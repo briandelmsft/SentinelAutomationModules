@@ -32,7 +32,10 @@
             "type": "array",
             "description" : "List of known threat for hashes parsed witht the function FileProfile()",
             "items": {}
-        },        
+        },
+        "ModuleName": {
+            "type": "string"
+        },
         "DetailedResults": {
             "description" : "Array of detailed results for files and hashes" ,
             "items": {

@@ -53,7 +53,7 @@
                             "type": "Object"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.0.6",
+                            "defaultValue": "0.0.7",
                             "type": "String"
                         },
                         "PlaybookInternalName": {
@@ -193,7 +193,8 @@
                                             "AllEntityInvestigationPriorityMax": "@body('Filter_array_-_Total')[0]['InvestigationPriorityMax']",
                                             "AllEntityInvestigationPrioritySum": "@body('Filter_array_-_Total')[0]['InvestigationPrioritySum']",
                                             "DetailedResults": "@body('Filter_array_-_Exclude_Total')",
-                                            "InvestigationPrioritiesFound": true
+                                            "InvestigationPrioritiesFound": true,
+                                            "ModuleName": "@{parameters('PlaybookInternalName')}"
                                         },
                                         "statusCode": 200
                                     }
@@ -231,7 +232,8 @@
                                                 "AllEntityInvestigationPriorityMax": 0,
                                                 "AllEntityInvestigationPrioritySum": 0,
                                                 "DetailedResults": [],
-                                                "InvestigationPrioritiesFound": false
+                                                "InvestigationPrioritiesFound": false,
+                                                "ModuleName": "@{parameters('PlaybookInternalName')}"
                                             },
                                             "statusCode": 200
                                         }

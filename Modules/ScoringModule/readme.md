@@ -12,6 +12,9 @@ This module will take the outputs from other STAT modules and calculate a cumula
 * KQL Module
 * Threat Intelligence Module
 * Watchlist Module
+* User Entity Behavior Analytics Module
+* File Module
+* Microsoft Defender for Cloud Apps Module
 * Custom Content Scoring
 
 ### AAD Risks Scoring
@@ -64,6 +67,18 @@ When scoring the Threat Intelligence Module if ScorePerItem=True then the return
 ### Watchlist Module Scoring
 
 When scoring the Watchlist Module if ScorePerItem=True then the returned score will be 10 * WatchlistMatchCount * ScoreMultiplier.  If ScorePerItem=False the returned score will be 10 * ScoreMultiplier if 1 or more watchlist match is found
+
+### UEBA Module Scoring
+
+When scoring the UEBA module, if ScorePerItem=True each account entity is assessed and the score will be calculated as InvestigationPriorityMax * ScoreMultiplier.  If ScorePerItem=False the returned score will be AllEntityInvestigationPriorityMax * ScoreMultiplier
+
+### File Module Scoring
+
+When scoring the File Module the calculated score is based on (HashesLinkedToThreatCount * 10 * ScoreMultiplier) + (HashesInvalidSignatureCount * 5 * ScoreMultiplier).  The ScorePerItem setting has no impact on the scoring of this module.
+
+### MDCA Module Scoring
+
+When scoring the MDCA module, if ScorePerItem=True the score is calculated based on (AboveThresholdCount * 10 * ScoreMultiplier).  If ScorePerItem=False, the score is calculated if the AboveThresholdCount > 0 as (10 * ScoreMultiplier).
 
 ### Custom Content Scoring
 
