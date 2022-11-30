@@ -28,6 +28,7 @@ $RunPlaybookLogicAppName = "Run-Playbook"          # Name of the Run-Playbook Lo
 $ScoringLogicAppName = "Calculate-RiskScore"       # Name of the Risk Scoring Logic App
 $TILogicAppName = "Get-ThreatIntel"                # Name of the TI Logic App
 $WatchlistLogicAppName = "Get-WatchlistInsights"   # Name of the Watchlists Logic App
+$SampleLogicAppName="Sample-STAT-Triage"           #Name of the Sample Logic App
 
 # Additional options
 $LogicAppPrefix = ""                               # Adds a prefix to all Logic App names
@@ -50,7 +51,7 @@ function Set-APIPermissions ($MSIName, $AppId, $PermissionName) {
     $MSI = Get-AppIds -AppName $MSIName
     if ( $MSI.count -gt 1 )
     {
-        Write-Host "`t❌ Found multiple principals with the same name." -ForegroundColor Red
+        Write-Host "❌ Found multiple principals with the same name." -ForegroundColor Red
         return 
     } 
     Start-Sleep -Seconds 2 # Wait in case the MSI identity creation tool some time
