@@ -53,7 +53,10 @@ function Set-APIPermissions ($MSIName, $AppId, $PermissionName) {
     {
         Write-Host "❌ Found multiple principals with the same name." -ForegroundColor Red
         return 
-    } 
+    } elseif ( $MSI.count -eq 0 ) {
+        Write-Host "❌ Principal not found." -ForegroundColor Red
+        return 
+    }
     Start-Sleep -Seconds 2 # Wait in case the MSI identity creation tool some time
     $GraphServicePrincipal = Get-MgServicePrincipal -Filter "appId eq '$AppId'"
     $AppRole = $GraphServicePrincipal.AppRoles | Where-Object {$_.Value -eq $PermissionName -and $_.AllowedMemberTypes -contains "Application"}
@@ -79,6 +82,9 @@ function Set-RBACPermissions ($MSIName, $Role) {
     if ( $MSI.count -gt 1 )
     {
         Write-Host "❌ Found multiple principals with the same name." -ForegroundColor Red
+        return 
+    } elseif ( $MSI.count -eq 0 ) {
+        Write-Host "❌ Principal not found." -ForegroundColor Red
         return 
     }
     $Assign = New-AzRoleAssignment -ApplicationId $MSI.AppId -Scope "/subscriptions/$($AzureSubscriptionId)/resourceGroups/$($SentinelResourceGroupName)" -RoleDefinitionName $Role -ErrorAction SilentlyContinue -ErrorVariable AzError
