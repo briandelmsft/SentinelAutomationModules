@@ -66,7 +66,12 @@ function Set-APIPermissions ($MSIName, $AppId, $PermissionName) {
     }
     catch
     {
-        Write-Host "❌ $($_.Exception.Message)" -ForegroundColor Red
+        if ( $_.Exception.Message -eq "Permission being assigned already exists on the object" )
+        {
+            Write-Host "ℹ️ $($_.Exception.Message)"
+        } else {
+            Write-Host "❌ $($_.Exception.Message)" -ForegroundColor Red
+        }
         return
     }
     Write-Host "✅ Permission granted" -ForegroundColor Green
@@ -91,6 +96,8 @@ function Set-RBACPermissions ($MSIName, $Role) {
     if ( $Assign -ne $null )
     {
         Write-Host "✅ Role added" -ForegroundColor Green
+    } elseif ( $AzError[0].Exception.Message -like "*Conflict*" ) {
+        Write-Host "ℹ️ Permissions already assigned"
     } else {
         Write-Host "❌ $($AzError[0].Exception.Message)" -ForegroundColor Red
     }
