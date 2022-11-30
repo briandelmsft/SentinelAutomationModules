@@ -7,7 +7,7 @@
 
 # Required Permissions
 #  - Azure AD Global Administrator or an Azure AD Privileged Role Administrator to execute the Set-APIPermissions function
-#  - Resource Group Owner or User Access Administrator on the Microsoft Sentinel resource group to execute the Set-RBACPermissions function you will need either 
+#  - Resource Group Owner or User Access Administrator on the Microsoft Sentinel resource group to execute the Set-RBACPermissions function
 
 # Enter your tenant and subscrition details below:
 $TenantId = ""
