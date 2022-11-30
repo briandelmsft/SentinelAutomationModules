@@ -7,6 +7,16 @@
             "isWizard": true,
             "basics": {
                 "description": "## Microsoft Sentinel Triage AssistanT (STAT) Deployment\nThe Microsoft Sentinel Triage AssistanT is designed to help build automated triages for Microsoft Sentinel Incidents to optimize the efficiency of your security operations. This deployment will allow you to deploy the necessary resources to use the STAT tool.\n ### Post Deployment \nAfter deploying this template, ensure to run the [GrantPermissions.ps1](https://github.com/briandelmsft/SentinelAutomationModules/blob/main/Deploy/GrantPermissions.ps1) script to grant permissions to the STAT modules.  It may take up to 15 minutes for the permissions to become effective.",
+                "resourceGroup": {
+                    "constraints": {
+                        "validations": [
+                            {
+                                "permission": "Microsoft.Logic/workflows/write",
+                                "message": "You must have permission to create and update Logic Apps"
+                            }
+                        ]
+                    }
+                },
                 "location": {
                     "label": "Location",
                     "toolTip": "Location for all resources",
@@ -299,15 +309,6 @@
                                 "visible": true
                             },
                             {
-                                "name": "DeployConnector",
-                                "type": "Microsoft.Common.CheckBox",
-                                "label": "Deploy the STAT Logic Apps Custom Connector",
-                                "defaultValue": false,
-                                "toolTip": "",
-                                "constraints": {},
-                                "visible": true
-                            },
-                            {
                                 "name": "STATCoordinatorPlaybookName",
                                 "type": "Microsoft.Common.TextBox",
                                 "label": "STAT Coordinator Playbook Name",
@@ -315,7 +316,7 @@
                                 "defaultValue": "STAT-Coordinator",
                                 "toolTip": "",
                                 "constraints": {},
-                                "visible": "[if(steps('automationModules').advancedSetup.DeployConnector, true, false)]"
+                                "visible": true
                             },
                             {
                                 "name": "CustomConnectorName",
@@ -325,7 +326,7 @@
                                 "defaultValue": "SentinelTriageAssistant",
                                 "toolTip": "",
                                 "constraints": {},
-                                "visible": "[if(steps('automationModules').advancedSetup.DeployConnector, true, false)]"
+                                "visible": true
                             },
                             {
                                 "name": "CustomConnectorDisplayName",
@@ -335,7 +336,7 @@
                                 "defaultValue": "Sentinel Triage AssistanT - STAT",
                                 "toolTip": "",
                                 "constraints": {},
-                                "visible": "[if(steps('automationModules').advancedSetup.DeployConnector, true, false)]"
+                                "visible": true
                             },
                             {
                                 "name": "DeployWorkbook",
@@ -355,6 +356,16 @@
                                 "toolTip": "",
                                 "constraints": {},
                                 "visible": "[if(steps('automationModules').advancedSetup.DeployWorkbook, true, false)]"
+                            },
+                            {
+                                "name": "DeploymentBranch",
+                                "type": "Microsoft.Common.TextBox",
+                                "label": "Deploy from a specific GitHub Branch",
+                                "placeholder": "",
+                                "defaultValue": "main",
+                                "toolTip": "",
+                                "constraints": {},
+                                "visible": true
                             }
                         ],
                         "visible": "[if(equals(steps('deploymentTypeStep').deploymentType, 'advanced'), true, false)]"
@@ -392,7 +403,7 @@
                         "defaultValue": false,
                         "toolTip": "",
                         "constraints": {},
-                        "visible": "[or(if(steps('automationModules').advancedSetup.DeployConnector, true, false), if(equals(steps('deploymentTypeStep').deploymentType, 'standard'), true, false))]"
+                        "visible": true
                     },
                     {
                         "name": "BasicSamplePlaybookName",
@@ -402,7 +413,7 @@
                         "defaultValue": "Sample-STAT-Triage",
                         "toolTip": "",
                         "constraints": {},
-                        "visible": "[and(steps('sampleStep').DeployBasicSamplePlaybook,or(if(steps('automationModules').advancedSetup.DeployConnector, true, false), if(equals(steps('deploymentTypeStep').deploymentType, 'standard'), true, false)))]"
+                        "visible": "[if(steps('sampleStep').DeployBasicSamplePlaybook, true, false)]"
                     }
                 ]
             }
@@ -426,9 +437,10 @@
             "STATCoordinatorPlaybookName": "[coalesce(steps('automationModules').advancedSetup.STATCoordinatorPlaybookName,'STAT-Coordinator')]",
             "CustomConnectorName": "[coalesce(steps('automationModules').advancedSetup.CustomConnectorName,'SentinelTriageAssistant')]",
             "CustomConnectorDisplayName": "[coalesce(steps('automationModules').advancedSetup.CustomConnectorDisplayName,'Sentinel Triage AssistanT - STAT')]",
-            "DeployConnector": "[coalesce(steps('automationModules').advancedSetup.DeployConnector,steps('automationModules').standardSetup.DeployConnector)]",
+            "DeployConnector": true,
             "WorkbookName": "[coalesce(steps('automationModules').advancedSetup.WorkbookDisplayName,'Sentinel Triage AssistanT - Status')]",
-            "DeployWorkbook": "[coalesce(steps('automationModules').advancedSetup.DeployWorkbook, steps('automationModules').standardSetup.DeployConnector)]",
+            "DeployWorkbook": "[coalesce(steps('automationModules').advancedSetup.DeployWorkbook, true)]",
+            "DeploymentBranch": "[coalesce(steps('automationModules').advancedSetup.DeploymentBranch,'main')]",
             "location": "[location()]"
         }
     }

@@ -25,6 +25,7 @@ This module will check the incident account entities to see if there are any Use
 |AllEntityInvestigationPrioritySum|Sum of investigation priority of all related BehaviorAnalytics records|
 |DetailedResults|An array of UEBA investigration priority values by UserPrincipalName|
 |InvestigationPrioritiesFound|true if any investigation priorities are found in all related BehaviorAnalytics records, otherwise false|
+|ModuleName|The internal Name of the Playbook|
 
 ## Sample Return
 
@@ -51,6 +52,7 @@ This module will check the incident account entities to see if there are any Use
     }
   ],
   "InvestigationPrioritiesFound": true,
+  "ModuleName": "UEBAModule"
 }
 ```
 

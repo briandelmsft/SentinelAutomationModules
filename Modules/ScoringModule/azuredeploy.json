@@ -53,7 +53,7 @@
                             "type": "Object"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.0.6",
+                            "defaultValue": "0.0.7",
                             "type": "String"
                         },
                         "PlaybookInternalName": {
@@ -129,21 +129,12 @@
                                             }
                                         },
                                         "Detailed_Results_Table": {
-                                            "runAfter": {
-                                                "TEMP_-_Sort_Query": [
-                                                    "Succeeded"
-                                                ]
-                                            },
+                                            "runAfter": {},
                                             "type": "Table",
                                             "inputs": {
                                                 "format": "HTML",
                                                 "from": "@variables('DetailedResults')"
                                             }
-                                        },
-                                        "TEMP_-_Sort_Query": {
-                                            "runAfter": {},
-                                            "type": "Compose",
-                                            "inputs": "//Potential KQL query to sort output\n\nlet tableData = @'@{replace(string(variables('DetailedResults')), '''', '''''')}';\nlet tableEntries = datatable(temp:string)['']\n| extend Entries = parse_json(tableData)\n| mv-expand todynamic(Entries)\n| project Score = todecimal(Entries.Score), ScoreSource = tostring(Entries.ScoreSource)\n| sort by Score, ScoreSource desc;\ntableEntries"
                                         }
                                     },
                                     "runAfter": {
@@ -614,13 +605,87 @@
                                         "Case_-_FileModule": {
                                             "case": "FileModule",
                                             "actions": {
-                                                "Set_variable_invalidModule_-_FileModule": {
+                                                "Hash_Threats": {
+                                                    "actions": {
+                                                        "Append_to_DetailedResults_-_Threat_Hash": {
+                                                            "runAfter": {
+                                                                "Increment_scoreTotal_-_Threat_Hash": [
+                                                                    "Succeeded"
+                                                                ]
+                                                            },
+                                                            "type": "AppendToArrayVariable",
+                                                            "inputs": {
+                                                                "name": "DetailedResults",
+                                                                "value": {
+                                                                    "Score": "@mul(mul(item()['ModuleBody']['HashesLinkedToThreatCount'],10),item()['ScoreMultiplier'])",
+                                                                    "ScoreSource": "@{items('For_each')['ScoreLabel']} - Hash linked to threat"
+                                                                }
+                                                            }
+                                                        },
+                                                        "Increment_scoreTotal_-_Threat_Hash": {
+                                                            "runAfter": {},
+                                                            "type": "IncrementVariable",
+                                                            "inputs": {
+                                                                "name": "scoreTotal",
+                                                                "value": "@mul(mul(item()['ModuleBody']['HashesLinkedToThreatCount'],10),item()['ScoreMultiplier'])"
+                                                            }
+                                                        }
+                                                    },
                                                     "runAfter": {},
-                                                    "type": "SetVariable",
-                                                    "inputs": {
-                                                        "name": "invalidModule",
-                                                        "value": true
-                                                    }
+                                                    "expression": {
+                                                        "and": [
+                                                            {
+                                                                "greater": [
+                                                                    "@item()['ModuleBody']['HashesLinkedToThreatCount']",
+                                                                    0
+                                                                ]
+                                                            }
+                                                        ]
+                                                    },
+                                                    "type": "If"
+                                                },
+                                                "Invalid_Signature": {
+                                                    "actions": {
+                                                        "Append_to_DetailedResults_-_Invalid_Signature": {
+                                                            "runAfter": {
+                                                                "Increment_scoreTotal_-_Invalid_Signature": [
+                                                                    "Succeeded"
+                                                                ]
+                                                            },
+                                                            "type": "AppendToArrayVariable",
+                                                            "inputs": {
+                                                                "name": "DetailedResults",
+                                                                "value": {
+                                                                    "Score": "@mul(mul(item()['ModuleBody']['HashesInvalidSignatureCount'],5),item()['ScoreMultiplier'])",
+                                                                    "ScoreSource": "@{items('For_each')['ScoreLabel']} - Invalid Signatures"
+                                                                }
+                                                            }
+                                                        },
+                                                        "Increment_scoreTotal_-_Invalid_Signature": {
+                                                            "runAfter": {},
+                                                            "type": "IncrementVariable",
+                                                            "inputs": {
+                                                                "name": "scoreTotal",
+                                                                "value": "@mul(mul(item()['ModuleBody']['HashesInvalidSignatureCount'],5),item()['ScoreMultiplier'])"
+                                                            }
+                                                        }
+                                                    },
+                                                    "runAfter": {
+                                                        "Hash_Threats": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "expression": {
+                                                        "and": [
+                                                            {
+                                                                "greater": [
+                                                                    "@item()['ModuleBody']['HashesInvalidSignatureCount']",
+                                                                    0
+                                                                ]
+                                                            }
+                                                        ]
+                                                    },
+                                                    "type": "If"
                                                 }
                                             }
                                         },
@@ -686,12 +751,27 @@
                                         "Case_-_MCASModule": {
                                             "case": "MCASModule",
                                             "actions": {
-                                                "Set_variable_invalidModule_-_MCASModule": {
-                                                    "runAfter": {},
-                                                    "type": "SetVariable",
+                                                "Append_to_DetailedResults_-_MCAS": {
+                                                    "runAfter": {
+                                                        "Increment_scoreTotal_-_MCAS": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "AppendToArrayVariable",
                                                     "inputs": {
-                                                        "name": "invalidModule",
-                                                        "value": true
+                                                        "name": "DetailedResults",
+                                                        "value": {
+                                                            "Score": "@if(item()['ScorePerItem'], mul(mul(10, item()['ModuleBody']['AboveThreholdCount']),item()['ScoreMultiplier']), if(greater(item()['ModuleBody']['AboveThreholdCount'],0),mul(10, item()['ScoreMultiplier']),0))",
+                                                            "ScoreSource": "@{items('For_each')['ScoreLabel']}"
+                                                        }
+                                                    }
+                                                },
+                                                "Increment_scoreTotal_-_MCAS": {
+                                                    "runAfter": {},
+                                                    "type": "IncrementVariable",
+                                                    "inputs": {
+                                                        "name": "scoreTotal",
+                                                        "value": "@if(item()['ScorePerItem'], mul(mul(10, item()['ModuleBody']['AboveThreholdCount']),item()['ScoreMultiplier']), if(greater(item()['ModuleBody']['AboveThreholdCount'],0),mul(10, item()['ScoreMultiplier']),0))"
                                                     }
                                                 }
                                             }
@@ -1303,13 +1383,78 @@
                                         "Case_-_UEBAModule": {
                                             "case": "UEBAModule",
                                             "actions": {
-                                                "Set_variable_invalidModule_-_UEBA": {
+                                                "UEBA_ScorePerItem": {
+                                                    "actions": {
+                                                        "For_each_UEBA": {
+                                                            "foreach": "@item()['ModuleBody']['DetailedResults']",
+                                                            "actions": {
+                                                                "Append_to_DetailedResults_-_UEBA_Per_Item": {
+                                                                    "runAfter": {
+                                                                        "Increment_scoreTotal_-_UEBA_Per_Item": [
+                                                                            "Succeeded"
+                                                                        ]
+                                                                    },
+                                                                    "type": "AppendToArrayVariable",
+                                                                    "inputs": {
+                                                                        "name": "DetailedResults",
+                                                                        "value": {
+                                                                            "Score": "@mul(item()['InvestigationPriorityMax'],items('For_each')['ScoreMultiplier'])",
+                                                                            "ScoreSource": "@{items('For_each')['ScoreLabel']} - @{items('For_each_UEBA')['UserPrincipalName']}"
+                                                                        }
+                                                                    }
+                                                                },
+                                                                "Increment_scoreTotal_-_UEBA_Per_Item": {
+                                                                    "runAfter": {},
+                                                                    "type": "IncrementVariable",
+                                                                    "inputs": {
+                                                                        "name": "scoreTotal",
+                                                                        "value": "@mul(item()['InvestigationPriorityMax'],items('For_each')['ScoreMultiplier'])"
+                                                                    }
+                                                                }
+                                                            },
+                                                            "runAfter": {},
+                                                            "type": "Foreach"
+                                                        }
+                                                    },
                                                     "runAfter": {},
-                                                    "type": "SetVariable",
-                                                    "inputs": {
-                                                        "name": "invalidModule",
-                                                        "value": true
-                                                    }
+                                                    "else": {
+                                                        "actions": {
+                                                            "Append_to_DetailedResults_-_UEBA": {
+                                                                "runAfter": {
+                                                                    "Increment_scoreTotal_-_UEBA": [
+                                                                        "Succeeded"
+                                                                    ]
+                                                                },
+                                                                "type": "AppendToArrayVariable",
+                                                                "inputs": {
+                                                                    "name": "DetailedResults",
+                                                                    "value": {
+                                                                        "Score": "@mul(item()['ModuleBody']['AllEntityInvestigationPriorityMax'],item()['ScoreMultiplier'])",
+                                                                        "ScoreSource": "@{items('For_each')['ScoreLabel']}"
+                                                                    }
+                                                                }
+                                                            },
+                                                            "Increment_scoreTotal_-_UEBA": {
+                                                                "runAfter": {},
+                                                                "type": "IncrementVariable",
+                                                                "inputs": {
+                                                                    "name": "scoreTotal",
+                                                                    "value": "@mul(item()['ModuleBody']['AllEntityInvestigationPriorityMax'],item()['ScoreMultiplier'])"
+                                                                }
+                                                            }
+                                                        }
+                                                    },
+                                                    "expression": {
+                                                        "and": [
+                                                            {
+                                                                "equals": [
+                                                                    "@items('For_each')['ScorePerItem']",
+                                                                    true
+                                                                ]
+                                                            }
+                                                        ]
+                                                    },
+                                                    "type": "If"
                                                 }
                                             }
                                         },

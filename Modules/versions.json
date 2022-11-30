@@ -1,15 +1,15 @@
 {
     "AADRisksModule": "0.0.6",
     "BaseModule": "0.4.0",
-    "FileModule": "0.0.3",
+    "FileModule": "0.0.4",
     "KQLModule": "0.1.4",
     "MCASModule": "0.0.7",
     "MDEModule": "0.1.4",
     "OOFModule": "0.0.3",
     "RelatedAlerts": "0.2.1",
     "RunPlaybook": "0.0.1",
-    "ScoringModule": "0.0.6",
+    "ScoringModule": "0.0.7",
     "TIModule": "0.1.1",
-    "UEBAModule": "0.0.6",
+    "UEBAModule": "0.0.7",
     "WatchlistModule": "0.0.7"
 }

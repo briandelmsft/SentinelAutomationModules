@@ -57,7 +57,8 @@
                                 "HashesNotMicrosoftSignedCount": "@variables('HashesNotMicrosoftSignedCount')",
                                 "HashesThreatList": "@variables('HashesThreatList')",
                                 "MaximumGlobalPrevalence": "@max(variables('GlobalPrevalence'))",
-                                "MinimumGlobalPrevalence": "@min(variables('GlobalPrevalence'))"
+                                "MinimumGlobalPrevalence": "@min(variables('GlobalPrevalence'))",
+                                "ModuleName": "@{parameters('PlaybookInternalName')}"
                             },
                             "runAfter": {
                                 "For_each_File": [
@@ -177,7 +178,8 @@
                                             "HashesNotMicrosoftSignedCount": 0,
                                             "HashesThreatList": [],
                                             "MaximumGlobalPrevalence": 0,
-                                            "MinimumGlobalPrevalence": 0
+                                            "MinimumGlobalPrevalence": 0,
+                                            "ModuleName": "@{parameters('PlaybookInternalName')}"
                                         },
                                         "statusCode": 200
                                     },
@@ -1089,7 +1091,7 @@
                             "type": "String"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.0.3",
+                            "defaultValue": "0.0.4",
                             "type": "String"
                         },
                         "ProjectName": {
