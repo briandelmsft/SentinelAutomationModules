@@ -97,7 +97,7 @@ function Set-RBACPermissions ($MSIName, $Role) {
     {
         Write-Host "✅ Role added" -ForegroundColor Green
     } elseif ( $AzError[0].Exception.Message -like "*Conflict*" ) {
-        Write-Host "ℹ️ Permissions already assigned"
+        Write-Host "ℹ️ Role already assigned"
     } else {
         Write-Host "❌ $($AzError[0].Exception.Message)" -ForegroundColor Red
     }
