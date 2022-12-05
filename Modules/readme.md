@@ -1,6 +1,6 @@
 # Automation Modules Home
 
-Automation Modules make it easier to perform routine tasks by using a common set of callable Logic Apps.  Modules should typically be deployed through the [deployment template](/Deploy/readme.md), but individual deployment templates and other information on each module can be found in these subdirectories.
+Automation Modules make it easier to perform routine tasks by using a common set of callable Logic Apps.
 
 ## Available Modules
 
@@ -69,3 +69,7 @@ The Risk Scoring module takes the output from other STAT modules to calculate a 
 ### Run Playbook
 
 The Run Playbook module can be used to invoke other Microsoft Sentinel Playbooks.  In situations where you are analyzing an incident using STAT, under certain conditions you may want to initiate other playbooks instead of incorporating the logic of those playbooks into your main STAT triage playbooks.  This module allows you to reuse other playbooks as needed during an incident triage.
+
+## Deployment
+
+To deploy the Sentinel Triage AssistanT visit the [deployment documentation](/Docs/deployment.md).

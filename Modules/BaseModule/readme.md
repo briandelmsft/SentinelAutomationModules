@@ -179,13 +179,6 @@ The base module must be called before any other modules in this solution.  It pe
 
 This version adds enrichments about MFA and SSPR status to account entities.  This enrichments requires the additional graph permission of Reports.Read.All.  If you are upgrading from a previous version, you will need to add this additional permissions using the GrantPermissions.ps1 PowerShell script.  If this permissions is not added, the module will return *Unknown* for the SSPR and MFA status of the account.
 
-## Advanced Deployment
+## Deployment
 
-Deployment of the Sentinel Triage AssistanT should typically be performed from the [deployment template](/Deploy/readme.md), however in some cases you may wish to deploy an individual module below.
-
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fbriandelmsft%2FSentinelAutomationModules%2Fmain%2FModules%2FBaseModule%2Fazuredeploy.json)
-
-## Post Deployment
-
-* Grant the Logic app managed identity access to the Microsoft Graph application permissions User.Read.All, Reports.Read.All and RoleManagement.Read.Directory (GrantPermissions.ps1)
-* Grant the Logic app Microsoft Sentinel Responder RBAC role on the resource group containing Microsoft Sentinel (GrantPermissions.ps1)
+To deploy the Sentinel Triage AssistanT visit the [deployment documentation](/Docs/deployment.md).
