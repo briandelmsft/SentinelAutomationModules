@@ -16,7 +16,12 @@ Note that you can leverage the [Sentinel Triage AssistanT - Status workbook](/Wo
 
 ## GrantPermissions.ps1 failures
 
-The script will fail to set Graph API permissions on the system-assigned managed identities if you use an account which is not a member of the Global Administrator role or User Access Administrator role. See the [deploymenet documentation](Deploy#grant-permissions) for more details.
+The script will fail to set Graph API permissions on the system-assigned managed identities if you use an account which is not a member of the Global Administrator role or User Access Administrator role. See the [deployment documentation](Deploy#grant-permissions) for more details.
+
+If you run into permissions or consent issues with the GrantPermissions.ps1, you can try using the [LegacyGrantPermissions.ps1](/Deploy/LegacyGrantPermissions.ps1). It levarages the legacy AzureAD PowerShell module and doesn't require explict consent for the scope `AppRoleAssignment.ReadWrite.All`. 
+
+
+## LegacyGrantPermissions.ps1 failures
 
 See the following table for specific failure troubleshooting.
 |Error|Troubleshooting steps|
