@@ -44,13 +44,6 @@ This module will check the incidient entities to see if a user has configured Au
 }
 ```
 
-## Advanced Deployment
+## Deployment
 
-Deployment of the Sentinel Triage AssistanT should typically be performed from the [deployment template](/Deploy/readme.md), however in some cases you may wish to deploy an individual module below.
-
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fbriandelmsft%2FSentinelAutomationModules%2Fmain%2FModules%2FOOFModule%2Fazuredeploy.json)
-
-## Post Deployment
-
-* Grant the Logic app managed identity access to the Microsoft Graph application permissions MailboxSettings.Read (GrantPermissions.ps1)
-* Grant the Logic app Microsoft Sentinel Responder RBAC role on the resource group containing Microsoft Sentinel (GrantPermissions.ps1)
+To deploy the Sentinel Triage AssistanT visit the [deployment documentation](/Docs/deployment.md).

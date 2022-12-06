@@ -24,13 +24,6 @@ This module does not return a Body unless there is an error, but a status code i
 |200|The called playbook successfully started|
 |500|An error caused the called playbook from starting.  This is usually due to the Run-Playbook managed identity not having Microsoft Sentinel Responder on the Sentinel resource groupp or Microsoft Sentinel (Azure Security Insights) not having the Microsoft Sentinel Automation Contributor role on the resource group where the Playbook is located|
 
-## Advanced Deployment
+## Deployment
 
-Deployment of the Sentinel Triage AssistanT should typically be performed from the [deployment template](/Deploy/readme.md), however in some cases you may wish to deploy an individual module below.
-
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fbriandelmsft%2FSentinelAutomationModules%2Fmain%2FModules%2FRunPlaybook%2Fazuredeploy.json)
-
-## Post Deployment
-
-* Grant the Logic app Microsoft Sentinel Responder RBAC role on the resource group containing Microsoft Sentinel (GrantPermissions.ps1)
-* Grant Microsoft Sentinel (Azure Security Insights) the Microsoft Sentinel Automation Contributor role on the Resource Groups of the Playbook you want to run
+To deploy the Sentinel Triage AssistanT visit the [deployment documentation](/Docs/deployment.md).

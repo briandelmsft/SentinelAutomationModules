@@ -91,15 +91,6 @@ This module will return the risk score and exposure level from Microsoft Defende
 }
 ```
 
+## Deployment
 
-## Advanced Deployment
-
-Deployment of the Sentinel Triage AssistanT should typically be performed from the [deployment template](/Deploy/readme.md), however in some cases you may wish to deploy an individual module below.
-
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fbriandelmsft%2FSentinelAutomationModules%2Fmain%2FModules%2FMDEModule%2Fazuredeploy.json)
-
-## Post Deployment
-
-* Grant the Logic app managed identity access to the Microsoft Graph application permissions User.Read.All (GrantPermissions.ps1)
-* Grant the Logic app managed identity access to the Microsoft Defender API permissions Machine.Read.All and AdvancedQuery.Read.All (GrantPermissions.ps1)
-* Grant the Logic app Microsoft Sentinel Responder RBAC role on the resource group containing Microsoft Sentinel (GrantPermissions.ps1)
+To deploy the Sentinel Triage AssistanT visit the [deployment documentation](/Docs/deployment.md).

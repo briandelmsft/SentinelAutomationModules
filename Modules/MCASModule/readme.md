@@ -57,12 +57,9 @@ This module will get the MCAS Investigation Score of the account entities of the
   "ModuleName": "MCASModule"
 }
 ```
+## Deployment
 
-## Advanced Deployment
-
-Deployment of the Sentinel Triage AssistanT should typically be performed from the [deployment template](/Deploy/readme.md), however in some cases you may wish to deploy an individual module below.
-
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fbriandelmsft%2FSentinelAutomationModules%2Fmain%2FModules%2FMCASModule%2Fazuredeploy.json)
+To deploy the Sentinel Triage AssistanT visit the [deployment documentation](/Docs/deployment.md).
 
 ## Post Deployment
 
