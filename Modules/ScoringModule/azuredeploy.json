@@ -53,7 +53,7 @@
                             "type": "Object"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.0.8",
+                            "defaultValue": "0.0.9",
                             "type": "String"
                         },
                         "PlaybookInternalName": {
@@ -717,6 +717,43 @@
                                                             {
                                                                 "greater": [
                                                                     "@item()['ModuleBody']['HashesInvalidSignatureCount']",
+                                                                    0
+                                                                ]
+                                                            }
+                                                        ]
+                                                    },
+                                                    "type": "If"
+                                                },
+                                                "No_Threats": {
+                                                    "actions": {
+                                                        "Append_to_array_-_No_File_Threats": {
+                                                            "runAfter": {},
+                                                            "type": "AppendToArrayVariable",
+                                                            "inputs": {
+                                                                "name": "DetailedResults",
+                                                                "value": {
+                                                                    "Score": 0,
+                                                                    "ScoreSource": "@{outputs('Label')} - No file threats found"
+                                                                }
+                                                            }
+                                                        }
+                                                    },
+                                                    "runAfter": {
+                                                        "Invalid_Signature": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "expression": {
+                                                        "and": [
+                                                            {
+                                                                "equals": [
+                                                                    "@items('For_each')['ModuleBody']['HashesInvalidSignatureCount']",
+                                                                    0
+                                                                ]
+                                                            },
+                                                            {
+                                                                "equals": [
+                                                                    "@items('For_each')['ModuleBody']['HashesLinkedToThreatCount']",
                                                                     0
                                                                 ]
                                                             }
@@ -1422,35 +1459,66 @@
                                             "actions": {
                                                 "UEBA_ScorePerItem": {
                                                     "actions": {
-                                                        "For_each_UEBA": {
-                                                            "foreach": "@item()['ModuleBody']['DetailedResults']",
+                                                        "UEBA_-_Results_Found": {
                                                             "actions": {
-                                                                "Append_to_DetailedResults_-_UEBA_Per_Item": {
-                                                                    "runAfter": {
-                                                                        "Increment_scoreTotal_-_UEBA_Per_Item": [
-                                                                            "Succeeded"
-                                                                        ]
-                                                                    },
-                                                                    "type": "AppendToArrayVariable",
-                                                                    "inputs": {
-                                                                        "name": "DetailedResults",
-                                                                        "value": {
-                                                                            "Score": "@mul(item()['InvestigationPriorityMax'],outputs('Multiplier'))",
-                                                                            "ScoreSource": "@{outputs('Label')} - @{items('For_each_UEBA')['UserPrincipalName']}"
+                                                                "For_each_UEBA": {
+                                                                    "foreach": "@item()['ModuleBody']['DetailedResults']",
+                                                                    "actions": {
+                                                                        "Append_to_DetailedResults_-_UEBA_Per_Item": {
+                                                                            "runAfter": {
+                                                                                "Increment_scoreTotal_-_UEBA_Per_Item": [
+                                                                                    "Succeeded"
+                                                                                ]
+                                                                            },
+                                                                            "type": "AppendToArrayVariable",
+                                                                            "inputs": {
+                                                                                "name": "DetailedResults",
+                                                                                "value": {
+                                                                                    "Score": "@mul(item()['InvestigationPriorityMax'],outputs('Multiplier'))",
+                                                                                    "ScoreSource": "@{outputs('Label')} - @{items('For_each_UEBA')['UserPrincipalName']}"
+                                                                                }
+                                                                            }
+                                                                        },
+                                                                        "Increment_scoreTotal_-_UEBA_Per_Item": {
+                                                                            "runAfter": {},
+                                                                            "type": "IncrementVariable",
+                                                                            "inputs": {
+                                                                                "name": "scoreTotal",
+                                                                                "value": "@mul(item()['InvestigationPriorityMax'],outputs('Multiplier'))"
+                                                                            }
                                                                         }
-                                                                    }
-                                                                },
-                                                                "Increment_scoreTotal_-_UEBA_Per_Item": {
+                                                                    },
                                                                     "runAfter": {},
-                                                                    "type": "IncrementVariable",
-                                                                    "inputs": {
-                                                                        "name": "scoreTotal",
-                                                                        "value": "@mul(item()['InvestigationPriorityMax'],outputs('Multiplier'))"
-                                                                    }
+                                                                    "type": "Foreach"
                                                                 }
                                                             },
                                                             "runAfter": {},
-                                                            "type": "Foreach"
+                                                            "else": {
+                                                                "actions": {
+                                                                    "Append_to_DetailedResults_-_UEBA_Nothing_Found": {
+                                                                        "runAfter": {},
+                                                                        "type": "AppendToArrayVariable",
+                                                                        "inputs": {
+                                                                            "name": "DetailedResults",
+                                                                            "value": {
+                                                                                "Score": 0,
+                                                                                "ScoreSource": "@{outputs('Label')} - No related UEBA results"
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            },
+                                                            "expression": {
+                                                                "and": [
+                                                                    {
+                                                                        "greater": [
+                                                                            "@length(items('For_each')['ModuleBody']['DetailedResults'])",
+                                                                            0
+                                                                        ]
+                                                                    }
+                                                                ]
+                                                            },
+                                                            "type": "If"
                                                         }
                                                     },
                                                     "runAfter": {},
