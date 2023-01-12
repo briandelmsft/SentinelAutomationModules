@@ -53,7 +53,7 @@
                             "type": "Object"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.0.7",
+                            "defaultValue": "0.0.9",
                             "type": "String"
                         },
                         "PlaybookInternalName": {
@@ -193,9 +193,13 @@
                                         "kind": "Http",
                                         "inputs": {
                                             "body": {
-                                                "Error": "Data from an unsupported module was sent to the scoring module"
+                                                "Error": "@{parameters('PlaybookInternalName')} failed to execute. Data from an unsupported module was submitted for scoring.",
+                                                "PlaybookName": "@{workflow()?['name']}",
+                                                "PlaybookResourceId": "@{workflow()?['id']}",
+                                                "PlaybookRunId": "@{workflow()?['run']?['name']}",
+                                                "PlaybookVersion": "@parameters('PlaybookVersion')"
                                             },
-                                            "statusCode": 404
+                                            "statusCode": 400
                                         }
                                     },
                                     "Terminate": {
@@ -231,9 +235,42 @@
                                     "type": "Compose",
                                     "inputs": "@item()"
                                 },
-                                "Switch_by_Module": {
+                                "Label": {
                                     "runAfter": {
                                         "DEBUG_-_Show_Item": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Compose",
+                                    "inputs": "@coalesce(items('For_each')?['ScoreLabel'],items('For_each')?['ModuleBody']?['ModuleName'],'Missing Score Label')"
+                                },
+                                "Multiplier": {
+                                    "runAfter": {
+                                        "DEBUG_-_Show_Item": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Compose",
+                                    "inputs": "@coalesce(items('For_each')?['ScoreMultiplier'], 1)"
+                                },
+                                "ScorePerItem": {
+                                    "runAfter": {
+                                        "DEBUG_-_Show_Item": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Compose",
+                                    "inputs": "@coalesce(items('For_each')?['ScorePerItem'], true)"
+                                },
+                                "Switch_by_Module": {
+                                    "runAfter": {
+                                        "Label": [
+                                            "Succeeded"
+                                        ],
+                                        "Multiplier": [
+                                            "Succeeded"
+                                        ],
+                                        "ScorePerItem": [
                                             "Succeeded"
                                         ]
                                     },
@@ -264,8 +301,8 @@
                                                                                             "inputs": {
                                                                                                 "name": "DetailedResults",
                                                                                                 "value": {
-                                                                                                    "Score": "@mul(10, items('For_each')['ScoreMultiplier'])",
-                                                                                                    "ScoreSource": "@{items('For_each')['ScoreLabel']} - @{items('For_each_aad_risk')['UserPrincipalName']}"
+                                                                                                    "Score": "@mul(10, outputs('Multiplier'))",
+                                                                                                    "ScoreSource": "@{outputs('Label')} - @{items('For_each_aad_risk')['UserPrincipalName']}"
                                                                                                 }
                                                                                             }
                                                                                         },
@@ -274,7 +311,7 @@
                                                                                             "type": "IncrementVariable",
                                                                                             "inputs": {
                                                                                                 "name": "scoreTotal",
-                                                                                                "value": "@mul(10, items('For_each')['ScoreMultiplier'])"
+                                                                                                "value": "@mul(10, outputs('Multiplier'))"
                                                                                             }
                                                                                         }
                                                                                     }
@@ -292,8 +329,8 @@
                                                                                             "inputs": {
                                                                                                 "name": "DetailedResults",
                                                                                                 "value": {
-                                                                                                    "Score": "@mul(3, items('For_each')['ScoreMultiplier'])",
-                                                                                                    "ScoreSource": "@{items('For_each')['ScoreLabel']} - @{item()['UserPrincipalName']}"
+                                                                                                    "Score": "@mul(3, outputs('Multiplier'))",
+                                                                                                    "ScoreSource": "@{outputs('Label')} - @{item()['UserPrincipalName']}"
                                                                                                 }
                                                                                             }
                                                                                         },
@@ -302,7 +339,7 @@
                                                                                             "type": "IncrementVariable",
                                                                                             "inputs": {
                                                                                                 "name": "scoreTotal",
-                                                                                                "value": "@mul(3, items('For_each')['ScoreMultiplier'])"
+                                                                                                "value": "@mul(3, outputs('Multiplier'))"
                                                                                             }
                                                                                         }
                                                                                     }
@@ -320,8 +357,8 @@
                                                                                             "inputs": {
                                                                                                 "name": "DetailedResults",
                                                                                                 "value": {
-                                                                                                    "Score": "@mul(5, items('For_each')['ScoreMultiplier'])",
-                                                                                                    "ScoreSource": "@{items('For_each')['ScoreLabel']} - @{item()['UserPrincipalName']}"
+                                                                                                    "Score": "@mul(5, outputs('Multiplier'))",
+                                                                                                    "ScoreSource": "@{outputs('Label')} - @{item()['UserPrincipalName']}"
                                                                                                 }
                                                                                             }
                                                                                         },
@@ -330,7 +367,7 @@
                                                                                             "type": "IncrementVariable",
                                                                                             "inputs": {
                                                                                                 "name": "scoreTotal",
-                                                                                                "value": "@mul(5, items('For_each')['ScoreMultiplier'])"
+                                                                                                "value": "@mul(5, outputs('Multiplier'))"
                                                                                             }
                                                                                         }
                                                                                     }
@@ -345,7 +382,7 @@
                                                                                                 "name": "DetailedResults",
                                                                                                 "value": {
                                                                                                     "Score": 0,
-                                                                                                    "ScoreSource": "@{items('For_each')['ScoreLabel']} - @{items('For_each_aad_risk')['UserPrincipalName']}"
+                                                                                                    "ScoreSource": "@{outputs('Label')} - @{items('For_each_aad_risk')['UserPrincipalName']}"
                                                                                                 }
                                                                                             }
                                                                                         }
@@ -361,7 +398,7 @@
                                                                                             "name": "DetailedResults",
                                                                                             "value": {
                                                                                                 "Score": 0,
-                                                                                                "ScoreSource": "@{items('For_each')['ScoreLabel']} - Unknown Risk Level: @{item()['UserRiskLevel']}"
+                                                                                                "ScoreSource": "@{outputs('Label')} - Unknown Risk Level: @{item()['UserRiskLevel']}"
                                                                                             }
                                                                                         }
                                                                                     }
@@ -394,8 +431,8 @@
                                                                                         "inputs": {
                                                                                             "name": "DetailedResults",
                                                                                             "value": {
-                                                                                                "Score": "@mul(10, items('For_each')['ScoreMultiplier'])",
-                                                                                                "ScoreSource": "@{items('For_each')['ScoreLabel']}"
+                                                                                                "Score": "@mul(10, outputs('Multiplier'))",
+                                                                                                "ScoreSource": "@{outputs('Label')}"
                                                                                             }
                                                                                         }
                                                                                     },
@@ -404,7 +441,7 @@
                                                                                         "type": "IncrementVariable",
                                                                                         "inputs": {
                                                                                             "name": "scoreTotal",
-                                                                                            "value": "@mul(10, items('For_each')['ScoreMultiplier'])"
+                                                                                            "value": "@mul(10, outputs('Multiplier'))"
                                                                                         }
                                                                                     }
                                                                                 }
@@ -422,8 +459,8 @@
                                                                                         "inputs": {
                                                                                             "name": "DetailedResults",
                                                                                             "value": {
-                                                                                                "Score": "@mul(3, items('For_each')['ScoreMultiplier'])",
-                                                                                                "ScoreSource": "@{items('For_each')['ScoreLabel']}"
+                                                                                                "Score": "@mul(3, outputs('Multiplier'))",
+                                                                                                "ScoreSource": "@{outputs('Label')}"
                                                                                             }
                                                                                         }
                                                                                     },
@@ -432,7 +469,7 @@
                                                                                         "type": "IncrementVariable",
                                                                                         "inputs": {
                                                                                             "name": "scoreTotal",
-                                                                                            "value": "@mul(3, items('For_each')['ScoreMultiplier'])"
+                                                                                            "value": "@mul(3, outputs('Multiplier'))"
                                                                                         }
                                                                                     }
                                                                                 }
@@ -450,8 +487,8 @@
                                                                                         "inputs": {
                                                                                             "name": "DetailedResults",
                                                                                             "value": {
-                                                                                                "Score": "@mul(5, items('For_each')['ScoreMultiplier'])",
-                                                                                                "ScoreSource": "@{items('For_each')['ScoreLabel']}"
+                                                                                                "Score": "@mul(5, outputs('Multiplier'))",
+                                                                                                "ScoreSource": "@{outputs('Label')}"
                                                                                             }
                                                                                         }
                                                                                     },
@@ -460,7 +497,7 @@
                                                                                         "type": "IncrementVariable",
                                                                                         "inputs": {
                                                                                             "name": "scoreTotal",
-                                                                                            "value": "@mul(5, items('For_each')['ScoreMultiplier'])"
+                                                                                            "value": "@mul(5, outputs('Multiplier'))"
                                                                                         }
                                                                                     }
                                                                                 }
@@ -475,7 +512,7 @@
                                                                                             "name": "DetailedResults",
                                                                                             "value": {
                                                                                                 "Score": 0,
-                                                                                                "ScoreSource": "@{items('For_each')['ScoreLabel']}"
+                                                                                                "ScoreSource": "@{outputs('Label')}"
                                                                                             }
                                                                                         }
                                                                                     }
@@ -491,7 +528,7 @@
                                                                                         "name": "DetailedResults",
                                                                                         "value": {
                                                                                             "Score": 0,
-                                                                                            "ScoreSource": "@{items('For_each')['ScoreLabel']} - Unknown Risk Level: @{items('For_each')['ModuleBody']?['HighestRiskLevel']}"
+                                                                                            "ScoreSource": "@{outputs('Label')} - Unknown Risk Level: @{items('For_each')['ModuleBody']?['HighestRiskLevel']}"
                                                                                         }
                                                                                     }
                                                                                 }
@@ -506,7 +543,7 @@
                                                                 "and": [
                                                                     {
                                                                         "equals": [
-                                                                            "@items('For_each')['ScorePerItem']",
+                                                                            "@outputs('ScorePerItem')",
                                                                             true
                                                                         ]
                                                                     }
@@ -525,7 +562,7 @@
                                                                     "name": "DetailedResults",
                                                                     "value": {
                                                                         "Score": 0,
-                                                                        "ScoreSource": "@{items('For_each')['ScoreLabel']} - No User Entities"
+                                                                        "ScoreSource": "@{outputs('Label')} - No User Entities"
                                                                     }
                                                                 }
                                                             }
@@ -563,7 +600,7 @@
                                                                     "inputs": {
                                                                         "name": "DetailedResults",
                                                                         "value": {
-                                                                            "Score": "@mul(int(item()?['Score']), items('For_each')['ScoreMultiplier'])",
+                                                                            "Score": "@mul(int(item()?['Score']), outputs('Multiplier'))",
                                                                             "ScoreSource": "@{items('For_each_custom_score')?['ScoreLabel']}"
                                                                         }
                                                                     }
@@ -573,7 +610,7 @@
                                                                     "type": "IncrementVariable",
                                                                     "inputs": {
                                                                         "name": "scoreTotal",
-                                                                        "value": "@mul(int(item()?['Score']), items('For_each')['ScoreMultiplier'])"
+                                                                        "value": "@mul(int(item()?['Score']), outputs('Multiplier'))"
                                                                     }
                                                                 }
                                                             },
@@ -617,8 +654,8 @@
                                                             "inputs": {
                                                                 "name": "DetailedResults",
                                                                 "value": {
-                                                                    "Score": "@mul(mul(item()['ModuleBody']['HashesLinkedToThreatCount'],10),item()['ScoreMultiplier'])",
-                                                                    "ScoreSource": "@{items('For_each')['ScoreLabel']} - Hash linked to threat"
+                                                                    "Score": "@mul(mul(item()['ModuleBody']['HashesLinkedToThreatCount'],10),outputs('Multiplier'))",
+                                                                    "ScoreSource": "@{outputs('Label')} - Hash linked to threat"
                                                                 }
                                                             }
                                                         },
@@ -627,7 +664,7 @@
                                                             "type": "IncrementVariable",
                                                             "inputs": {
                                                                 "name": "scoreTotal",
-                                                                "value": "@mul(mul(item()['ModuleBody']['HashesLinkedToThreatCount'],10),item()['ScoreMultiplier'])"
+                                                                "value": "@mul(mul(item()['ModuleBody']['HashesLinkedToThreatCount'],10),outputs('Multiplier'))"
                                                             }
                                                         }
                                                     },
@@ -656,8 +693,8 @@
                                                             "inputs": {
                                                                 "name": "DetailedResults",
                                                                 "value": {
-                                                                    "Score": "@mul(mul(item()['ModuleBody']['HashesInvalidSignatureCount'],5),item()['ScoreMultiplier'])",
-                                                                    "ScoreSource": "@{items('For_each')['ScoreLabel']} - Invalid Signatures"
+                                                                    "Score": "@mul(mul(item()['ModuleBody']['HashesInvalidSignatureCount'],5),outputs('Multiplier'))",
+                                                                    "ScoreSource": "@{outputs('Label')} - Invalid Signatures"
                                                                 }
                                                             }
                                                         },
@@ -666,7 +703,7 @@
                                                             "type": "IncrementVariable",
                                                             "inputs": {
                                                                 "name": "scoreTotal",
-                                                                "value": "@mul(mul(item()['ModuleBody']['HashesInvalidSignatureCount'],5),item()['ScoreMultiplier'])"
+                                                                "value": "@mul(mul(item()['ModuleBody']['HashesInvalidSignatureCount'],5),outputs('Multiplier'))"
                                                             }
                                                         }
                                                     },
@@ -680,6 +717,43 @@
                                                             {
                                                                 "greater": [
                                                                     "@item()['ModuleBody']['HashesInvalidSignatureCount']",
+                                                                    0
+                                                                ]
+                                                            }
+                                                        ]
+                                                    },
+                                                    "type": "If"
+                                                },
+                                                "No_Threats": {
+                                                    "actions": {
+                                                        "Append_to_array_-_No_File_Threats": {
+                                                            "runAfter": {},
+                                                            "type": "AppendToArrayVariable",
+                                                            "inputs": {
+                                                                "name": "DetailedResults",
+                                                                "value": {
+                                                                    "Score": 0,
+                                                                    "ScoreSource": "@{outputs('Label')} - No file threats found"
+                                                                }
+                                                            }
+                                                        }
+                                                    },
+                                                    "runAfter": {
+                                                        "Invalid_Signature": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "expression": {
+                                                        "and": [
+                                                            {
+                                                                "equals": [
+                                                                    "@items('For_each')['ModuleBody']['HashesInvalidSignatureCount']",
+                                                                    0
+                                                                ]
+                                                            },
+                                                            {
+                                                                "equals": [
+                                                                    "@items('For_each')['ModuleBody']['HashesLinkedToThreatCount']",
                                                                     0
                                                                 ]
                                                             }
@@ -704,8 +778,8 @@
                                                             "inputs": {
                                                                 "name": "DetailedResults",
                                                                 "value": {
-                                                                    "Score": "@if(item()['ScorePerItem'], mul(mul(5, item()['ModuleBody']['ResultsCount']),item()['ScoreMultiplier']), mul(5, item()['ScoreMultiplier']))",
-                                                                    "ScoreSource": "@{items('For_each')['ScoreLabel']}"
+                                                                    "Score": "@if(outputs('ScorePerItem'), mul(mul(5, item()['ModuleBody']['ResultsCount']),outputs('Multiplier')), mul(5, outputs('Multiplier')))",
+                                                                    "ScoreSource": "@{outputs('Label')}"
                                                                 }
                                                             }
                                                         },
@@ -714,7 +788,7 @@
                                                             "type": "IncrementVariable",
                                                             "inputs": {
                                                                 "name": "scoreTotal",
-                                                                "value": "@if(item()['ScorePerItem'], mul(mul(5, item()['ModuleBody']['ResultsCount']),item()['ScoreMultiplier']), mul(5, item()['ScoreMultiplier']))"
+                                                                "value": "@if(outputs('ScorePerItem'), mul(mul(5, item()['ModuleBody']['ResultsCount']),outputs('Multiplier')), mul(5, outputs('Multiplier')))"
                                                             }
                                                         }
                                                     },
@@ -728,7 +802,7 @@
                                                                     "name": "DetailedResults",
                                                                     "value": {
                                                                         "Score": 0,
-                                                                        "ScoreSource": "@{items('For_each')['ScoreLabel']}"
+                                                                        "ScoreSource": "@{outputs('Label')}"
                                                                     }
                                                                 }
                                                             }
@@ -761,8 +835,8 @@
                                                     "inputs": {
                                                         "name": "DetailedResults",
                                                         "value": {
-                                                            "Score": "@if(item()['ScorePerItem'], mul(mul(10, item()['ModuleBody']['AboveThreholdCount']),item()['ScoreMultiplier']), if(greater(item()['ModuleBody']['AboveThreholdCount'],0),mul(10, item()['ScoreMultiplier']),0))",
-                                                            "ScoreSource": "@{items('For_each')['ScoreLabel']}"
+                                                            "Score": "@if(outputs('ScorePerItem'), mul(mul(10, item()['ModuleBody']['AboveThreholdCount']),outputs('Multiplier')), if(greater(item()['ModuleBody']['AboveThreholdCount'],0),mul(10, outputs('Multiplier')),0))",
+                                                            "ScoreSource": "@{outputs('Label')}"
                                                         }
                                                     }
                                                 },
@@ -771,7 +845,7 @@
                                                     "type": "IncrementVariable",
                                                     "inputs": {
                                                         "name": "scoreTotal",
-                                                        "value": "@if(item()['ScorePerItem'], mul(mul(10, item()['ModuleBody']['AboveThreholdCount']),item()['ScoreMultiplier']), if(greater(item()['ModuleBody']['AboveThreholdCount'],0),mul(10, item()['ScoreMultiplier']),0))"
+                                                        "value": "@if(outputs('ScorePerItem'), mul(mul(10, item()['ModuleBody']['AboveThreholdCount']),outputs('Multiplier')), if(greater(item()['ModuleBody']['AboveThreholdCount'],0),mul(10, outputs('Multiplier')),0))"
                                                     }
                                                 }
                                             }
@@ -812,8 +886,8 @@
                                                                     "inputs": {
                                                                         "name": "DetailedResults",
                                                                         "value": {
-                                                                            "Score": "@mul(outputs('Compose_-_Host_Risk'), items('For_each')['ScoreMultiplier'])",
-                                                                            "ScoreSource": "@{items('For_each')['ScoreLabel']} - Host entity Device Risk"
+                                                                            "Score": "@mul(outputs('Compose_-_Host_Risk'), outputs('Multiplier'))",
+                                                                            "ScoreSource": "@{outputs('Label')} - Host entity Device Risk"
                                                                         }
                                                                     }
                                                                 }
@@ -845,8 +919,8 @@
                                                                     "inputs": {
                                                                         "name": "DetailedResults",
                                                                         "value": {
-                                                                            "Score": "@mul(outputs('Compose_-_IP_Risk'), items('For_each')['ScoreMultiplier'])",
-                                                                            "ScoreSource": "@{items('For_each')['ScoreLabel']} - IP entity Device Risk"
+                                                                            "Score": "@mul(outputs('Compose_-_IP_Risk'), outputs('Multiplier'))",
+                                                                            "ScoreSource": "@{outputs('Label')} - IP entity Device Risk"
                                                                         }
                                                                     }
                                                                 }
@@ -878,8 +952,8 @@
                                                                     "inputs": {
                                                                         "name": "DetailedResults",
                                                                         "value": {
-                                                                            "Score": "@mul(outputs('Compose_-_User_Risk'), items('For_each')['ScoreMultiplier'])",
-                                                                            "ScoreSource": "@{items('For_each')['ScoreLabel']} - User entity Device Risk"
+                                                                            "Score": "@mul(outputs('Compose_-_User_Risk'), outputs('Multiplier'))",
+                                                                            "ScoreSource": "@{outputs('Label')} - User entity Device Risk"
                                                                         }
                                                                     }
                                                                 }
@@ -908,7 +982,7 @@
                                                             "type": "IncrementVariable",
                                                             "inputs": {
                                                                 "name": "scoreTotal",
-                                                                "value": "@mul(add(add(outputs('Compose_-_Host_Risk'),outputs('Compose_-_IP_Risk')),outputs('Compose_-_User_Risk')),items('For_each')['ScoreMultiplier']) "
+                                                                "value": "@mul(add(add(outputs('Compose_-_Host_Risk'),outputs('Compose_-_IP_Risk')),outputs('Compose_-_User_Risk')),outputs('Multiplier')) "
                                                             }
                                                         }
                                                     },
@@ -929,8 +1003,8 @@
                                                                 "inputs": {
                                                                     "name": "DetailedResults",
                                                                     "value": {
-                                                                        "Score": "@mul(outputs('Compose_-_MDE_Highest_Risk'), items('For_each')['ScoreMultiplier'])",
-                                                                        "ScoreSource": "@{items('For_each')['ScoreLabel']}"
+                                                                        "Score": "@mul(outputs('Compose_-_MDE_Highest_Risk'), outputs('Multiplier'))",
+                                                                        "ScoreSource": "@{outputs('Label')}"
                                                                     }
                                                                 }
                                                             },
@@ -957,7 +1031,7 @@
                                                         "and": [
                                                             {
                                                                 "equals": [
-                                                                    "@items('For_each')?['ScorePerItem']",
+                                                                    "@outputs('ScorePerItem')",
                                                                     true
                                                                 ]
                                                             }
@@ -993,8 +1067,8 @@
                                                                                             "inputs": {
                                                                                                 "name": "DetailedResults",
                                                                                                 "value": {
-                                                                                                    "Score": "@mul(10, items('For_each')['ScoreMultiplier'])",
-                                                                                                    "ScoreSource": "@{items('For_each')['ScoreLabel']} - @{item()?['DisplayName']}"
+                                                                                                    "Score": "@mul(10, outputs('Multiplier'))",
+                                                                                                    "ScoreSource": "@{outputs('Label')} - @{item()?['DisplayName']}"
                                                                                                 }
                                                                                             }
                                                                                         },
@@ -1003,7 +1077,7 @@
                                                                                             "type": "IncrementVariable",
                                                                                             "inputs": {
                                                                                                 "name": "scoreTotal",
-                                                                                                "value": "@mul(10, items('For_each')['ScoreMultiplier'])"
+                                                                                                "value": "@mul(10, outputs('Multiplier'))"
                                                                                             }
                                                                                         }
                                                                                     }
@@ -1021,8 +1095,8 @@
                                                                                             "inputs": {
                                                                                                 "name": "DetailedResults",
                                                                                                 "value": {
-                                                                                                    "Score": "@mul(1, items('For_each')['ScoreMultiplier'])",
-                                                                                                    "ScoreSource": "@{items('For_each')['ScoreLabel']} - @{item()?['DisplayName']}"
+                                                                                                    "Score": "@mul(1, outputs('Multiplier'))",
+                                                                                                    "ScoreSource": "@{outputs('Label')} - @{item()?['DisplayName']}"
                                                                                                 }
                                                                                             }
                                                                                         },
@@ -1031,7 +1105,7 @@
                                                                                             "type": "IncrementVariable",
                                                                                             "inputs": {
                                                                                                 "name": "scoreTotal",
-                                                                                                "value": "@mul(1, items('For_each')['ScoreMultiplier'])"
+                                                                                                "value": "@mul(1, outputs('Multiplier'))"
                                                                                             }
                                                                                         }
                                                                                     }
@@ -1049,8 +1123,8 @@
                                                                                             "inputs": {
                                                                                                 "name": "DetailedResults",
                                                                                                 "value": {
-                                                                                                    "Score": "@mul(3, items('For_each')['ScoreMultiplier'])",
-                                                                                                    "ScoreSource": "@{items('For_each')['ScoreLabel']} - @{item()?['DisplayName']}"
+                                                                                                    "Score": "@mul(3, outputs('Multiplier'))",
+                                                                                                    "ScoreSource": "@{outputs('Label')} - @{item()?['DisplayName']}"
                                                                                                 }
                                                                                             }
                                                                                         },
@@ -1059,7 +1133,7 @@
                                                                                             "type": "IncrementVariable",
                                                                                             "inputs": {
                                                                                                 "name": "scoreTotal",
-                                                                                                "value": "@mul(3, items('For_each')['ScoreMultiplier'])"
+                                                                                                "value": "@mul(3, outputs('Multiplier'))"
                                                                                             }
                                                                                         }
                                                                                     }
@@ -1077,8 +1151,8 @@
                                                                                         "inputs": {
                                                                                             "name": "DetailedResults",
                                                                                             "value": {
-                                                                                                "Score": "@mul(5, items('For_each')['ScoreMultiplier'])",
-                                                                                                "ScoreSource": "@{items('For_each')['ScoreLabel']} - @{item()?['DisplayName']}"
+                                                                                                "Score": "@mul(5, outputs('Multiplier'))",
+                                                                                                "ScoreSource": "@{outputs('Label')} - @{item()?['DisplayName']}"
                                                                                             }
                                                                                         }
                                                                                     },
@@ -1087,7 +1161,7 @@
                                                                                         "type": "IncrementVariable",
                                                                                         "inputs": {
                                                                                             "name": "scoreTotal",
-                                                                                            "value": "@mul(5, items('For_each')['ScoreMultiplier'])"
+                                                                                            "value": "@mul(5, outputs('Multiplier'))"
                                                                                         }
                                                                                     }
                                                                                 }
@@ -1119,8 +1193,8 @@
                                                                                         "inputs": {
                                                                                             "name": "DetailedResults",
                                                                                             "value": {
-                                                                                                "Score": "@mul(10, items('For_each')['ScoreMultiplier'])",
-                                                                                                "ScoreSource": "@{items('For_each')['ScoreLabel']}"
+                                                                                                "Score": "@mul(10, outputs('Multiplier'))",
+                                                                                                "ScoreSource": "@{outputs('Label')}"
                                                                                             }
                                                                                         }
                                                                                     },
@@ -1129,7 +1203,7 @@
                                                                                         "type": "IncrementVariable",
                                                                                         "inputs": {
                                                                                             "name": "scoreTotal",
-                                                                                            "value": "@mul(10, items('For_each')['ScoreMultiplier'])"
+                                                                                            "value": "@mul(10, outputs('Multiplier'))"
                                                                                         }
                                                                                     }
                                                                                 }
@@ -1147,8 +1221,8 @@
                                                                                         "inputs": {
                                                                                             "name": "DetailedResults",
                                                                                             "value": {
-                                                                                                "Score": "@mul(1, items('For_each')['ScoreMultiplier'])",
-                                                                                                "ScoreSource": "@{items('For_each')['ScoreLabel']}"
+                                                                                                "Score": "@mul(1, outputs('Multiplier'))",
+                                                                                                "ScoreSource": "@{outputs('Label')}"
                                                                                             }
                                                                                         }
                                                                                     },
@@ -1157,7 +1231,7 @@
                                                                                         "type": "IncrementVariable",
                                                                                         "inputs": {
                                                                                             "name": "scoreTotal",
-                                                                                            "value": "@mul(1, items('For_each')['ScoreMultiplier'])"
+                                                                                            "value": "@mul(1, outputs('Multiplier'))"
                                                                                         }
                                                                                     }
                                                                                 }
@@ -1175,8 +1249,8 @@
                                                                                         "inputs": {
                                                                                             "name": "DetailedResults",
                                                                                             "value": {
-                                                                                                "Score": "@mul(3, items('For_each')['ScoreMultiplier'])",
-                                                                                                "ScoreSource": "@{items('For_each')['ScoreLabel']}"
+                                                                                                "Score": "@mul(3, outputs('Multiplier'))",
+                                                                                                "ScoreSource": "@{outputs('Label')}"
                                                                                             }
                                                                                         }
                                                                                     },
@@ -1185,7 +1259,7 @@
                                                                                         "type": "IncrementVariable",
                                                                                         "inputs": {
                                                                                             "name": "scoreTotal",
-                                                                                            "value": "@mul(3, items('For_each')['ScoreMultiplier'])"
+                                                                                            "value": "@mul(3, outputs('Multiplier'))"
                                                                                         }
                                                                                     }
                                                                                 }
@@ -1203,8 +1277,8 @@
                                                                                     "inputs": {
                                                                                         "name": "DetailedResults",
                                                                                         "value": {
-                                                                                            "Score": "@mul(5, items('For_each')['ScoreMultiplier'])",
-                                                                                            "ScoreSource": "@{items('For_each')['ScoreLabel']}"
+                                                                                            "Score": "@mul(5, outputs('Multiplier'))",
+                                                                                            "ScoreSource": "@{outputs('Label')}"
                                                                                         }
                                                                                     }
                                                                                 },
@@ -1213,7 +1287,7 @@
                                                                                     "type": "IncrementVariable",
                                                                                     "inputs": {
                                                                                         "name": "scoreTotal",
-                                                                                        "value": "@mul(5, items('For_each')['ScoreMultiplier'])"
+                                                                                        "value": "@mul(5, outputs('Multiplier'))"
                                                                                     }
                                                                                 }
                                                                             }
@@ -1227,7 +1301,7 @@
                                                                 "and": [
                                                                     {
                                                                         "equals": [
-                                                                            "@item()['ScorePerItem']",
+                                                                            "@outputs('ScorePerItem')",
                                                                             true
                                                                         ]
                                                                     }
@@ -1246,7 +1320,7 @@
                                                                     "name": "DetailedResults",
                                                                     "value": {
                                                                         "Score": 0,
-                                                                        "ScoreSource": "@{items('For_each')['ScoreLabel']}"
+                                                                        "ScoreSource": "@{outputs('Label')}"
                                                                     }
                                                                 }
                                                             }
@@ -1276,8 +1350,8 @@
                                                             "inputs": {
                                                                 "name": "DetailedResults",
                                                                 "value": {
-                                                                    "Score": "@mul(mul(10, item()['ModuleBody']?['AllTacticsCount']), items('For_each')['ScoreMultiplier'])",
-                                                                    "ScoreSource": "@{items('For_each')['ScoreLabel']} - @{item()['ModuleBody']?['AllTacticsCount']} related MITRE tactics found (@{join(item()['ModuleBody']?['AllTactics'], ', ')})"
+                                                                    "Score": "@mul(mul(10, item()['ModuleBody']?['AllTacticsCount']), outputs('Multiplier'))",
+                                                                    "ScoreSource": "@{outputs('Label')} - @{item()['ModuleBody']?['AllTacticsCount']} related MITRE tactics found (@{join(item()['ModuleBody']?['AllTactics'], ', ')})"
                                                                 }
                                                             }
                                                         },
@@ -1286,7 +1360,7 @@
                                                             "type": "IncrementVariable",
                                                             "inputs": {
                                                                 "name": "scoreTotal",
-                                                                "value": "@mul(mul(10, item()['ModuleBody']?['AllTacticsCount']), items('For_each')['ScoreMultiplier'])"
+                                                                "value": "@mul(mul(10, item()['ModuleBody']?['AllTacticsCount']), outputs('Multiplier'))"
                                                             }
                                                         }
                                                     },
@@ -1324,8 +1398,8 @@
                                                             "inputs": {
                                                                 "name": "DetailedResults",
                                                                 "value": {
-                                                                    "Score": "@mul(mul(10, item()['ModuleBody']['TotalTIMatchCount']), items('For_each')['ScoreMultiplier'])",
-                                                                    "ScoreSource": "@items('For_each')?['ScoreLabel']"
+                                                                    "Score": "@mul(mul(10, item()['ModuleBody']['TotalTIMatchCount']), outputs('Multiplier'))",
+                                                                    "ScoreSource": "@outputs('Label')"
                                                                 }
                                                             }
                                                         },
@@ -1334,7 +1408,7 @@
                                                             "type": "IncrementVariable",
                                                             "inputs": {
                                                                 "name": "scoreTotal",
-                                                                "value": "@mul(mul(10, item()['ModuleBody']['TotalTIMatchCount']), items('For_each')['ScoreMultiplier'])"
+                                                                "value": "@mul(mul(10, item()['ModuleBody']['TotalTIMatchCount']), outputs('Multiplier'))"
                                                             }
                                                         }
                                                     },
@@ -1351,8 +1425,8 @@
                                                                 "inputs": {
                                                                     "name": "DetailedResults",
                                                                     "value": {
-                                                                        "Score": "@if(greater(item()['ModuleBody']['TotalTIMatchCount'],0), mul(10, items('For_each')['ScoreMultiplier']), 0)",
-                                                                        "ScoreSource": "@items('For_each')?['ScoreLabel']"
+                                                                        "Score": "@if(greater(item()['ModuleBody']['TotalTIMatchCount'],0), mul(10, outputs('Multiplier')), 0)",
+                                                                        "ScoreSource": "@outputs('Label')"
                                                                     }
                                                                 }
                                                             },
@@ -1361,7 +1435,7 @@
                                                                 "type": "IncrementVariable",
                                                                 "inputs": {
                                                                     "name": "scoreTotal",
-                                                                    "value": "@if(greater(item()['ModuleBody']['TotalTIMatchCount'],0), mul(10, items('For_each')['ScoreMultiplier']), 0)"
+                                                                    "value": "@if(greater(item()['ModuleBody']['TotalTIMatchCount'],0), mul(10, outputs('Multiplier')), 0)"
                                                                 }
                                                             }
                                                         }
@@ -1370,7 +1444,7 @@
                                                         "and": [
                                                             {
                                                                 "equals": [
-                                                                    "@items('For_each')?['ScorePerItem']",
+                                                                    "@outputs('ScorePerItem')",
                                                                     true
                                                                 ]
                                                             }
@@ -1385,35 +1459,66 @@
                                             "actions": {
                                                 "UEBA_ScorePerItem": {
                                                     "actions": {
-                                                        "For_each_UEBA": {
-                                                            "foreach": "@item()['ModuleBody']['DetailedResults']",
+                                                        "UEBA_-_Results_Found": {
                                                             "actions": {
-                                                                "Append_to_DetailedResults_-_UEBA_Per_Item": {
-                                                                    "runAfter": {
-                                                                        "Increment_scoreTotal_-_UEBA_Per_Item": [
-                                                                            "Succeeded"
-                                                                        ]
-                                                                    },
-                                                                    "type": "AppendToArrayVariable",
-                                                                    "inputs": {
-                                                                        "name": "DetailedResults",
-                                                                        "value": {
-                                                                            "Score": "@mul(item()['InvestigationPriorityMax'],items('For_each')['ScoreMultiplier'])",
-                                                                            "ScoreSource": "@{items('For_each')['ScoreLabel']} - @{items('For_each_UEBA')['UserPrincipalName']}"
+                                                                "For_each_UEBA": {
+                                                                    "foreach": "@item()['ModuleBody']['DetailedResults']",
+                                                                    "actions": {
+                                                                        "Append_to_DetailedResults_-_UEBA_Per_Item": {
+                                                                            "runAfter": {
+                                                                                "Increment_scoreTotal_-_UEBA_Per_Item": [
+                                                                                    "Succeeded"
+                                                                                ]
+                                                                            },
+                                                                            "type": "AppendToArrayVariable",
+                                                                            "inputs": {
+                                                                                "name": "DetailedResults",
+                                                                                "value": {
+                                                                                    "Score": "@mul(item()['InvestigationPriorityMax'],outputs('Multiplier'))",
+                                                                                    "ScoreSource": "@{outputs('Label')} - @{items('For_each_UEBA')['UserPrincipalName']}"
+                                                                                }
+                                                                            }
+                                                                        },
+                                                                        "Increment_scoreTotal_-_UEBA_Per_Item": {
+                                                                            "runAfter": {},
+                                                                            "type": "IncrementVariable",
+                                                                            "inputs": {
+                                                                                "name": "scoreTotal",
+                                                                                "value": "@mul(item()['InvestigationPriorityMax'],outputs('Multiplier'))"
+                                                                            }
                                                                         }
-                                                                    }
-                                                                },
-                                                                "Increment_scoreTotal_-_UEBA_Per_Item": {
+                                                                    },
                                                                     "runAfter": {},
-                                                                    "type": "IncrementVariable",
-                                                                    "inputs": {
-                                                                        "name": "scoreTotal",
-                                                                        "value": "@mul(item()['InvestigationPriorityMax'],items('For_each')['ScoreMultiplier'])"
-                                                                    }
+                                                                    "type": "Foreach"
                                                                 }
                                                             },
                                                             "runAfter": {},
-                                                            "type": "Foreach"
+                                                            "else": {
+                                                                "actions": {
+                                                                    "Append_to_DetailedResults_-_UEBA_Nothing_Found": {
+                                                                        "runAfter": {},
+                                                                        "type": "AppendToArrayVariable",
+                                                                        "inputs": {
+                                                                            "name": "DetailedResults",
+                                                                            "value": {
+                                                                                "Score": 0,
+                                                                                "ScoreSource": "@{outputs('Label')} - No related UEBA results"
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            },
+                                                            "expression": {
+                                                                "and": [
+                                                                    {
+                                                                        "greater": [
+                                                                            "@length(items('For_each')['ModuleBody']['DetailedResults'])",
+                                                                            0
+                                                                        ]
+                                                                    }
+                                                                ]
+                                                            },
+                                                            "type": "If"
                                                         }
                                                     },
                                                     "runAfter": {},
@@ -1429,8 +1534,8 @@
                                                                 "inputs": {
                                                                     "name": "DetailedResults",
                                                                     "value": {
-                                                                        "Score": "@mul(item()['ModuleBody']['AllEntityInvestigationPriorityMax'],item()['ScoreMultiplier'])",
-                                                                        "ScoreSource": "@{items('For_each')['ScoreLabel']}"
+                                                                        "Score": "@mul(item()['ModuleBody']['AllEntityInvestigationPriorityMax'],outputs('Multiplier'))",
+                                                                        "ScoreSource": "@{outputs('Label')}"
                                                                     }
                                                                 }
                                                             },
@@ -1439,7 +1544,7 @@
                                                                 "type": "IncrementVariable",
                                                                 "inputs": {
                                                                     "name": "scoreTotal",
-                                                                    "value": "@mul(item()['ModuleBody']['AllEntityInvestigationPriorityMax'],item()['ScoreMultiplier'])"
+                                                                    "value": "@mul(item()['ModuleBody']['AllEntityInvestigationPriorityMax'],outputs('Multiplier'))"
                                                                 }
                                                             }
                                                         }
@@ -1448,7 +1553,7 @@
                                                         "and": [
                                                             {
                                                                 "equals": [
-                                                                    "@items('For_each')['ScorePerItem']",
+                                                                    "@outputs('ScorePerItem')",
                                                                     true
                                                                 ]
                                                             }
@@ -1473,8 +1578,8 @@
                                                             "inputs": {
                                                                 "name": "DetailedResults",
                                                                 "value": {
-                                                                    "Score": "@mul(mul(10, item()['ModuleBody']['EntitiesOnWatchlistCount']), items('For_each')['ScoreMultiplier'])",
-                                                                    "ScoreSource": "@items('For_each')?['ScoreLabel']"
+                                                                    "Score": "@mul(mul(10, item()['ModuleBody']['EntitiesOnWatchlistCount']), outputs('Multiplier'))",
+                                                                    "ScoreSource": "@outputs('Label')"
                                                                 }
                                                             }
                                                         },
@@ -1483,7 +1588,7 @@
                                                             "type": "IncrementVariable",
                                                             "inputs": {
                                                                 "name": "scoreTotal",
-                                                                "value": "@mul(mul(10, item()['ModuleBody']['EntitiesOnWatchlistCount']), items('For_each')['ScoreMultiplier'])"
+                                                                "value": "@mul(mul(10, item()['ModuleBody']['EntitiesOnWatchlistCount']), outputs('Multiplier'))"
                                                             }
                                                         }
                                                     },
@@ -1500,8 +1605,8 @@
                                                                 "inputs": {
                                                                     "name": "DetailedResults",
                                                                     "value": {
-                                                                        "Score": "@if(greater(item()['ModuleBody']['EntitiesOnWatchlistCount'],0), mul(10, items('For_each')['ScoreMultiplier']), 0)",
-                                                                        "ScoreSource": "@items('For_each')?['ScoreLabel']"
+                                                                        "Score": "@if(greater(item()['ModuleBody']['EntitiesOnWatchlistCount'],0), mul(10, outputs('Multiplier')), 0)",
+                                                                        "ScoreSource": "@outputs('Label')"
                                                                     }
                                                                 }
                                                             },
@@ -1510,7 +1615,7 @@
                                                                 "type": "IncrementVariable",
                                                                 "inputs": {
                                                                     "name": "scoreTotal",
-                                                                    "value": "@if(greater(item()['ModuleBody']['EntitiesOnWatchlistCount'],0), mul(10, items('For_each')['ScoreMultiplier']), 0)"
+                                                                    "value": "@if(greater(item()['ModuleBody']['EntitiesOnWatchlistCount'],0), mul(10, outputs('Multiplier')), 0)"
                                                                 }
                                                             }
                                                         }
@@ -1519,7 +1624,7 @@
                                                         "and": [
                                                             {
                                                                 "equals": [
-                                                                    "@items('For_each')?['ScorePerItem']",
+                                                                    "@outputs('ScorePerItem')",
                                                                     true
                                                                 ]
                                                             }
@@ -1542,7 +1647,7 @@
                                             }
                                         }
                                     },
-                                    "expression": "@coalesce(item()['ModuleBody']?['ModuleName'], 'InvalidModuleName')",
+                                    "expression": "@coalesce(item()?['ModuleBody']?['ModuleName'], 'InvalidModuleName')",
                                     "type": "Switch"
                                 }
                             },
@@ -1977,6 +2082,25 @@
                                     },
                                     "type": "object"
                                 }
+                            }
+                        },
+                        "Response_-_UnknownError": {
+                            "runAfter": {
+                                "For_each": [
+                                    "Failed"
+                                ]
+                            },
+                            "type": "Response",
+                            "kind": "Http",
+                            "inputs": {
+                                "body": {
+                                    "Error": "@{parameters('PlaybookInternalName')} failed to execute. An unhandled exception occurred calculating the risk score",
+                                    "PlaybookName": "@{workflow()?['name']}",
+                                    "PlaybookResourceId": "@{workflow()?['id']}",
+                                    "PlaybookRunId": "@{workflow()?['run']?['name']}",
+                                    "PlaybookVersion": "@parameters('PlaybookVersion')"
+                                },
+                                "statusCode": 400
                             }
                         }
                     },

@@ -123,8 +123,9 @@ To add custom content to the scoring module you will need to retieve the necessa
 |AddIncidentComments|True/False (Default:True)|When set to true, the results of the scoring module will be added to the Sentinel Incident Comments|
 |Base Module Body|Body (dynamic content)|The Body should be selected from the Dynamic content of the Base-Module response|
 |ScoringData-ModuleBody|Body (dynamic content)|The *Body* of a supported module you want to score|
-|ScoringData-ScoreMultiplier|Decimal value (1 for default scoring)|Default scores will be multiplied by this value, this can be a negative value which will result in the cumulative score being reduced|
-|ScoreingData-ScorePerItem|true/false|true if you want to score the input on a row level (per alert or record)|
+|ScoringData-ScoreLabel|string (Default:ScoredModuleName)|Used to label the score outputs in the comment added to the incident|
+|ScoringData-ScoreMultiplier|Decimal value (Default:1)|Default scores will be multiplied by this value, this can be a negative value which will result in the cumulative score being reduced|
+|ScoreingData-ScorePerItem|true/false (Default:true)|true if you want to score the input on a row level (per alert or record)|
 
 ## Return Properties
 
