@@ -478,7 +478,7 @@
                                                 "name": "DetailedResults",
                                                 "value": {
                                                     "ThreatScore": "@coalesce(body('HTTP_-_MCAS_API_Call')['threatScore'],0)",
-                                                    "UserId": "<a href=\"https://security.microsoft.com/user/?aad=@{items('For_each_account')?['id']}&tid=@{body('Parse_JSON')?['TenantId']}\">@{items('For_each_account')?['id']}</a>",
+                                                    "UserId": "<a href=\"https://security.microsoft.com/user/?aad=@{items('For_each_account')?['id']}&tid=@{body('Parse_JSON')?['TenantId']}\" target=\"_blank\">@{items('For_each_account')?['id']}</a>",
                                                     "UserPrincipalName": "@{item()?['UserPrincipalName']}",
                                                     "ThreatScoreHistory": "@array(body('HTTP_-_MCAS_API_Call')?['threatScoreHistory'])"
                                                 }
