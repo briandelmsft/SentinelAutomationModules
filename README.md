@@ -14,4 +14,4 @@ Many of the Microsoft Sentinel playbook templates available today focus on Notif
 
 The full solution is available for deployment in the [Deployment](/Deploy/) section and additional documentation can be found in [Docs](/Docs/).
 
-If you have any questions about this project and would like to provide suggestions to the STAT project maintainers please open an [issue](https://github.com/briandelmsft/SentinelAutomationModules/issues/new/choose).
+If you have any questions about this project or would like to provide suggestions to the STAT project maintainers please open an [issue](https://github.com/briandelmsft/SentinelAutomationModules/issues/new/choose).
