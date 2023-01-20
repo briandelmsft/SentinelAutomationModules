@@ -6,10 +6,16 @@ Risk Scoring is a module of STAT that can be used to calculate a cumulative risk
 
 The Risk Scoring module accepts the *Body* output of the following modules as an input:
 
+* AAD Risks Module
+* Microsoft Defender for Endpoint Module
+* Related Alerts Module
 * KQL Module
-* Related Alerts
-* Threat Intel Module
+* Threat Intelligence Module
 * Watchlist Module
+* User Entity Behavior Analytics Module
+* File Module
+* Microsoft Defender for Cloud Apps Module
+* Custom Content Scoring
 
 ## Risk Scoring Example
 
