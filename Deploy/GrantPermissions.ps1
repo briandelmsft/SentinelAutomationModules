@@ -35,7 +35,7 @@ $LogicAppPrefix = ""                               # Adds a prefix to all Logic 
 
 # Connect to the Microsoft Graph API and Azure Management API
 Write-Host "⚙️ Connect to the Azure AD tenant: $TenantId"
-Connect-MgGraph -TenantId $TenantId -Scopes AppRoleAssignment.ReadWrite.All | Out-Null
+Connect-MgGraph -TenantId $TenantId -Scopes AppRoleAssignment.ReadWrite.All, Application.Read.All | Out-Null
 Write-Host "⚙️ Connecting to  to the Azure subscription: $AzureSubscriptionId"
 try
 {
