@@ -1,0 +1,27 @@
+# Lines starting with '#' are comments.
+# Each line is a file pattern followed by one or more owners,
+# Global owners need to be listed first, example - * @account1 @account2
+# After global, order is important, the last matching pattern per folder has the most precedence
+
+# All up code owners - this should be limited to a select few - if specific code owner is needed, add to the specific folders below
+
+* @briandelmsft @piaudonn
+
+# This is copied from here: https://help.github.com/en/github/creating-cloning-and-archiving-repositories/about-code-owners
+
+/Connector/ @briandelmsft
+/Deploy/ @briandelmsft
+/Deploy/*.ps1 @piaudonn
+/Modules/AADRisksModule/ @piaudonn
+/Modules/BaseModule/ @briandelmsft
+/Modules/FileModule/ @piaudonn
+/Modules/KQLModule/ @briandelmsft
+/Modules/MCASModule/ @piaudonn
+/Modules/OOFModule/ @briandelmsft
+/Modules/RelatedAlerts/ @briandelmsft
+/Modules/RunPlaybook/ @briandelmsft
+/Modules/ScoringModule/ @briandelmsft
+/Modules/TIModule/ @briandelmsft
+/Modules/UEBAModule/ @briandelmsft
+/Modules/WatchlistModule/ @briandelmsft
+/Workbook/ @piaudonn
