@@ -1357,7 +1357,7 @@
                             "type": "String"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.1.4",
+                            "defaultValue": "0.1.5",
                             "type": "String"
                         },
                         "ProjectName": {
