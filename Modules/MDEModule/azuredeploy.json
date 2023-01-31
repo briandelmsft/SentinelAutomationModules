@@ -151,7 +151,7 @@
                                         "Append_to_string_variable_Comments": {
                                             "inputs": {
                                                 "name": "Comments",
-                                                "value": "@{if(not(equals(item()['UserPrincipalName'], '')), concat('<a href=\"https://security.microsoft.com/user/?aad=',item()['UserId'],'&tid=',body('Parse_JSON')?['TenantId'],'\">',item()['UserPrincipalName'],'</a>'), item()['UserSid'])} @{if(equals(length(items('For_each_DetailedResultsAccounts')['UserDevices']),0),' - No devices found',body('Create_table_for_Machines')[0])} <br />"
+                                                "value": "@{if(not(equals(item()['UserPrincipalName'], '')), concat('<a href=\"https://security.microsoft.com/user/?aad=',item()['UserId'],'&tid=',body('Parse_JSON')?['TenantId'],'\" target=\"_blank\">',item()['UserPrincipalName'],'</a>'), item()['UserSid'])} @{if(equals(length(items('For_each_DetailedResultsAccounts')['UserDevices']),0),' - No devices found',body('Create_table_for_Machines')[0])} <br />"
                                             },
                                             "runAfter": {
                                                 "Create_HTML_table_for_UserDevices": [
@@ -968,7 +968,7 @@
                                                 "columns": [
                                                     {
                                                         "header": "id",
-                                                        "value": "<a href=\"https://security.microsoft.com/machines/@{item()?['id']}?tid=@{body('Parse_JSON')?['TenantId']}\">@{item()?['id']}</a>"
+                                                        "value": "<a href=\"https://security.microsoft.com/machines/@{item()?['id']}?tid=@{body('Parse_JSON')?['TenantId']}\" target=\"_blank\">@{item()?['id']}</a>"
                                                     },
                                                     {
                                                         "header": "computer",
@@ -1357,7 +1357,7 @@
                             "type": "String"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.1.4",
+                            "defaultValue": "0.1.5",
                             "type": "String"
                         },
                         "ProjectName": {
