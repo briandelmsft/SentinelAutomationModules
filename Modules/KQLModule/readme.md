@@ -13,8 +13,10 @@ This module allows you to run custom KQL queries against Microsoft Sentinel, Azu
 |Parameter|Expected Values|Description|
 |---|---|---|
 |AddIncidentComments|True/False (Default:True)|When set to true, the results of the query will be added to the Sentinel Incident Comments.  A maximum of 10 search results will be included|
+|AddIncidentTask|True/False (Default:False)|When set to true, a task will be added to the Sentinel incident to review the query results if results are found.|
 |Base Module Body|Body (dynamic content)|The Body should be selected from the Dynamic content of the Base-Module response|
-|KQL Query|The KQL Query you wish to execute|
+|IncidentTaskInstructions|Markdown Text|A list of instructions you want to include in the task|
+|KQL Query|KQL Query|The KQL Query you wish to execute|
 |LookbackInDays|1-90|This defines how far back to look back in the data, note this is limited to 30 days for Microsoft 365 Advanced Hunting|
 |QueryDescription|Text String (optional)|This description will be added to the incident comments to provide additional context on the query|
 |RunQueryAgainst|Sentinel/M365|This defines if the KQL query will run against the Microsoft Sentinel data or the M365 Defender Advanced Hunting data|
@@ -55,6 +57,12 @@ adx('https://clustername.kusto.windows.net/DatabaseName').TableName
 Additionally, you must give the Run-KQLQuery managed identity access to the Database Viewer role on all ADX databases you wish to query.  This is not done by the GrantPermissions.ps1 PowerShell script.
 
 > More information on granting permissions in ADX can be found [here](https://learn.microsoft.com/azure/data-explorer/manage-database-permissions)
+
+### Incident Tasks Considerations
+
+When adding a task to an Incident a link to the query results will be supplied in the task.  This link will always search the time window when the KQL query was executed.  However, if you include relative time filters such as ago(7d) the results will not be consistent over time as this will be evaluated at the time filter will be evaluated at the time you click the link.
+
+If you need to embed a time range in your query, it is recommended to encode the static time range into the query.
 
 ### The following entity tables are available to you in both Sentinel and M365 Queries
 
