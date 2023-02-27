@@ -50,6 +50,9 @@
                         "Condition_-_Terminate_if_no_supported_entities": {
                             "actions": {
                                 "Response_-_Send_empty_results": {
+                                    "runAfter": {},
+                                    "type": "Response",
+                                    "kind": "Http",
                                     "inputs": {
                                         "body": {
                                             "AnalyzedEntities": 0,
@@ -60,22 +63,24 @@
                                             "ModuleName": "@{parameters('PlaybookInternalName')}"
                                         },
                                         "statusCode": 200
-                                    },
-                                    "kind": "Http",
-                                    "runAfter": {},
-                                    "type": "Response"
+                                    }
                                 },
                                 "Terminate": {
-                                    "inputs": {
-                                        "runStatus": "Succeeded"
-                                    },
                                     "runAfter": {
                                         "Response_-_Send_empty_results": [
                                             "Succeeded"
                                         ]
                                     },
-                                    "type": "Terminate"
+                                    "type": "Terminate",
+                                    "inputs": {
+                                        "runStatus": "Succeeded"
+                                    }
                                 }
+                            },
+                            "runAfter": {
+                                "Parse_JSON": [
+                                    "Succeeded"
+                                ]
                             },
                             "expression": {
                                 "and": [
@@ -87,16 +92,14 @@
                                     }
                                 ]
                             },
-                            "runAfter": {
-                                "Parse_JSON": [
-                                    "Succeeded"
-                                ]
-                            },
                             "type": "If"
                         },
                         "Condition_Error": {
                             "actions": {
                                 "Response_Access_Issue": {
+                                    "runAfter": {},
+                                    "type": "Response",
+                                    "kind": "Http",
                                     "inputs": {
                                         "body": {
                                             "Error": "@{parameters('PlaybookInternalName')} failed to execute with status @{body('Filter_array')[0]['statusCode']}",
@@ -106,38 +109,119 @@
                                             "SourceError": "@{body('Filter_array')[0]['body']}"
                                         },
                                         "statusCode": "@body('Filter_array')[0]['statusCode']"
-                                    },
-                                    "kind": "Http",
-                                    "runAfter": {},
-                                    "type": "Response"
+                                    }
                                 }
+                            },
+                            "runAfter": {
+                                "Filter_array": [
+                                    "Succeeded"
+                                ]
                             },
                             "else": {
                                 "actions": {
                                     "Compose": {
-                                        "inputs": "@result('For_each_account')",
                                         "runAfter": {},
-                                        "type": "Compose"
+                                        "type": "Compose",
+                                        "inputs": "@result('For_each_account')"
                                     },
-                                    "Compose_response": {
-                                        "inputs": {
-                                            "AnalyzedEntities": "@length(variables('DetailedResults'))",
-                                            "DetailedResults": "@variables('DetailedResults')",
-                                            "FailedMFATotalCount": "@variables('FailedMFATotalCount')",
-                                            "HighestRiskLevel": "@{if(contains(body('Create_CSV_table_to_calculate_HighestRiskLevel'), 'high'), 'high', if(contains(body('Create_CSV_table_to_calculate_HighestRiskLevel'), 'medium'), 'medium', if(contains(body('Create_CSV_table_to_calculate_HighestRiskLevel'), 'low'), 'low', if(contains(body('Create_CSV_table_to_calculate_HighestRiskLevel'), 'none'),'none','unknown'))))}",
-                                            "MFAFraudTotalCount": "@variables('MFAFraudTotalCount')",
-                                            "ModuleName": "@{parameters('PlaybookInternalName')}"
-                                        },
+                                    "Compose_-_HighestRiskLevel": {
                                         "runAfter": {
                                             "Create_CSV_table_to_calculate_HighestRiskLevel": [
                                                 "Succeeded"
                                             ]
                                         },
-                                        "type": "Compose"
+                                        "type": "Compose",
+                                        "inputs": "@if(contains(body('Create_CSV_table_to_calculate_HighestRiskLevel'), 'high'), 'high', if(contains(body('Create_CSV_table_to_calculate_HighestRiskLevel'), 'medium'), 'medium', if(contains(body('Create_CSV_table_to_calculate_HighestRiskLevel'), 'low'), 'low', if(contains(body('Create_CSV_table_to_calculate_HighestRiskLevel'), 'none'),'none','unknown'))))"
+                                    },
+                                    "Compose_response": {
+                                        "runAfter": {
+                                            "Compose_-_HighestRiskLevel": [
+                                                "Succeeded"
+                                            ]
+                                        },
+                                        "type": "Compose",
+                                        "inputs": {
+                                            "AnalyzedEntities": "@length(variables('DetailedResults'))",
+                                            "DetailedResults": "@variables('DetailedResults')",
+                                            "FailedMFATotalCount": "@variables('FailedMFATotalCount')",
+                                            "HighestRiskLevel": "@{outputs('Compose_-_HighestRiskLevel')}",
+                                            "MFAFraudTotalCount": "@variables('MFAFraudTotalCount')",
+                                            "ModuleName": "@{parameters('PlaybookInternalName')}"
+                                        }
+                                    },
+                                    "Condition_-_Add_Task": {
+                                        "actions": {
+                                            "HTTP_-_Add_Incident_Task": {
+                                                "runAfter": {},
+                                                "type": "Http",
+                                                "inputs": {
+                                                    "authentication": {
+                                                        "audience": "https://management.azure.com",
+                                                        "type": "ManagedServiceIdentity"
+                                                    },
+                                                    "body": {
+                                                        "properties": {
+                                                            "description": "@{take(triggerBody()?['IncidentTaskInstructions'],3000)}",
+                                                            "status": "New",
+                                                            "title": "Review Related AD User Risks"
+                                                        }
+                                                    },
+                                                    "method": "PUT",
+                                                    "uri": "https://management.azure.com@{body('Parse_JSON')?['IncidentARMId']}/tasks/@{guid()}?api-version=2022-12-01-preview"
+                                                }
+                                            }
+                                        },
+                                        "runAfter": {
+                                            "Condition_-_Add_comment": [
+                                                "Succeeded",
+                                                "Failed"
+                                            ]
+                                        },
+                                        "expression": {
+                                            "and": [
+                                                {
+                                                    "equals": [
+                                                        "@triggerBody()?['AddIncidentTask']",
+                                                        true
+                                                    ]
+                                                },
+                                                {
+                                                    "or": [
+                                                        {
+                                                            "greater": [
+                                                                "@variables('FailedMFATotalCount')",
+                                                                0
+                                                            ]
+                                                        },
+                                                        {
+                                                            "greater": [
+                                                                "@variables('MFAFraudTotalCount')",
+                                                                0
+                                                            ]
+                                                        },
+                                                        {
+                                                            "not": {
+                                                                "contains": [
+                                                                    "@outputs('Compose_-_HighestRiskLevel')",
+                                                                    "@createArray('none','unknown')"
+                                                                ]
+                                                            }
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        },
+                                        "type": "If"
                                     },
                                     "Condition_-_Add_comment": {
                                         "actions": {
                                             "Add_comment_to_incident": {
+                                                "runAfter": {
+                                                    "Create_HTML_table_for_comments": [
+                                                        "Succeeded"
+                                                    ]
+                                                },
+                                                "type": "ApiConnection",
                                                 "inputs": {
                                                     "body": {
                                                         "incidentArmId": "@body('Parse_JSON')?['IncidentARMId']",
@@ -150,22 +234,21 @@
                                                     },
                                                     "method": "post",
                                                     "path": "/Incidents/Comment"
-                                                },
-                                                "runAfter": {
-                                                    "Create_HTML_table_for_comments": [
-                                                        "Succeeded"
-                                                    ]
-                                                },
-                                                "type": "ApiConnection"
+                                                }
                                             },
                                             "Create_HTML_table_for_comments": {
+                                                "runAfter": {},
+                                                "type": "Table",
                                                 "inputs": {
                                                     "format": "HTML",
                                                     "from": "@outputs('Compose_response')['DetailedResults']"
-                                                },
-                                                "runAfter": {},
-                                                "type": "Table"
+                                                }
                                             }
+                                        },
+                                        "runAfter": {
+                                            "Compose_response": [
+                                                "Succeeded"
+                                            ]
                                         },
                                         "expression": {
                                             "and": [
@@ -177,14 +260,15 @@
                                                 }
                                             ]
                                         },
-                                        "runAfter": {
-                                            "Compose_response": [
-                                                "Succeeded"
-                                            ]
-                                        },
                                         "type": "If"
                                     },
                                     "Create_CSV_table_to_calculate_HighestRiskLevel": {
+                                        "runAfter": {
+                                            "Compose": [
+                                                "Succeeded"
+                                            ]
+                                        },
+                                        "type": "Table",
                                         "inputs": {
                                             "columns": [
                                                 {
@@ -194,27 +278,21 @@
                                             ],
                                             "format": "CSV",
                                             "from": "@variables('DetailedResults')"
-                                        },
-                                        "runAfter": {
-                                            "Compose": [
-                                                "Succeeded"
-                                            ]
-                                        },
-                                        "type": "Table"
+                                        }
                                     },
                                     "Response": {
-                                        "inputs": {
-                                            "body": "@outputs('Compose_response')",
-                                            "statusCode": 200
-                                        },
-                                        "kind": "Http",
                                         "runAfter": {
-                                            "Condition_-_Add_comment": [
+                                            "Condition_-_Add_Task": [
                                                 "Succeeded",
                                                 "Failed"
                                             ]
                                         },
-                                        "type": "Response"
+                                        "type": "Response",
+                                        "kind": "Http",
+                                        "inputs": {
+                                            "body": "@outputs('Compose_response')",
+                                            "statusCode": 200
+                                        }
                                     }
                                 }
                             },
@@ -228,87 +306,89 @@
                                     }
                                 ]
                             },
-                            "runAfter": {
-                                "Filter_array": [
-                                    "Succeeded"
-                                ]
-                            },
                             "type": "If"
                         },
                         "Filter_array": {
-                            "inputs": {
-                                "from": "@variables('ErrorManagement')",
-                                "where": "@not(equals(item()?['statusCode'], 404))"
-                            },
                             "runAfter": {
                                 "For_each_account": [
                                     "Succeeded",
                                     "Failed"
                                 ]
                             },
-                            "type": "Query"
+                            "type": "Query",
+                            "inputs": {
+                                "from": "@variables('ErrorManagement')",
+                                "where": "@not(equals(item()?['statusCode'], 404))"
+                            }
                         },
                         "Filter_array_-_Get_only_accounts_with_an_id": {
-                            "inputs": {
-                                "from": "@body('Parse_JSON')?['Accounts']",
-                                "where": "@greater(length(coalesce(item()?['id'], '')), 0)"
-                            },
                             "runAfter": {
                                 "Condition_-_Terminate_if_no_supported_entities": [
                                     "Succeeded"
                                 ]
                             },
-                            "type": "Query"
+                            "type": "Query",
+                            "inputs": {
+                                "from": "@body('Parse_JSON')?['Accounts']",
+                                "where": "@greater(length(coalesce(item()?['id'], '')), 0)"
+                            }
                         },
                         "For_each_account": {
+                            "foreach": "@body('Filter_array_-_Get_only_accounts_with_an_id')",
                             "actions": {
                                 "Append_to_array_variable_DetailedResults": {
-                                    "inputs": {
-                                        "name": "DetailedResults",
-                                        "value": "@outputs('Compose_DetailedResults')"
-                                    },
                                     "runAfter": {
                                         "Compose_DetailedResults": [
                                             "Succeeded"
                                         ]
                                     },
-                                    "type": "AppendToArrayVariable"
+                                    "type": "AppendToArrayVariable",
+                                    "inputs": {
+                                        "name": "DetailedResults",
+                                        "value": "@outputs('Compose_DetailedResults')"
+                                    }
                                 },
                                 "Append_to_array_variable_ErrorManagement": {
-                                    "inputs": {
-                                        "name": "ErrorManagement",
-                                        "value": "@outputs('HTTP_-_Lookup_user_riskLevel')"
-                                    },
                                     "runAfter": {
                                         "HTTP_-_Lookup_user_riskLevel": [
                                             "Failed"
                                         ]
                                     },
-                                    "type": "AppendToArrayVariable"
+                                    "type": "AppendToArrayVariable",
+                                    "inputs": {
+                                        "name": "ErrorManagement",
+                                        "value": "@outputs('HTTP_-_Lookup_user_riskLevel')"
+                                    }
                                 },
                                 "Compose_DetailedResults": {
+                                    "runAfter": {
+                                        "Increment_variable_FailedMFATotalCount": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Compose",
                                     "inputs": {
                                         "UserFailedMFACount": "@coalesce(body('Select_failed_MFA')?[0]?['Count'],0)",
                                         "UserId": "@{items('For_each_account')['id']}",
                                         "UserMFAFraudsCount": "@coalesce(body('Select_MFA_frauds')?[0]?['Count'],0)",
                                         "UserPrincipalName": "@{coalesce(item()?['UserPrincipalName'],'Unknown')}",
                                         "UserRiskLevel": "@{coalesce(body('HTTP_-_Lookup_user_riskLevel')?['riskLevel'],'Unknown')}"
-                                    },
-                                    "runAfter": {
-                                        "Increment_variable_FailedMFATotalCount": [
-                                            "Succeeded"
-                                        ]
-                                    },
-                                    "type": "Compose"
+                                    }
                                 },
                                 "Condition_-_Failed_MFA_lookup": {
                                     "actions": {
                                         "Compose_KQL_for_Failed_MFA": {
-                                            "inputs": "SigninLogs\n| where ResultType == \"500121\"\n| where UserId== \"@{items('For_each_account')['id']}\"\n| summarize Count=count() by UserPrincipalName",
                                             "runAfter": {},
-                                            "type": "Compose"
+                                            "type": "Compose",
+                                            "inputs": "SigninLogs\n| where ResultType == \"500121\"\n| where UserId== \"@{items('For_each_account')['id']}\"\n| summarize Count=count() by UserPrincipalName"
                                         },
                                         "HTTP_-_Lookup_for_Failed_MFA": {
+                                            "runAfter": {
+                                                "Compose_KQL_for_Failed_MFA": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "Http",
                                             "inputs": {
                                                 "authentication": {
                                                     "audience": "https://api.loganalytics.io/",
@@ -320,30 +400,25 @@
                                                 },
                                                 "method": "POST",
                                                 "uri": "https://api.loganalytics.io/v1/workspaces/@{body('Parse_JSON')?['WorkspaceId']}/query"
-                                            },
+                                            }
+                                        },
+                                        "Select_failed_MFA": {
                                             "runAfter": {
-                                                "Compose_KQL_for_Failed_MFA": [
+                                                "HTTP_-_Lookup_for_Failed_MFA": [
                                                     "Succeeded"
                                                 ]
                                             },
-                                            "type": "Http"
-                                        },
-                                        "Select_failed_MFA": {
+                                            "type": "Select",
                                             "inputs": {
                                                 "from": "@body('HTTP_-_Lookup_for_Failed_MFA')['tables'][0]['rows']",
                                                 "select": {
                                                     "@{body('HTTP_-_Lookup_for_Failed_MFA')['tables'][0]['columns'][0]['name']}": "@item()[0]",
                                                     "@{body('HTTP_-_Lookup_for_Failed_MFA')['tables'][0]['columns'][1]['name']}": "@item()[1]"
                                                 }
-                                            },
-                                            "runAfter": {
-                                                "HTTP_-_Lookup_for_Failed_MFA": [
-                                                    "Succeeded"
-                                                ]
-                                            },
-                                            "type": "Select"
+                                            }
                                         }
                                     },
+                                    "runAfter": {},
                                     "expression": {
                                         "and": [
                                             {
@@ -354,17 +429,22 @@
                                             }
                                         ]
                                     },
-                                    "runAfter": {},
                                     "type": "If"
                                 },
                                 "Condition_-_MFA_fraud_lookup": {
                                     "actions": {
                                         "Compose_KQL_for_MFA_frauds": {
-                                            "inputs": "AuditLogs \n| where OperationName == \"Fraud reported - user is blocked for MFA\"\n| where ResultDescription == \"Successfully reported fraud\"\n| extend Id= tostring(parse_json(tostring(InitiatedBy.user)).id)\n| where Id == \"@{item()['id']}\"\n| summarize Count=count() by Id",
                                             "runAfter": {},
-                                            "type": "Compose"
+                                            "type": "Compose",
+                                            "inputs": "AuditLogs \n| where OperationName == \"Fraud reported - user is blocked for MFA\"\n| where ResultDescription == \"Successfully reported fraud\"\n| extend Id= tostring(parse_json(tostring(InitiatedBy.user)).id)\n| where Id == \"@{item()['id']}\"\n| summarize Count=count() by Id"
                                         },
                                         "HTTP_-_Lookup_for_MFA_frauds": {
+                                            "runAfter": {
+                                                "Compose_KQL_for_MFA_frauds": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "Http",
                                             "inputs": {
                                                 "authentication": {
                                                     "audience": "https://api.loganalytics.io",
@@ -376,30 +456,25 @@
                                                 },
                                                 "method": "POST",
                                                 "uri": "https://api.loganalytics.io/v1/workspaces/@{body('Parse_JSON')?['WorkspaceId']}/query"
-                                            },
+                                            }
+                                        },
+                                        "Select_MFA_frauds": {
                                             "runAfter": {
-                                                "Compose_KQL_for_MFA_frauds": [
+                                                "HTTP_-_Lookup_for_MFA_frauds": [
                                                     "Succeeded"
                                                 ]
                                             },
-                                            "type": "Http"
-                                        },
-                                        "Select_MFA_frauds": {
+                                            "type": "Select",
                                             "inputs": {
                                                 "from": "@body('HTTP_-_Lookup_for_MFA_frauds')['tables'][0]['rows']",
                                                 "select": {
                                                     "@{body('HTTP_-_Lookup_for_MFA_frauds')['tables'][0]['columns'][0]['name']}": "@item()[0]",
                                                     "@{body('HTTP_-_Lookup_for_MFA_frauds')['tables'][0]['columns'][1]['name']}": "@item()[1]"
                                                 }
-                                            },
-                                            "runAfter": {
-                                                "HTTP_-_Lookup_for_MFA_frauds": [
-                                                    "Succeeded"
-                                                ]
-                                            },
-                                            "type": "Select"
+                                            }
                                         }
                                     },
+                                    "runAfter": {},
                                     "expression": {
                                         "and": [
                                             {
@@ -410,10 +485,11 @@
                                             }
                                         ]
                                     },
-                                    "runAfter": {},
                                     "type": "If"
                                 },
                                 "HTTP_-_Lookup_user_riskLevel": {
+                                    "runAfter": {},
+                                    "type": "Http",
                                     "inputs": {
                                         "authentication": {
                                             "audience": "https://graph.microsoft.com/",
@@ -421,27 +497,21 @@
                                         },
                                         "method": "GET",
                                         "uri": "https://graph.microsoft.com/v1.0/identityProtection/riskyUsers/@{items('For_each_account')['id']}"
-                                    },
-                                    "runAfter": {},
-                                    "type": "Http"
+                                    }
                                 },
                                 "Increment_variable_FailedMFATotalCount": {
-                                    "inputs": {
-                                        "name": "FailedMFATotalCount",
-                                        "value": "@coalesce(body('Select_failed_MFA')?[0]?['Count'],0)"
-                                    },
                                     "runAfter": {
                                         "Increment_variable_MFAFraudTotalCount": [
                                             "Succeeded"
                                         ]
                                     },
-                                    "type": "IncrementVariable"
+                                    "type": "IncrementVariable",
+                                    "inputs": {
+                                        "name": "FailedMFATotalCount",
+                                        "value": "@coalesce(body('Select_failed_MFA')?[0]?['Count'],0)"
+                                    }
                                 },
                                 "Increment_variable_MFAFraudTotalCount": {
-                                    "inputs": {
-                                        "name": "MFAFraudTotalCount",
-                                        "value": "@coalesce(body('Select_MFA_frauds')?[0]?['Count'],0)"
-                                    },
                                     "runAfter": {
                                         "Condition_-_Failed_MFA_lookup": [
                                             "Succeeded"
@@ -454,10 +524,13 @@
                                             "Failed"
                                         ]
                                     },
-                                    "type": "IncrementVariable"
+                                    "type": "IncrementVariable",
+                                    "inputs": {
+                                        "name": "MFAFraudTotalCount",
+                                        "value": "@coalesce(body('Select_MFA_frauds')?[0]?['Count'],0)"
+                                    }
                                 }
                             },
-                            "foreach": "@body('Filter_array_-_Get_only_accounts_with_an_id')",
                             "runAfter": {
                                 "Initialize_variable_ErrorManagement": [
                                     "Succeeded"
@@ -466,6 +539,12 @@
                             "type": "Foreach"
                         },
                         "Initialize_variable_DetailedResults": {
+                            "runAfter": {
+                                "Filter_array_-_Get_only_accounts_with_an_id": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
                             "inputs": {
                                 "variables": [
                                     {
@@ -474,15 +553,15 @@
                                         "value": []
                                     }
                                 ]
-                            },
+                            }
+                        },
+                        "Initialize_variable_ErrorManagement": {
                             "runAfter": {
-                                "Filter_array_-_Get_only_accounts_with_an_id": [
+                                "Initialize_variable_MFAFraudTotalCount": [
                                     "Succeeded"
                                 ]
                             },
-                            "type": "InitializeVariable"
-                        },
-                        "Initialize_variable_ErrorManagement": {
+                            "type": "InitializeVariable",
                             "inputs": {
                                 "variables": [
                                     {
@@ -491,15 +570,15 @@
                                         "value": []
                                     }
                                 ]
-                            },
+                            }
+                        },
+                        "Initialize_variable_FailedMFATotalCount": {
                             "runAfter": {
-                                "Initialize_variable_MFAFraudTotalCount": [
+                                "Initialize_variable_DetailedResults": [
                                     "Succeeded"
                                 ]
                             },
-                            "type": "InitializeVariable"
-                        },
-                        "Initialize_variable_FailedMFATotalCount": {
+                            "type": "InitializeVariable",
                             "inputs": {
                                 "variables": [
                                     {
@@ -508,15 +587,15 @@
                                         "value": 0
                                     }
                                 ]
-                            },
+                            }
+                        },
+                        "Initialize_variable_MFAFraudTotalCount": {
                             "runAfter": {
-                                "Initialize_variable_DetailedResults": [
+                                "Initialize_variable_FailedMFATotalCount": [
                                     "Succeeded"
                                 ]
                             },
-                            "type": "InitializeVariable"
-                        },
-                        "Initialize_variable_MFAFraudTotalCount": {
+                            "type": "InitializeVariable",
                             "inputs": {
                                 "variables": [
                                     {
@@ -525,15 +604,11 @@
                                         "value": 0
                                     }
                                 ]
-                            },
-                            "runAfter": {
-                                "Initialize_variable_FailedMFATotalCount": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "InitializeVariable"
+                            }
                         },
                         "Parse_JSON": {
+                            "runAfter": {},
+                            "type": "ParseJson",
                             "inputs": {
                                 "content": "@triggerBody()?['Entities']",
                                 "schema": {
@@ -904,9 +979,7 @@
                                     },
                                     "type": "object"
                                 }
-                            },
-                            "runAfter": {},
-                            "type": "ParseJson"
+                            }
                         }
                     },
                     "contentVersion": "1.0.0.0",
@@ -917,7 +990,7 @@
                             "type": "Object"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.0.6",
+                            "defaultValue": "0.1.0",
                             "type": "String"
                         },
                         "PlaybookInternalName": {
@@ -931,6 +1004,8 @@
                     },
                     "triggers": {
                         "triage": {
+                            "type": "Request",
+                            "kind": "Http",
                             "inputs": {
                                 "schema": {
                                     "properties": {
@@ -938,9 +1013,17 @@
                                             "title": "Add comments to the incident",
                                             "type": "boolean"
                                         },
+                                        "AddIncidentTask": {
+                                            "description": "Add a task to the Sentinel Incident",
+                                            "type": "boolean"
+                                        },
                                         "Entities": {
                                             "description": "Click here and select the EnrichedEntities object from the Dynamic content menu",
                                             "type": "array"
+                                        },
+                                        "IncidentTaskInstructions": {
+                                            "description": "Instructions to include the the Incident task if created",
+                                            "type": "string"
                                         },
                                         "LookbackInDays": {
                                             "description": "Enter a value between 1 and 90",
@@ -960,9 +1043,7 @@
                                     },
                                     "type": "object"
                                 }
-                            },
-                            "kind": "Http",
-                            "type": "Request"
+                            }
                         }
                     }
                 },

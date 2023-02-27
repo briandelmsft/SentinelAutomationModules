@@ -1,8 +1,8 @@
 {
-    "AADRisksModule": "0.0.6",
+    "AADRisksModule": "0.1.0",
     "BaseModule": "0.4.0",
     "FileModule": "0.0.4",
-    "KQLModule": "0.1.4",
+    "KQLModule": "0.2.0",
     "MCASModule": "0.0.8",
     "MDEModule": "0.1.5",
     "OOFModule": "0.0.3",
