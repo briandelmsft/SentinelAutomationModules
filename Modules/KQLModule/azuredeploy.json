@@ -187,7 +187,7 @@
                                         ]
                                     },
                                     "type": "Compose",
-                                    "inputs": "<a href=@{outputs('Compose_-_Full_URL')}>Query Results</a>\n\n@{if(empty(triggerBody()?['IncidentTaskInstructions'], 'Review the KQL Query Results', triggerBody()?['IncidentTaskInstructions'])}\n"
+                                    "inputs": "<a href=@{outputs('Compose_-_Full_URL')}>Query Results</a>\n\n@{if(empty(triggerBody()?['IncidentTaskInstructions']), 'Review the KQL Query Results', triggerBody()?['IncidentTaskInstructions'])}\n"
                                 },
                                 "HTTP_-_Create_Task": {
                                     "runAfter": {
