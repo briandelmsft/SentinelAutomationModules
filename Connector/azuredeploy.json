@@ -119,7 +119,7 @@
             "properties": {
                 "connectionParameters": {},
                 "capabilities": [],
-                "description": "The Microsoft Sentinel Triage assistance is an automation toolkit to simplify the construction of automation to analyze Sentinel Incidents (version 0.5.2)",
+                "description": "The Microsoft Sentinel Triage assistance is an automation toolkit to simplify the construction of automation to analyze Sentinel Incidents (version 0.5.3)",
                 "displayName": "[parameters('CustomConnectorDisplayName')]",
                 "iconUri": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACsAAAAtCAYAAAA3BJLdAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAMjSURBVFhH7Zk/TFNRFMa/tg8BkWr8E0uRyGAwOki0NVYTBhIlGISFGnVgrC5EGk1IGBwkMQw6NG7tggtxMDqoiYspEAZJoAZFISAJJFpsGLTUaqDQ1nfvuy20lL7b0vdqTX/JyT3f477ycbjv9N5WExVBgaBlY0FQNKsUCWvW7/djYmKCqdxiMplQWVnJVJYQszEGBweJcUVibGyM/ZbsKdxlMDQ0hMbGRpr79h+j404x/Jijo1hZmM1mmmfL/1HZby9eoaKigubZEgwGUdPeRvNcVHZbs4FAgI47Ra/X01EVs2+CWvjWaUoxCMDlPRGmJNLNiZm12WwwGo0058FisaC5uZkpCVmzt30CPqxoaE6oL4visWGTM5F0c2JmM6WrqwsOh4MpieLbrVKoYpYsKd5oaGhgd21F1ixZe8O1a/FIXq8Enjkr12z4U3smbYTfjbPZqcnLMtC1X0HpUxd23bvLrvCRF7PammrozpuhOXmcXeFDVbOkoiX2W9CeM1GtOVJFNQkeZM2Sht/v3wiik+GZQxCsbdQYqSqBVDjnZp/4dfHYzqzcHEJ0ehaRUQ8iX72SXg5IWgweZM3mklDvI6xctyH8/DXVkalZqknwoKrZnZIXs2sOJ+2rqzdusit8qLJFzOS1WlpaMDIyknIjI27mlIcY6OjogNvthtcrPVzJdHd3Y2BgAJOTk+zKVrgqG7r/UHySvzCVHtJLhavS6YDwtvoEHevq6rC4uEhPD6kgR/WZmRncWZrHp3Ao+y0ieWrDo+NcEfV+Z3dJXCgpp3Fw/itOrYbjOjlKP07Rn+s1OnbnVrgqu/7sJRYWfHD/3thgE4y7BWg3/bn1unUYLKfjTZ/Qe7iWZfI0NTXhwef3GJ6bTVlZ7gesnzb8xH+ExVDGMomLQgiXhFWmJDI5KTidTrhcLng8nuJJQVWKZpWiaFYpCsrstn22p6eHjjGmUY5Rf4gpiaNVBxD+tcwUcPbQXuz7ucSURF9fH8vkaW1tpT2WvC2n6rOqffKdaYhmmasNEipLvk+w2+1M5Rer1YrOzk6mJBLM/usUu4FSFJBZ4C9uB2sPxMPD5QAAAABJRU5ErkJggg==",
                 "swagger": {
@@ -127,7 +127,7 @@
                     "info": {
                         "version": "1.0.0",
                         "title": "STAT",
-                        "description": "The Microsoft Sentinel Triage assistance is an automation toolkit to simplify the construction of automation to analyze Sentinel Incidents (version 0.5.2)"
+                        "description": "The Microsoft Sentinel Triage assistance is an automation toolkit to simplify the construction of automation to analyze Sentinel Incidents (version 0.5.3)"
                     },
                     "host": "[string(split(split(listCallbackUrl(resourceId('Microsoft.Logic/workflows/triggers', parameters('STATCoordinatorPlaybookName'), 'manual'), '2017-07-01').value, ':443')[0], '//')[1])]",
                     "basePath": "/",
@@ -730,6 +730,7 @@
                                         "description": "default",
                                         "schema": {
                                             "type": "object",
+                                            "description": "OOF Module Body",
                                             "properties": {
                                                 "AllUsersInOffice": {
                                                     "type": "boolean",
@@ -909,6 +910,7 @@
                                         "description": "default",
                                         "schema": {
                                             "type": "object",
+                                            "description": "TI Module Body",
                                             "properties": {
                                                 "AnyTIFound": {
                                                     "type": "boolean",
@@ -1128,6 +1130,7 @@
                                         "description": "default",
                                         "schema": {
                                             "type": "object",
+                                            "description": "Related Alerts Module Body",
                                             "properties": {
                                                 "AllTactics": {
                                                     "type": "array",
@@ -1335,6 +1338,7 @@
                                         "description": "default",
                                         "schema": {
                                             "type": "object",
+                                            "description": "Watchlist Module Body",
                                             "properties": {
                                                 "DetailedResults": {
                                                     "type": "array",
@@ -1431,6 +1435,21 @@
                                                     ],
                                                     "x-ms-visibility": "advanced"
                                                 },
+                                                "AddIncidentTask": {
+                                                    "type": "boolean",
+                                                    "description": "Add a Task to the Microsoft Sentinel Incident",
+                                                    "title": "",
+                                                    "enum": [
+                                                        true,
+                                                        false
+                                                    ],
+                                                    "x-ms-visibility": "advanced"
+                                                },
+                                                "IncidentTaskInstructions": {
+                                                    "type": "string",
+                                                    "description": "Instructions to include in the Microsoft Sentinel Task",
+                                                    "x-ms-visibility": "advanced"
+                                                },
                                                 "BaseModuleBody": {
                                                     "type": "string",
                                                     "description": "Body from STAT Base Module",
@@ -1479,6 +1498,7 @@
                                         "description": "default",
                                         "schema": {
                                             "type": "object",
+                                            "description": "KQL Module Body",
                                             "properties": {
                                                 "DetailedResults": {
                                                     "type": "array",
@@ -1590,6 +1610,7 @@
                                         "description": "default",
                                         "schema": {
                                             "type": "object",
+                                            "description": "UEBA Module Body",
                                             "properties": {
                                                 "AllEntityEventCount": {
                                                     "type": "integer",
@@ -1708,6 +1729,21 @@
                                                     ],
                                                     "x-ms-visibility": "advanced"
                                                 },
+                                                "AddIncidentTask": {
+                                                    "type": "boolean",
+                                                    "description": "Add a Task to the Microsoft Sentinel Incident",
+                                                    "title": "",
+                                                    "enum": [
+                                                        true,
+                                                        false
+                                                    ],
+                                                    "x-ms-visibility": "advanced"
+                                                },
+                                                "IncidentTaskInstructions": {
+                                                    "type": "string",
+                                                    "description": "Instructions to include in the Microsoft Sentinel Task",
+                                                    "x-ms-visibility": "advanced"
+                                                },
                                                 "BaseModuleBody": {
                                                     "type": "string",
                                                     "description": "Body from STAT Base Module",
@@ -1757,6 +1793,7 @@
                                         "description": "default",
                                         "schema": {
                                             "type": "object",
+                                            "description": "AAD Risks Module Body",
                                             "properties": {
                                                 "AnalyzedEntities": {
                                                     "type": "integer",
@@ -1891,6 +1928,7 @@
                                         "description": "default",
                                         "schema": {
                                             "type": "object",
+                                            "description": "File Module Body",
                                             "properties": {
                                                 "AnalyzedEntities": {
                                                     "type": "integer",
@@ -2095,6 +2133,7 @@
                                         "description": "default",
                                         "schema": {
                                             "type": "object",
+                                            "description": "MDE Module Body",
                                             "properties": {
                                                 "AnalyzedEntities": {
                                                     "type": "integer",
@@ -2327,6 +2366,7 @@
                                         "description": "default",
                                         "schema": {
                                             "type": "object",
+                                            "description": "MDCA Module Body",
                                             "properties": {
                                                 "AboveThreholdCount": {
                                                     "type": "integer",
@@ -2470,6 +2510,7 @@
                                         "description": "default",
                                         "schema": {
                                             "type": "object",
+                                            "description": "Risk Scoring Module Body",
                                             "properties": {
                                                 "DetailedResults": {
                                                     "type": "array",
@@ -2593,6 +2634,7 @@
                                         "description": "default",
                                         "schema": {
                                             "type": "object",
+                                            "description": "Run Playbook Module Body",
                                             "properties": {}
                                         }
                                     }
@@ -2625,7 +2667,7 @@
                     "contentVersion": "1.0.0.0",
                     "parameters": {
                         "PlaybookVersion": {
-                            "defaultValue": "0.5.1",
+                            "defaultValue": "0.5.2",
                             "type": "String"
                         },
                         "PlaybookInternalName": {
@@ -2647,6 +2689,9 @@
                                 "schema": {
                                     "properties": {
                                         "AddIncidentComments": {
+                                            "type": "boolean"
+                                        },
+                                        "AddIncidentTask": {
                                             "type": "boolean"
                                         },
                                         "BaseModuleBody": {
@@ -2687,7 +2732,9 @@
                                             "inputs": {
                                                 "body": {
                                                     "AddIncidentComments": "@coalesce(triggerBody()?['AddIncidentComments'], true)",
+                                                    "AddIncidentTask": "@coalesce(triggerBody()?['AddIncidentTask'], false)",
                                                     "Entities": "@triggerBody()?['BaseModuleBody']",
+                                                    "IncidentTaskInstructions": "@{triggerBody()?['IncidentTaskInstructions']}",
                                                     "LookbackInDays": "@triggerBody()?['LookbackInDays']",
                                                     "MFAFailureLookup": "@coalesce(triggerBody()?['MFAFailureLookup'], true)",
                                                     "MFAFraudLookup": "@coalesce(triggerBody()?['MFAFraudLookup'], true)"
@@ -2826,7 +2873,9 @@
                                             "inputs": {
                                                 "body": {
                                                     "AddIncidentComments": "@coalesce(triggerBody()?['AddIncidentComments'], true)",
+                                                    "AddIncidentTask": "@coalesce(triggerBody()?['AddIncidentTask'], false)",
                                                     "Entities": "@triggerBody()?['BaseModuleBody']",
+                                                    "IncidentTaskInstructions": "@{triggerBody()?['IncidentTaskInstructions']}",
                                                     "KQLQuery": "@triggerBody()?['KQLQuery']",
                                                     "LookbackInDays": "@triggerBody()?['LookbackInDays']",
                                                     "QueryDescription": "@{triggerBody()?['QueryDescription']}",
