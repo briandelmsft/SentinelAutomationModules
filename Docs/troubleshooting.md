@@ -14,12 +14,19 @@ Contrary to the other modules, the MCAS (Microsoft Defender for Cloud Apps) modu
 
 Note that you can leverage the [Sentinel Triage AssistanT - Status workbook](/Workbook) to check for execution failure rates for all your modules at once.
 
-## GrantPermissions.ps1 failures
+## GrantPermissions.ps1 permissions failures
 
 The script will fail to set Graph API permissions on the system-assigned managed identities if you use an account which is not a member of the Global Administrator role or User Access Administrator role. See the [deployment documentation](/Deploy#grant-permissions) for more details.
 
 If you run into permissions or consent issues with the GrantPermissions.ps1, you can try using the [LegacyGrantPermissions.ps1](/Deploy/LegacyGrantPermissions.ps1). It leverages the legacy AzureAD PowerShell module and doesn't require explicit consent for the scopes `AppRoleAssignment.ReadWrite.All` and `Application.Read.All`. 
 
+## GrantPermissions.ps1 Missing closing '}'
+
+If you save and run the script on a machine without the MgGraph module installed, you might see a misleading error message suggesting that a missing } prevents the script from running. It is in fact an issue with MgGraph cmdlets not being available.
+Make sure you have installed the MgGraph module prior executinh the script. You can do so by uncommenting the 5th line of the script:
+```
+Install-Module Microsoft.Graph.Applications -Scope CurrentUser -Force
+```
 
 ## LegacyGrantPermissions.ps1 failures
 
