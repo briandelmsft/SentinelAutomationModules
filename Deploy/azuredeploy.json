@@ -86,6 +86,10 @@
             "defaultValue": true,
             "type": "bool"
         },
+        "M365DApiEndpoint": {
+            "defaultValue": "api.security.microsoft.com",
+            "type": "String"
+        },
         "DeploymentBranch": {
             "defaultValue": "main",
             "type": "String"
@@ -208,6 +212,9 @@
                 "parameters": {
                     "PlaybookName": {
                         "value": "[parameters('FilePlaybookName')]"
+                    },
+                    "M365DApiEndpoint": {
+                        "value": "[parameters('M365DApiEndpoint')]"
                     }
                 }
             }

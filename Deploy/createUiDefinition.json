@@ -125,61 +125,6 @@
                                 }
                             },
                             {
-                                "name": "enableModulesKind",
-                                "type": "Microsoft.Common.DropDown",
-                                "label": "Select Automation Modules to onboard",
-                                "placeholder": "",
-                                "multiselect": true,
-                                "defaultValue": "",
-                                "toolTip": "Select the Automation modules you would like to deploy.",
-                                "constraints": {
-                                    "allowedValues": [
-                                        {
-                                            "label": "Azure AD Risks Module",
-                                            "value": "AADModule"
-                                        },
-                                        {
-                                            "label": "File Module",
-                                            "value": "FileModule"
-                                        },
-                                        {
-                                            "label": "KQL Module",
-                                            "value": "KQLModule"
-                                        },
-                                        {
-                                            "label": "MCAS Module",
-                                            "value": "MCASModule"
-                                        },
-                                        {
-                                            "label": "MDE Module",
-                                            "value": "MDEModule"
-                                        },
-                                        {
-                                            "label": "Out of Office Module",
-                                            "value": "OOFModule"
-                                        },
-                                        {
-                                            "label": "Related Alerts Module",
-                                            "value": "RelatedAlerts"
-                                        },
-                                        {
-                                            "label": "Threat Intelligence Module",
-                                            "value": "TIModule"
-                                        },
-                                        {
-                                            "label": "UEBA Module",
-                                            "value": "UEBAModule"
-                                        },
-                                        {
-                                            "label": "Watchlist Module",
-                                            "value": "WatchlistModule"
-                                        }
-                                    ],
-                                    "required": false
-                                },
-                                "visible": false
-                            },
-                            {
                                 "name": "BasePlaybookName",
                                 "type": "Microsoft.Common.TextBox",
                                 "label": "Base Playbook Name",
@@ -358,6 +303,31 @@
                                 "visible": "[if(steps('automationModules').advancedSetup.DeployWorkbook, true, false)]"
                             },
                             {
+                                "name": "m365dApiEndpoint",
+                                "type": "Microsoft.Common.DropDown",
+                                "label": "Microsoft 365 Defender API Endpoint",
+                                "placeholder": "",
+                                "defaultValue": ["api.security.microsoft.com - Commercial Endpoint"],
+                                "toolTip": "",
+                                "multiselect": false,
+                                "selectAll": false,
+                                "defaultDescription": "Commercial M365D Api Endpoint",
+                                "constraints": {
+                                  "allowedValues": [
+                                    {
+                                      "label": "api.security.microsoft.com - Commercial Endpoint",
+                                      "value": "api.security.microsoft.com"
+                                    },
+                                    {
+                                      "label": "api-gcc.security.microsoft.us - GCC Endpoint",
+                                      "value": "api-gcc.security.microsoft.us"
+                                    }
+                                  ],
+                                  "required": true
+                                },
+                                "visible": true
+                            },
+                            {
                                 "name": "DeploymentBranch",
                                 "type": "Microsoft.Common.TextBox",
                                 "label": "Deploy from a specific GitHub Branch",
@@ -440,6 +410,7 @@
             "DeployConnector": true,
             "WorkbookName": "[coalesce(steps('automationModules').advancedSetup.WorkbookDisplayName,'Sentinel Triage AssistanT - Status')]",
             "DeployWorkbook": "[coalesce(steps('automationModules').advancedSetup.DeployWorkbook, true)]",
+            "M365DApiEndpoint": "[coalesce(steps('automationModules').advancedSetup.m365dApiEndpoint,'api.security.microsoft.com')]",
             "DeploymentBranch": "[coalesce(steps('automationModules').advancedSetup.DeploymentBranch,'main')]",
             "location": "[location()]"
         }
