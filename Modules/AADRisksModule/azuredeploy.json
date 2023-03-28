@@ -436,7 +436,7 @@
                                         "Compose_KQL_for_MFA_frauds": {
                                             "inputs": "AuditLogs \n| where OperationName in (\"Fraud reported - user is blocked for MFA\",\"Fraud reported - no action taken\")\n| where ResultDescription == \"Successfully reported fraud\"\n| extend Id= tostring(parse_json(tostring(InitiatedBy.user)).id)\n| where Id == \"@{item()['id']}\"\n| summarize Count=count() by Id",
                                             "runAfter": {},
-                                            "type": "Compose",
+                                            "type": "Compose"
                                         },
                                         "HTTP_-_Lookup_for_MFA_frauds": {
                                             "runAfter": {
