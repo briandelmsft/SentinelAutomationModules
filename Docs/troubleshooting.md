@@ -34,3 +34,9 @@ See the following table for specific failure troubleshooting.
 |Error|Troubleshooting steps|
 |---|---|
 |`New-AzureADServiceAppRoleAssignment : Cannot convert 'System.Object[]' to the type 'System.String' required by parameter 'ObjectId'. Specified method is not supported.`|You have more than one logic app with the same name in your Azure subscription. This scenario is not supported with the current version of the script.|
+
+## GCC Medium - No active license found
+
+When using STAT in GCC Medium, you may receive an error within some modules indicating 'No active license found'.  This is due to the incorrect API endpoint being used by the module.  To correct this, deploy STAT using advanced mode and set both the Microsoft 365 Defender API Endpoint and Microsoft Defender for Endpoint API Endpoint to the GCC version of the endpoint.
+
+STAT is not presently supported in GCC High, DoD or other Sovereign clouds.

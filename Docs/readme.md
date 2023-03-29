@@ -12,5 +12,6 @@ Take for example an impossible travel incident, while this incident could repres
 * [Deployment](deployment.md)
 * [Sample Playbook](sample.md)
 * [Risk Scoring](riskscoring.md)
+* [Incident Tasks](incidenttasks.md)
 * [Remediation](remediation.md)
 * [Troubleshooting](troubleshooting.md)
