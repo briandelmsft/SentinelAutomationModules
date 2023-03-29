@@ -5,6 +5,10 @@
         "PlaybookName": {
             "defaultValue": "Run-KQLQuery",
             "type": "String"
+        },
+        "M365DApiEndpoint": {
+            "defaultValue": "api.security.microsoft.com",
+            "type": "String"
         }
     },
     "variables": {
@@ -52,8 +56,12 @@
                             "defaultValue": {},
                             "type": "Object"
                         },
+                        "M365DApiEndpoint": {
+                            "defaultValue": "[parameters('M365DApiEndpoint')]",
+                            "type": "String"
+                        },
                         "PlaybookVersion": {
-                            "defaultValue": "0.2.0",
+                            "defaultValue": "0.3.0",
                             "type": "String"
                         },
                         "PlaybookInternalName": {
@@ -841,7 +849,7 @@
                                             "type": "Http",
                                             "inputs": {
                                                 "authentication": {
-                                                    "audience": "https://api.security.microsoft.com",
+                                                    "audience": "https://@{parameters('M365DApiEndpoint')}",
                                                     "type": "ManagedServiceIdentity"
                                                 },
                                                 "body": {
@@ -851,7 +859,7 @@
                                                 "queries": {
                                                     "Content-Type": "application/json"
                                                 },
-                                                "uri": "https://api.security.microsoft.com/api/advancedhunting/run"
+                                                "uri": "https://@{parameters('M365DApiEndpoint')}/api/advancedhunting/run"
                                             }
                                         },
                                         "Response_2": {

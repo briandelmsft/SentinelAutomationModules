@@ -90,6 +90,10 @@
             "defaultValue": "api.security.microsoft.com",
             "type": "String"
         },
+        "MDEApiEndpoint": {
+            "defaultValue": "api.securitycenter.microsoft.com",
+            "type": "String"
+        },
         "DeploymentBranch": {
             "defaultValue": "main",
             "type": "String"
@@ -144,6 +148,9 @@
                 "parameters": {
                     "PlaybookName": {
                         "value": "[parameters('KQLPlaybookName')]"
+                    },
+                    "M365DApiEndpoint": {
+                        "value": "[parameters('M365DApiEndpoint')]"
                     }
                 }
             }
@@ -317,6 +324,9 @@
                 "parameters": {
                     "PlaybookName": {
                         "value": "[parameters('MDEPlaybookName')]"
+                    },
+                    "MDEApiEndpoint": {
+                        "value": "[parameters('MDEApiEndpoint')]"
                     }
                 }
             }
