@@ -869,7 +869,7 @@
                                                 ]
                                             },
                                             "type": "Compose",
-                                            "inputs": "let userData = todynamic(url_decode(\"@{encodeUriComponent(body('Select_-_objectSid'))}\"));\nlet users = print users = userData\n| mv-expand users\n| project objectSid = tostring(users.objectSid), id = tostring(users.id), userPrincipalName = tostring(users.userPrincipalName);\nDeviceLogonEvents \n| where Timestamp > ago(@{triggerBody()?['LookbackInDays']}d)\n| where LogonType in (\"Interactive\",\"RemoteInteractive\")\n| join kind=inner (users) on $left.AccountSid == $right.objectSid\n| summarize ListIds=make_list(DeviceId) by AccountSid, userPrincipalName, id"
+                                            "inputs": "let userData = todynamic(url_decode(\"@{encodeUriComponent(body('Select_-_objectSid'))}\"));\nlet users = print users = userData\n| mv-expand users\n| project objectSid = tostring(users.objectSid), id = tostring(users.id), userPrincipalName = tostring(users.userPrincipalName);\nDeviceLogonEvents \n| where Timestamp > ago(@{triggerBody()?['LookbackInDays']}d)\n| where LogonType in (\"Interactive\",\"RemoteInteractive\")\n| join kind=inner (users) on $left.AccountSid == $right.objectSid\n| summarize ListIds=make_set(DeviceId) by AccountSid, userPrincipalName, id"
                                         },
                                         "Filter_array_-_Get_only_account_with_a_onPremisesSecurityIdentifier_or_sid": {
                                             "runAfter": {},
@@ -1208,7 +1208,7 @@
                                                 ]
                                             },
                                             "type": "Compose",
-                                            "inputs": "let ipData = print ipData = todynamic(url_decode(\"@{encodeUriComponent(body('Select_-_IP'))}\"));\nlet ipAddresses = ipData\n| mv-expand ipData\n| project Address = tostring(ipData.Address);\nDeviceNetworkInfo\n| where Timestamp > ago(@{triggerBody()?['LookbackInDays']}d)\n| summarize arg_max(Timestamp,*) by DeviceId\n| extend IPs = todynamic(IPAddresses)\n| mv-expand IPs\n| evaluate bag_unpack(IPs)\n| join kind=inner (ipAddresses) on $left.IPAddress == $right.Address\n| summarize ListIds=make_list(DeviceId) by IPAddress"
+                                            "inputs": "let ipData = print ipData = todynamic(url_decode(\"@{encodeUriComponent(body('Select_-_IP'))}\"));\nlet ipAddresses = ipData\n| mv-expand ipData\n| project Address = tostring(ipData.Address);\nDeviceNetworkInfo\n| where Timestamp > ago(@{triggerBody()?['LookbackInDays']}d)\n| summarize arg_max(Timestamp,*) by DeviceId\n| extend IPs = todynamic(IPAddresses)\n| mv-expand IPs\n| evaluate bag_unpack(IPs)\n| join kind=inner (ipAddresses) on $left.IPAddress == $right.Address\n| summarize ListIds=make_set(DeviceId) by IPAddress"
                                         },
                                         "For_each_IP_in_Results": {
                                             "foreach": "@body('HTTP_-_Get_DeviceId_by_IP')?['Results']",
@@ -1439,7 +1439,7 @@
                             "type": "String"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.2.0",
+                            "defaultValue": "0.2.1",
                             "type": "String"
                         },
                         "ProjectName": {
