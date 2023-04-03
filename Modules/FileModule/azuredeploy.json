@@ -5,10 +5,14 @@
         "PlaybookName": {
             "defaultValue": "Get-FileInsights",
             "type": "String"
+        },
+        "M365DApiEndpoint": {
+            "defaultValue": "api.security.microsoft.com",
+            "type": "String"
         }
     },
     "variables": {
-        "AzureSentinelConnectionName":"[concat('azuresentinel-', parameters('PlaybookName'))]"
+        "AzureSentinelConnectionName": "[concat('azuresentinel-', parameters('PlaybookName'))]"
     },
     "resources": [
         {
@@ -44,7 +48,7 @@
                         "allowedCallerIpAddresses": []
                     }
                 },
-               "definition": {
+                "definition": {
                     "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
                     "actions": {
                         "Compose_response": {
@@ -301,14 +305,14 @@
                                 "HTTP_query_the_EmailAttachmentInfo_table_with_files": {
                                     "inputs": {
                                         "authentication": {
-                                            "audience": "https://api.security.microsoft.com/",
+                                            "audience": "https://@{parameters('M365DApiEndpoint')}",
                                             "type": "ManagedServiceIdentity"
                                         },
                                         "body": {
                                             "Query": "@{outputs('Compose_KQL_for_EmailAttachmentInfo_with_files')}"
                                         },
                                         "method": "POST",
-                                        "uri": "https://api.security.microsoft.com/api/advancedhunting/run"
+                                        "uri": "https://@{parameters('M365DApiEndpoint')}/api/advancedhunting/run"
                                     },
                                     "runAfter": {
                                         "Compose_KQL_for_EmailAttachmentInfo_with_files": [
@@ -422,14 +426,14 @@
                                 "HTTP_invoke_the_FileProfile_function": {
                                     "inputs": {
                                         "authentication": {
-                                            "audience": "https://api.security.microsoft.com/",
+                                            "audience": "https://@{parameters('M365DApiEndpoint')}",
                                             "type": "ManagedServiceIdentity"
                                         },
                                         "body": {
                                             "Query": "@{outputs('Compose_KQL_for_FileProfile')}"
                                         },
                                         "method": "POST",
-                                        "uri": "https://api.security.microsoft.com/api/advancedhunting/run"
+                                        "uri": "https://@{parameters('M365DApiEndpoint')}/api/advancedhunting/run"
                                     },
                                     "runAfter": {
                                         "Compose_KQL_for_FileProfile": [
@@ -442,14 +446,14 @@
                                     "description": "Will fail on purpose when SHA256 is not the algorithm, it will use a null URI",
                                     "inputs": {
                                         "authentication": {
-                                            "audience": "https://api.security.microsoft.com/",
+                                            "audience": "https://@{parameters('M365DApiEndpoint')}",
                                             "type": "ManagedServiceIdentity"
                                         },
                                         "body": {
                                             "Query": "@{outputs('Compose_KQL_for_EmailAttachmentInfo_with_hashes')}"
                                         },
                                         "method": "POST",
-                                        "uri": "@{if(equals(item()['RawEntity']['algorithm'],'SHA256'),'https://api.security.microsoft.com/api/advancedhunting/run','')}"
+                                        "uri": "@{if(equals(item()['RawEntity']['algorithm'],'SHA256'), concat('https://', parameters('M365DApiEndpoint'), '/api/advancedhunting/run'),'')}"
                                     },
                                     "runAfter": {
                                         "Compose_KQL_for_EmailAttachmentInfo_with_hashes": [
@@ -518,14 +522,14 @@
                         "HTTP_Permissions_Check": {
                             "inputs": {
                                 "authentication": {
-                                    "audience": "https://api.security.microsoft.com/",
+                                    "audience": "https://@{parameters('M365DApiEndpoint')}",
                                     "type": "ManagedServiceIdentity"
                                 },
                                 "body": {
                                     "Query": "print 'STAT Permissions Check'"
                                 },
                                 "method": "POST",
-                                "uri": "https://api.security.microsoft.com/api/advancedhunting/run"
+                                "uri": "https://@{parameters('M365DApiEndpoint')}/api/advancedhunting/run"
                             },
                             "runAfter": {
                                 "Condition_-_Terminate_if_no_supported_entities": [
@@ -1086,12 +1090,16 @@
                             "defaultValue": {},
                             "type": "Object"
                         },
+                        "M365DApiEndpoint": {
+                            "defaultValue": "[parameters('M365DApiEndpoint')]",
+                            "type": "String"
+                        },
                         "PlaybookInternalName": {
                             "defaultValue": "FileModule",
                             "type": "String"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.0.4",
+                            "defaultValue": "0.1.0",
                             "type": "String"
                         },
                         "ProjectName": {

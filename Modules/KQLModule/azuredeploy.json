@@ -5,6 +5,10 @@
         "PlaybookName": {
             "defaultValue": "Run-KQLQuery",
             "type": "String"
+        },
+        "M365DApiEndpoint": {
+            "defaultValue": "api.security.microsoft.com",
+            "type": "String"
         }
     },
     "variables": {
@@ -52,8 +56,12 @@
                             "defaultValue": {},
                             "type": "Object"
                         },
+                        "M365DApiEndpoint": {
+                            "defaultValue": "[parameters('M365DApiEndpoint')]",
+                            "type": "String"
+                        },
                         "PlaybookVersion": {
-                            "defaultValue": "0.1.4",
+                            "defaultValue": "0.3.0",
                             "type": "String"
                         },
                         "PlaybookInternalName": {
@@ -72,10 +80,22 @@
                             "inputs": {
                                 "schema": {
                                     "properties": {
+                                        "AddIncidentComments": {
+                                            "description": "Add comment to the Sentinel Incident",
+                                            "type": "boolean"
+                                        },
+                                        "AddIncidentTask": {
+                                            "description": "Add a task to the Sentinel Incident",
+                                            "type": "boolean"
+                                        },
                                         "Entities": {
                                             "description": "Click here and select the Body object from the Base-Module output in the Dynamic content menu",
                                             "title": "Base Module Body",
                                             "type": "array"
+                                        },
+                                        "IncidentTaskInstructions": {
+                                            "description": "Instructions to include the the Incident task if created",
+                                            "type": "string"
                                         },
                                         "KQLQuery": {
                                             "description": "Enter the KQL query you wan to execute",
@@ -103,11 +123,7 @@
                         "Condition_-_Add_Comments": {
                             "actions": {
                                 "Add_comment_to_incident_(V3)": {
-                                    "runAfter": {
-                                        "Create_HTML_table": [
-                                            "Succeeded"
-                                        ]
-                                    },
+                                    "runAfter": {},
                                     "type": "ApiConnection",
                                     "inputs": {
                                         "body": {
@@ -122,18 +138,10 @@
                                         "method": "post",
                                         "path": "/Incidents/Comment"
                                     }
-                                },
-                                "Create_HTML_table": {
-                                    "runAfter": {},
-                                    "type": "Table",
-                                    "inputs": {
-                                        "format": "HTML",
-                                        "from": "@variables('Records')"
-                                    }
                                 }
                             },
                             "runAfter": {
-                                "Switch": [
+                                "Create_HTML_table": [
                                     "Succeeded"
                                 ]
                             },
@@ -148,6 +156,122 @@
                                 ]
                             },
                             "type": "If"
+                        },
+                        "Condition_-_Add_Tasks": {
+                            "actions": {
+                                "Compose_-_Full_URL": {
+                                    "runAfter": {
+                                        "Compose_-_Time_Range_Component": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Compose",
+                                    "inputs": "https://portal.azure.com/#view/Microsoft_OperationsManagementSuite_Workspace/Logs.ReactView/scope~/@{encodeUriComponent(outputs('Compose_-_Resource_Component'))}/source/AIExtension.UsageNotebookBlade/timespan/@{encodeUriComponent(outputs('Compose_-_Time_Range_Component'))}/query/@{encodeUriComponent(triggerBody()?['KQLQuery'])}/prettify/1"
+                                },
+                                "Compose_-_Resource_Component": {
+                                    "runAfter": {},
+                                    "type": "Compose",
+                                    "inputs": {
+                                        "resources": [
+                                            {
+                                                "resourceId": "/subscriptions/@{variables('armId')[2]}/resourcegroups/@{variables('armId')[4]}/providers/microsoft.operationalinsights/workspaces/@{variables('armId')[8]}"
+                                            }
+                                        ]
+                                    }
+                                },
+                                "Compose_-_Time_Range_Component": {
+                                    "runAfter": {
+                                        "Compose_-_Resource_Component": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Compose",
+                                    "inputs": "@{addDays(utcNow(),mul(triggerBody()?['LookbackInDays'],-1))}/@{utcNow()}"
+                                },
+                                "Compose_Task": {
+                                    "runAfter": {
+                                        "Compose_-_Full_URL": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Compose",
+                                    "inputs": "<a href=\"@{outputs('Compose_-_Full_URL')}\" target=\"_blank\">Query Results</a>\n\n@{if(empty(triggerBody()?['IncidentTaskInstructions']), 'Review the KQL Query Results', triggerBody()?['IncidentTaskInstructions'])}\n"
+                                },
+                                "HTTP_-_Create_Task": {
+                                    "runAfter": {
+                                        "Compose_Task": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Http",
+                                    "inputs": {
+                                        "authentication": {
+                                            "audience": "https://management.azure.com",
+                                            "type": "ManagedServiceIdentity"
+                                        },
+                                        "body": {
+                                            "properties": {
+                                                "description": "@{take(outputs('Compose_Task'),3000)}",
+                                                "status": "New",
+                                                "title": "@{if(empty(triggerBody()?['QueryDescription']), 'Review KQL Query', triggerBody()?['QueryDescription'])}"
+                                            }
+                                        },
+                                        "method": "PUT",
+                                        "uri": "https://management.azure.com@{body('Parse_JSON')?['IncidentARMId']}/tasks/@{guid()}?api-version=2022-12-01-preview"
+                                    }
+                                }
+                            },
+                            "runAfter": {
+                                "Create_HTML_table": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "expression": {
+                                "and": [
+                                    {
+                                        "equals": [
+                                            "@triggerBody()?['AddIncidentTask']",
+                                            true
+                                        ]
+                                    },
+                                    {
+                                        "greater": [
+                                            "@length(variables('Records'))",
+                                            0
+                                        ]
+                                    }
+                                ]
+                            },
+                            "type": "If"
+                        },
+                        "Create_HTML_table": {
+                            "runAfter": {
+                                "Switch": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Table",
+                            "inputs": {
+                                "format": "HTML",
+                                "from": "@variables('Records')"
+                            }
+                        },
+                        "Initialize_ARMId_Array": {
+                            "runAfter": {
+                                "Initialize_variable_-_Results_Found": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "armId",
+                                        "type": "array",
+                                        "value": "@split(body('Parse_JSON')?['IncidentARMId'], '/')"
+                                    }
+                                ]
+                            }
                         },
                         "Initialize_variable_-_Records": {
                             "runAfter": {
@@ -635,7 +759,7 @@
                         },
                         "Select_-_Accounts_Array": {
                             "runAfter": {
-                                "Initialize_variable_-_Results_Found": [
+                                "Initialize_ARMId_Array": [
                                     "Succeeded"
                                 ]
                             },
@@ -689,6 +813,10 @@
                                 "Condition_-_Add_Comments": [
                                     "Succeeded",
                                     "Failed"
+                                ],
+                                "Condition_-_Add_Tasks": [
+                                    "Succeeded",
+                                    "Failed"
                                 ]
                             },
                             "type": "SetVariable",
@@ -721,7 +849,7 @@
                                             "type": "Http",
                                             "inputs": {
                                                 "authentication": {
-                                                    "audience": "https://api.security.microsoft.com",
+                                                    "audience": "https://@{parameters('M365DApiEndpoint')}",
                                                     "type": "ManagedServiceIdentity"
                                                 },
                                                 "body": {
@@ -731,7 +859,7 @@
                                                 "queries": {
                                                     "Content-Type": "application/json"
                                                 },
-                                                "uri": "https://api.security.microsoft.com/api/advancedhunting/run"
+                                                "uri": "https://@{parameters('M365DApiEndpoint')}/api/advancedhunting/run"
                                             }
                                         },
                                         "Response_2": {

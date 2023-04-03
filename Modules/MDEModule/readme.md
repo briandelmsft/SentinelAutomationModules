@@ -73,13 +73,7 @@ This module will return the risk score and exposure level from Microsoft Defende
                 "exposureLevel": "Medium"
             }]
         }],
-        "IPs": [
-        {
-            "Address": "198.84.160.91",
-            "IPDevices": [],
-            "IPHighestExposureLevel": "Unknown",
-            "IPHighestRiskScore": "Unknown"
-        }],
+        "IPs": [],
         "Hosts": [
         {
             "id": "b9e57eb3ab888957a952f2b9fedd719264f5dbd9",

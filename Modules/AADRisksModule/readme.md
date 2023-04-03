@@ -15,7 +15,9 @@ Trigger name: **triage**
 |Parameter|Expected Values|Description|
 |---|---|---|
 |AddIncidentComments|True/False (Default:True)|When set to true, the results of the query will be added to the Sentinel Incident Comments|
+|AddIncidentTask|True/False (Default:False)|When set to true, a task will be added to the Sentinel incident to review the query results if results are found.|
 |Base Module Body|Body (dynamic content)|The Body should be selected from the Dynamic content of the Base-Module response|
+|IncidentTaskInstructions|Markdown Text|A list of instructions you want to include in the task|
 |LookbackInDays|1-90|This defines how far back to look through the SecurityAlert tables in Sentinel|
 |MFAFailureLookup|True/False (Default:True)|This enables the lookup the SigninLogs table for MFA failures|
 |MFAFraudLookup|True/False (Default:True)|This enables the lookup the AuditLogs table for MFA fraud reports|
