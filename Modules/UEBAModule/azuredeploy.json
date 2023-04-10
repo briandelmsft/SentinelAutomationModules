@@ -102,251 +102,6 @@
                         }
                     },
                     "actions": {
-                        "Check_for_UEBA_Insights": {
-                            "actions": {
-                                "Condition_-_Add_Comment": {
-                                    "actions": {
-                                        "Add_comment_to_incident_(V3)": {
-                                            "runAfter": {
-                                                "Create_HTML_table": [
-                                                    "Succeeded"
-                                                ]
-                                            },
-                                            "type": "ApiConnection",
-                                            "inputs": {
-                                                "body": {
-                                                    "incidentArmId": "@body('Parse_JSON')?['IncidentARMId']",
-                                                    "message": "<p>There were @{body('Filter_array_-_Total')[0]['EventCount']} investigation priority events with a minimum priority value of @{triggerBody()?['MinimumInvestigationPriority']}. &nbsp;There were @{body('Filter_array_-_Total')?[0]?['ThreatIntelMatches']} threat intelligence matches with the accounts behavioral data.<br>\n<br>\nAdditionally, there were @{body('Filter_array_-_Total')?[0]?['AnomalyCount']} anomalies found with @{body('Filter_array_-_Total')?[0]?['AnomalyTacticsCount']} unique MITRE tactics.<br>\n<br>\n@{body('Create_HTML_table')}<br>\n<br>\n</p>"
-                                                },
-                                                "host": {
-                                                    "connection": {
-                                                        "name": "@parameters('$connections')['azuresentinel']['connectionId']"
-                                                    }
-                                                },
-                                                "method": "post",
-                                                "path": "/Incidents/Comment"
-                                            }
-                                        },
-                                        "Create_HTML_table": {
-                                            "runAfter": {},
-                                            "type": "Table",
-                                            "inputs": {
-                                                "format": "HTML",
-                                                "from": "@body('Select_Remove_Null')"
-                                            }
-                                        }
-                                    },
-                                    "runAfter": {
-                                        "Select_Remove_Null": [
-                                            "Succeeded"
-                                        ]
-                                    },
-                                    "expression": {
-                                        "and": [
-                                            {
-                                                "equals": [
-                                                    "@triggerBody()?['AddIncidentComments']",
-                                                    true
-                                                ]
-                                            }
-                                        ]
-                                    },
-                                    "type": "If"
-                                },
-                                "Condition_-_Add_Task": {
-                                    "actions": {
-                                        "HTTP_-_Add_Task": {
-                                            "runAfter": {},
-                                            "type": "Http",
-                                            "inputs": {
-                                                "authentication": {
-                                                    "audience": "https://management.azure.com",
-                                                    "type": "ManagedServiceIdentity"
-                                                },
-                                                "body": {
-                                                    "properties": {
-                                                        "description": "@{take(triggerBody()?['IncidentTaskInstructions'], 3000)}",
-                                                        "status": "New",
-                                                        "title": "Review User Entity Behavior Insights"
-                                                    }
-                                                },
-                                                "method": "PUT",
-                                                "uri": "https://management.azure.com@{body('Parse_JSON')?['IncidentARMId']}/tasks/@{guid()}?api-version=2022-12-01-preview"
-                                            }
-                                        }
-                                    },
-                                    "runAfter": {
-                                        "Condition_-_Add_Comment": [
-                                            "Succeeded",
-                                            "Failed"
-                                        ]
-                                    },
-                                    "expression": {
-                                        "and": [
-                                            {
-                                                "equals": [
-                                                    "@triggerBody()?['AddIncidentTask']",
-                                                    true
-                                                ]
-                                            },
-                                            {
-                                                "or": [
-                                                    {
-                                                        "greater": [
-                                                            "@body('Filter_array_-_Total')?[0]?['AnomalyCount']",
-                                                            0
-                                                        ]
-                                                    },
-                                                    {
-                                                        "greater": [
-                                                            "@body('Filter_array_-_Total')[0]['ThreatIntelMatches']",
-                                                            0
-                                                        ]
-                                                    },
-                                                    {
-                                                        "greater": [
-                                                            "@body('Filter_array_-_Total')[0]['InvestigationPrioritySum']",
-                                                            0
-                                                        ]
-                                                    }
-                                                ]
-                                            }
-                                        ]
-                                    },
-                                    "type": "If"
-                                },
-                                "Filter_array_-_Exclude_Total": {
-                                    "runAfter": {
-                                        "Filter_array_-_Total": [
-                                            "Succeeded"
-                                        ]
-                                    },
-                                    "type": "Query",
-                                    "inputs": {
-                                        "from": "@body('Select')",
-                                        "where": "@not(equals(item()['UserPrincipalName'], 'Total'))"
-                                    }
-                                },
-                                "Filter_array_-_Total": {
-                                    "runAfter": {
-                                        "Select": [
-                                            "Succeeded"
-                                        ]
-                                    },
-                                    "type": "Query",
-                                    "inputs": {
-                                        "from": "@body('Select')",
-                                        "where": "@equals(item()['UserPrincipalName'], 'Total')"
-                                    }
-                                },
-                                "Response": {
-                                    "runAfter": {
-                                        "Condition_-_Add_Task": [
-                                            "Succeeded",
-                                            "Failed"
-                                        ]
-                                    },
-                                    "type": "Response",
-                                    "kind": "Http",
-                                    "inputs": {
-                                        "body": {
-                                            "AllEntityEventCount": "@body('Filter_array_-_Total')[0]['EventCount']",
-                                            "AllEntityInvestigationPriorityAverage": "@  body('Filter_array_-_Total')[0]['InvestigationPriorityAverage']",
-                                            "AllEntityInvestigationPriorityMax": "@body('Filter_array_-_Total')[0]['InvestigationPriorityMax']",
-                                            "AllEntityInvestigationPrioritySum": "@body('Filter_array_-_Total')[0]['InvestigationPrioritySum']",
-                                            "AnomalyCount": "@body('Filter_array_-_Total')?[0]?['AnomalyCount']",
-                                            "AnomalyTactics": "@json(body('Filter_array_-_Total')?[0]?['AnomalyTactics'])",
-                                            "AnomalyTacticsCount": "@body('Filter_array_-_Total')?[0]?['AnomalyTacticsCount']",
-                                            "DetailedResults": "@body('Select_Remove_Null')",
-                                            "InvestigationPrioritiesFound": true,
-                                            "ModuleName": "@{parameters('PlaybookInternalName')}",
-                                            "ThreatIntelFound": "@greater(body('Filter_array_-_Total')[0]['ThreatIntelMatches'], 0)",
-                                            "ThreatIntelMatchCount": "@body('Filter_array_-_Total')[0]['ThreatIntelMatches']"
-                                        },
-                                        "statusCode": 200
-                                    }
-                                },
-                                "Select": {
-                                    "runAfter": {},
-                                    "type": "Select",
-                                    "inputs": {
-                                        "from": "@body('HTTP')['tables'][0]['rows']",
-                                        "select": {
-                                            "@{body('HTTP')['tables'][0]['columns'][0]['name']}": "@item()[0]",
-                                            "@{body('HTTP')['tables'][0]['columns'][1]['name']}": "@item()[1]",
-                                            "@{body('HTTP')['tables'][0]['columns'][2]['name']}": "@item()[2]",
-                                            "@{body('HTTP')['tables'][0]['columns'][3]['name']}": "@item()[3]",
-                                            "@{body('HTTP')['tables'][0]['columns'][4]['name']}": "@item()[4]",
-                                            "@{body('HTTP')['tables'][0]['columns'][5]['name']}": "@item()?[5]",
-                                            "@{body('HTTP')['tables'][0]['columns'][6]['name']}": "@item()?[6]",
-                                            "@{body('HTTP')['tables'][0]['columns'][7]['name']}": "@item()?[7]",
-                                            "@{body('HTTP')['tables'][0]['columns'][8]['name']}": "@item()?[8]"
-                                        }
-                                    }
-                                },
-                                "Select_Remove_Null": {
-                                    "runAfter": {
-                                        "Filter_array_-_Exclude_Total": [
-                                            "Succeeded"
-                                        ]
-                                    },
-                                    "type": "Select",
-                                    "inputs": {
-                                        "from": "@body('Filter_array_-_Exclude_Total')",
-                                        "select": {
-                                            "EventCount": "@item()['EventCount']",
-                                            "InvestigationPriorityAverage": "@item()['InvestigationPriorityAverage']",
-                                            "InvestigationPriorityMax": "@item()['InvestigationPriorityMax']",
-                                            "InvestigationPrioritySum": "@item()['InvestigationPrioritySum']",
-                                            "ThreatIntelMatchCount": "@item()['ThreatIntelMatches']",
-                                            "UserPrincipalName": "@item()['UserPrincipalName']"
-                                        }
-                                    }
-                                }
-                            },
-                            "runAfter": {
-                                "HTTP": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "else": {
-                                "actions": {
-                                    "Response_2": {
-                                        "runAfter": {},
-                                        "type": "Response",
-                                        "kind": "Http",
-                                        "inputs": {
-                                            "body": {
-                                                "AllEntityEventCount": 0,
-                                                "AllEntityInvestigationPriorityAverage": 0,
-                                                "AllEntityInvestigationPriorityMax": 0,
-                                                "AllEntityInvestigationPrioritySum": 0,
-                                                "AnomalyCount": 0,
-                                                "AnomalyTactics": [],
-                                                "AnomalyTacticsCount": 0,
-                                                "DetailedResults": [],
-                                                "InvestigationPrioritiesFound": false,
-                                                "ModuleName": "@{parameters('PlaybookInternalName')}",
-                                                "ThreatIntelFound": false,
-                                                "ThreatIntelMatchCount": 0
-                                            },
-                                            "statusCode": 200
-                                        }
-                                    }
-                                }
-                            },
-                            "expression": {
-                                "and": [
-                                    {
-                                        "greater": [
-                                            "@length(body('HTTP')['tables'][0]['rows'])",
-                                            1
-                                        ]
-                                    }
-                                ]
-                            },
-                            "type": "If"
-                        },
                         "Compose": {
                             "runAfter": {
                                 "Select_-_Account_Entity": [
@@ -354,7 +109,141 @@
                                 ]
                             },
                             "type": "Compose",
-                            "inputs": "let minPriority = @{triggerBody()?['MinimumInvestigationPriority']};\nlet lookback = @{triggerBody()?['LookbackInDays']}d;\nlet entityData = print entities = url_decode('@{encodeUriComponent(body('Select_-_Account_Entity'))}')\n| mv-expand todynamic(entities)\n| project UserName = tostring(entities.accountName), UserPrincipalName=tostring(entities.userPrincipalName)\n| distinct UserName, UserPrincipalName\n| where isnotempty(UserPrincipalName);\nlet accountIds = entityData\n| summarize UserNames=make_set(UserName), UPNs=make_set(UserPrincipalName)\n| extend ids = array_concat(UserNames, UPNs);\nlet userDetails = BehaviorAnalytics\n| where TimeGenerated > ago(lookback)\n| join kind=inner (entityData) on UserPrincipalName\n| where InvestigationPriority >= minPriority or isnotnull(DevicesInsights.ThreatIntelIndicatorType) \n| summarize InvestigationPrioritySum=sum(InvestigationPriority), InvestigationPriorityAverage=avg(InvestigationPriority), InvestigationPriorityMax=max(InvestigationPriority), ThreatIntelMatches=countif(isnotnull(DevicesInsights.ThreatIntelIndicatorType)), EventCount=count() by UserPrincipalName;\nlet userAnomalies = Anomalies\n| where TimeGenerated > ago(lookback)\n| where UserPrincipalName in~ (accountIds) or UserName in~ (accountIds)\n| mv-expand todynamic(Tactics)\n| summarize AnomalyTactics=make_set(Tactics), AnomalyCount=dcount(Id, 4)\n| extend UserPrincipalName=\"Total\";\nuserDetails\n| summarize InvestigationPrioritySum=sum(InvestigationPrioritySum), InvestigationPriorityAverage=avg(InvestigationPriorityAverage), InvestigationPriorityMax=max(InvestigationPriorityMax), ThreatIntelMatches=sum(ThreatIntelMatches), EventCount=sum(EventCount)\n| extend UserPrincipalName=\"Total\"\n| join kind=leftouter userAnomalies on UserPrincipalName\n| extend AnomalyTacticsCount = toint(array_length(AnomalyTactics))\n| union userDetails\n| project-away UserPrincipalName1"
+                            "inputs": "let minPriority = @{triggerBody()?['MinimumInvestigationPriority']};\nlet lookback = @{triggerBody()?['LookbackInDays']}d;\nlet entityData = print entities = url_decode('@{encodeUriComponent(body('Select_-_Account_Entity'))}')\n| mv-expand todynamic(entities)\n| project UserName = tostring(entities.accountName), UserPrincipalName=tostring(entities.userPrincipalName)\n| distinct UserName, UserPrincipalName\n| where isnotempty(UserPrincipalName);\nlet accountIds = entityData\n| summarize UserNames=make_set(UserName), UPNs=make_set(UserPrincipalName)\n| extend ids = array_concat(UserNames, UPNs);\nlet userDetails = BehaviorAnalytics\n| where TimeGenerated > ago(lookback)\n| join kind=inner (entityData) on UserPrincipalName\n| where InvestigationPriority >= minPriority or isnotnull(DevicesInsights.ThreatIntelIndicatorType) \n| summarize InvestigationPrioritySum=sum(InvestigationPriority), InvestigationPriorityAverage=avg(InvestigationPriority), InvestigationPriorityMax=max(InvestigationPriority), ThreatIntelMatches=countif(isnotnull(DevicesInsights.ThreatIntelIndicatorType)), EventCount=count() by UserPrincipalName;\nlet userAnomalies = Anomalies\n| where TimeGenerated > ago(lookback)\n| where UserPrincipalName in~ (accountIds) or UserName in~ (accountIds)\n| mv-expand todynamic(Tactics)\n| summarize AnomalyTactics=make_set(Tactics), AnomalyCount=dcount(Id, 4)\n| extend UserPrincipalName=\"Total\";\nuserDetails\n| summarize InvestigationPrioritySum=sum(InvestigationPrioritySum), InvestigationPriorityAverage=avg(InvestigationPriorityAverage), InvestigationPriorityMax=max(InvestigationPriorityMax), ThreatIntelMatches=sum(ThreatIntelMatches), EventCount=sum(EventCount)\n| extend UserPrincipalName=\"Total\"\n| join kind=leftouter userAnomalies on UserPrincipalName\n| extend AnomalyTacticsCount = toint(array_length(AnomalyTactics))\n| union userDetails\n| project-away UserPrincipalName1\n| extend InvestigationPriorityAverage=iff(isnan(InvestigationPriorityAverage), toreal(0), toreal(InvestigationPriorityAverage))"
+                        },
+                        "Condition_-_Add_Comment": {
+                            "actions": {
+                                "Add_comment_to_incident_(V3)": {
+                                    "runAfter": {
+                                        "Create_HTML_table": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "ApiConnection",
+                                    "inputs": {
+                                        "body": {
+                                            "incidentArmId": "@body('Parse_JSON')?['IncidentARMId']",
+                                            "message": "<p>There were @{body('Filter_array_-_Total')[0]['EventCount']} investigation priority events with a minimum priority value of @{triggerBody()?['MinimumInvestigationPriority']}. &nbsp;There were @{body('Filter_array_-_Total')?[0]?['ThreatIntelMatches']} threat intelligence matches with the accounts behavioral data.<br>\n<br>\nAdditionally, there were @{body('Filter_array_-_Total')?[0]?['AnomalyCount']} anomalies found with @{body('Filter_array_-_Total')?[0]?['AnomalyTacticsCount']} unique MITRE tactics.<br>\n<br>\n@{body('Create_HTML_table')}<br>\n<br>\n</p>"
+                                        },
+                                        "host": {
+                                            "connection": {
+                                                "name": "@parameters('$connections')['azuresentinel']['connectionId']"
+                                            }
+                                        },
+                                        "method": "post",
+                                        "path": "/Incidents/Comment"
+                                    }
+                                },
+                                "Create_HTML_table": {
+                                    "runAfter": {},
+                                    "type": "Table",
+                                    "inputs": {
+                                        "format": "HTML",
+                                        "from": "@body('Select_Remove_Null')"
+                                    }
+                                }
+                            },
+                            "runAfter": {
+                                "Select_Remove_Null": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "expression": {
+                                "and": [
+                                    {
+                                        "equals": [
+                                            "@triggerBody()?['AddIncidentComments']",
+                                            true
+                                        ]
+                                    }
+                                ]
+                            },
+                            "type": "If"
+                        },
+                        "Condition_-_Add_Task": {
+                            "actions": {
+                                "HTTP_-_Add_Task": {
+                                    "runAfter": {},
+                                    "type": "Http",
+                                    "inputs": {
+                                        "authentication": {
+                                            "audience": "https://management.azure.com",
+                                            "type": "ManagedServiceIdentity"
+                                        },
+                                        "body": {
+                                            "properties": {
+                                                "description": "@{take(triggerBody()?['IncidentTaskInstructions'], 3000)}",
+                                                "status": "New",
+                                                "title": "Review User Entity Behavior Insights"
+                                            }
+                                        },
+                                        "method": "PUT",
+                                        "uri": "https://management.azure.com@{body('Parse_JSON')?['IncidentARMId']}/tasks/@{guid()}?api-version=2022-12-01-preview"
+                                    }
+                                }
+                            },
+                            "runAfter": {
+                                "Condition_-_Add_Comment": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "expression": {
+                                "and": [
+                                    {
+                                        "equals": [
+                                            "@triggerBody()?['AddIncidentTask']",
+                                            true
+                                        ]
+                                    },
+                                    {
+                                        "or": [
+                                            {
+                                                "greater": [
+                                                    "@body('Filter_array_-_Total')?[0]?['AnomalyCount']",
+                                                    0
+                                                ]
+                                            },
+                                            {
+                                                "greater": [
+                                                    "@body('Filter_array_-_Total')[0]['ThreatIntelMatches']",
+                                                    0
+                                                ]
+                                            },
+                                            {
+                                                "greater": [
+                                                    "@body('Filter_array_-_Total')[0]['InvestigationPrioritySum']",
+                                                    0
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            "type": "If"
+                        },
+                        "Filter_array_-_Exclude_Total": {
+                            "runAfter": {
+                                "Filter_array_-_Total": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Query",
+                            "inputs": {
+                                "from": "@body('Select')",
+                                "where": "@not(equals(item()['UserPrincipalName'], 'Total'))"
+                            }
+                        },
+                        "Filter_array_-_Total": {
+                            "runAfter": {
+                                "Select": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Query",
+                            "inputs": {
+                                "from": "@body('Select')",
+                                "where": "@equals(item()['UserPrincipalName'], 'Total')"
+                            }
                         },
                         "HTTP": {
                             "runAfter": {
@@ -751,6 +640,32 @@
                                 }
                             }
                         },
+                        "Response": {
+                            "runAfter": {
+                                "Condition_-_Add_Task": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Response",
+                            "kind": "Http",
+                            "inputs": {
+                                "body": {
+                                    "AllEntityEventCount": "@body('Filter_array_-_Total')[0]['EventCount']",
+                                    "AllEntityInvestigationPriorityAverage": "@body('Filter_array_-_Total')[0]['InvestigationPriorityAverage']",
+                                    "AllEntityInvestigationPriorityMax": "@coalesce(body('Filter_array_-_Total')[0]['InvestigationPriorityMax'], 0)",
+                                    "AllEntityInvestigationPrioritySum": "@body('Filter_array_-_Total')[0]['InvestigationPrioritySum']",
+                                    "AnomalyCount": "@body('Filter_array_-_Total')?[0]?['AnomalyCount']",
+                                    "AnomalyTactics": "@json(body('Filter_array_-_Total')?[0]?['AnomalyTactics'])",
+                                    "AnomalyTacticsCount": "@body('Filter_array_-_Total')?[0]?['AnomalyTacticsCount']",
+                                    "DetailedResults": "@body('Select_Remove_Null')",
+                                    "InvestigationPrioritiesFound": "@greater(body('Filter_array_-_Total')[0]['EventCount'], 0)",
+                                    "ModuleName": "@{parameters('PlaybookInternalName')}",
+                                    "ThreatIntelFound": "@greater(body('Filter_array_-_Total')[0]['ThreatIntelMatches'], 0)",
+                                    "ThreatIntelMatchCount": "@body('Filter_array_-_Total')[0]['ThreatIntelMatches']"
+                                },
+                                "statusCode": 200
+                            }
+                        },
                         "Response_-_API_Failure": {
                             "runAfter": {
                                 "HTTP": [
@@ -771,6 +686,28 @@
                                 "statusCode": "@outputs('HTTP')['statusCode']"
                             }
                         },
+                        "Select": {
+                            "runAfter": {
+                                "HTTP": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Select",
+                            "inputs": {
+                                "from": "@body('HTTP')['tables'][0]['rows']",
+                                "select": {
+                                    "@{body('HTTP')['tables'][0]['columns'][0]['name']}": "@item()[0]",
+                                    "@{body('HTTP')['tables'][0]['columns'][1]['name']}": "@item()[1]",
+                                    "@{body('HTTP')['tables'][0]['columns'][2]['name']}": "@item()[2]",
+                                    "@{body('HTTP')['tables'][0]['columns'][3]['name']}": "@item()[3]",
+                                    "@{body('HTTP')['tables'][0]['columns'][4]['name']}": "@item()[4]",
+                                    "@{body('HTTP')['tables'][0]['columns'][5]['name']}": "@item()?[5]",
+                                    "@{body('HTTP')['tables'][0]['columns'][6]['name']}": "@item()?[6]",
+                                    "@{body('HTTP')['tables'][0]['columns'][7]['name']}": "@item()?[7]",
+                                    "@{body('HTTP')['tables'][0]['columns'][8]['name']}": "@item()?[8]"
+                                }
+                            }
+                        },
                         "Select_-_Account_Entity": {
                             "runAfter": {
                                 "Parse_JSON": [
@@ -783,6 +720,25 @@
                                 "select": {
                                     "accountName": "@item()?['onPremisesSamAccountName']",
                                     "userPrincipalName": "@item()?['userPrincipalName']"
+                                }
+                            }
+                        },
+                        "Select_Remove_Null": {
+                            "runAfter": {
+                                "Filter_array_-_Exclude_Total": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Select",
+                            "inputs": {
+                                "from": "@body('Filter_array_-_Exclude_Total')",
+                                "select": {
+                                    "EventCount": "@item()['EventCount']",
+                                    "InvestigationPriorityAverage": "@item()['InvestigationPriorityAverage']",
+                                    "InvestigationPriorityMax": "@item()['InvestigationPriorityMax']",
+                                    "InvestigationPrioritySum": "@item()['InvestigationPrioritySum']",
+                                    "ThreatIntelMatchCount": "@item()['ThreatIntelMatches']",
+                                    "UserPrincipalName": "@item()['UserPrincipalName']"
                                 }
                             }
                         }
