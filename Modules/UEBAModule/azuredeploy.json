@@ -53,7 +53,7 @@
                             "type": "Object"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.1.0",
+                            "defaultValue": "0.1.1",
                             "type": "String"
                         },
                         "PlaybookInternalName": {
@@ -104,7 +104,7 @@
                     "actions": {
                         "Check_for_UEBA_Insights": {
                             "actions": {
-                                "Condition": {
+                                "Condition_-_Add_Comment": {
                                     "actions": {
                                         "Add_comment_to_incident_(V3)": {
                                             "runAfter": {
@@ -153,6 +153,68 @@
                                     },
                                     "type": "If"
                                 },
+                                "Condition_-_Add_Task": {
+                                    "actions": {
+                                        "HTTP_-_Add_Task": {
+                                            "runAfter": {},
+                                            "type": "Http",
+                                            "inputs": {
+                                                "authentication": {
+                                                    "audience": "https://management.azure.com",
+                                                    "type": "ManagedServiceIdentity"
+                                                },
+                                                "body": {
+                                                    "properties": {
+                                                        "description": "@{take(triggerBody()?['IncidentTaskInstructions'], 3000)}",
+                                                        "status": "New",
+                                                        "title": "Review User Entity Behavior Insights"
+                                                    }
+                                                },
+                                                "method": "PUT",
+                                                "uri": "https://management.azure.com@{body('Parse_JSON')?['IncidentARMId']}/tasks/@{guid()}?api-version=2022-12-01-preview"
+                                            }
+                                        }
+                                    },
+                                    "runAfter": {
+                                        "Condition_-_Add_Comment": [
+                                            "Succeeded",
+                                            "Failed"
+                                        ]
+                                    },
+                                    "expression": {
+                                        "and": [
+                                            {
+                                                "equals": [
+                                                    "@triggerBody()?['AddIncidentTask']",
+                                                    true
+                                                ]
+                                            },
+                                            {
+                                                "or": [
+                                                    {
+                                                        "greater": [
+                                                            "@body('Filter_array_-_Total')?[0]?['AnomalyCount']",
+                                                            0
+                                                        ]
+                                                    },
+                                                    {
+                                                        "greater": [
+                                                            "@body('Filter_array_-_Total')[0]['ThreatIntelMatches']",
+                                                            0
+                                                        ]
+                                                    },
+                                                    {
+                                                        "greater": [
+                                                            "@body('Filter_array_-_Total')[0]['InvestigationPrioritySum']",
+                                                            0
+                                                        ]
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    "type": "If"
+                                },
                                 "Filter_array_-_Exclude_Total": {
                                     "runAfter": {
                                         "Filter_array_-_Total": [
@@ -179,7 +241,7 @@
                                 },
                                 "Response": {
                                     "runAfter": {
-                                        "Condition": [
+                                        "Condition_-_Add_Task": [
                                             "Succeeded",
                                             "Failed"
                                         ]

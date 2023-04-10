@@ -11,7 +11,9 @@ This module will check the incident account entities to see if there are any Use
 |Parameter|Expected Values|Description|
 |---|---|---|
 |AddIncidentComments|Yes/No|When set to yes, the results of the query will be added to the Sentinel Incident Comments|
+|AddIncidentTask|True/False (Default:False)|When set to true, a task will be added to the Sentinel incident to review the query results if results are found.|
 |Base Module Body|Body (dynamic content)|The Body should be selected from the Dynamic content of the Base-Module response|
+|IncidentTaskInstructions|Markdown Text|A list of instructions you want to include in the task|
 |LookbackInDays|1-90|This defines how far back to look through the UEBA tables in Sentinel|
 |MinimumInvestigationPriority|1-10|Only BehaviourAnalytics records with an InvestirgationPriority of >= this value will be considered|
 
