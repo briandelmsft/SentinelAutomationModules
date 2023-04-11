@@ -70,7 +70,15 @@ When scoring the Watchlist Module if ScorePerItem=True then the returned score w
 
 ### UEBA Module Scoring
 
-When scoring the UEBA module, if ScorePerItem=True each account entity is assessed and the score will be calculated as InvestigationPriorityMax * ScoreMultiplier.  If ScorePerItem=False the returned score will be AllEntityInvestigationPriorityMax * ScoreMultiplier
+Scoring for the UEBA module consists of 3 parts:
+
+|Score Part|Explanation|
+|---|---|
+|InvestigationPriorityMax|The maximum investigation priority score is taken and mulitpled by the ScoreMultiplier|
+|ThreatIntelMatchCount|If realted threat intelligence matches are found in the BehaviorAnalytics table, 10 * ScoreMultiplier is added to the score|
+|AnomalyTacticsCount|If related anomalies around found in the Anomalies table the number of uniqure MITRE tactics is determined and the AnomalyTacticsCount * 10 * ScoreMultiplier is added to the score|
+
+> If ScorePerItem=False, AllEntityInvestigationPriorityMax is used and the global ThreatIntelMatchCount is used instead of the entity level counts.
 
 ### File Module Scoring
 

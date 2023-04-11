@@ -53,7 +53,7 @@
                             "type": "Object"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.0.9",
+                            "defaultValue": "0.1.0",
                             "type": "String"
                         },
                         "PlaybookInternalName": {
@@ -1461,6 +1461,21 @@
                                                     "actions": {
                                                         "UEBA_-_Results_Found": {
                                                             "actions": {
+                                                                "Append_to_DetailedResults_-_AnomalyTactics": {
+                                                                    "runAfter": {
+                                                                        "Increment_scoreTotal_-_AnomalyTactics": [
+                                                                            "Succeeded"
+                                                                        ]
+                                                                    },
+                                                                    "type": "AppendToArrayVariable",
+                                                                    "inputs": {
+                                                                        "name": "DetailedResults",
+                                                                        "value": {
+                                                                            "Score": "@mul(mul(item()?['ModuleBody']?['AnomalyTacticsCount'], 10), outputs('Multiplier'))",
+                                                                            "ScoreSource": "@{outputs('Label')} - Anomaly MITRE Tactics"
+                                                                        }
+                                                                    }
+                                                                },
                                                                 "For_each_UEBA": {
                                                                     "foreach": "@item()['ModuleBody']['DetailedResults']",
                                                                     "actions": {
@@ -1474,7 +1489,7 @@
                                                                             "inputs": {
                                                                                 "name": "DetailedResults",
                                                                                 "value": {
-                                                                                    "Score": "@mul(item()['InvestigationPriorityMax'],outputs('Multiplier'))",
+                                                                                    "Score": "@mul(add(if(greater(item()['ThreatIntelMatchCount'],0), 10, 0), item()['InvestigationPriorityMax']), outputs('Multiplier'))",
                                                                                     "ScoreSource": "@{outputs('Label')} - @{items('For_each_UEBA')['UserPrincipalName']}"
                                                                                 }
                                                                             }
@@ -1484,12 +1499,24 @@
                                                                             "type": "IncrementVariable",
                                                                             "inputs": {
                                                                                 "name": "scoreTotal",
-                                                                                "value": "@mul(item()['InvestigationPriorityMax'],outputs('Multiplier'))"
+                                                                                "value": "@mul(add(if(greater(item()['ThreatIntelMatchCount'],0), 10, 0), item()['InvestigationPriorityMax']), outputs('Multiplier'))"
                                                                             }
                                                                         }
                                                                     },
                                                                     "runAfter": {},
                                                                     "type": "Foreach"
+                                                                },
+                                                                "Increment_scoreTotal_-_AnomalyTactics": {
+                                                                    "runAfter": {
+                                                                        "For_each_UEBA": [
+                                                                            "Succeeded"
+                                                                        ]
+                                                                    },
+                                                                    "type": "IncrementVariable",
+                                                                    "inputs": {
+                                                                        "name": "scoreTotal",
+                                                                        "value": "@mul(mul(item()?['ModuleBody']?['AnomalyTacticsCount'], 10), outputs('Multiplier'))"
+                                                                    }
                                                                 }
                                                             },
                                                             "runAfter": {},
@@ -1534,7 +1561,7 @@
                                                                 "inputs": {
                                                                     "name": "DetailedResults",
                                                                     "value": {
-                                                                        "Score": "@mul(item()['ModuleBody']['AllEntityInvestigationPriorityMax'],outputs('Multiplier'))",
+                                                                        "Score": "@add(mul(mul(item()?['ModuleBody']?['AnomalyTacticsCount'], 10), outputs('Multiplier')),mul(add(if(greater(item()?['ModuleBody']?['ThreatIntelMatchCount'],0), 10, 0), item()['ModuleBody']['AllEntityInvestigationPriorityMax']), outputs('Multiplier')))",
                                                                         "ScoreSource": "@{outputs('Label')}"
                                                                     }
                                                                 }
@@ -1544,7 +1571,7 @@
                                                                 "type": "IncrementVariable",
                                                                 "inputs": {
                                                                     "name": "scoreTotal",
-                                                                    "value": "@mul(item()['ModuleBody']['AllEntityInvestigationPriorityMax'],outputs('Multiplier'))"
+                                                                    "value": "@add(mul(mul(item()?['ModuleBody']?['AnomalyTacticsCount'], 10), outputs('Multiplier')),mul(add(if(greater(item()?['ModuleBody']?['ThreatIntelMatchCount'],0), 10, 0), item()['ModuleBody']['AllEntityInvestigationPriorityMax']), outputs('Multiplier')))"
                                                                 }
                                                             }
                                                         }

@@ -8,8 +8,8 @@
     "OOFModule": "0.0.3",
     "RelatedAlerts": "0.2.1",
     "RunPlaybook": "0.0.1",
-    "ScoringModule": "0.0.9",
+    "ScoringModule": "0.1.0",
     "TIModule": "0.1.1",
-    "UEBAModule": "0.0.7",
+    "UEBAModule": "0.1.1",
     "WatchlistModule": "0.0.7"
 }

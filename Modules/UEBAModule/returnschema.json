@@ -17,6 +17,18 @@
             "description": "Sum of priority of all UEBA Priorities found at or above threshold",
             "type": "integer"
         },
+        "AnomalyTactics": {
+            "description": "Array of unique MITRE tactics",
+            "type": "array"
+        },
+        "AnomalyCount": {
+            "description": "Sum of all anomalies found",
+            "type": "integer"
+        },
+        "AnomalyTacticsCount": {
+            "description": "Count of unique related MITRE tactics",
+            "type": "integer"
+        },
         "InvestigationPrioritiesFound": {
             "description": "true/false if any UEBA Priorities were found at or above threshold",
             "type": "boolean"
@@ -39,6 +51,10 @@
                         "description": "Maximum priority of all UEBA Priorities found at or above threshold in DetailedResults array",
                         "type": "integer"
                     },
+                    "ThreatIntelMatchCount": {
+                        "description": "Count of BehaviorAnalytics entries with matching threat intel in DetailedResults array",
+                        "type": "integer"
+                    },
                     "EventCount": {
                         "description": "Count of all UEBA Priorities found at or above threshold in DetailedResults array",
                         "type": "integer"
@@ -52,6 +68,14 @@
         },
         "ModuleName": {
             "type": "string"
-        }  
+        },
+        "ThreatIntelFound": {
+            "description": "Matching threat intelligence found",
+            "type": "boolean"
+        },
+        "ThreatIntelMatchCount": {
+            "description": "Sum of all BehaviorAnalytics with matching threat intelligence",
+            "type": "integer"
+        }
     }
 }
