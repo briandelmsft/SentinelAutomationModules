@@ -188,7 +188,7 @@
                                                 },
                                                 "body": {
                                                     "properties": {
-                                                        "description": "@{triggerBody()?['IncidentTaskInstructions']}",
+                                                        "description": "@{take(triggerBody()?['IncidentTaskInstructions'], 3000)}",
                                                         "status": "New",
                                                         "title": "Review Related Alerts"
                                                     }
