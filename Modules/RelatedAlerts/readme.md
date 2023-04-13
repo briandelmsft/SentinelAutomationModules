@@ -13,11 +13,28 @@ This module will check the incidient entities to see if there are any other aler
 |Parameter|Expected Values|Description|
 |---|---|---|
 |AddIncidentComments|True/False (Default:True)|When set to true, the results of the query will be added to the Sentinel Incident Comments|
+|AddIncidentTask|True/False (Default:False)|When set to true, a task will be added to the Sentinel incident to review the query results if results are found.|
+|AlertKQLFilter|KQL Statement (Default:none)|Optionally, a KQL statement can be added to filter out alerts you want to exclude from this module, see Alert Filtering below for more inforomation|
 |CheckAccountEntityMatches|True/False (Default:True)|When set to true, the module will look for related alerts based on the Account entity type|
 |CheckHostEntityMatches|True/False (Default:True)|When set to true, the module will look for related alerts based on the Host entity type|
 |CheckIPEntityMatches|True/False (Default:True)|When set to true, the module will look for related alerts based on the IP entity type|
+|IncidentTaskInstructions|Markdown Text|A list of instructions you want to include in the task|
 |Base Module Body|Body (dynamic content)|The Body should be selected from the Dynamic content of the Base-Module response|
 |LookbackInDays|1-90|This defines how far back to look through the SecurityAlert tables in Sentinel|
+
+### Alert Filtering
+
+Some alerts in the SecurityAlert table may be of limited security value when performing an automated triage and you may want to filter them out so they are not considered.  The AlertKQLFilter property of this module allows you to add an optional KQL filter to limit the alerts that are returned by this module.  This filter only supports adding one or more ```| where``` statements, though other KQL may work, modifying the returned columns (reducing columns, adding columns, renaming) may cause the module to fail or produce unexpected results.
+
+The AlertKQLFilter is applied in the KQL query after the most recent version of the alert has been returned and the entities array has been expanded using an mv-expand.  To test a filter statement in Log search, use this KQL statement to test and place your filter at the end.  Other filters, not shown below, are applied automatically in the module, such as only returning alerts that match the incidents account or ip entities.
+
+```
+SecurityAlert 
+| where TimeGenerated > ago(14d) 
+| summarize arg_max(TimeGenerated, *) by SystemAlertId 
+| where SystemAlertId !in (currentIncidentAlerts) or isFusionIncident
+| mv-expand todynamic(Entities) 
+```
 
 ## Return Properties
 
