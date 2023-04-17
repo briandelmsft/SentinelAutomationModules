@@ -53,7 +53,7 @@
                             "type": "Object"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.1.1",
+                            "defaultValue": "0.2.0",
                             "type": "String"
                         },
                         "PlaybookInternalName": {
@@ -74,6 +74,10 @@
                                     "properties": {
                                         "AddIncidentComments": {
                                             "title": "Add comments to the incident",
+                                            "type": "boolean"
+                                        },
+                                        "AddIncidentTask": {
+                                            "description": "Add a task to the Sentinel Incident",
                                             "type": "boolean"
                                         },
                                         "CheckDomains": {
@@ -97,6 +101,10 @@
                                             "title": "Base Module Body",
                                             "type": "array"
                                         },
+                                        "IncidentTaskInstructions": {
+                                            "description": "Instructions to include the the Incident task if created",
+                                            "type": "string"
+                                        },
                                         "LookbackInDays": {
                                             "description": "Enter the number of days you want to lookback in the Threat Intelligence data",
                                             "type": "integer"
@@ -108,25 +116,7 @@
                         }
                     },
                     "actions": {
-                        "Compose_-_DetailedResults": {
-                            "runAfter": {
-                                "Condition_-_Domain": [
-                                    "Succeeded"
-                                ],
-                                "Condition_-_File_Hash": [
-                                    "Succeeded"
-                                ],
-                                "Condition_-_IP": [
-                                    "Succeeded"
-                                ],
-                                "Condition_-_URL": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "Compose",
-                            "inputs": "@union(coalesce(body('Select_-_File_Hash'),variables('emptyArray')),coalesce(body('Select_-_IP'),variables('emptyArray')),coalesce(body('Select_-_URL'),variables('emptyArray')),coalesce(body('Select_-_Domain'),variables('emptyArray')))"
-                        },
-                        "Condition": {
+                        "Add_Comment": {
                             "actions": {
                                 "Add_comment_to_incident_(V3)": {
                                     "runAfter": {
@@ -174,6 +164,69 @@
                                 ]
                             },
                             "type": "If"
+                        },
+                        "Add_Task": {
+                            "actions": {
+                                "HTTP_-_Add_Task": {
+                                    "runAfter": {},
+                                    "type": "Http",
+                                    "inputs": {
+                                        "authentication": {
+                                            "audience": "https://management.azure.com",
+                                            "type": "ManagedServiceIdentity"
+                                        },
+                                        "body": {
+                                            "properties": {
+                                                "description": "@{take(triggerBody()?['IncidentTaskInstructions'],3000)}",
+                                                "status": "New",
+                                                "title": "Review Threat Intellignece Matches"
+                                            }
+                                        },
+                                        "method": "PUT",
+                                        "uri": "https://management.azure.com@{body('Parse_JSON')?['IncidentARMId']}/tasks/@{guid()}?api-version=2022-12-01-preview"
+                                    }
+                                }
+                            },
+                            "runAfter": {
+                                "Compose_-_DetailedResults": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "expression": {
+                                "and": [
+                                    {
+                                        "equals": [
+                                            "@triggerBody()?['AddIncidentTask']",
+                                            true
+                                        ]
+                                    },
+                                    {
+                                        "equals": [
+                                            "@greater(add(add(length(coalesce(body('Select_-_Domain'), variables('emptyArray'))),length(coalesce(body('Select_-_File_Hash'), variables('emptyArray')))),add(length(coalesce(body('Select_-_IP'), variables('emptyArray'))),length(coalesce(body('Select_-_URL'), variables('emptyArray'))))),0)",
+                                            true
+                                        ]
+                                    }
+                                ]
+                            },
+                            "type": "If"
+                        },
+                        "Compose_-_DetailedResults": {
+                            "runAfter": {
+                                "Condition_-_Domain": [
+                                    "Succeeded"
+                                ],
+                                "Condition_-_File_Hash": [
+                                    "Succeeded"
+                                ],
+                                "Condition_-_IP": [
+                                    "Succeeded"
+                                ],
+                                "Condition_-_URL": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Compose",
+                            "inputs": "@union(coalesce(body('Select_-_File_Hash'),variables('emptyArray')),coalesce(body('Select_-_IP'),variables('emptyArray')),coalesce(body('Select_-_URL'),variables('emptyArray')),coalesce(body('Select_-_Domain'),variables('emptyArray')))"
                         },
                         "Condition_-_Domain": {
                             "actions": {
@@ -988,7 +1041,11 @@
                         },
                         "Response": {
                             "runAfter": {
-                                "Condition": [
+                                "Add_Comment": [
+                                    "Succeeded",
+                                    "Failed"
+                                ],
+                                "Add_Task": [
                                     "Succeeded",
                                     "Failed"
                                 ]
