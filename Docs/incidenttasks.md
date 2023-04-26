@@ -20,7 +20,9 @@ Incident tasks are currently supported in the following modules.  Additional mod
 * AAD Risks Module
 * KQL Module
 * Related Alerts Module
+* Threat Intel Module
 * UEBA Module
+* Watchlist Module
 
 ## Incident Tasks Example
 

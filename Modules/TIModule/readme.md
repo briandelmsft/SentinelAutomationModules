@@ -14,11 +14,13 @@ This module will check the incident entities to see if there is corresponding th
 |Parameter|Expected Values|Description|
 |---|---|---|
 |AddIncidentComments|True/False (Default:True)|When set to true, the results of the query will be added to the Sentinel Incident Comments|
+|AddIncidentTask|True/False (Default:False)|When set to true, a task will be added to the Sentinel incident to review the query results if results are found.|
 |Base Module Body|Body (dynamic content)|The Body should be selected from the Dynamic content of the Base-Module response|
 |CheckDomains|True/False (Default:True)|Check Domain Entities for Threat Intelligence Matches|
 |CheckFileHashes|True/False (Default:True)|Check File Hash Entities for Theat Intelligence Matches|
 |CheckIPs|True/False (Default:True)|Check IP Entities for Threat Intelligence Matches|
 |CheckURLs|True/False (Default:True)|Check URL Entities for Threat Intelligence Matches|
+|IncidentTaskInstructions|Markdown Text|A list of instructions you want to include in the task|
 |LookbackInDays|(Default:14)|This defines how far back to look through the ThreatIntelligenceIndicators table in Sentinel.  All active threat intel is included when looking back the default 14 days.|
 
 ## Return Properties

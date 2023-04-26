@@ -53,7 +53,7 @@
                             "type": "Object"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.0.7",
+                            "defaultValue": "0.1.0",
                             "type": "String"
                         },
                         "PlaybookInternalName": {
@@ -76,10 +76,18 @@
                                             "title": "Add comments to the incident",
                                             "type": "boolean"
                                         },
+                                        "AddIncidentTask": {
+                                            "description": "Add a task to the Sentinel Incident",
+                                            "type": "boolean"
+                                        },
                                         "Entities": {
                                             "description": "Click here and select the Body object from the Base-Module output in the Dynamic content menu",
                                             "title": "Base Module Body",
                                             "type": "array"
+                                        },
+                                        "IncidentTaskInstructions": {
+                                            "description": "Instructions to include the the Incident task if created",
+                                            "type": "string"
                                         },
                                         "WatchlistKey": {
                                             "description": "Enter the column name from the watchlist to match to the UPN or IP data",
@@ -100,7 +108,7 @@
                         }
                     },
                     "actions": {
-                        "Check_for_Records": {
+                        "Add_Comment": {
                             "actions": {
                                 "Add_comment_to_incident_(V3)": {
                                     "runAfter": {
@@ -148,6 +156,51 @@
                                     {
                                         "equals": [
                                             "@triggerBody()?['AddIncidentComments']",
+                                            true
+                                        ]
+                                    }
+                                ]
+                            },
+                            "type": "If"
+                        },
+                        "Add_Task": {
+                            "actions": {
+                                "HTTP_-_Add_Task": {
+                                    "runAfter": {},
+                                    "type": "Http",
+                                    "inputs": {
+                                        "authentication": {
+                                            "audience": "https://management.azure.com",
+                                            "type": "ManagedServiceIdentity"
+                                        },
+                                        "body": {
+                                            "properties": {
+                                                "description": "@{take(triggerBody()?['IncidentTaskInstructions'],3000)}",
+                                                "status": "New",
+                                                "title": "Review Watchlist Matches"
+                                            }
+                                        },
+                                        "method": "PUT",
+                                        "uri": "https://management.azure.com@{body('Parse_JSON')?['IncidentARMId']}/tasks/@{guid()}?api-version=2022-12-01-preview"
+                                    }
+                                }
+                            },
+                            "runAfter": {
+                                "Filter_array": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "expression": {
+                                "and": [
+                                    {
+                                        "equals": [
+                                            "@triggerBody()?['AddIncidentTask']",
+                                            true
+                                        ]
+                                    },
+                                    {
+                                        "equals": [
+                                            "@greater(length(body('Filter_array')),0)",
                                             true
                                         ]
                                     }
@@ -633,7 +686,11 @@
                         },
                         "Response": {
                             "runAfter": {
-                                "Check_for_Records": [
+                                "Add_Comment": [
+                                    "Succeeded",
+                                    "Failed"
+                                ],
+                                "Add_Task": [
                                     "Succeeded",
                                     "Failed"
                                 ]
