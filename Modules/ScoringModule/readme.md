@@ -111,7 +111,7 @@ To add custom content to the scoring module you will need to retieve the necessa
       {
          "Score": 10,
          "ScoreLabel": "Custom Vulnerability Management Score"
-      },
+      }
    ]
 }
 ```
