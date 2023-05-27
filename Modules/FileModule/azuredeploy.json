@@ -595,7 +595,7 @@
                                     {
                                         "name": "GlobalPrevalence",
                                         "type": "array",
-                                        "value": []
+                                        "value": "@createArray(0)"
                                     }
                                 ]
                             },
@@ -1099,7 +1099,7 @@
                             "type": "String"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.1.0",
+                            "defaultValue": "0.1.1",
                             "type": "String"
                         },
                         "ProjectName": {
