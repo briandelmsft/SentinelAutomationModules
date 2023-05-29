@@ -68,11 +68,39 @@
                                 "For_each_File": [
                                     "Succeeded"
                                 ],
-                                "For_each_FileHash": [
+                                "Condition_-_Append_If_Empty": [
                                     "Succeeded"
                                 ]
                             },
                             "type": "Compose"
+                        },
+                        "Condition_-_Append_If_Empty": {
+                            "actions": {
+                                "Append_to_array_variable": {
+                                    "runAfter": {},
+                                    "type": "AppendToArrayVariable",
+                                    "inputs": {
+                                        "name": "GlobalPrevalence",
+                                        "value": 0
+                                    }
+                                }
+                            },
+                            "runAfter": {
+                                "For_each_FileHash": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "expression": {
+                                "and": [
+                                    {
+                                        "equals": [
+                                            "@length(variables('GlobalPrevalence'))",
+                                            0
+                                        ]
+                                    }
+                                ]
+                            },
+                            "type": "If"
                         },
                         "Condition_-_Add_comment_to_the_incident": {
                             "actions": {
@@ -595,7 +623,7 @@
                                     {
                                         "name": "GlobalPrevalence",
                                         "type": "array",
-                                        "value": "@createArray(0)"
+                                        "value": []
                                     }
                                 ]
                             },
@@ -1099,7 +1127,7 @@
                             "type": "String"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "0.1.1",
+                            "defaultValue": "0.1.2",
                             "type": "String"
                         },
                         "ProjectName": {
