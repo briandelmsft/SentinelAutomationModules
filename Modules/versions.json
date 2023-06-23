@@ -9,6 +9,8 @@
     "RelatedAlerts": "0.3.0",
     "RunPlaybook": "0.0.1",
     "ScoringModule": "0.1.0",
+    "STATConnector": "1.5.0",
+    "STATFunction": "1.5.0",
     "TIModule": "0.2.0",
     "UEBAModule": "0.1.1",
     "WatchlistModule": "0.1.0"
