@@ -14,4 +14,5 @@ Take for example an impossible travel incident, while this incident could repres
 * [Risk Scoring](riskscoring.md)
 * [Incident Tasks](incidenttasks.md)
 * [Remediation](remediation.md)
+* [MSSP Deployments](mssp.md)
 * [Troubleshooting](troubleshooting.md)
