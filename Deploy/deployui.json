@@ -1,0 +1,531 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/0.1.2-preview/CreateUIDefinition.MultiVm.json#",
+    "handler": "Microsoft.Azure.CreateUIDef",
+    "version": "0.1.2-preview",
+    "parameters": {
+        "config": {
+            "isWizard": true,
+            "basics": {
+                "description": "## Microsoft Sentinel Triage AssistanT (STAT) Deployment\nThe Microsoft Sentinel Triage AssistanT is designed to help build automated triages for Microsoft Sentinel Incidents to optimize the efficiency of your security operations. This deployment will allow you to deploy the necessary resources to use the STAT tool.\n ### Post Deployment \nAfter deploying this template, ensure to run the [GrantPermissions.ps1](https://github.com/briandelmsft/SentinelAutomationModules/blob/statv2_preview/Deploy/GrantPermissions.ps1) script to grant permissions to the STAT modules.  It may take up to 15 minutes for the permissions to become effective.",
+                "resourceGroup": {
+                    "constraints": {
+                        "validations": [
+                            {
+                                "permission": "Microsoft.Logic/workflows/write",
+                                "message": "You must have permission to create and update Logic Apps"
+                            },
+                            {
+                                "permission": "Microsoft.Web/sites/write",
+                                "message": "You must have permission to create and update Azure Functions"
+                            },
+                            {
+                                "permission": "Microsoft.Web/serverFarms/write",
+                                "message": "You must have permission to create and update App Service Plans"
+                            },
+                            {
+                                "permission": "Microsoft.Storage/storageAccounts/write",
+                                "message": "You must have permission to create and update Storage Accounts"
+                            }
+                        ]
+                    }
+                },
+                "location": {
+                    "label": "Location",
+                    "toolTip": "Location for all resources",
+                    "resourceTypes": [
+                        "Microsoft.Logic",
+                        "Microsoft.Web",
+                        "Microsoft.Storage"
+                    ]
+                }
+            }
+        },
+        "basics": [],
+        "steps": [
+            {
+                "name": "namingStep",
+                "label": "Solution Naming",
+                "elements": [
+                    {
+                        "name": "namingTextBlock2",
+                        "type": "Microsoft.Common.TextBlock",
+                        "visible": true,
+                        "options": {
+                            "text": "Select how you want Azure resources named when deploying the Sentinel Triage AssistanT"
+                        }
+                    },
+                    {
+                        "name": "namingTextBlock3",
+                        "type": "Microsoft.Common.TextBlock",
+                        "visible": true,
+                        "options": {
+                            "text": "Using Default naming will create all elements with a prefix of stat and a random suffix, custom allows you to manually enter element names",
+                            "link": {
+                                "label": "Learn more",
+                                "uri": "https://github.com/briandelmsft/SentinelAutomationModules/tree/main/Deploy"
+                            }
+                        }
+                    },
+                    {
+                        "name": "naming",
+                        "type": "Microsoft.Common.OptionsGroup",
+                        "label": "Custom Naming for Azure Resource",
+                        "defaultValue": "Default (recommended)",
+                        "toolTip": "",
+                        "constraints": {
+                            "allowedValues": [
+                                {
+                                    "label": "Default (recommended)",
+                                    "value": "default"
+                                },
+                                {
+                                    "label": "Custom",
+                                    "value": "custom"
+                                }
+                            ],
+                            "required": true
+                        },
+                        "visible": true
+                    },
+                    {
+                        "name": "customNaming",
+                        "type": "Microsoft.Common.Section",
+                        "label": "Custom Names",
+                        "elements": [
+                            {
+                                "name": "namingTextBlock",
+                                "type": "Microsoft.Common.TextBlock",
+                                "visible": true,
+                                "options": {
+                                    "text": "Select how you want Azure resources named when deploying the Sentinel Triage AssistanT.  Note: These names must be globally unique, but validation is not performed in this wizard."
+                                }
+                            },
+                            {
+                                "name": "statFunctionName",
+                                "type": "Microsoft.Common.TextBox",
+                                "label": "STAT Function Name",
+                                "placeholder": "stat-uniquestring",
+                                "defaultValue": "",
+                                "toolTip": "Provide a globally unique name for your STAT function",
+                                "constraints": {
+                                    "required": true,
+                                    "validations": [
+                                        {
+                                            "regex": "^[aA-zZ0-9-]{2,60}$",
+                                            "message": "Only alphanumerica characters and hyphens are allowed. The value must be 2-60 characters long and globally unique."
+                                        }
+                                    ]
+                                },
+                                "visible": true
+                            },
+                            {
+                                "name": "statStorageName",
+                                "type": "Microsoft.Common.TextBox",
+                                "label": "STAT Storage Account Name",
+                                "placeholder": "statuniquestring",
+                                "defaultValue": "",
+                                "toolTip": "Provide a globally unique name for your STAT Storage Account",
+                                "constraints": {
+                                    "required": true,
+                                    "validations": [
+                                        {
+                                            "regex": "^[a-z0-9]{3,24}$",
+                                            "message": "Only lowercase characters and numbers are allowed. The value must be 3-24 characters long and globally unique"
+                                        }
+                                    ]
+                                },
+                                "visible": true
+                            },
+                            {
+                                "name": "statConnectorName",
+                                "type": "Microsoft.Common.TextBox",
+                                "label": "STAT Connector Name",
+                                "placeholder": "",
+                                "defaultValue": "SentinelTriageAssistantv2",
+                                "toolTip": "STAT Connector name as seen in resource group",
+                                "constraints": {
+                                    "required": true,
+                                    "validations": [
+                                        {
+                                            "regex": "^[aA-zZ0-9-]{2,60}$",
+                                            "message": "Only alphanumerica characters and hyphens are allowed. The value must be 2-60 characters long."
+                                        }
+                                    ]
+                                },
+                                "visible": true
+                            },
+                            {
+                                "name": "statConnectorDisplayName",
+                                "type": "Microsoft.Common.TextBox",
+                                "label": "STAT Connector Display Name",
+                                "placeholder": "",
+                                "defaultValue": "STAT v2",
+                                "toolTip": "STAT Connector name as seen in Azure Logic Apps",
+                                "constraints": {
+                                    "required": true,
+                                    "validations": [
+                                        {
+                                            "regex": "^[aA-zZ0-9- ]{2,60}$",
+                                            "message": "Only alphanumerica characters, spaces and hyphens are allowed. The value must be 2-60 characters long."
+                                        }
+                                    ]
+                                },
+                                "visible": true
+                            }
+                        ],
+                        "visible": "[if(equals(steps('namingStep').naming, 'custom'), true, false)]"
+                    }
+                ]
+            },
+            {
+                "name": "identityStep",
+                "label": "Identity Configuration",
+                "elements": [
+                    {
+                        "name": "idTextBlock2",
+                        "type": "Microsoft.Common.TextBlock",
+                        "visible": true,
+                        "options": {
+                            "text": "Microsoft Sentinel Triage AssistanT can authenticate to resources and APIs in a few different ways.  While we recommend using System Assigned managed identities, certain scenarios such as MSSP usage may have different authentication requirements"
+                        }
+                    },
+                    {
+                        "name": "idType",
+                        "type": "Microsoft.Common.OptionsGroup",
+                        "label": "Identity Type",
+                        "defaultValue": "System Assigned Managed Identity",
+                        "toolTip": "",
+                        "constraints": {
+                            "allowedValues": [
+                                {
+                                    "label": "System Assigned Managed Identity",
+                                    "value": "system"
+                                },
+                                {
+                                    "label": "User Assigned Managed Identity",
+                                    "value": "user"
+                                },
+                                {
+                                    "label": "Service Principal",
+                                    "value": "sp"
+                                }
+                            ],
+                            "required": true
+                        },
+                        "visible": true
+                    },
+                    {
+                        "name": "tenantId",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Azure AD Tenant Id",
+                        "placeholder": "",
+                        "defaultValue": "",
+                        "toolTip": "The AAD Tenant Id where your identity will reside",
+                        "constraints": {
+                            "required": true
+                        },
+                        "visible": false
+                    },
+                    {
+                        "name": "userId",
+                        "type": "Microsoft.Common.Section",
+                        "label": "User Assigned Managed Identity",
+                        "elements": [
+                            {
+                                "name": "useridTextBlock",
+                                "type": "Microsoft.Common.TextBlock",
+                                "visible": true,
+                                "options": {
+                                    "text": "Select an existing user assigned managed identity.  The identity must already exist and will not be created by this setup."
+                                }
+                            },
+                            {
+                                "name": "clientId",
+                                "type": "Microsoft.Common.TextBox",
+                                "label": "User Assigned Managed Identity Client Id",
+                                "placeholder": "",
+                                "defaultValue": "",
+                                "toolTip": "The Client Id of your User Assigned Managed Identity for use with STAT",
+                                "constraints": {
+                                    "required": true
+                                },
+                                "visible": true
+                            },
+                            {
+                                "name": "userIdResId",
+                                "type": "Microsoft.Common.TextBox",
+                                "label": "User Assigned Identity Resource Id",
+                                "placeholder": "",
+                                "defaultValue": "",
+                                "toolTip": "The Azure Resource Manager Resource Id of the User Assigned Managed Identity for use with STAT",
+                                "constraints": {
+                                    "required": true
+                                },
+                                "visible": true
+                            }
+                        ],
+                        "visible": "[if(equals(steps('identityStep').idType, 'user'), true, false)]"
+                    },
+                    {
+                        "name": "spId",
+                        "type": "Microsoft.Common.Section",
+                        "label": "Service Principal Information",
+                        "elements": [
+                            {
+                                "name": "spTextBlock",
+                                "type": "Microsoft.Common.TextBlock",
+                                "visible": true,
+                                "options": {
+                                    "text": "Enter the information for your existing Service Principal"
+                                }
+                            },
+                            {
+                                "name": "clientId",
+                                "type": "Microsoft.Common.TextBox",
+                                "label": "Service Principal Client Id",
+                                "placeholder": "",
+                                "defaultValue": "",
+                                "toolTip": "The Client Id of your Service Principal for use with STAT",
+                                "constraints": {
+                                    "required": true
+                                },
+                                "visible": true
+                            },
+                            {
+                                "name": "spSecret",
+                                "type": "Microsoft.Common.PasswordBox",
+                                "label": {
+                                    "password": "Service Principal Secret",
+                                    "confirmPassword": "Service Principal Secret"
+                                },
+                                "toolTip": "The selected Service Principals secret",
+                                "constraints": {
+                                    "required": true
+                                },
+                                "options": {
+                                    "hideConfirmation": true
+                                },
+                                "visible": true
+                            }
+                        ],
+                        "visible": "[if(equals(steps('identityStep').idType, 'sp'), true, false)]"
+                    }
+                ]
+            },
+            {
+                "name": "apiStep",
+                "label": "API Endpoing Configuration",
+                "elements": [
+                    {
+                        "name": "apiTextBlock2",
+                        "type": "Microsoft.Common.TextBlock",
+                        "visible": true,
+                        "options": {
+                            "text": "Select the API endpoints for the Microsoft Sentinel Triage AssistanT"
+                        }
+                    },
+                    {
+                        "name": "apiTextBlock3",
+                        "type": "Microsoft.Common.TextBlock",
+                        "visible": true,
+                        "options": {
+                            "text": "Using Default endpoints will configure STAT to use the Commercial instance of both Azure and Office 365.  To use any other instances, select Custom.",
+                            "link": {
+                                "label": "Learn more",
+                                "uri": "https://github.com/briandelmsft/SentinelAutomationModules/tree/main/Deploy"
+                            }
+                        }
+                    },
+                    {
+                        "name": "api",
+                        "type": "Microsoft.Common.OptionsGroup",
+                        "label": "API Endpoint Type",
+                        "defaultValue": "Default (recommended)",
+                        "toolTip": "",
+                        "constraints": {
+                            "allowedValues": [
+                                {
+                                    "label": "Default (recommended)",
+                                    "value": "default"
+                                },
+                                {
+                                    "label": "Custom",
+                                    "value": "custom"
+                                }
+                            ],
+                            "required": true
+                        },
+                        "visible": true
+                    },
+                    {
+                        "name": "customApi",
+                        "type": "Microsoft.Common.Section",
+                        "label": "Custom API Endpoints",
+                        "elements": [
+                            {
+                                "name": "namingTextBlock",
+                                "type": "Microsoft.Common.TextBlock",
+                                "visible": true,
+                                "options": {
+                                    "text": "Enter the API endpoint you would like to use to access each service"
+                                }
+                            },
+                            {
+                                "name": "graphApi",
+                                "type": "Microsoft.Common.TextBox",
+                                "label": "Microsoft Graph API",
+                                "placeholder": "graph.microsoft.com",
+                                "defaultValue": "graph.microsoft.com",
+                                "toolTip": "Microsoft Graph API Endpoint",
+                                "constraints": {
+                                    "required": true,
+                                    "validations": []
+                                },
+                                "visible": true
+                            },
+                            {
+                                "name": "armApi",
+                                "type": "Microsoft.Common.TextBox",
+                                "label": "Azure Resource Manager API",
+                                "placeholder": "management.azure.com",
+                                "defaultValue": "management.azure.com",
+                                "toolTip": "Azure Resource Manager API Endpoint",
+                                "constraints": {
+                                    "required": true,
+                                    "validations": []
+                                },
+                                "visible": true
+                            },
+                            {
+                                "name": "laApi",
+                                "type": "Microsoft.Common.TextBox",
+                                "label": "Azure Log Analytics API",
+                                "placeholder": "api.loganalytics.io",
+                                "defaultValue": "api.loganalytics.io",
+                                "toolTip": "Azure Log Analytics API Endpoint",
+                                "constraints": {
+                                    "required": true,
+                                    "validations": []
+                                },
+                                "visible": true
+                            },
+                            {
+                                "name": "m365Api",
+                                "type": "Microsoft.Common.TextBox",
+                                "label": "Microsoft 365 Defender API",
+                                "placeholder": "api.security.microsoft.com",
+                                "defaultValue": "api.security.microsoft.com",
+                                "toolTip": "Microsoft 365 Defender API Endpoint",
+                                "constraints": {
+                                    "required": true,
+                                    "validations": []
+                                },
+                                "visible": true
+                            },
+                            {
+                                "name": "mdeApi",
+                                "type": "Microsoft.Common.TextBox",
+                                "label": "Microsoft Defender for Endpoint API",
+                                "placeholder": "api.securitycenter.microsoft.com",
+                                "defaultValue": "api.securitycenter.microsoft.com",
+                                "toolTip": "Microsoft Defender for Endpoint API Endpoint",
+                                "constraints": {
+                                    "required": true,
+                                    "validations": []
+                                },
+                                "visible": true
+                            }
+                        ],
+                        "visible": "[if(equals(steps('apiStep').api, 'custom'), true, false)]"
+                    },
+                    {
+                        "name": "apiTextBlock5",
+                        "type": "Microsoft.Common.TextBlock",
+                        "visible": true,
+                        "options": {
+                            "text": "Microsoft Defender for Cloud Apps API uses a tenant specific endpoint which must be entered to use that module.",
+                            "link": {
+                                "label": "Learn more",
+                                "uri": "https://learn.microsoft.com/defender-cloud-apps/api-introduction#api-url-structure"
+                            }
+                        }
+                    },
+                    {
+                        "name": "mdcaApi",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Microsoft Defender for Cloud Apps API",
+                        "placeholder": "*.*.portal.cloudappsecurity.com",
+                        "defaultValue": "",
+                        "toolTip": "Microsoft Defender for Cloud Apps API Endpoint",
+                        "constraints": {
+                            "required": true,
+                            "validations": []
+                        },
+                        "visible": true
+                    }
+                ]
+            },
+            {
+                "name": "additionalStep",
+                "label": "Additional Options",
+                "elements": [
+                    {
+                        "name": "sampleTextBlock",
+                        "type": "Microsoft.Common.TextBlock",
+                        "visible": true,
+                        "options": {
+                            "text": "Microsoft Sentinel Triage AssistanT Function Package"
+                        }
+                    },
+                    {
+                        "name": "functionPackage",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "STAT Function ZIP Package",
+                        "placeholder": "",
+                        "defaultValue": "https://github.com/briandelmsft/SentinelAutomationModules/raw/statv2_preview/Function/stat.zip",
+                        "toolTip": "Full path to the STAT Function ZIP deployment package",
+                        "constraints": {
+                            "required": true,
+                            "validations": []
+                        },
+                        "visible": true
+                    },
+                    {
+                        "name": "deploymentBranch",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Deploy From Github Branch",
+                        "placeholder": "",
+                        "defaultValue": "statv2_preview",
+                        "toolTip": "Name of Github branch to deploy from",
+                        "constraints": {
+                            "required": true,
+                            "validations": []
+                        },
+                        "visible": true
+                    }
+                ]
+            }
+        ],
+        "outputs": {
+            "NamingType": "[steps('namingStep').naming]",
+            "STATFunctionName": "[coalesce(steps('namingStep').customNaming.statFunctionName, 'statfunction')]",
+            "STATStorageName": "[coalesce(steps('namingStep').customNaming.statStorageName, 'statstorage')]",
+            "STATConnectorName": "[coalesce(steps('namingStep').customNaming.statConnectorName, 'SentinelTriageAssistantv2')]",
+            "STATConnectorDisplayName": "[coalesce(steps('namingStep').customNaming.statConnectorDisplayName, 'STAT v2')]",
+            "storageAccountType": "Standard_LRS",
+            "FunctionPackage": "[steps('additionalStep').functionPackage]",
+            "MSGraphEndpoint": "[coalesce(steps('apiStep').customApi.graphApi,'graph.microsoft.com')]",
+            "M365Endpoint": "[coalesce(steps('apiStep').customApi.m365Api,'api.security.microsoft.com')]",
+            "MDEEndpoint": "[coalesce(steps('apiStep').customApi.mdeApi,'api.securitycenter.microsoft.com')]",
+            "MDCAEndpoint": "[steps('apiStep').mdcaApi]",
+            "LogAnalyticsEndpoint": "[coalesce(steps('apiStep').customApi.laApi,'api.loganalytics.io')]",
+            "AzureResourceManagerEndpoint": "[coalesce(steps('apiStep').customApi.armApi,'management.azure.com')]",
+            "ServicePrincipalClientId": "[coalesce(steps('identityStep').spId.clientId,steps('identityStep').userId.clientId, 'none')]",
+            "UserIdentityResourceId": "[coalesce(steps('identityStep').userId.userIdResId, 'none')]",
+            "ServicePrincipalSecret": "[coalesce(steps('identityStep').spId.spSecret, 'none')]",
+            "identityType": "[steps('identityStep').idType]",
+            "DeploymentBranch": "[steps('additionalStep').deploymentBranch]",
+            "location": "[location()]"
+        }
+    }
+}

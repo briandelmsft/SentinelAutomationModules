@@ -1,0 +1,476 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "OOFPlaybookName": {
+            "defaultValue": "Get-OOFDetails",
+            "type": "String"
+        },
+        "RelatedAlertsPlaybookName": {
+            "defaultValue": "Get-RelatedAlerts",
+            "type": "String"
+        },
+        "UEBAPlaybookName": {
+            "defaultValue": "Get-UEBAInsights",
+            "type": "String"
+        },
+        "WatchlistPlaybookName": {
+            "defaultValue": "Get-WatchlistInsights",
+            "type": "String"
+        },
+        "MDEPlaybookName": {
+            "defaultValue": "Get-MDEInsights",
+            "type": "String"
+        },
+        "AADRisksPlaybookName": {
+            "defaultValue": "Get-AADUserRisksInfo",
+            "type": "String"
+        },
+        "TIPlaybookName": {
+            "defaultValue": "Get-ThreatIntel",
+            "type": "String"
+        },
+        "MCASPlaybookName": {
+            "defaultValue": "Get-MCASInvestigationScore",
+            "type": "String"
+        },
+        "BasicSamplePlaybookName": {
+            "defaultValue": "Triage-Incident",
+            "type": "String"
+        },
+        "DeployBasicSamplePlaybook": {
+            "defaultValue": false,
+            "type": "bool"
+        },
+        "DeployConnector": {
+            "defaultValue": true,
+            "type": "bool"
+        },
+        "FilePlaybookName": {
+            "defaultValue": "Get-FileInsights",
+            "type": "String"
+        },
+        "KQLPlaybookName": {
+            "defaultValue": "Run-KQLQuery",
+            "type": "String"
+        },
+        "RunPlaybookPlaybookName": {
+            "defaultValue": "Run-Playbook",
+            "type": "String"
+        },
+        "BasePlaybookName": {
+            "defaultValue": "Base-Module",
+            "type": "String"
+        },
+        "ScoringPlaybookName": {
+            "defaultValue": "Calculate-RiskScore",
+            "type": "String"
+        },
+        "STATCoordinatorPlaybookName": {
+            "defaultValue": "STAT-Coordinator",
+            "type": "String"
+        },
+        "CustomConnectorName": {
+            "defaultValue": "SentinelTriageAssistant",
+            "type": "String"
+        },
+        "CustomConnectorDisplayName": {
+            "defaultValue": "Sentinel Triage AssistanT - STAT",
+            "type": "String"
+        },
+        "WorkbookName": {
+            "defaultValue": "Sentinel Triage AssistanT - Status",
+            "type": "String"
+        },
+        "DeployWorkbook": {
+            "defaultValue": true,
+            "type": "bool"
+        },
+        "M365DApiEndpoint": {
+            "defaultValue": "api.security.microsoft.com",
+            "type": "String"
+        },
+        "MDEApiEndpoint": {
+            "defaultValue": "api.securitycenter.microsoft.com",
+            "type": "String"
+        },
+        "DeploymentBranch": {
+            "defaultValue": "main",
+            "type": "String"
+        }
+    },
+    "variables": {
+        "OOFTemplate": "[concat('https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/', parameters('DeploymentBranch'), '/Modules/OOFModule/azuredeploy.json')]",
+        "RelatedAlertsTemplate": "[concat('https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/', parameters('DeploymentBranch'), '/Modules/RelatedAlerts/azuredeploy.json')]",
+        "UEBATemplate": "[concat('https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/', parameters('DeploymentBranch'), '/Modules/UEBAModule/azuredeploy.json')]",
+        "MCASTemplate": "[concat('https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/', parameters('DeploymentBranch'), '/Modules/MCASModule/azuredeploy.json')]",
+        "MDETemplate": "[concat('https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/', parameters('DeploymentBranch'), '/Modules/MDEModule/azuredeploy.json')]",
+        "AADTemplate": "[concat('https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/', parameters('DeploymentBranch'), '/Modules/AADRisksModule/azuredeploy.json')]",
+        "WatchlistTemplate": "[concat('https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/', parameters('DeploymentBranch'), '/Modules/WatchlistModule/azuredeploy.json')]",
+        "FileTemplate": "[concat('https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/', parameters('DeploymentBranch'), '/Modules/FileModule/azuredeploy.json')]",
+        "RunPlaybookTemplate": "[concat('https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/', parameters('DeploymentBranch'), '/Modules/RunPlaybook/azuredeploy.json')]",
+        "KQLTemplate": "[concat('https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/', parameters('DeploymentBranch'), '/Modules/KQLModule/azuredeploy.json')]",
+        "TITemplate": "[concat('https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/', parameters('DeploymentBranch'), '/Modules/TIModule/azuredeploy.json')]",
+        "ScoringTemplate": "[concat('https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/', parameters('DeploymentBranch'), '/Modules/ScoringModule/azuredeploy.json')]",
+        "BaseTemplate": "[concat('https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/', parameters('DeploymentBranch'), '/Modules/BaseModule/azuredeploy.json')]",
+        "BasicSampleTemplate": "[concat('https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/', parameters('DeploymentBranch'), '/Samples/basicsample.json')]",
+        "ConnectorTemplate": "[concat('https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/', parameters('DeploymentBranch'), '/Connector/legacyconnector.json')]",
+        "WorkbookTemplate": "[concat('https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/', parameters('DeploymentBranch'), '/Workbook/azuredeploy.json')]"
+    },
+    "resources": [
+        {
+            "apiVersion": "2019-10-01",
+            "name": "BaseTemplate",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[variables('BaseTemplate')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "PlaybookName": {
+                        "value": "[parameters('BasePlaybookName')]"
+                    }
+                }
+            }
+        },
+        {
+            "apiVersion": "2019-10-01",
+            "name": "KQLTemplate",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[variables('KQLTemplate')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "PlaybookName": {
+                        "value": "[parameters('KQLPlaybookName')]"
+                    },
+                    "M365DApiEndpoint": {
+                        "value": "[parameters('M365DApiEndpoint')]"
+                    }
+                }
+            }
+        },
+        {
+            "apiVersion": "2019-10-01",
+            "name": "ScoringTemplate",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[variables('ScoringTemplate')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "PlaybookName": {
+                        "value": "[parameters('ScoringPlaybookName')]"
+                    }
+                }
+            }
+        },
+        {
+            "apiVersion": "2019-10-01",
+            "name": "RunPlaybookTemplate",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[variables('RunPlaybookTemplate')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "PlaybookName": {
+                        "value": "[parameters('RunPlaybookPlaybookName')]"
+                    }
+                }
+            }
+        },
+        {
+            "apiVersion": "2019-10-01",
+            "name": "TITemplate",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[variables('TITemplate')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "PlaybookName": {
+                        "value": "[parameters('TIPlaybookName')]"
+                    }
+                }
+            }
+        },
+        {
+            "apiVersion": "2019-10-01",
+            "name": "FileTemplate",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[variables('FileTemplate')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "PlaybookName": {
+                        "value": "[parameters('FilePlaybookName')]"
+                    },
+                    "M365DApiEndpoint": {
+                        "value": "[parameters('M365DApiEndpoint')]"
+                    }
+                }
+            }
+        },
+        {
+            "apiVersion": "2019-10-01",
+            "name": "OOFTemplate",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[variables('OOFTemplate')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "PlaybookName": {
+                        "value": "[parameters('OOFPlaybookName')]"
+                    }
+                }
+            }
+        },
+        {
+            "apiVersion": "2019-10-01",
+            "name": "WatchlistTemplate",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[variables('WatchlistTemplate')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "PlaybookName": {
+                        "value": "[parameters('WatchlistPlaybookName')]"
+                    }
+                }
+            }
+        },
+        {
+            "apiVersion": "2019-10-01",
+            "name": "AADTemplate",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[variables('AADTemplate')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "PlaybookName": {
+                        "value": "[parameters('AADRisksPlaybookName')]"
+                    }
+                }
+            }
+        },
+        {
+            "apiVersion": "2019-10-01",
+            "name": "MCASTemplate",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[variables('MCASTemplate')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "PlaybookName": {
+                        "value": "[parameters('MCASPlaybookName')]"
+                    }
+                }
+            }
+        },
+        {
+            "apiVersion": "2019-10-01",
+            "name": "UEBATemplate",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[variables('UEBATemplate')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "PlaybookName": {
+                        "value": "[parameters('UEBAPlaybookName')]"
+                    }
+                }
+            }
+        },
+        {
+            "apiVersion": "2019-10-01",
+            "name": "MDETemplate",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[variables('MDETemplate')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "PlaybookName": {
+                        "value": "[parameters('MDEPlaybookName')]"
+                    },
+                    "MDEApiEndpoint": {
+                        "value": "[parameters('MDEApiEndpoint')]"
+                    }
+                }
+            }
+        },
+        {
+            "apiVersion": "2019-10-01",
+            "name": "RelatedAlertsTemplate",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[variables('RelatedAlertsTemplate')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "PlaybookName": {
+                        "value": "[parameters('RelatedAlertsPlaybookName')]"
+                    }
+                }
+            }
+        },
+        {
+            "condition": "[parameters('DeployBasicSamplePlaybook')]",
+            "apiVersion": "2019-10-01",
+            "name": "BasicSamplePlaybook",
+            "type": "Microsoft.Resources/deployments",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'DeployConnector')]"
+            ],
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[variables('BasicSampleTemplate')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "PlaybookName": {
+                        "value": "[parameters('BasicSamplePlaybookName')]"
+                    },
+                    "STAT_Connector_resourceId": {
+                        "value": "[reference('DeployConnector').outputs.connectorResourceId.value]"
+                    },
+                    "STAT_Coordinator_Trigger_resourceId": {
+                        "value": "[reference('DeployConnector').outputs.coordinatorTriggerResourceId.value]"
+                    }
+                }
+            }
+        },
+        {
+            "condition": "[parameters('DeployConnector')]",
+            "apiVersion": "2019-10-01",
+            "name": "DeployConnector",
+            "type": "Microsoft.Resources/deployments",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'OOFTemplate')]",
+                "[resourceId('Microsoft.Resources/deployments', 'RelatedAlertsTemplate')]",
+                "[resourceId('Microsoft.Resources/deployments', 'UEBATemplate')]",
+                "[resourceId('Microsoft.Resources/deployments', 'BaseTemplate')]",
+                "[resourceId('Microsoft.Resources/deployments', 'MCASTemplate')]",
+                "[resourceId('Microsoft.Resources/deployments', 'MDETemplate')]",
+                "[resourceId('Microsoft.Resources/deployments', 'AADTemplate')]",
+                "[resourceId('Microsoft.Resources/deployments', 'WatchlistTemplate')]",
+                "[resourceId('Microsoft.Resources/deployments', 'FileTemplate')]",
+                "[resourceId('Microsoft.Resources/deployments', 'KQLTemplate')]",
+                "[resourceId('Microsoft.Resources/deployments', 'ScoringTemplate')]",
+                "[resourceId('Microsoft.Resources/deployments', 'RunPlaybookTemplate')]",
+                "[resourceId('Microsoft.Resources/deployments', 'TITemplate')]"
+            ],
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[variables('ConnectorTemplate')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "STATCoordinatorPlaybookName": {
+                        "value": "[parameters('STATCoordinatorPlaybookName')]"
+                    },
+                    "CustomConnectorName": {
+                        "value": "[parameters('CustomConnectorName')]"
+                    },
+                    "CustomConnectorDisplayName": {
+                        "value": "[parameters('CustomConnectorDisplayName')]"
+                    },
+                    "OOFModule_resourceid": {
+                        "value": "[reference('OOFTemplate').outputs.resourceID.value]"
+                    },
+                    "RelatedAlertsModule_resourceid": {
+                        "value": "[reference('RelatedAlertsTemplate').outputs.resourceID.value]"
+                    },
+                    "UEBAModule_resourceid": {
+                        "value": "[reference('UEBATemplate').outputs.resourceID.value]"
+                    },
+                    "BaseModule_resourceid": {
+                        "value": "[reference('BaseTemplate').outputs.resourceID.value]"
+                    },
+                    "AADRisks_resourceid": {
+                        "value": "[reference('AADTemplate').outputs.resourceID.value]"
+                    },
+                    "FileModule_resourceid": {
+                        "value": "[reference('FileTemplate').outputs.resourceID.value]"
+                    },
+                    "KQLModule_resourceid": {
+                        "value": "[reference('KQLTemplate').outputs.resourceID.value]"
+                    },
+                    "MCASModule_resourceid": {
+                        "value": "[reference('MCASTemplate').outputs.resourceID.value]"
+                    },
+                    "MDEModule_resourceid": {
+                        "value": "[reference('MDETemplate').outputs.resourceID.value]"
+                    },
+                    "ThreatIntelModule_resourceid": {
+                        "value": "[reference('TITemplate').outputs.resourceID.value]"
+                    },
+                    "ScoringModule_resourceid": {
+                        "value": "[reference('ScoringTemplate').outputs.resourceID.value]"
+                    },
+                    "RunPlaybook_resourceid": {
+                        "value": "[reference('RunPlaybookTemplate').outputs.resourceID.value]"
+                    },
+                    "WatchlistModule_resourceid": {
+                        "value": "[reference('WatchlistTemplate').outputs.resourceID.value]"
+                    }
+                }
+            }
+        },
+        {
+            "condition": "[parameters('DeployWorkbook')]",
+            "apiVersion": "2019-10-01",
+            "name": "DeployWorkbook",
+            "type": "Microsoft.Resources/deployments",
+            "dependsOn": [],
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[variables('WorkbookTemplate')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "workbookDisplayName": {
+                        "value": "[parameters('WorkbookName')]"
+                    }
+                }
+            }
+        }
+    ]
+}
