@@ -5,6 +5,8 @@
 #  Install-Module Microsoft.Graph.Applications -Scope CurrentUser -Force
 #  Install-Module -Name Az.Resources -Scope CurrentUser -Repository PSGallery -Force
 
+#Requires -Modules Microsoft.Graph.Applications, Az.Resources
+
 # Required Permissions
 #  - Azure AD Global Administrator or an Azure AD Privileged Role Administrator to execute the Set-APIPermissions function
 #  - Resource Group Owner or User Access Administrator on the Microsoft Sentinel resource group to execute the Set-RBACPermissions function
@@ -18,35 +20,43 @@ $STATIdentityName = ""   #Name of identity STAT will be running under
 #If using a System assigned managed identity, this will be the name of the function app (do not include .azurewebsites.net)
 #If using a User Assigned Managed Identity or service principal, this will be the name of that identity
 
+#Check if modules are installed in case the script is ran interactively from an IDE
+if ((Get-Module -ListAvailable -Name Microsoft.Graph.Applications) -eq $null) {
+    Write-Host "[-] Make sure the module Microsoft.Graph.Applications is installed. You can use the following command to install it: Install-Module Microsoft.Graph.Applications -Scope CurrentUser -Force" -ForegroundColor Red
+    return 
+} elseif ((Get-Module -ListAvailable -Name Az.Resources) -eq $null) {
+    Write-Host "[-] Make sure the module Az.Resources is installed. You can use the following command to install it: Install-Module -Name Az.Resources -Scope CurrentUser -Repository PSGallery -Force" -ForegroundColor Red
+    return 
+}
 
 
 #$SampleLogicAppName="Sample-STAT-Triage"           #Name of the Sample Logic App
 
 # Connect to the Microsoft Graph API and Azure Management API
-Write-Host "Connect to the Azure AD tenant: $TenantId"
+Write-Host "[+] Connect to the Azure AD tenant: $TenantId"
 Connect-MgGraph -TenantId $TenantId -Scopes AppRoleAssignment.ReadWrite.All, Application.Read.All | Out-Null
-Write-Host "Connecting to  to the Azure subscription: $AzureSubscriptionId"
+Write-Host "[+] Connecting to  to the Azure subscription: $AzureSubscriptionId"
 try
 {
     Login-AzAccount -Subscription $AzureSubscriptionId -Tenant $TenantId -ErrorAction Stop | Out-Null
 }
 catch
 {
-    Write-Host "Login to Azure Management failed. $($error[0])"
+    Write-Host "[-] Login to Azure Management failed. $($error[0])"
 }
 
 function Set-APIPermissions ($MSIName, $AppId, $PermissionName) {
-    Write-Host "Setting permission $PermissionName on $MSIName"
+    Write-Host "[+] Setting permission $PermissionName on $MSIName"
     $MSI = Get-AppIds -AppName $MSIName
     if ( $MSI.count -gt 1 )
     {
-        Write-Host "Found multiple principals with the same name." -ForegroundColor Red
+        Write-Host "[-] Found multiple principals with the same name." -ForegroundColor Red
         return 
     } elseif ( $MSI.count -eq 0 ) {
-        Write-Host "Principal not found." -ForegroundColor Red
+        Write-Host "[-] Principal not found." -ForegroundColor Red
         return 
     }
-    Start-Sleep -Seconds 2 # Wait in case the MSI identity creation tool some time
+    Start-Sleep -Seconds 2 # Wait in case the MSI identity creation take some time
     $GraphServicePrincipal = Get-MgServicePrincipal -Filter "appId eq '$AppId'"
     $AppRole = $GraphServicePrincipal.AppRoles | Where-Object {$_.Value -eq $PermissionName -and $_.AllowedMemberTypes -contains "Application"}
     try
@@ -57,13 +67,13 @@ function Set-APIPermissions ($MSIName, $AppId, $PermissionName) {
     {
         if ( $_.Exception.Message -eq "Permission being assigned already exists on the object" )
         {
-            Write-Host "$($_.Exception.Message)"
+            Write-Host "[-] $($_.Exception.Message)"
         } else {
-            Write-Host "$($_.Exception.Message)" -ForegroundColor Red
+            Write-Host "[-] $($_.Exception.Message)" -ForegroundColor Red
         }
         return
     }
-    Write-Host "Permission granted" -ForegroundColor Green
+    Write-Host "[+] Permission granted" -ForegroundColor Green
 }
 
 function Get-AppIds ($AppName) {
@@ -75,20 +85,20 @@ function Set-RBACPermissions ($MSIName, $Role) {
     $MSI = Get-AppIds -AppName $MSIName
     if ( $MSI.count -gt 1 )
     {
-        Write-Host "Found multiple principals with the same name." -ForegroundColor Red
+        Write-Host "[-] Found multiple principals with the same name." -ForegroundColor Red
         return 
     } elseif ( $MSI.count -eq 0 ) {
-        Write-Host "Principal not found." -ForegroundColor Red
+        Write-Host "[-] Principal not found." -ForegroundColor Red
         return 
     }
     $Assign = New-AzRoleAssignment -ApplicationId $MSI.AppId -Scope "/subscriptions/$($AzureSubscriptionId)/resourceGroups/$($SentinelResourceGroupName)" -RoleDefinitionName $Role -ErrorAction SilentlyContinue -ErrorVariable AzError
     if ( $null -ne $Assign )
     {
-        Write-Host "Role added" -ForegroundColor Green
+        Write-Host "[+] Role added" -ForegroundColor Green
     } elseif ( $AzError[0].Exception.Message -like "*Conflict*" ) {
-        Write-Host "Role already assigned"
+        Write-Host "[-] Role already assigned"
     } else {
-        Write-Host "$($AzError[0].Exception.Message)" -ForegroundColor Red
+        Write-Host "[-] $($AzError[0].Exception.Message)" -ForegroundColor Red
     }
 }
 
@@ -110,4 +120,4 @@ Set-APIPermissions -MSIName $STATIdentityName -AppId "00000003-0000-0000-c000-00
 #Set-RBACPermissions -MSIName $SampleLogicAppName -Role "Microsoft Sentinel Responder"
 
 
-Write-Host "End of the script. Please review the output and check for potential failures."
+Write-Host "[+] End of the script. Please review the output and check for potential failures."
