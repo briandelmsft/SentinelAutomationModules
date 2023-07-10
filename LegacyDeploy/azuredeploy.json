@@ -113,7 +113,7 @@
         "TITemplate": "[concat('https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/', parameters('DeploymentBranch'), '/Modules/TIModule/azuredeploy.json')]",
         "ScoringTemplate": "[concat('https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/', parameters('DeploymentBranch'), '/Modules/ScoringModule/azuredeploy.json')]",
         "BaseTemplate": "[concat('https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/', parameters('DeploymentBranch'), '/Modules/BaseModule/azuredeploy.json')]",
-        "BasicSampleTemplate": "[concat('https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/', parameters('DeploymentBranch'), '/Samples/basicsample.json')]",
+        "BasicSampleTemplate": "[concat('https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/', parameters('DeploymentBranch'), '/Samples/basicsample-statv1.json')]",
         "ConnectorTemplate": "[concat('https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/', parameters('DeploymentBranch'), '/Connector/legacyconnector.json')]",
         "WorkbookTemplate": "[concat('https://raw.githubusercontent.com/briandelmsft/SentinelAutomationModules/', parameters('DeploymentBranch'), '/Workbook/azuredeploy.json')]"
     },

@@ -548,7 +548,7 @@
                                 "x-ms-visibility": "important"
                             }
                         },
-                        "/api/modules/oofmodule'": {
+                        "/api/modules/oofmodule": {
                             "post": {
                                 "summary": "Out of Office Module",
                                 "description": "Sentinel Triage AssistanT Module for determining if user entities are out of the office.",
