@@ -562,8 +562,8 @@
             "ServicePrincipalSecret": "[coalesce(steps('identityStep').spId.spSecret, 'none')]",
             "identityType": "[steps('identityStep').idType]",
             "DeploymentBranch": "[coalesce(steps('additionalStep').advanced.deploymentBranch, 'statv2_preview')]",
-            "DeployBasicSample": "[steps('additionalStep').DeployBasicSamplePlaybook]",
-            "BasicSamplePlaybookName": "[coalesce(steps('additionalStep').BasicSamplePlaybookName,'Sample-STAT-Triage')]",
+            "DeployBasicSample": "[steps('additionalStep').samples.DeployBasicSamplePlaybook]",
+            "BasicSamplePlaybookName": "[coalesce(steps('additionalStep').samples.BasicSamplePlaybookName,'Sample-STAT-Triage')]",
             "location": "[location()]"
         }
     }
