@@ -470,32 +470,32 @@
                 "label": "Additional Options",
                 "elements": [
                     {
-                        "name": "DeployBasicSamplePlaybook",
-                        "type": "Microsoft.Common.CheckBox",
-                        "label": "Deploy the Basic Sample Incident Triage Playbook",
-                        "toolTip": "",
-                        "constraints": {},
-                        "visible": true
-                    },
-                    {
-                        "name": "BasicSamplePlaybookName",
-                        "type": "Microsoft.Common.TextBox",
-                        "label": "Basic Sample Triage Playbook Name",
-                        "placeholder": "",
-                        "defaultValue": "Sample-STAT-Triage",
-                        "toolTip": "",
-                        "constraints": {
-                            "required": true,
-                            "validations": []
-                        },
-                        "visible": "[steps('additionalStep').DeployBasicSamplePlaybook]"
-                    },
-                    {
-                        "name": "showAdvanced",
-                        "type": "Microsoft.Common.CheckBox",
-                        "label": "Show Advanced Settings",
-                        "toolTip": "",
-                        "constraints": {},
+                        "name": "samples",
+                        "type": "Microsoft.Common.Section",
+                        "label": "Sample Playbooks",
+                        "elements": [
+                            {
+                                "name": "DeployBasicSamplePlaybook",
+                                "type": "Microsoft.Common.CheckBox",
+                                "label": "Deploy the Basic Sample Incident Triage Playbook",
+                                "toolTip": "",
+                                "constraints": {},
+                                "visible": true
+                            },
+                            {
+                                "name": "BasicSamplePlaybookName",
+                                "type": "Microsoft.Common.TextBox",
+                                "label": "Basic Sample Triage Playbook Name",
+                                "placeholder": "",
+                                "defaultValue": "Sample-STAT-Triage",
+                                "toolTip": "",
+                                "constraints": {
+                                    "required": true,
+                                    "validations": []
+                                },
+                                "visible": "[steps('additionalStep').samples.DeployBasicSamplePlaybook]"
+                            }
+                        ],
                         "visible": true
                     },
                     {
@@ -503,6 +503,14 @@
                         "type": "Microsoft.Common.Section",
                         "label": "Advanced Settings",
                         "elements": [
+                            {
+                                "name": "showAdvanced",
+                                "type": "Microsoft.Common.CheckBox",
+                                "label": "Show Advanced Settings",
+                                "toolTip": "",
+                                "constraints": {},
+                                "visible": true
+                            },
                             {
                                 "name": "functionPackage",
                                 "type": "Microsoft.Common.TextBox",
@@ -514,7 +522,7 @@
                                     "required": true,
                                     "validations": []
                                 },
-                                "visible": true
+                                "visible": "[steps('additionalStep').advanced.showAdvanced]"
                             },
                             {
                                 "name": "deploymentBranch",
@@ -527,10 +535,10 @@
                                     "required": true,
                                     "validations": []
                                 },
-                                "visible": true
+                                "visible": "[steps('additionalStep').advanced.showAdvanced]"
                             }
                         ],
-                        "visible": "[steps('additionalStep').showAdvanced]"
+                        "visible": true
                     }
                 ]
             }
