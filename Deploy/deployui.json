@@ -520,7 +520,7 @@
                         "defaultValue": "Sample-STAT-Triage",
                         "toolTip": "",
                         "constraints": {},
-                        "visible": "[steps('additionalStep').DeployBasicSamplePlaybook)]"
+                        "visible": "[steps('additionalStep').DeployBasicSamplePlaybook]"
                     }
                 ]
             }
