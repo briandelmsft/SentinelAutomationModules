@@ -502,6 +502,25 @@
                             "validations": []
                         },
                         "visible": true
+                    },
+                    {
+                        "name": "DeployBasicSamplePlaybook",
+                        "type": "Microsoft.Common.CheckBox",
+                        "label": "Deploy the Basic Sample Incident Triage Playbook",
+                        "defaultValue": false,
+                        "toolTip": "",
+                        "constraints": {},
+                        "visible": true
+                    },
+                    {
+                        "name": "BasicSamplePlaybookName",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Basic Sample Triage Playbook Name",
+                        "placeholder": "",
+                        "defaultValue": "Sample-STAT-Triage",
+                        "toolTip": "",
+                        "constraints": {},
+                        "visible": "[steps('additionalStep').DeployBasicSamplePlaybook)]"
                     }
                 ]
             }
@@ -525,6 +544,8 @@
             "ServicePrincipalSecret": "[coalesce(steps('identityStep').spId.spSecret, 'none')]",
             "identityType": "[steps('identityStep').idType]",
             "DeploymentBranch": "[steps('additionalStep').deploymentBranch]",
+            "DeployBasicSample": "[steps('additionalStep').DeployBasicSamplePlaybook]",
+            "BasicSamplePlaybookName": "[coalesce(steps('additionalStep').BasicSamplePlaybookName,'Sample-STAT-Triage')]",
             "location": "[location()]"
         }
     }

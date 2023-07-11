@@ -110,6 +110,12 @@
         },
         "DeploymentBranch": {
             "type": "string"
+        },
+        "DeployBasicSample": {
+            "type": "bool"
+        },
+        "BasicSamplePlaybookName": {
+            "type": "string"
         }
     },
     "variables": {
@@ -119,6 +125,7 @@
         "UserIdFunctionTemplate": "[concat('https://github.com/briandelmsft/SentinelAutomationModules/raw/', parameters('DeploymentBranch'), '/Function/UserAssignedIdentity.json')]",
         "SystemIdFunctionTemplate": "[concat('https://github.com/briandelmsft/SentinelAutomationModules/raw/', parameters('DeploymentBranch'), '/Function/SystemIdentity.json')]",
         "ConnectorTemplate": "[concat('https://github.com/briandelmsft/SentinelAutomationModules/raw/', parameters('DeploymentBranch'), '/Connector/connector.json')]",
+        "BasicSampleTemplate": "[concat('https://github.com/briandelmsft/SentinelAutomationModules/raw/', parameters('DeploymentBranch'), '/Samples/basicsample.json')]",
         "AADTenantId": "[subscription().tenantId]"
     },
     "resources": [
@@ -224,6 +231,15 @@
                     },
                     "ConnectorTemplate": {
                         "value": "[variables('ConnectorTemplate')]"
+                    },
+                    "BasicSampleTemplate": {
+                        "value": "[variables('BasicSampleTemplate')]"
+                    },
+                    "DeployBasicSample": {
+                        "value": "[parameters('DeployBasicSample')]"
+                    },
+                    "BasicSamplePlaybookName": {
+                        "value": "[parameters('BasicSamplePlaybookName')]"
                     }
                 }
             }
@@ -286,6 +302,15 @@
                     },
                     "ConnectorTemplate": {
                         "value": "[variables('ConnectorTemplate')]"
+                    },
+                    "BasicSampleTemplate": {
+                        "value": "[variables('BasicSampleTemplate')]"
+                    },
+                    "DeployBasicSample": {
+                        "value": "[parameters('DeployBasicSample')]"
+                    },
+                    "BasicSamplePlaybookName": {
+                        "value": "[parameters('BasicSamplePlaybookName')]"
                     }
                 }
             }
@@ -354,6 +379,15 @@
                     },
                     "ConnectorTemplate": {
                         "value": "[variables('ConnectorTemplate')]"
+                    },
+                    "BasicSampleTemplate": {
+                        "value": "[variables('BasicSampleTemplate')]"
+                    },
+                    "DeployBasicSample": {
+                        "value": "[parameters('DeployBasicSample')]"
+                    },
+                    "BasicSamplePlaybookName": {
+                        "value": "[parameters('BasicSamplePlaybookName')]"
                     }
                 }
             }
