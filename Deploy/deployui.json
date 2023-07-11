@@ -507,7 +507,6 @@
                         "name": "DeployBasicSamplePlaybook",
                         "type": "Microsoft.Common.CheckBox",
                         "label": "Deploy the Basic Sample Incident Triage Playbook",
-                        "defaultValue": false,
                         "toolTip": "",
                         "constraints": {},
                         "visible": true
@@ -519,7 +518,6 @@
                         "placeholder": "",
                         "defaultValue": "Sample-STAT-Triage",
                         "toolTip": "",
-                        "constraints": {},
                         "visible": "[steps('additionalStep').DeployBasicSamplePlaybook]"
                     }
                 ]
