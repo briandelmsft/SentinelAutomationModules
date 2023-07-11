@@ -104,7 +104,7 @@
                                     }
                                 },
                                 "method": "post",
-                                "path": "/api/modules/aadrisks'"
+                                "path": "/api/modules/aadrisks"
                             }
                         },
                         "Base_Module": {
@@ -265,7 +265,7 @@
                                     }
                                 },
                                 "method": "post",
-                                "path": "api/modules/scoring"
+                                "path": "/api/modules/scoring"
                             }
                         },
                         "Threat_Intel_Module": {
