@@ -470,40 +470,6 @@
                 "label": "Additional Options",
                 "elements": [
                     {
-                        "name": "sampleTextBlock",
-                        "type": "Microsoft.Common.TextBlock",
-                        "visible": true,
-                        "options": {
-                            "text": "Microsoft Sentinel Triage AssistanT Function Package"
-                        }
-                    },
-                    {
-                        "name": "functionPackage",
-                        "type": "Microsoft.Common.TextBox",
-                        "label": "STAT Function ZIP Package",
-                        "placeholder": "",
-                        "defaultValue": "https://github.com/briandelmsft/STAT-Function/releases/download/v1.5.0/stat.zip",
-                        "toolTip": "Full path to the STAT Function ZIP deployment package",
-                        "constraints": {
-                            "required": true,
-                            "validations": []
-                        },
-                        "visible": true
-                    },
-                    {
-                        "name": "deploymentBranch",
-                        "type": "Microsoft.Common.TextBox",
-                        "label": "Deploy From Github Branch",
-                        "placeholder": "",
-                        "defaultValue": "statv2_preview",
-                        "toolTip": "Name of Github branch to deploy from",
-                        "constraints": {
-                            "required": true,
-                            "validations": []
-                        },
-                        "visible": true
-                    },
-                    {
                         "name": "DeployBasicSamplePlaybook",
                         "type": "Microsoft.Common.CheckBox",
                         "label": "Deploy the Basic Sample Incident Triage Playbook",
@@ -523,6 +489,48 @@
                             "validations": []
                         },
                         "visible": "[steps('additionalStep').DeployBasicSamplePlaybook]"
+                    },
+                    {
+                        "name": "showAdvanced",
+                        "type": "Microsoft.Common.CheckBox",
+                        "label": "Show Advanced Settings",
+                        "toolTip": "",
+                        "constraints": {},
+                        "visible": true
+                    },
+                    {
+                        "name": "advanced",
+                        "type": "Microsoft.Common.Section",
+                        "label": "Advanced Settings",
+                        "elements": [
+                            {
+                                "name": "functionPackage",
+                                "type": "Microsoft.Common.TextBox",
+                                "label": "STAT Function ZIP Package",
+                                "placeholder": "",
+                                "defaultValue": "https://github.com/briandelmsft/STAT-Function/releases/download/v1.5.0/stat.zip",
+                                "toolTip": "Full path to the STAT Function ZIP deployment package",
+                                "constraints": {
+                                    "required": true,
+                                    "validations": []
+                                },
+                                "visible": true
+                            },
+                            {
+                                "name": "deploymentBranch",
+                                "type": "Microsoft.Common.TextBox",
+                                "label": "Deploy From Github Branch",
+                                "placeholder": "",
+                                "defaultValue": "statv2_preview",
+                                "toolTip": "Name of Github branch to deploy from",
+                                "constraints": {
+                                    "required": true,
+                                    "validations": []
+                                },
+                                "visible": true
+                            }
+                        ],
+                        "visible": "[steps('additionalStep').showAdvanced]"
                     }
                 ]
             }
@@ -534,7 +542,7 @@
             "STATConnectorName": "[coalesce(steps('namingStep').customNaming.statConnectorName, 'SentinelTriageAssistantv2')]",
             "STATConnectorDisplayName": "[coalesce(steps('namingStep').customNaming.statConnectorDisplayName, 'STAT v2')]",
             "storageAccountType": "Standard_LRS",
-            "FunctionPackage": "[steps('additionalStep').functionPackage]",
+            "FunctionPackage": "[coalesce(steps('additionalStep').advanced.functionPackage, 'https://github.com/briandelmsft/STAT-Function/releases/download/v1.5.0/stat.zip')]",
             "MSGraphEndpoint": "[coalesce(steps('apiStep').customApi.graphApi,'graph.microsoft.com')]",
             "M365Endpoint": "[coalesce(steps('apiStep').customApi.m365Api,'api.security.microsoft.com')]",
             "MDEEndpoint": "[coalesce(steps('apiStep').customApi.mdeApi,'api.securitycenter.microsoft.com')]",
@@ -545,7 +553,7 @@
             "UserIdentityResourceId": "[coalesce(steps('identityStep').userId.userIdResId, 'none')]",
             "ServicePrincipalSecret": "[coalesce(steps('identityStep').spId.spSecret, 'none')]",
             "identityType": "[steps('identityStep').idType]",
-            "DeploymentBranch": "[steps('additionalStep').deploymentBranch]",
+            "DeploymentBranch": "[coalesce(steps('additionalStep').advanced.deploymentBranch, 'statv2_preview')]",
             "DeployBasicSample": "[steps('additionalStep').DeployBasicSamplePlaybook]",
             "BasicSamplePlaybookName": "[coalesce(steps('additionalStep').BasicSamplePlaybookName,'Sample-STAT-Triage')]",
             "location": "[location()]"
