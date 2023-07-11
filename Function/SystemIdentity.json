@@ -76,6 +76,15 @@
         },
         "ConnectorTemplate": {
             "type": "string"
+        },
+        "BasicSampleTemplate": {
+            "type": "string"
+        },
+        "DeployBasicSample": {
+            "type": "bool"
+        },
+        "BasicSamplePlaybookName": {
+            "type": "string"
         }
     },
     "variables": {},
@@ -186,6 +195,15 @@
                     },
                     "STATFunctionResourceId": {
                         "value": "[resourceId('Microsoft.Web/sites', parameters('STATFunctionName'))]"
+                    },
+                    "BasicSampleTemplate": {
+                        "value": "[parameters('BasicSampleTemplate')]"
+                    },
+                    "DeployBasicSample": {
+                        "value": "[parameters('DeployBasicSample')]"
+                    },
+                    "BasicSamplePlaybookName": {
+                        "value": "[parameters('BasicSamplePlaybookName')]"
                     }
                 }
             }
