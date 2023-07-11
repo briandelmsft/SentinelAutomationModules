@@ -518,6 +518,10 @@
                         "placeholder": "",
                         "defaultValue": "Sample-STAT-Triage",
                         "toolTip": "",
+                        "constraints": {
+                            "required": true,
+                            "validations": []
+                        },
                         "visible": "[steps('additionalStep').DeployBasicSamplePlaybook]"
                     }
                 ]
