@@ -8,6 +8,18 @@ This can happen in the following situations:
 - You did not run the `GrantPermissions.ps1` to grant the RBAC roles and application permissions.
 - You used the modules at least once before executing the `GrantPermissions.ps1` script. The modules are all using [system-assigned managed identity](https://learn.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/overview). When managed identities are used through logic apps, they are caching access tokens. If you run the permission script after you already cached a token, it might take up to an hour for managed identity to refresh its token.    
 
+## STAT Logic App Connector prompts for a Function Code
+
+When creating a Logic App in a resource group other than the RG where STAT was deployed, you will be prompted to provide a connection name and a function code.  Connection name is just a descriptive name and could be set to almost any value.  The Function code must be obtained from the STAT Function app and entered in the Function Code text box.
+
+#### Obtaining the Function Code
+
+1.  In the Azure Portal go into the Resource Group where the STAT Function app was deployed
+2.  Click on the STAT Function App
+3.  Navigate to Functions -> modules
+4.  Click the **Get Function Url** button
+5.  Copy the function code from the end of the URL.  The code starts immediately after **?code=**
+
 ## The Get-MCASInvestigationScore is intermittently failing
 
 Contrary to the other modules, the MCAS (Microsoft Defender for Cloud Apps) module has a [Post Deployment task](/Modules/MCASModule#post-deployment). You need to specify the API URL for your own tenant. If you do not provide it, the module is trying to find it by trying various regions but this is a best-effort strategy.
