@@ -18,10 +18,19 @@
         },
         "STATFunctionResourceId": {
             "type": "String"
+        },
+        "DeployBasicSample": {
+            "type": "bool"
+        },
+        "BasicSampleTemplate": {
+            "type": "string"
+        },
+        "BasicSamplePlaybookName": {
+            "type": "string"
         }
     },
     "variables": {
-        "STATConnectorVersion": "1.5.0"
+        "STATConnectorVersion": "1.5.5"
     },
     "resources": [
         {
@@ -2397,6 +2406,36 @@
                 },
                 "api": {
                     "id": "[resourceId('Microsoft.Web/customApis', parameters('CustomConnectorName'))]"
+                }
+            }
+        },
+        {
+            "condition": "[parameters('DeployBasicSample')]",
+            "apiVersion": "2019-10-01",
+            "name": "STATSample",
+            "type": "Microsoft.Resources/deployments",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/connections', parameters('STATFunctionName'))]"
+            ],
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[parameters('BasicSampleTemplate')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "PlaybookName": {
+                        "value": "[parameters('BasicSamplePlaybookName')]"
+                    },
+                    "STAT_Connection_resourceId": {
+                        "value": "[resourceId('Microsoft.Web/connections', parameters('STATFunctionName'))]"
+                    },
+                    "STAT_Connector_resourceId": {
+                        "value": "[resourceId('Microsoft.Web/customApis', parameters('CustomConnectorName'))]"
+                    },
+                    "STAT_Function_Name": {
+                        "value": "[parameters('STATFunctionName')]"
+                    }
                 }
             }
         }
