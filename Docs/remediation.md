@@ -10,7 +10,7 @@ There's actually 3 common ways to accomplish this:
 
 * Run Playbook Module
 * Run Playbook API
-* Incident Tags and Automation Rules or
+* Incident Tags and Automation Rules
 
 ### Run Playbook Module
 

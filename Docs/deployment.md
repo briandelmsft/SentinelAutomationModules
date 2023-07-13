@@ -7,9 +7,9 @@ The deployment of the STAT solution is broken down into 2 steps:
 
 ## Deploying Azure Resources
 
-The first step to deploying STAT is to deploy the STAT components into a Resource Group in your Azure subscription.  These components consist of Logic Apps, API Connections and a Custom Logic Apps Connector.  For the best experience, all components of the STAT solution should be deployed at one time and as updates are made avaialble the entire solution should be updated together as well.
+The first step to deploying STAT is to deploy the STAT components into a Resource Group in your Azure subscription.  These components consist of an Azure Function, API Connections and a Custom Logic Apps Connector.  While seperate ARM templates exist for components of the STAT solution, it should be deployed through the single ARM template available below.
 
-Consider the permissions on the Resource Group where you deploy STAT and ensure that no unauthorized users have access to the Logic apps.  Since these logic apps will contain information about security incidents that have been analyzed there will be details about these security incidents and related data in the run history.
+Consider the permissions on the Resource Group where you deploy STAT and ensure that no unauthorized users have access to the resources.  Since these resources will contain information about security incidents that have been analyzed which may contain private or sensitive information.
 
 When deploying STAT you should use a Resource Group within the same subscription and datacenter region as your other Microsoft Sentinel automation Playbooks.  Logic Apps Custom Connectors can only be used from the same subscription and datacenter as they are created in.  If multiple subscriptions or datacenters must be used, STAT can be deployed to each one.
 
@@ -19,9 +19,19 @@ STAT can be deployed/updated via single ARM deployment
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://aka.ms/mstatdeploy)
 
+## Identity Configuration
+
+STAT can be deployed using any of the following identity types
+
+*   System Assigned Managed Identity
+*   User Assigned Managed Identity
+*   Service Principal Identity
+
+For MSSPs or other Multi Tenant environments, you will need to deploy STAT using a Multi Tenant Service Principal Identity if you wish to centrally run your automation.  For Single Tenant use, we recommend using a System Assigned Managed Identity, but any other supported identity type will work in a single tenant deployment.
+
 ## Post Deloyment
 
-After the STAT template is deployed it will need to be granted permissions to various APIs and Sentinel itself to operate.  All components of STAT run as System Assigned Managed Identities.  You may also wish to restrict calls to the STAT Coordinator logic app to specified Azure data center regions.
+After the STAT template is deployed it will need to be granted permissions to various APIs and Sentinel itself to operate.
 
 ### Grant Permissions
 
@@ -32,8 +42,8 @@ The following modifications will need to be made to the script
 * Set the $TenantID to your [tenant id](https://docs.microsoft.com/azure/active-directory/fundamentals/active-directory-how-to-find-tenant) 
 * Set the $AzureSubscriptionId to the Azure Subscription GUID of the **Microsoft Sentinel** subscription
 * Set the $SentinelResourceGroupName to the Resource Group Name where **Microsoft Sentinel** resides
+* Set the $STATIdentityName to the name of the identity you deployed STAT using.  If using a System assigned managed identity, this will be the name of the Azure Function app
 
-Additionally, if you have deployed STAT using custom Logic App names the LogicAppName variables will need to be udpated as well.
 
 The GrantPermissions.ps1 script contains 2 types of permissions assignments that are set via PowerShell Functions.  To execute these functions you will require permission:
 
@@ -49,12 +59,13 @@ STAT Uses the following permissions
 |Permission|Type|Description|
 |---|---|---|
 |Data.Read|Log Analytics API|Execute KQL queries against your Log Analytics workspace|
-|User.Read.All|Microsoft Graph API|Read users in the Microsoft Graph to resolve/enrich user data|
+|Directory.Read.All|Microsoft Graph API|Read Azure AD data in the Microsoft Graph to resolve/enrich entities|
 |MailboxSettings.Read|Mirosoft Graph API|Read users Out of Office settings|
 |RoleManagement.Read.Directory|Microsoft Graph API|Read privileged role information to enrich user data|
 |IdentityRiskyUser.Read.All|Microsoft Graph API|Read user risk information from Azure AD Identity Protection|
 |AdvancedQuery.Read.All|Microsoft Defender for Endpoint API|Query MDE data|
 |Machine.Read.All|Microsoft Defender for Endpoint API|Retrieve Machine inforamtion including risk level|
+|File.Read.All|Microsoft Defender for Endpoint API|Retrieve file information including known threats and GlobalPrevalence|
 |investigation.read|Microsoft Defender for Cloud Apps API|Retrieve user investigation priorities|
 |AdvancedHunting.Read.All|Microsoft 365 Security API|Execute KQL queries against the Microsoft 365 Security service|
 |Microsoft Sentinel Responder|Azure RBAC Role|Gives permissions to update incidents and read data from Sentinel. This is typically used by STAT to add comments to incidents.|
