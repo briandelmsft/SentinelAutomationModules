@@ -82,7 +82,7 @@ Scoring for the UEBA module consists of 3 parts:
 
 ### File Module Scoring
 
-When scoring the File Module the calculated score is based on (HashesLinkedToThreatCount * 10 * ScoreMultiplier) + (HashesInvalidSignatureCount * 5 * ScoreMultiplier).  The ScorePerItem setting has no impact on the scoring of this module.
+When scoring the File Module the calculated score is based on (HashesLinkedToThreatCount * 10 * ScoreMultiplier).  The ScorePerItem setting has no impact on the scoring of this module.
 
 ### MDCA Module Scoring
 
