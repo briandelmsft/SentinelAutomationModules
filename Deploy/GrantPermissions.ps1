@@ -42,7 +42,7 @@ try
 }
 catch
 {
-    Write-Host "[-] Login to Azure Management failed. $($error[0])"
+    Write-Host "[-] Login to Azure Management failed. $($error[0])" -ForegroundColor Red
 }
 
 function Set-APIPermissions ($MSIName, $AppId, $PermissionName) {
