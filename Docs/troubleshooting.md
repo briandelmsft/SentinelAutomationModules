@@ -20,11 +20,22 @@ When creating a Logic App in a resource group other than the RG where STAT was d
 4.  Click the **Get Function Url** button
 5.  Copy the function code from the end of the URL.  The code starts immediately after **?code=**
 
-## The Get-MCASInvestigationScore is intermittently failing
+## Microsoft Defender for Cloud Apps fails with *There is no configured endpoint for MDCA*
 
-Contrary to the other modules, the MCAS (Microsoft Defender for Cloud Apps) module has a [Post Deployment task](/Modules/MCASModule#post-deployment). You need to specify the API URL for your own tenant. If you do not provide it, the module is trying to find it by trying various regions but this is a best-effort strategy.
+This module needs the API endpoint of your Microsoft Defender for Cloud Apps tenant. If this was not entered, or entered incorrectly, during the setup of STAT you may run into this error. You can find the correct value in the portal https://portal.cloudappsecurity.com/ by following these steps:
 
-Note that you can leverage the [Sentinel Triage AssistanT - Status workbook](/Workbook) to check for execution failure rates for all your modules at once.
+1. Click on the ❔ icone on the top right
+2. Click on the About item
+3. Copy the FQDN you see from the PORTAL URL section
+
+> Do not include the https:// component, copy the FQDN only.
+
+![image](https://user-images.githubusercontent.com/22434561/153331954-c072f23d-1e3e-4d69-bf1c-448fa27e92ec.png)
+
+4. Navigate to the Azure Portal and into your STAT Function App
+5. Click on Configuration
+6. Edit the MDCA_ENDPOINT set it to the value obtained above and click Ok
+7. Click Save
 
 ## GrantPermissions.ps1 permissions failures
 

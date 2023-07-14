@@ -63,8 +63,16 @@ To deploy the Sentinel Triage AssistanT visit the [deployment documentation](/Do
 
 ## Post Deployment
 
+### STAT v2
+
+There are no post deployment steps to use this module with the Azure Functions based STAT v2.
+
+### STAT v1 (Legacy)
+
 This module needs the API URL of your Microsoft Defender for Cloud Apps tenant. You can find this URL in the portal https://portal.cloudappsecurity.com/ by following these steps:
+
 ![image](https://user-images.githubusercontent.com/22434561/153331954-c072f23d-1e3e-4d69-bf1c-448fa27e92ec.png)
+
 1. Click on the ❔ icone on the top right
 2. Click on the About item
 3. Copy the URL you see in the PORTAL URL section (note that is has the syntax https://<tenantname>.<tenantregion>.portal.cloudappsecurity.com).
