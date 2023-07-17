@@ -379,7 +379,12 @@
                                 "toolTip": "Microsoft Graph API Endpoint",
                                 "constraints": {
                                     "required": true,
-                                    "validations": []
+                                    "validations": [
+                                        {
+                                            "regex": "(^(?![hH][tT][tT][pP][sS]?:\/\/)).*",
+                                            "message": "Enter only the hostname, such as graph.microsoft.com, do not include the https:// prefix."
+                                        }
+                                    ]
                                 },
                                 "visible": true
                             },
@@ -392,7 +397,12 @@
                                 "toolTip": "Azure Resource Manager API Endpoint",
                                 "constraints": {
                                     "required": true,
-                                    "validations": []
+                                    "validations": [
+                                        {
+                                            "regex": "(^(?![hH][tT][tT][pP][sS]?:\/\/)).*",
+                                            "message": "Enter only the hostname, such as management.azure.com, do not include the https:// prefix."
+                                        }
+                                    ]
                                 },
                                 "visible": true
                             },
@@ -405,7 +415,12 @@
                                 "toolTip": "Azure Log Analytics API Endpoint",
                                 "constraints": {
                                     "required": true,
-                                    "validations": []
+                                    "validations": [
+                                        {
+                                            "regex": "(^(?![hH][tT][tT][pP][sS]?:\/\/)).*",
+                                            "message": "Enter only the hostname, such as api.loganalytics.io, do not include the https:// prefix."
+                                        }
+                                    ]
                                 },
                                 "visible": true
                             },
@@ -418,7 +433,12 @@
                                 "toolTip": "Microsoft 365 Defender API Endpoint",
                                 "constraints": {
                                     "required": true,
-                                    "validations": []
+                                    "validations": [
+                                        {
+                                            "regex": "(^(?![hH][tT][tT][pP][sS]?:\/\/)).*",
+                                            "message": "Enter only the hostname, such as api.security.microsoft.com, do not include the https:// prefix."
+                                        }
+                                    ]
                                 },
                                 "visible": true
                             },
@@ -431,7 +451,12 @@
                                 "toolTip": "Microsoft Defender for Endpoint API Endpoint",
                                 "constraints": {
                                     "required": true,
-                                    "validations": []
+                                    "validations": [
+                                        {
+                                            "regex": "(^(?![hH][tT][tT][pP][sS]?:\/\/)).*",
+                                            "message": "Enter only the hostname, such as api.securitycenter.microsoft.com, do not include the https:// prefix."
+                                        }
+                                    ]
                                 },
                                 "visible": true
                             }
@@ -459,7 +484,12 @@
                         "toolTip": "Microsoft Defender for Cloud Apps API Endpoint",
                         "constraints": {
                             "required": true,
-                            "validations": []
+                                "validations": [
+                                    {
+                                        "regex": "(^(?![hH][tT][tT][pP][sS]?:\/\/)).*",
+                                        "message": "Enter only the hostname, such as org.region.cloudappsecurity.com, do not include the https:// prefix."
+                                    }
+                                ]
                         },
                         "visible": true
                     }
