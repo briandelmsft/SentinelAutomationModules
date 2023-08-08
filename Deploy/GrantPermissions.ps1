@@ -34,7 +34,7 @@ if ((Get-Module -ListAvailable -Name Microsoft.Graph.Applications) -eq $null) {
 
 # Connect to the Microsoft Graph API and Azure Management API
 Write-Host "[+] Connect to the Azure AD tenant: $TenantId"
-Connect-MgGraph -TenantId $TenantId -Scopes AppRoleAssignment.ReadWrite.All, Application.Read.All | Out-Null
+Connect-MgGraph -TenantId $TenantId -Scopes AppRoleAssignment.ReadWrite.All, Application.Read.All -ErrorAction Stop | Out-Null
 Write-Host "[+] Connecting to  to the Azure subscription: $AzureSubscriptionId"
 try
 {
@@ -43,6 +43,7 @@ try
 catch
 {
     Write-Host "[-] Login to Azure Management failed. $($error[0])" -ForegroundColor Red
+    return
 }
 
 function Set-APIPermissions ($MSIName, $AppId, $PermissionName) {
