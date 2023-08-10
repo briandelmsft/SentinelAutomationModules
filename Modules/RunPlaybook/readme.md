@@ -6,6 +6,17 @@ This module will allow you to start another Microsoft Sentinel playbook on the i
 ## Suported Entity Types
 * N/A
 
+## Prerequisites
+
+Using this module requires additional permissions that exceed those deployed by the GrantPermissions.ps1 PowerShell script.
+
+Ensure the following permissions are assigned:
+
+|Identity|Permissions Needed|Permission Location|
+|---|---|---|
+|STAT Function Identity (Managed Id or Service Principal)|Microsoft Sentinel Playbook Operator|Resoruce Group of Playbook to Run|
+|Azure Security Insights|Microsoft Sentinel Automation Contributor|Resource Group of Playbook to Run|
+
 ## Trigger Parameters
 
 |Parameter|Expected Values|Description|
@@ -22,7 +33,7 @@ This module does not return a Body unless there is an error, but a status code i
 |Status Code|Description|
 |---|---|
 |200|The called playbook successfully started|
-|500|An error caused the called playbook from starting.  This is usually due to the Run-Playbook managed identity not having Microsoft Sentinel Responder on the Sentinel resource groupp or Microsoft Sentinel (Azure Security Insights) not having the Microsoft Sentinel Automation Contributor role on the resource group where the Playbook is located|
+|500|An error caused the called playbook from starting.  This is usually due to the STAT identity not having Microsoft Sentinel Playbook Operator on the Playbook resource groupp or Microsoft Sentinel (Azure Security Insights) not having the Microsoft Sentinel Automation Contributor role on the resource group where the Playbook is located|
 
 ## Deployment
 
