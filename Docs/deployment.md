@@ -27,6 +27,8 @@ STAT can be deployed using any of the following identity types
 *   User Assigned Managed Identity
 *   Service Principal Identity
 
+See [authentication](authentication.md) for more information on configuring these authentication methods.
+
 For MSSPs or other Multi Tenant environments, you will need to deploy STAT using a Multi Tenant Service Principal Identity if you wish to centrally run your automation.  For Single Tenant use, we recommend using a System Assigned Managed Identity, but any other supported identity type will work in a single tenant deployment.
 
 ## Post Deloyment
