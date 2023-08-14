@@ -119,10 +119,6 @@
                     "linuxFxVersion": "PYTHON|3.10",
                     "appSettings": [
                         {
-                            "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
-                            "value": "[reference(resourceId('Microsoft.Insights/components', parameters('STATFunctionName')), '2015-05-01').InstrumentationKey]"
-                        },
-                        {
                             "name": "AzureWebJobsStorage",
                             "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', parameters('STATStorageName'), environment().suffixes.storage, listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('STATStorageName')), '2019-06-01').keys[0].value)]"
                         },

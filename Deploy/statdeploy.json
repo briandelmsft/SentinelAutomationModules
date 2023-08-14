@@ -155,26 +155,12 @@
             }
         },
         {
-            "type": "Microsoft.Insights/components",
-            "apiVersion": "2020-02-02",
-            "name": "[variables('functionName')]",
-            "location": "[parameters('location')]",
-            "tags": {
-                "[format('hidden-link:{0}', resourceId('Microsoft.Web/sites', variables('functionName')))]": "Resource"
-            },
-            "properties": {
-                "Application_Type": "web"
-            },
-            "kind": "web"
-        },
-        {
             "condition": "[equals(parameters('identityType'), 'sp')]",
             "apiVersion": "2019-10-01",
             "name": "STATFunctionSP",
             "type": "Microsoft.Resources/deployments",
             "dependsOn": [
                 "[resourceId('Microsoft.Web/serverfarms', variables('functionName'))]",
-                "[resourceId('Microsoft.Insights/components', variables('functionName'))]",
                 "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
             ],
             "properties": {
@@ -251,7 +237,6 @@
             "type": "Microsoft.Resources/deployments",
             "dependsOn": [
                 "[resourceId('Microsoft.Web/serverfarms', variables('functionName'))]",
-                "[resourceId('Microsoft.Insights/components', variables('functionName'))]",
                 "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
             ],
             "properties": {
@@ -322,7 +307,6 @@
             "type": "Microsoft.Resources/deployments",
             "dependsOn": [
                 "[resourceId('Microsoft.Web/serverfarms', variables('functionName'))]",
-                "[resourceId('Microsoft.Insights/components', variables('functionName'))]",
                 "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
             ],
             "properties": {
