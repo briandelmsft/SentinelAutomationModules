@@ -41,9 +41,7 @@ Using a Service Principal requires the administrators to manually manage and rot
 
 > The presence of the following additional application setting may result in a different authentication method being selected: KEYVAULT_ENDPOINT
 
-### Service Principal with Key Vault Secret Storage (Coming Soon)
-
-#### Coming Soon - The Current Preview build does not include this functionality
+### Service Principal with Key Vault Secret Storage
 
 When using Service Principal authentication, you may wish to further protect the secret using Azure Key Vault.  To use Azure Key Vault you must first:
 
@@ -65,7 +63,7 @@ When using Service Principal authentication, you may wish to further protect the
 
 If the configured application settings match with multiple authentication methods, the authentication method used with be selected in this order:
 
-1.  Service Principal with Key Vault Secret Storage (Coming Soon)
+1.  Service Principal with Key Vault Secret Storage
 2.  Service Principal
 3.  User Assigned Managed Identity
 4.  System Assigned Managed Identity
