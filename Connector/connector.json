@@ -2051,6 +2051,13 @@
                                                     "description": "Type the minimum investigation score",
                                                     "minimum": 1,
                                                     "maximum": 100
+                                                },
+                                                "TopUserThreshold": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "Check if the users investigation scores rank in the top X (your value)",
+                                                    "minimum": 1,
+                                                    "maximum": 100
                                                 }
                                             },
                                             "default": {
@@ -2077,6 +2084,20 @@
                                                     "format": "int32",
                                                     "description": "AboveThreholdCount"
                                                 },
+                                                "TopUserThresholdCount": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "TopUserThresholdCount"
+                                                },
+                                                "HighestScorePercentile": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "HighestScorePercentile"
+                                                },
+                                                "AnyThreatScoreTrendingUp": {
+                                                    "type": "boolean",
+                                                    "description": "AnyThreatScoreTrendingUp"
+                                                },
                                                 "AnalyzedEntities": {
                                                     "type": "integer",
                                                     "format": "int32",
@@ -2099,6 +2120,19 @@
                                                             "UserPrincipalName": {
                                                                 "type": "string",
                                                                 "description": "UserPrincipalName in DetailedResults array"
+                                                            },
+                                                            "LastThreatScorePercentile": {
+                                                                "type": "integer",
+                                                                "format": "int32",
+                                                                "description": "LastThreatScorePercentile in DetailedResults array"
+                                                            },
+                                                            "ThreatScoreTrendingUp": {
+                                                                "type": "boolen",
+                                                                "description": "ThreatScoreTrendingUp in DetailedResults array"
+                                                            },
+                                                            "IsTopThreatScore": {
+                                                                "type": "boolen",
+                                                                "description": "IsTopThreatScore in DetailedResults array"
                                                             }
                                                         }
                                                     },
