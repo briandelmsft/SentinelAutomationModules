@@ -2079,10 +2079,10 @@
                                             "type": "object",
                                             "description": "MDCA Module Body",
                                             "properties": {
-                                                "AboveThreholdCount": {
+                                                "AboveThresholdCount": {
                                                     "type": "integer",
                                                     "format": "int32",
-                                                    "description": "AboveThreholdCount"
+                                                    "description": "AboveThresholdCount"
                                                 },
                                                 "TopUserThresholdCount": {
                                                     "type": "integer",
