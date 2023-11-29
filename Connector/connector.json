@@ -2127,11 +2127,11 @@
                                                                 "description": "LastThreatScorePercentile in DetailedResults array"
                                                             },
                                                             "ThreatScoreTrendingUp": {
-                                                                "type": "boolen",
+                                                                "type": "boolean",
                                                                 "description": "ThreatScoreTrendingUp in DetailedResults array"
                                                             },
                                                             "IsTopThreatScore": {
-                                                                "type": "boolen",
+                                                                "type": "boolean",
                                                                 "description": "IsTopThreatScore in DetailedResults array"
                                                             }
                                                         }
