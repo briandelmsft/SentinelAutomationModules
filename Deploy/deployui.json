@@ -546,7 +546,7 @@
                                 "type": "Microsoft.Common.TextBox",
                                 "label": "STAT Function ZIP Package",
                                 "placeholder": "",
-                                "defaultValue": "https://github.com/briandelmsft/STAT-Function/releases/download/v1.5.11/stat.zip",
+                                "defaultValue": "https://github.com/briandelmsft/STAT-Function/releases/download/v2.0.0/stat.zip",
                                 "toolTip": "Full path to the STAT Function ZIP deployment package",
                                 "constraints": {
                                     "required": true,
@@ -559,7 +559,7 @@
                                 "type": "Microsoft.Common.TextBox",
                                 "label": "Deploy From Github Branch",
                                 "placeholder": "",
-                                "defaultValue": "statv2_preview",
+                                "defaultValue": "main",
                                 "toolTip": "Name of Github branch to deploy from",
                                 "constraints": {
                                     "required": true,
@@ -591,7 +591,7 @@
             "UserIdentityResourceId": "[coalesce(steps('identityStep').userId.userIdResId, 'none')]",
             "ServicePrincipalSecret": "[coalesce(steps('identityStep').spId.spSecret, 'none')]",
             "identityType": "[steps('identityStep').idType]",
-            "DeploymentBranch": "[coalesce(steps('additionalStep').advanced.deploymentBranch, 'statv2_preview')]",
+            "DeploymentBranch": "[coalesce(steps('additionalStep').advanced.deploymentBranch, 'main')]",
             "DeployBasicSample": "[steps('additionalStep').samples.DeployBasicSamplePlaybook]",
             "BasicSamplePlaybookName": "[coalesce(steps('additionalStep').samples.BasicSamplePlaybookName,'Sample-STAT-Triage')]",
             "location": "[location()]"

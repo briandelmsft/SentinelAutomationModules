@@ -12,6 +12,6 @@ Project goals include:
 
 Many of the Microsoft Sentinel playbook templates available today focus on Notification, Incident Enrichment and Remediation.  This project focuses on the triage and analysis of an incident to provide additional confidence in the quality of the incident before taking actions.  When the incident is determined to be low quality (likely a benign positive), it can be closed or lowered in severity through these automation flows.  When the incident is determined to be of higher quality, it can be raised in severity, assigned to an analyst or even trigger a remediation playbook.
 
-The full solution is available for deployment in the [Deployment](/Deploy/) section and additional documentation can be found in [Docs](/Docs/).
+The full solution is available for deployment in the [Deployment](/Deploy/) section and additional documentation can be found in the [Wiki](https://github.com/briandelmsft/SentinelAutomationModules/wiki).
 
 If you have any questions about this project or would like to provide suggestions to the STAT project maintainers please open an [issue](https://github.com/briandelmsft/SentinelAutomationModules/issues/new/choose).

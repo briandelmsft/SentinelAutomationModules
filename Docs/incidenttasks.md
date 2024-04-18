@@ -1,5 +1,8 @@
 # Sentinel Triage AssistanT (STAT) :hospital: - Incident Tasks (Preview)
 
+> [!NOTE]
+> STAT documentation is being relocated to the builin [Wiki](https://github.com/briandelmsft/SentinelAutomationModules/wiki)
+
 Microsoft Sentinel now supports the addition of [tasks](https://learn.microsoft.com/azure/sentinel/work-with-tasks) to incidents.  Tasks have a more prominent place in the incident interface than comments do so it can help draw attention to important steps for an analyst to follow.
 
 STAT now has support to add incident tasks to the corresponding incident.

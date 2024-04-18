@@ -1,5 +1,8 @@
 # Sentinel Triage AssistanT (STAT) :hospital: - MSSP / Multi Tenant Deployments
 
+> [!NOTE]
+> STAT documentation is being relocated to the builin [Wiki](https://github.com/briandelmsft/SentinelAutomationModules/wiki)
+
 With the introduction of STAT v2 we have added support for Multi Tenant Service Principal Authentication to enable MSSP and other organizations with multiple tenants to run STAT in a centralized location, while accessing services in another Azure Ad tenant.
 
 ## Prerequisites

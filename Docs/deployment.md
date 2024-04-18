@@ -1,5 +1,8 @@
 # Sentinel Triage AssistanT (STAT) :hospital: - Deployment
 
+> [!NOTE]
+> STAT documentation is being relocated to the builin [Wiki](https://github.com/briandelmsft/SentinelAutomationModules/wiki)
+
 The deployment of the STAT solution is broken down into 2 steps:
 
 1. Deploying Azure Resources

@@ -1,5 +1,8 @@
 # Sentinel Triage AssistanT (STAT) :hospital: - Troubleshooting
 
+> [!NOTE]
+> STAT documentation is being relocated to the builin [Wiki](https://github.com/briandelmsft/SentinelAutomationModules/wiki)
+
 You will find here the troubleshooting steps for specific situations.
 
 ## A module is failing with a 40x error message

@@ -1,5 +1,8 @@
 # Sentinel Triage AssistanT (STAT) :hospital: - Remediation
 
+> [!NOTE]
+> STAT documentation is being relocated to the builin [Wiki](https://github.com/briandelmsft/SentinelAutomationModules/wiki)
+
 Once you have used STAT to triage your incident and make a decision on the remediation actions you want to take, you may notice that STAT does not include any remediation actions. This is because many common remediation action Playbooks have already been built in the [Sentinel Github repo](https://github.com/Azure/Azure-Sentinel/tree/master/Playbooks).  Since STAT is encouraging reusable automation, it didn't make sense at this time to incorporate remediation directly into STAT.  However, that doesn't mean they can't work together.
 
 ## Triggering a Remediation Playbook on STAT Output

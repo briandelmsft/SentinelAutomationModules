@@ -1,5 +1,8 @@
 # Sentinel Triage AssistanT (STAT) :hospital: - Sample Playbook
 
+> [!NOTE]
+> STAT documentation is being relocated to the builin [Wiki](https://github.com/briandelmsft/SentinelAutomationModules/wiki)
+
 The Sample playbook is a Proof of Concept to demonstrate how STAT can be used to Triage an incident. This sample is not meant to be capable of triaging any type of incident; additional playbooks may need to be built using STAT to handle the unique requirements of different incident types.
 
 The Playbook starts on a Sentinel Incident creation rule trigger and then starts the triage process using STAT:

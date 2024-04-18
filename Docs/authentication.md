@@ -1,5 +1,8 @@
 # Sentinel Triage AssistanT (STAT) :hospital: - Authentication
 
+> [!NOTE]
+> STAT documentation is being relocated to the builin [Wiki](https://github.com/briandelmsft/SentinelAutomationModules/wiki)
+
 The Microsoft Sentinel Triage AssistanT (STAT) makes use of multiple APIs such as the Microsoft Graph, Azure Resource Manager, Microsoft 365 Defender and more.  To access these APIs, the STAT function must authenticate against these services.
 
 Multiple methods of authentication are supported by STAT and each of these methods requires different configuration on the STAT Function.  This configuration is typically deployed automatically during the STAT deployment, however it can be changed post deployment.
