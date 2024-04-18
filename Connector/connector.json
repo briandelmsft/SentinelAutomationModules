@@ -1489,8 +1489,8 @@
                         },
                         "/api/modules/aadrisks": {
                             "post": {
-                                "summary": "AAD Risks Module",
-                                "description": "Sentinel Triage AssistanT Module for determining if user entities have related Azure Active Directory risk data.",
+                                "summary": "Entra ID Risks Module",
+                                "description": "Sentinel Triage AssistanT Module for determining if user entities have related Entra ID risk data.",
                                 "operationId": "AADRisksModule",
                                 "parameters": [
                                     {
