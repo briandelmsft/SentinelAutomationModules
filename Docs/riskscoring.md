@@ -1,5 +1,8 @@
 # Sentinel Triage AssistanT (STAT) :hospital: - Risk Scoring
 
+> [!NOTE]
+> STAT documentation is being relocated to the builin [Wiki](https://github.com/briandelmsft/SentinelAutomationModules/wiki)
+
 Risk Scoring is a module of STAT that can be used to calculate a cumulative risk score based on the findings of multiple STAT modules. The Risk Scoring module can consume the output *Body* of multiple STAT modules, and will calculate a simple numeric score based on what those modules have found.  Its purpose is to make it easier to make a decision based on the cumulative risk associated with an incident.
 
 ## Supported Modules

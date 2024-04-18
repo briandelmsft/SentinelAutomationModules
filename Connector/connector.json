@@ -2,124 +2,60 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "STATCoordinatorPlaybookName": {
-            "defaultValue": "STAT-Coordinator",
-            "type": "String"
-        },
         "CustomConnectorName": {
-            "defaultValue": "SentinelTriageAssistant",
+            "defaultValue": "SentinelTriageAssistantv2",
             "type": "String"
         },
         "CustomConnectorDisplayName": {
-            "defaultValue": "Sentinel Triage AssistanT - STAT",
+            "defaultValue": "STAT v2",
             "type": "String"
         },
-        "BaseModule_resourceid": {
-            "metadata": {
-                "description": "Resource Id of the Base Module Playbook"
-            },
-            "defaultValue": "/subscriptions/<subscriptionId>/resourceGroups/<resourceGroupName>/providers/Microsoft.Logic/workflows/<BaseModuleName>",
+        "STATFunctionSiteName": {
             "type": "String"
         },
-        "OOFModule_resourceid": {
-            "metadata": {
-                "description": "Resource Id of the OOF Module Playbook"
-            },
-            "defaultValue": "/subscriptions/<subscriptionId>/resourceGroups/<resourceGroupName>/providers/Microsoft.Logic/workflows/<OOFModuleName>",
+        "STATFunctionName": {
             "type": "String"
         },
-        "AADRisks_resourceid": {
-            "metadata": {
-                "description": "Resource Id of the AADRisks Module Playbook"
-            },
-            "defaultValue": "/subscriptions/<subscriptionId>/resourceGroups/<resourceGroupName>/providers/Microsoft.Logic/workflows/<AADRisksModuleName>",
+        "STATFunctionResourceId": {
             "type": "String"
         },
-        "FileModule_resourceid": {
-            "metadata": {
-                "description": "Resource Id of the File Module Playbook"
-            },
-            "defaultValue": "/subscriptions/<subscriptionId>/resourceGroups/<resourceGroupName>/providers/Microsoft.Logic/workflows/<FileModuleName>",
-            "type": "String"
+        "DeployBasicSample": {
+            "type": "bool"
         },
-        "KQLModule_resourceid": {
-            "metadata": {
-                "description": "Resource Id of the KQL Module Playbook"
-            },
-            "defaultValue": "/subscriptions/<subscriptionId>/resourceGroups/<resourceGroupName>/providers/Microsoft.Logic/workflows/<KQLModuleName>",
-            "type": "String"
+        "BasicSampleTemplate": {
+            "type": "string"
         },
-        "MCASModule_resourceid": {
-            "metadata": {
-                "description": "Resource Id of the MCAS Module Playbook"
-            },
-            "defaultValue": "/subscriptions/<subscriptionId>/resourceGroups/<resourceGroupName>/providers/Microsoft.Logic/workflows/<MCASModuleName>",
-            "type": "String"
-        },
-        "MDEModule_resourceid": {
-            "metadata": {
-                "description": "Resource Id of the MDE Module Playbook"
-            },
-            "defaultValue": "/subscriptions/<subscriptionId>/resourceGroups/<resourceGroupName>/providers/Microsoft.Logic/workflows/<MDEModuleName>",
-            "type": "String"
-        },
-        "RelatedAlertsModule_resourceid": {
-            "metadata": {
-                "description": "Resource Id of the RelatedAlerts Module Playbook"
-            },
-            "defaultValue": "/subscriptions/<subscriptionId>/resourceGroups/<resourceGroupName>/providers/Microsoft.Logic/workflows/<RelatedAlertsModuleName>",
-            "type": "String"
-        },
-        "RunPlaybook_resourceid": {
-            "metadata": {
-                "description": "Resource Id of the RunPlaybook Playbook"
-            },
-            "defaultValue": "/subscriptions/<subscriptionId>/resourceGroups/<resourceGroupName>/providers/Microsoft.Logic/workflows/<RunPlaybookModuleName>",
-            "type": "String"
-        },
-        "ScoringModule_resourceid": {
-            "metadata": {
-                "description": "Resource Id of the ScoringModule Playbook"
-            },
-            "defaultValue": "/subscriptions/<subscriptionId>/resourceGroups/<resourceGroupName>/providers/Microsoft.Logic/workflows/<ScoringModuleName>",
-            "type": "String"
-        },
-        "ThreatIntelModule_resourceid": {
-            "metadata": {
-                "description": "Resource Id of the TI Module Playbook"
-            },
-            "defaultValue": "/subscriptions/<subscriptionId>/resourceGroups/<resourceGroupName>/providers/Microsoft.Logic/workflows/<TIModuleName>",
-            "type": "String"
-        },
-        "UEBAModule_resourceid": {
-            "metadata": {
-                "description": "Resource Id of the UEBA Module Playbook"
-            },
-            "defaultValue": "/subscriptions/<subscriptionId>/resourceGroups/<resourceGroupName>/providers/Microsoft.Logic/workflows/<UEBAModuleName>",
-            "type": "String"
-        },
-        "WatchlistModule_resourceid": {
-            "metadata": {
-                "description": "Resource Id of the Watchlist Module Playbook"
-            },
-            "defaultValue": "/subscriptions/<subscriptionId>/resourceGroups/<resourceGroupName>/providers/Microsoft.Logic/workflows/<WatchlistModuleName>",
-            "type": "String"
+        "BasicSamplePlaybookName": {
+            "type": "string"
         }
     },
-    "variables": {},
+    "variables": {
+        "STATConnectorVersion": "2.0.0"
+    },
     "resources": [
         {
             "type": "Microsoft.Web/customApis",
             "apiVersion": "2016-06-01",
             "name": "[parameters('CustomConnectorName')]",
             "location": "[resourceGroup().location]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Logic/workflows', parameters('STATCoordinatorPlaybookName'))]"
-            ],
             "properties": {
-                "connectionParameters": {},
+                "connectionParameters": {
+                    "api_key": {
+                        "type": "securestring",
+                        "uiDefinition": {
+                            "displayName": "Function Code",
+                            "description": "The code for the Azure Function",
+                            "tooltip": "Provide your code",
+                            "constraints": {
+                                "tabIndex": 2,
+                                "clearText": false,
+                                "required": "true"
+                            }
+                        }
+                    }
+                },
                 "capabilities": [],
-                "description": "The Microsoft Sentinel Triage assistance is an automation toolkit to simplify the construction of automation to analyze Sentinel Incidents (version 0.5.7)",
+                "description": "[concat('The Microsoft Sentinel Triage assistance is an automation toolkit to simplify the construction of automation to analyze Sentinel Incidents (version ', variables('STATConnectorVersion'), ')')]",
                 "displayName": "[parameters('CustomConnectorDisplayName')]",
                 "iconUri": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACsAAAAtCAYAAAA3BJLdAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAMjSURBVFhH7Zk/TFNRFMa/tg8BkWr8E0uRyGAwOki0NVYTBhIlGISFGnVgrC5EGk1IGBwkMQw6NG7tggtxMDqoiYspEAZJoAZFISAJJFpsGLTUaqDQ1nfvuy20lL7b0vdqTX/JyT3f477ycbjv9N5WExVBgaBlY0FQNKsUCWvW7/djYmKCqdxiMplQWVnJVJYQszEGBweJcUVibGyM/ZbsKdxlMDQ0hMbGRpr79h+j404x/Jijo1hZmM1mmmfL/1HZby9eoaKigubZEgwGUdPeRvNcVHZbs4FAgI47Ra/X01EVs2+CWvjWaUoxCMDlPRGmJNLNiZm12WwwGo0058FisaC5uZkpCVmzt30CPqxoaE6oL4visWGTM5F0c2JmM6WrqwsOh4MpieLbrVKoYpYsKd5oaGhgd21F1ixZe8O1a/FIXq8Enjkr12z4U3smbYTfjbPZqcnLMtC1X0HpUxd23bvLrvCRF7PammrozpuhOXmcXeFDVbOkoiX2W9CeM1GtOVJFNQkeZM2Sht/v3wiik+GZQxCsbdQYqSqBVDjnZp/4dfHYzqzcHEJ0ehaRUQ8iX72SXg5IWgweZM3mklDvI6xctyH8/DXVkalZqknwoKrZnZIXs2sOJ+2rqzdusit8qLJFzOS1WlpaMDIyknIjI27mlIcY6OjogNvthtcrPVzJdHd3Y2BgAJOTk+zKVrgqG7r/UHySvzCVHtJLhavS6YDwtvoEHevq6rC4uEhPD6kgR/WZmRncWZrHp3Ao+y0ieWrDo+NcEfV+Z3dJXCgpp3Fw/itOrYbjOjlKP07Rn+s1OnbnVrgqu/7sJRYWfHD/3thgE4y7BWg3/bn1unUYLKfjTZ/Qe7iWZfI0NTXhwef3GJ6bTVlZ7gesnzb8xH+ExVDGMomLQgiXhFWmJDI5KTidTrhcLng8nuJJQVWKZpWiaFYpCsrstn22p6eHjjGmUY5Rf4gpiaNVBxD+tcwUcPbQXuz7ucSURF9fH8vkaW1tpT2WvC2n6rOqffKdaYhmmasNEipLvk+w2+1M5Rer1YrOzk6mJBLM/usUu4FSFJBZ4C9uB2sPxMPD5QAAAABJRU5ErkJggg==",
                 "swagger": {
@@ -127,9 +63,9 @@
                     "info": {
                         "version": "1.0.0",
                         "title": "STAT",
-                        "description": "The Microsoft Sentinel Triage assistance is an automation toolkit to simplify the construction of automation to analyze Sentinel Incidents (version 0.5.7)"
+                        "description": "[concat('The Microsoft Sentinel Triage assistance is an automation toolkit to simplify the construction of automation to analyze Sentinel Incidents (version ', variables('STATConnectorVersion'), ')')]"
                     },
-                    "host": "[string(split(split(listCallbackUrl(resourceId('Microsoft.Logic/workflows/triggers', parameters('STATCoordinatorPlaybookName'), 'manual'), '2017-07-01').value, ':443')[0], '//')[1])]",
+                    "host": "[parameters('STATFunctionSiteName')]",
                     "basePath": "/",
                     "schemes": [
                         "https"
@@ -139,44 +75,12 @@
                         "application/json"
                     ],
                     "paths": {
-                        "[concat(string(split(split(listCallbackUrl(resourceId('Microsoft.Logic/workflows/triggers', parameters('STATCoordinatorPlaybookName'), 'manual'), '2017-07-01').value, ':443')[1],'?')[0]), '/func/base')]": {
+                        "/api/modules/base": {
                             "post": {
                                 "summary": "Base Module",
                                 "description": "Sentinel Triage AssistanT Base Module enriches entities in the Sentinel Incidient to provide additional data for analysis",
                                 "operationId": "BaseModule",
                                 "parameters": [
-                                    {
-                                        "name": "api-version",
-                                        "default": "2016-10-01",
-                                        "in": "query",
-                                        "type": "string",
-                                        "required": true,
-                                        "x-ms-visibility": "internal"
-                                    },
-                                    {
-                                        "name": "sp",
-                                        "default": "/triggers/manual/run",
-                                        "in": "query",
-                                        "type": "string",
-                                        "required": true,
-                                        "x-ms-visibility": "internal"
-                                    },
-                                    {
-                                        "name": "sv",
-                                        "default": "1.0",
-                                        "in": "query",
-                                        "type": "string",
-                                        "required": true,
-                                        "x-ms-visibility": "internal"
-                                    },
-                                    {
-                                        "name": "sig",
-                                        "default": "[string(split(listCallbackUrl(resourceId('Microsoft.Logic/workflows/triggers', parameters('STATCoordinatorPlaybookName'), 'manual'), '2017-07-01').value, 'sig=')[1])]",
-                                        "in": "query",
-                                        "type": "string",
-                                        "required": true,
-                                        "x-ms-visibility": "internal"
-                                    },
                                     {
                                         "name": "body",
                                         "in": "body",
@@ -213,35 +117,35 @@
                                                     ],
                                                     "x-ms-visibility": "advanced"
                                                 },
-                                                "Entities": {
-                                                    "type": "string",
-                                                    "description": "Entities",
-                                                    "title": "",
+                                                "Body": {
+                                                    "type": "object",
+                                                    "description": "Incident Body or Alert Body",
+                                                    "title": "Incident or Alert Body",
                                                     "x-ms-visibility": "important"
                                                 },
-                                                "IncidentARMId": {
-                                                    "type": "string",
-                                                    "description": "IncidentARMId",
-                                                    "title": "",
-                                                    "x-ms-visibility": "important"
+                                                "MultiTenantConfig": {
+                                                    "type": "object",
+                                                    "description": "Multi Tenant Authentication Config Settings",
+                                                    "title": "MultiTenantConfig",
+                                                    "x-ms-visibility": "advanced"
                                                 },
-                                                "WorkspaceId": {
+                                                "VersionCheckType": {
                                                     "type": "string",
-                                                    "description": "WorkspaceId",
-                                                    "title": "",
-                                                    "x-ms-visibility": "important"
+                                                    "description": "Notify when newer version of STAT is available.",
+                                                    "enum": [
+                                                        "Major",
+                                                        "Minor",
+                                                        "Build",
+                                                        "None"
+                                                    ],
+                                                    "x-ms-visibility": "advanced"
                                                 }
                                             },
                                             "default": {
-                                                "EnrichIPsWithGeoData": true,
-                                                "Entities": [],
-                                                "IncidentARMId": "",
-                                                "WorkspaceId": "abc"
+                                                "EnrichIPsWithGeoData": true
                                             },
                                             "required": [
-                                                "IncidentARMId",
-                                                "WorkspaceId",
-                                                "Entities"
+                                                "Body"
                                             ]
                                         },
                                         "required": true
@@ -653,44 +557,12 @@
                                 "x-ms-visibility": "important"
                             }
                         },
-                        "[concat(string(split(split(listCallbackUrl(resourceId('Microsoft.Logic/workflows/triggers', parameters('STATCoordinatorPlaybookName'), 'manual'), '2017-07-01').value, ':443')[1],'?')[0]), '/func/oofmodule')]": {
+                        "/api/modules/oofmodule": {
                             "post": {
                                 "summary": "Out of Office Module",
                                 "description": "Sentinel Triage AssistanT Module for determining if user entities are out of the office.",
                                 "operationId": "OOFModule",
                                 "parameters": [
-                                    {
-                                        "name": "api-version",
-                                        "default": "2016-10-01",
-                                        "in": "query",
-                                        "type": "string",
-                                        "required": true,
-                                        "x-ms-visibility": "internal"
-                                    },
-                                    {
-                                        "name": "sp",
-                                        "default": "/triggers/manual/run",
-                                        "in": "query",
-                                        "type": "string",
-                                        "required": true,
-                                        "x-ms-visibility": "internal"
-                                    },
-                                    {
-                                        "name": "sv",
-                                        "default": "1.0",
-                                        "in": "query",
-                                        "type": "string",
-                                        "required": true,
-                                        "x-ms-visibility": "internal"
-                                    },
-                                    {
-                                        "name": "sig",
-                                        "default": "[string(split(listCallbackUrl(resourceId('Microsoft.Logic/workflows/triggers', parameters('STATCoordinatorPlaybookName'), 'manual'), '2017-07-01').value, 'sig=')[1])]",
-                                        "in": "query",
-                                        "type": "string",
-                                        "required": true,
-                                        "x-ms-visibility": "internal"
-                                    },
                                     {
                                         "name": "body",
                                         "in": "body",
@@ -708,7 +580,7 @@
                                                     "x-ms-visibility": "advanced"
                                                 },
                                                 "BaseModuleBody": {
-                                                    "type": "string",
+                                                    "type": "object",
                                                     "description": "Body from STAT Base Module",
                                                     "title": "",
                                                     "x-ms-visibility": "important"
@@ -786,44 +658,12 @@
                                 }
                             }
                         },
-                        "[concat(string(split(split(listCallbackUrl(resourceId('Microsoft.Logic/workflows/triggers', parameters('STATCoordinatorPlaybookName'), 'manual'), '2017-07-01').value, ':443')[1],'?')[0]), '/func/threatintel')]": {
+                        "/api/modules/threatintel": {
                             "post": {
                                 "summary": "Threat Intel Module",
                                 "description": "Sentinel Triage AssistanT Module for determining if incident entities are in Threat Intelligence.",
                                 "operationId": "ThreatIntel",
                                 "parameters": [
-                                    {
-                                        "name": "api-version",
-                                        "default": "2016-10-01",
-                                        "in": "query",
-                                        "type": "string",
-                                        "required": true,
-                                        "x-ms-visibility": "internal"
-                                    },
-                                    {
-                                        "name": "sp",
-                                        "default": "/triggers/manual/run",
-                                        "in": "query",
-                                        "type": "string",
-                                        "required": true,
-                                        "x-ms-visibility": "internal"
-                                    },
-                                    {
-                                        "name": "sv",
-                                        "default": "1.0",
-                                        "in": "query",
-                                        "type": "string",
-                                        "required": true,
-                                        "x-ms-visibility": "internal"
-                                    },
-                                    {
-                                        "name": "sig",
-                                        "default": "[string(split(listCallbackUrl(resourceId('Microsoft.Logic/workflows/triggers', parameters('STATCoordinatorPlaybookName'), 'manual'), '2017-07-01').value, 'sig=')[1])]",
-                                        "in": "query",
-                                        "type": "string",
-                                        "required": true,
-                                        "x-ms-visibility": "internal"
-                                    },
                                     {
                                         "name": "body",
                                         "in": "body",
@@ -851,7 +691,7 @@
                                                     "x-ms-visibility": "advanced"
                                                 },
                                                 "BaseModuleBody": {
-                                                    "type": "string",
+                                                    "type": "object",
                                                     "description": "Body from STAT Base Module",
                                                     "title": "",
                                                     "x-ms-visibility": "important"
@@ -899,13 +739,6 @@
                                                 "IncidentTaskInstructions": {
                                                     "type": "string",
                                                     "description": "Instructions to include in the Microsoft Sentinel Task",
-                                                    "x-ms-visibility": "advanced"
-                                                },
-                                                "LookbackInDays": {
-                                                    "type": "integer",
-                                                    "format": "int32",
-                                                    "description": "Number of days to lookback in Threat Intel for matches",
-                                                    "title": "",
                                                     "x-ms-visibility": "advanced"
                                                 }
                                             },
@@ -1031,44 +864,12 @@
                                 }
                             }
                         },
-                        "[concat(string(split(split(listCallbackUrl(resourceId('Microsoft.Logic/workflows/triggers', parameters('STATCoordinatorPlaybookName'), 'manual'), '2017-07-01').value, ':443')[1],'?')[0]), '/func/relatedalerts')]": {
+                        "/api/modules/relatedalerts": {
                             "post": {
                                 "summary": "Related Alerts Module",
                                 "description": "Sentinel Triage AssistanT Module for determining if entities have recent related alerts in Sentinel.",
                                 "operationId": "RelatedAlerts",
                                 "parameters": [
-                                    {
-                                        "name": "api-version",
-                                        "default": "2016-10-01",
-                                        "in": "query",
-                                        "type": "string",
-                                        "required": true,
-                                        "x-ms-visibility": "internal"
-                                    },
-                                    {
-                                        "name": "sp",
-                                        "default": "/triggers/manual/run",
-                                        "in": "query",
-                                        "type": "string",
-                                        "required": true,
-                                        "x-ms-visibility": "internal"
-                                    },
-                                    {
-                                        "name": "sv",
-                                        "default": "1.0",
-                                        "in": "query",
-                                        "type": "string",
-                                        "required": true,
-                                        "x-ms-visibility": "internal"
-                                    },
-                                    {
-                                        "name": "sig",
-                                        "default": "[string(split(listCallbackUrl(resourceId('Microsoft.Logic/workflows/triggers', parameters('STATCoordinatorPlaybookName'), 'manual'), '2017-07-01').value, 'sig=')[1])]",
-                                        "in": "query",
-                                        "type": "string",
-                                        "required": true,
-                                        "x-ms-visibility": "internal"
-                                    },
                                     {
                                         "name": "body",
                                         "in": "body",
@@ -1106,7 +907,7 @@
                                                     "x-ms-visibility": "advanced"
                                                 },
                                                 "BaseModuleBody": {
-                                                    "type": "string",
+                                                    "type": "object",
                                                     "description": "Body from STAT Base Module",
                                                     "title": "",
                                                     "x-ms-visibility": "important"
@@ -1274,44 +1075,12 @@
                                 }
                             }
                         },
-                        "[concat(string(split(split(listCallbackUrl(resourceId('Microsoft.Logic/workflows/triggers', parameters('STATCoordinatorPlaybookName'), 'manual'), '2017-07-01').value, ':443')[1],'?')[0]), '/func/watchlist')]": {
+                        "/api/modules/watchlist": {
                             "post": {
                                 "summary": "Watchlist Module",
                                 "description": "Sentinel Triage AssistanT Module for determining if incident entities are on a Sentinel watchlist.",
                                 "operationId": "WatchlistModule",
                                 "parameters": [
-                                    {
-                                        "name": "api-version",
-                                        "default": "2016-10-01",
-                                        "in": "query",
-                                        "type": "string",
-                                        "required": true,
-                                        "x-ms-visibility": "internal"
-                                    },
-                                    {
-                                        "name": "sp",
-                                        "default": "/triggers/manual/run",
-                                        "in": "query",
-                                        "type": "string",
-                                        "required": true,
-                                        "x-ms-visibility": "internal"
-                                    },
-                                    {
-                                        "name": "sv",
-                                        "default": "1.0",
-                                        "in": "query",
-                                        "type": "string",
-                                        "required": true,
-                                        "x-ms-visibility": "internal"
-                                    },
-                                    {
-                                        "name": "sig",
-                                        "default": "[string(split(listCallbackUrl(resourceId('Microsoft.Logic/workflows/triggers', parameters('STATCoordinatorPlaybookName'), 'manual'), '2017-07-01').value, 'sig=')[1])]",
-                                        "in": "query",
-                                        "type": "string",
-                                        "required": true,
-                                        "x-ms-visibility": "internal"
-                                    },
                                     {
                                         "name": "body",
                                         "in": "body",
@@ -1339,7 +1108,7 @@
                                                     "x-ms-visibility": "advanced"
                                                 },
                                                 "BaseModuleBody": {
-                                                    "type": "string",
+                                                    "type": "object",
                                                     "description": "Body from STAT Base Module",
                                                     "title": "",
                                                     "x-ms-visibility": "important"
@@ -1431,44 +1200,12 @@
                                 }
                             }
                         },
-                        "[concat(string(split(split(listCallbackUrl(resourceId('Microsoft.Logic/workflows/triggers', parameters('STATCoordinatorPlaybookName'), 'manual'), '2017-07-01').value, ':443')[1],'?')[0]), '/func/kql')]": {
+                        "/api/modules/kql": {
                             "post": {
                                 "summary": "Kusto Query Language (KQL) Module",
                                 "description": "Sentinel Triage AssistanT Module for running custom KQL queries against Microsoft Sentinel or Microsoft 365 Security.",
                                 "operationId": "KQLModule",
                                 "parameters": [
-                                    {
-                                        "name": "api-version",
-                                        "default": "2016-10-01",
-                                        "in": "query",
-                                        "type": "string",
-                                        "required": true,
-                                        "x-ms-visibility": "internal"
-                                    },
-                                    {
-                                        "name": "sp",
-                                        "default": "/triggers/manual/run",
-                                        "in": "query",
-                                        "type": "string",
-                                        "required": true,
-                                        "x-ms-visibility": "internal"
-                                    },
-                                    {
-                                        "name": "sv",
-                                        "default": "1.0",
-                                        "in": "query",
-                                        "type": "string",
-                                        "required": true,
-                                        "x-ms-visibility": "internal"
-                                    },
-                                    {
-                                        "name": "sig",
-                                        "default": "[string(split(listCallbackUrl(resourceId('Microsoft.Logic/workflows/triggers', parameters('STATCoordinatorPlaybookName'), 'manual'), '2017-07-01').value, 'sig=')[1])]",
-                                        "in": "query",
-                                        "type": "string",
-                                        "required": true,
-                                        "x-ms-visibility": "internal"
-                                    },
                                     {
                                         "name": "body",
                                         "in": "body",
@@ -1501,7 +1238,7 @@
                                                     "x-ms-visibility": "advanced"
                                                 },
                                                 "BaseModuleBody": {
-                                                    "type": "string",
+                                                    "type": "object",
                                                     "description": "Body from STAT Base Module",
                                                     "title": "",
                                                     "x-ms-visibility": "important"
@@ -1570,44 +1307,12 @@
                                 }
                             }
                         },
-                        "[concat(string(split(split(listCallbackUrl(resourceId('Microsoft.Logic/workflows/triggers', parameters('STATCoordinatorPlaybookName'), 'manual'), '2017-07-01').value, ':443')[1],'?')[0]), '/func/ueba')]": {
+                        "/api/modules/ueba": {
                             "post": {
                                 "summary": "User Entity Behavior Analytics Module",
                                 "description": "Sentinel Triage AssistanT Module for determining if user entities have corresponding investigation priorities in Sentinel UEBA.",
                                 "operationId": "UEBAModule",
                                 "parameters": [
-                                    {
-                                        "name": "api-version",
-                                        "default": "2016-10-01",
-                                        "in": "query",
-                                        "type": "string",
-                                        "required": true,
-                                        "x-ms-visibility": "internal"
-                                    },
-                                    {
-                                        "name": "sp",
-                                        "default": "/triggers/manual/run",
-                                        "in": "query",
-                                        "type": "string",
-                                        "required": true,
-                                        "x-ms-visibility": "internal"
-                                    },
-                                    {
-                                        "name": "sv",
-                                        "default": "1.0",
-                                        "in": "query",
-                                        "type": "string",
-                                        "required": true,
-                                        "x-ms-visibility": "internal"
-                                    },
-                                    {
-                                        "name": "sig",
-                                        "default": "[string(split(listCallbackUrl(resourceId('Microsoft.Logic/workflows/triggers', parameters('STATCoordinatorPlaybookName'), 'manual'), '2017-07-01').value, 'sig=')[1])]",
-                                        "in": "query",
-                                        "type": "string",
-                                        "required": true,
-                                        "x-ms-visibility": "internal"
-                                    },
                                     {
                                         "name": "body",
                                         "in": "body",
@@ -1640,7 +1345,7 @@
                                                     "x-ms-visibility": "advanced"
                                                 },
                                                 "BaseModuleBody": {
-                                                    "type": "string",
+                                                    "type": "object",
                                                     "description": "Body from STAT Base Module",
                                                     "title": "",
                                                     "x-ms-visibility": "important"
@@ -1653,7 +1358,18 @@
                                                 "MinimumInvestigationPriority": {
                                                     "type": "integer",
                                                     "format": "int32",
-                                                    "enum":[1,2,3,4,5,6,7,8,9,10],
+                                                    "enum": [
+                                                        1,
+                                                        2,
+                                                        3,
+                                                        4,
+                                                        5,
+                                                        6,
+                                                        7,
+                                                        8,
+                                                        9,
+                                                        10
+                                                    ],
                                                     "description": "Minimum investigation priority to evaluate"
                                                 }
                                             },
@@ -1771,44 +1487,12 @@
                                 }
                             }
                         },
-                        "[concat(string(split(split(listCallbackUrl(resourceId('Microsoft.Logic/workflows/triggers', parameters('STATCoordinatorPlaybookName'), 'manual'), '2017-07-01').value, ':443')[1],'?')[0]), '/func/aadrisks')]": {
+                        "/api/modules/aadrisks": {
                             "post": {
-                                "summary": "AAD Risks Module",
-                                "description": "Sentinel Triage AssistanT Module for determining if user entities have related Azure Active Directory risk data.",
+                                "summary": "Entra ID Risks Module",
+                                "description": "Sentinel Triage AssistanT Module for determining if user entities have related Entra ID risk data.",
                                 "operationId": "AADRisksModule",
                                 "parameters": [
-                                    {
-                                        "name": "api-version",
-                                        "default": "2016-10-01",
-                                        "in": "query",
-                                        "type": "string",
-                                        "required": true,
-                                        "x-ms-visibility": "internal"
-                                    },
-                                    {
-                                        "name": "sp",
-                                        "default": "/triggers/manual/run",
-                                        "in": "query",
-                                        "type": "string",
-                                        "required": true,
-                                        "x-ms-visibility": "internal"
-                                    },
-                                    {
-                                        "name": "sv",
-                                        "default": "1.0",
-                                        "in": "query",
-                                        "type": "string",
-                                        "required": true,
-                                        "x-ms-visibility": "internal"
-                                    },
-                                    {
-                                        "name": "sig",
-                                        "default": "[string(split(listCallbackUrl(resourceId('Microsoft.Logic/workflows/triggers', parameters('STATCoordinatorPlaybookName'), 'manual'), '2017-07-01').value, 'sig=')[1])]",
-                                        "in": "query",
-                                        "type": "string",
-                                        "required": true,
-                                        "x-ms-visibility": "internal"
-                                    },
                                     {
                                         "name": "body",
                                         "in": "body",
@@ -1835,13 +1519,23 @@
                                                     ],
                                                     "x-ms-visibility": "advanced"
                                                 },
+                                                "SuspiciousActivityReportLookup": {
+                                                    "type": "boolean",
+                                                    "description": "Look for suspicious activity reports",
+                                                    "title": "",
+                                                    "enum": [
+                                                        true,
+                                                        false
+                                                    ],
+                                                    "x-ms-visibility": "advanced"
+                                                },
                                                 "IncidentTaskInstructions": {
                                                     "type": "string",
                                                     "description": "Instructions to include in the Microsoft Sentinel Task",
                                                     "x-ms-visibility": "advanced"
                                                 },
                                                 "BaseModuleBody": {
-                                                    "type": "string",
+                                                    "type": "object",
                                                     "description": "Body from STAT Base Module",
                                                     "title": "",
                                                     "x-ms-visibility": "important"
@@ -1910,6 +1604,11 @@
                                                     "format": "int32",
                                                     "description": "Sum of all matching fraudulant MFA attempts"
                                                 },
+                                                "SuspiciousActivityReportTotalCount": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "Sum of all suspicious activity reports"
+                                                },
                                                 "DetailedResults": {
                                                     "type": "array",
                                                     "items": {
@@ -1936,6 +1635,11 @@
                                                             "UserRiskLevel": {
                                                                 "type": "string",
                                                                 "description": "UserRiskLevel by user in DetailedResults array"
+                                                            },
+                                                            "SuspiciousActivityReportCount": {
+                                                                "type": "integer",
+                                                                "format": "int32",
+                                                                "description": "Suspicious Activity Report Count by user in DetailedResults array"
                                                             }
                                                         }
                                                     },
@@ -1947,44 +1651,12 @@
                                 }
                             }
                         },
-                        "[concat(string(split(split(listCallbackUrl(resourceId('Microsoft.Logic/workflows/triggers', parameters('STATCoordinatorPlaybookName'), 'manual'), '2017-07-01').value, ':443')[1],'?')[0]), '/func/file')]": {
+                        "/api/modules/file": {
                             "post": {
                                 "summary": "File Insights Module",
                                 "description": "Sentinel Triage AssistanT Module for gaining insights into File entities.",
                                 "operationId": "FileModule",
                                 "parameters": [
-                                    {
-                                        "name": "api-version",
-                                        "default": "2016-10-01",
-                                        "in": "query",
-                                        "type": "string",
-                                        "required": true,
-                                        "x-ms-visibility": "internal"
-                                    },
-                                    {
-                                        "name": "sp",
-                                        "default": "/triggers/manual/run",
-                                        "in": "query",
-                                        "type": "string",
-                                        "required": true,
-                                        "x-ms-visibility": "internal"
-                                    },
-                                    {
-                                        "name": "sv",
-                                        "default": "1.0",
-                                        "in": "query",
-                                        "type": "string",
-                                        "required": true,
-                                        "x-ms-visibility": "internal"
-                                    },
-                                    {
-                                        "name": "sig",
-                                        "default": "[string(split(listCallbackUrl(resourceId('Microsoft.Logic/workflows/triggers', parameters('STATCoordinatorPlaybookName'), 'manual'), '2017-07-01').value, 'sig=')[1])]",
-                                        "in": "query",
-                                        "type": "string",
-                                        "required": true,
-                                        "x-ms-visibility": "internal"
-                                    },
                                     {
                                         "name": "body",
                                         "in": "body",
@@ -2002,7 +1674,7 @@
                                                     "x-ms-visibility": "advanced"
                                                 },
                                                 "BaseModuleBody": {
-                                                    "type": "string",
+                                                    "type": "object",
                                                     "description": "Body from STAT Base Module",
                                                     "title": "",
                                                     "x-ms-visibility": "important"
@@ -2144,44 +1816,12 @@
                                 }
                             }
                         },
-                        "[concat(string(split(split(listCallbackUrl(resourceId('Microsoft.Logic/workflows/triggers', parameters('STATCoordinatorPlaybookName'), 'manual'), '2017-07-01').value, ':443')[1],'?')[0]), '/func/mde')]": {
+                        "/api/modules/mde": {
                             "post": {
                                 "summary": "Microsoft Defender for Endpoint Module",
                                 "description": "Sentinel Triage AssistanT Module for getting MDE insights into device entities.",
                                 "operationId": "MDEModule",
                                 "parameters": [
-                                    {
-                                        "name": "api-version",
-                                        "default": "2016-10-01",
-                                        "in": "query",
-                                        "type": "string",
-                                        "required": true,
-                                        "x-ms-visibility": "internal"
-                                    },
-                                    {
-                                        "name": "sp",
-                                        "default": "/triggers/manual/run",
-                                        "in": "query",
-                                        "type": "string",
-                                        "required": true,
-                                        "x-ms-visibility": "internal"
-                                    },
-                                    {
-                                        "name": "sv",
-                                        "default": "1.0",
-                                        "in": "query",
-                                        "type": "string",
-                                        "required": true,
-                                        "x-ms-visibility": "internal"
-                                    },
-                                    {
-                                        "name": "sig",
-                                        "default": "[string(split(listCallbackUrl(resourceId('Microsoft.Logic/workflows/triggers', parameters('STATCoordinatorPlaybookName'), 'manual'), '2017-07-01').value, 'sig=')[1])]",
-                                        "in": "query",
-                                        "type": "string",
-                                        "required": true,
-                                        "x-ms-visibility": "internal"
-                                    },
                                     {
                                         "name": "body",
                                         "in": "body",
@@ -2199,7 +1839,7 @@
                                                     "x-ms-visibility": "advanced"
                                                 },
                                                 "BaseModuleBody": {
-                                                    "type": "string",
+                                                    "type": "object",
                                                     "description": "Body from STAT Base Module",
                                                     "title": "",
                                                     "x-ms-visibility": "important"
@@ -2377,44 +2017,12 @@
                                 }
                             }
                         },
-                        "[concat(string(split(split(listCallbackUrl(resourceId('Microsoft.Logic/workflows/triggers', parameters('STATCoordinatorPlaybookName'), 'manual'), '2017-07-01').value, ':443')[1],'?')[0]), '/func/mcas')]": {
+                        "/api/modules/mdca": {
                             "post": {
                                 "summary": "Microsoft Defender for Cloud Apps Module",
                                 "description": "Sentinel Triage AssistanT Module for determining if user entities have investigation priorities in Microsoft Defender for Cloud Apps.",
-                                "operationId": "MCASModule",
+                                "operationId": "MDCAModule",
                                 "parameters": [
-                                    {
-                                        "name": "api-version",
-                                        "default": "2016-10-01",
-                                        "in": "query",
-                                        "type": "string",
-                                        "required": true,
-                                        "x-ms-visibility": "internal"
-                                    },
-                                    {
-                                        "name": "sp",
-                                        "default": "/triggers/manual/run",
-                                        "in": "query",
-                                        "type": "string",
-                                        "required": true,
-                                        "x-ms-visibility": "internal"
-                                    },
-                                    {
-                                        "name": "sv",
-                                        "default": "1.0",
-                                        "in": "query",
-                                        "type": "string",
-                                        "required": true,
-                                        "x-ms-visibility": "internal"
-                                    },
-                                    {
-                                        "name": "sig",
-                                        "default": "[string(split(listCallbackUrl(resourceId('Microsoft.Logic/workflows/triggers', parameters('STATCoordinatorPlaybookName'), 'manual'), '2017-07-01').value, 'sig=')[1])]",
-                                        "in": "query",
-                                        "type": "string",
-                                        "required": true,
-                                        "x-ms-visibility": "internal"
-                                    },
                                     {
                                         "name": "body",
                                         "in": "body",
@@ -2432,7 +2040,7 @@
                                                     "x-ms-visibility": "advanced"
                                                 },
                                                 "BaseModuleBody": {
-                                                    "type": "string",
+                                                    "type": "object",
                                                     "description": "Body from STAT Base Module",
                                                     "title": "",
                                                     "x-ms-visibility": "important"
@@ -2441,6 +2049,13 @@
                                                     "type": "integer",
                                                     "format": "int32",
                                                     "description": "Type the minimum investigation score",
+                                                    "minimum": 1,
+                                                    "maximum": 100
+                                                },
+                                                "TopUserThreshold": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "Check if the users investigation scores rank in the top X (your value)",
                                                     "minimum": 1,
                                                     "maximum": 100
                                                 }
@@ -2464,10 +2079,24 @@
                                             "type": "object",
                                             "description": "MDCA Module Body",
                                             "properties": {
-                                                "AboveThreholdCount": {
+                                                "AboveThresholdCount": {
                                                     "type": "integer",
                                                     "format": "int32",
-                                                    "description": "AboveThreholdCount"
+                                                    "description": "AboveThresholdCount"
+                                                },
+                                                "TopUserThresholdCount": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "TopUserThresholdCount"
+                                                },
+                                                "HighestScorePercentile": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "HighestScorePercentile"
+                                                },
+                                                "AnyThreatScoreTrendingUp": {
+                                                    "type": "boolean",
+                                                    "description": "AnyThreatScoreTrendingUp"
                                                 },
                                                 "AnalyzedEntities": {
                                                     "type": "integer",
@@ -2491,6 +2120,19 @@
                                                             "UserPrincipalName": {
                                                                 "type": "string",
                                                                 "description": "UserPrincipalName in DetailedResults array"
+                                                            },
+                                                            "LastThreatScorePercentile": {
+                                                                "type": "integer",
+                                                                "format": "int32",
+                                                                "description": "LastThreatScorePercentile in DetailedResults array"
+                                                            },
+                                                            "ThreatScoreTrendingUp": {
+                                                                "type": "boolean",
+                                                                "description": "ThreatScoreTrendingUp in DetailedResults array"
+                                                            },
+                                                            "IsTopThreatScore": {
+                                                                "type": "boolean",
+                                                                "description": "IsTopThreatScore in DetailedResults array"
                                                             }
                                                         }
                                                     },
@@ -2507,44 +2149,12 @@
                                 }
                             }
                         },
-                        "[concat(string(split(split(listCallbackUrl(resourceId('Microsoft.Logic/workflows/triggers', parameters('STATCoordinatorPlaybookName'), 'manual'), '2017-07-01').value, ':443')[1],'?')[0]), '/func/scoring')]": {
+                        "/api/modules/scoring": {
                             "post": {
                                 "summary": "Risk Scoring Module",
                                 "description": "Sentinel Triage AssistanT Module for determining the risk score of your incident based on the inputs of other STAT modules.",
                                 "operationId": "ScoringModule",
                                 "parameters": [
-                                    {
-                                        "name": "api-version",
-                                        "default": "2016-10-01",
-                                        "in": "query",
-                                        "type": "string",
-                                        "required": true,
-                                        "x-ms-visibility": "internal"
-                                    },
-                                    {
-                                        "name": "sp",
-                                        "default": "/triggers/manual/run",
-                                        "in": "query",
-                                        "type": "string",
-                                        "required": true,
-                                        "x-ms-visibility": "internal"
-                                    },
-                                    {
-                                        "name": "sv",
-                                        "default": "1.0",
-                                        "in": "query",
-                                        "type": "string",
-                                        "required": true,
-                                        "x-ms-visibility": "internal"
-                                    },
-                                    {
-                                        "name": "sig",
-                                        "default": "[string(split(listCallbackUrl(resourceId('Microsoft.Logic/workflows/triggers', parameters('STATCoordinatorPlaybookName'), 'manual'), '2017-07-01').value, 'sig=')[1])]",
-                                        "in": "query",
-                                        "type": "string",
-                                        "required": true,
-                                        "x-ms-visibility": "internal"
-                                    },
                                     {
                                         "name": "body",
                                         "in": "body",
@@ -2562,7 +2172,7 @@
                                                     "x-ms-visibility": "advanced"
                                                 },
                                                 "BaseModuleBody": {
-                                                    "type": "string",
+                                                    "type": "object",
                                                     "description": "Body from STAT Base Module",
                                                     "title": "",
                                                     "x-ms-visibility": "important"
@@ -2637,44 +2247,12 @@
                                 }
                             }
                         },
-                        "[concat(string(split(split(listCallbackUrl(resourceId('Microsoft.Logic/workflows/triggers', parameters('STATCoordinatorPlaybookName'), 'manual'), '2017-07-01').value, ':443')[1],'?')[0]), '/func/runplaybook')]": {
+                        "/api/modules/runplaybook": {
                             "post": {
                                 "summary": "Run Playbook Module",
                                 "description": "Sentinel Triage AssistanT Module for running Microsoft Sentinel Playbooks.",
                                 "operationId": "RunPlaybook",
                                 "parameters": [
-                                    {
-                                        "name": "api-version",
-                                        "default": "2016-10-01",
-                                        "in": "query",
-                                        "type": "string",
-                                        "required": true,
-                                        "x-ms-visibility": "internal"
-                                    },
-                                    {
-                                        "name": "sp",
-                                        "default": "/triggers/manual/run",
-                                        "in": "query",
-                                        "type": "string",
-                                        "required": true,
-                                        "x-ms-visibility": "internal"
-                                    },
-                                    {
-                                        "name": "sv",
-                                        "default": "1.0",
-                                        "in": "query",
-                                        "type": "string",
-                                        "required": true,
-                                        "x-ms-visibility": "internal"
-                                    },
-                                    {
-                                        "name": "sig",
-                                        "default": "[string(split(listCallbackUrl(resourceId('Microsoft.Logic/workflows/triggers', parameters('STATCoordinatorPlaybookName'), 'manual'), '2017-07-01').value, 'sig=')[1])]",
-                                        "in": "query",
-                                        "type": "string",
-                                        "required": true,
-                                        "x-ms-visibility": "internal"
-                                    },
                                     {
                                         "name": "body",
                                         "in": "body",
@@ -2692,7 +2270,7 @@
                                                     "x-ms-visibility": "advanced"
                                                 },
                                                 "BaseModuleBody": {
-                                                    "type": "string",
+                                                    "type": "object",
                                                     "description": "Body from STAT Base Module",
                                                     "title": "",
                                                     "x-ms-visibility": "important"
@@ -2736,663 +2314,163 @@
                                     }
                                 }
                             }
+                        },
+                        "/api/modules/createincident": {
+                            "post": {
+                                "summary": "Create Incident from Alert",
+                                "description": "Sentinel Triage AssistanT Module to create a new Microsoft Sentinel incident from an alert and link the alert",
+                                "operationId": "CreateIncident",
+                                "parameters": [
+                                    {
+                                        "name": "body",
+                                        "in": "body",
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "BaseModuleBody": {
+                                                    "type": "object",
+                                                    "description": "Body from STAT Base Module",
+                                                    "title": "",
+                                                    "x-ms-visibility": "important"
+                                                },
+                                                "Title": {
+                                                    "type": "string",
+                                                    "description": "An optional title for the incident, if this is omitted the alert display name will be used",
+                                                    "x-ms-visibility": "advanced"
+                                                },
+                                                "Description": {
+                                                    "type": "string",
+                                                    "description": "An optional description for the incident, if this is omitted the alert description will be used",
+                                                    "x-ms-visibility": "advanced"
+                                                },
+                                                "Severity": {
+                                                    "type": "string",
+                                                    "description": "An optional severity for the incident, if this is omitted the alert severity will be used",
+                                                    "enum": [
+                                                        "High",
+                                                        "Medium",
+                                                        "Low",
+                                                        "Informational"
+                                                    ],
+                                                    "x-ms-visibility": "advanced"
+                                                }
+                                            },
+                                            "default": {},
+                                            "required": [
+                                                "BaseModuleBody"
+                                            ]
+                                        },
+                                        "required": true
+                                    }
+                                ],
+                                "responses": {
+                                    "default": {
+                                        "description": "default",
+                                        "schema": {
+                                            "type": "object",
+                                            "description": "Create Incident Body",
+                                            "properties": {
+                                                "IncidentNumber": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "Number of the created Sentinel Incident"
+                                                },
+                                                "IncidentARMId": {
+                                                    "type": "string",
+                                                    "description": "Incident Azure Resource Manager Id"
+                                                },
+                                                "AlertARMId": {
+                                                    "type": "string",
+                                                    "description": "Alert Entity Azure Resource Manager Id"
+                                                },
+                                                "Title": {
+                                                    "type": "string",
+                                                    "description": "Incident Title"
+                                                },
+                                                "Description": {
+                                                    "type": "string",
+                                                    "description": "Incident description"
+                                                },
+                                                "Severity": {
+                                                    "type": "string",
+                                                    "description": "Incident Severity"
+                                                },
+                                                "IncidentUrl": {
+                                                    "type": "string",
+                                                    "description": "Incident Url"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
                     },
                     "definitions": {},
                     "parameters": {},
                     "responses": {},
-                    "securityDefinitions": {},
+                    "securityDefinitions": {
+                        "api_key": {
+                            "type": "apiKey",
+                            "in": "query",
+                            "name": "code"
+                        }
+                    },
                     "security": [],
                     "tags": []
                 },
                 "apiType": "Rest",
                 "backendService": {
-                    "serviceUrl": "[string(split(listCallbackUrl(resourceId('Microsoft.Logic/workflows/triggers', parameters('STATCoordinatorPlaybookName'), 'manual'), '2017-07-01').value, ':443')[0])]"
+                    "serviceUrl": "[concat('https://', parameters('STATFunctionSiteName'))]"
                 }
             }
         },
         {
-            "type": "Microsoft.Logic/workflows",
-            "apiVersion": "2017-07-01",
-            "name": "[parameters('STATCoordinatorPlaybookName')]",
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[parameters('STATFunctionName')]",
             "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/customApis', parameters('CustomConnectorName'))]"
+            ],
             "properties": {
-                "state": "Enabled",
-                "definition": {
-                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
-                    "contentVersion": "1.0.0.0",
-                    "parameters": {
-                        "PlaybookVersion": {
-                            "defaultValue": "0.5.5",
-                            "type": "String"
-                        },
-                        "PlaybookInternalName": {
-                            "defaultValue": "CoordinatorModule",
-                            "type": "String"
-                        },
-                        "ProjectName": {
-                            "defaultValue": "STAT",
-                            "type": "String"
-                        }
-                    },
-                    "triggers": {
-                        "manual": {
-                            "type": "Request",
-                            "kind": "Http",
-                            "inputs": {
-                                "method": "POST",
-                                "relativePath": "/func/{funcname}",
-                                "schema": {
-                                    "properties": {
-                                        "AddIncidentComments": {
-                                            "type": "boolean"
-                                        },
-                                        "AddIncidentTask": {
-                                            "type": "boolean"
-                                        },
-                                        "BaseModuleBody": {
-                                            "description": "Body of Base Module",
-                                            "type": "string"
-                                        },
-                                        "EnrichIPsWithGeoData": {
-                                            "type": "boolean"
-                                        },
-                                        "Entities": {
-                                            "description": "Click here and select the Entities object from the Dynamic content menu",
-                                            "type": "string"
-                                        },
-                                        "IncidentARMId": {
-                                            "description": "Click here and select the Incident ARM ID object from the Dynamic content menu",
-                                            "type": "string"
-                                        },
-                                        "WorkspaceId": {
-                                            "description": "Click here and select the Workspace ID object from the Dynamic content menu",
-                                            "type": "string"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "actions": {
-                        "Switch": {
-                            "runAfter": {},
-                            "cases": {
-                                "Case_-_AADRisks": {
-                                    "case": "aadrisks",
-                                    "actions": {
-                                        "Get-AADUserRisksInfo": {
-                                            "runAfter": {},
-                                            "type": "Workflow",
-                                            "inputs": {
-                                                "body": {
-                                                    "AddIncidentComments": "@coalesce(triggerBody()?['AddIncidentComments'], true)",
-                                                    "AddIncidentTask": "@coalesce(triggerBody()?['AddIncidentTask'], false)",
-                                                    "Entities": "@triggerBody()?['BaseModuleBody']",
-                                                    "IncidentTaskInstructions": "@{triggerBody()?['IncidentTaskInstructions']}",
-                                                    "LookbackInDays": "@triggerBody()?['LookbackInDays']",
-                                                    "MFAFailureLookup": "@coalesce(triggerBody()?['MFAFailureLookup'], true)",
-                                                    "MFAFraudLookup": "@coalesce(triggerBody()?['MFAFraudLookup'], true)"
-                                                },
-                                                "host": {
-                                                    "triggerName": "triage",
-                                                    "workflow": {
-                                                        "id": "[parameters('AADRisks_resourceid')]"
-                                                    }
-                                                },
-                                                "retryPolicy": {
-                                                    "type": "none"
-                                                }
-                                            }
-                                        },
-                                        "Response_-_AADUserRisks": {
-                                            "runAfter": {
-                                                "Get-AADUserRisksInfo": [
-                                                    "Succeeded",
-                                                    "TimedOut",
-                                                    "Failed"
-                                                ]
-                                            },
-                                            "type": "Response",
-                                            "kind": "Http",
-                                            "inputs": {
-                                                "body": "@body('Get-AADUserRisksInfo')",
-                                                "statusCode": "@outputs('Get-AADUserRisksInfo')['statusCode']"
-                                            }
-                                        }
-                                    }
-                                },
-                                "Case_-_Base_Module": {
-                                    "case": "base",
-                                    "actions": {
-                                        "Base-Module": {
-                                            "runAfter": {},
-                                            "type": "Workflow",
-                                            "inputs": {
-                                                "body": {
-                                                    "AddAccountComment": "@coalesce(triggerBody()?['AddAccountComments'], true)",
-                                                    "AddIPComment": "@coalesce(triggerBody()?['AddIPComments'], true)",
-                                                    "EnrichIPsWithGeoData": "@coalesce(triggerBody()?['EnrichIPsWithGeoData'], true)",
-                                                    "Entities": "@triggerBody()?['Entities']",
-                                                    "IncidentARMId": "@triggerBody()?['IncidentARMId']",
-                                                    "WorkspaceId": "@triggerBody()?['WorkspaceId']"
-                                                },
-                                                "host": {
-                                                    "triggerName": "enrich",
-                                                    "workflow": {
-                                                        "id": "[parameters('BaseModule_resourceid')]"
-                                                    }
-                                                },
-                                                "retryPolicy": {
-                                                    "type": "none"
-                                                }
-                                            }
-                                        },
-                                        "Response_-_Base": {
-                                            "runAfter": {
-                                                "Base-Module": [
-                                                    "Succeeded",
-                                                    "TimedOut",
-                                                    "Failed"
-                                                ]
-                                            },
-                                            "type": "Response",
-                                            "kind": "Http",
-                                            "inputs": {
-                                                "body": "@body('Base-Module')",
-                                                "statusCode": "@outputs('Base-Module')['statusCode']"
-                                            }
-                                        }
-                                    }
-                                },
-                                "Case_-_File": {
-                                    "case": "file",
-                                    "actions": {
-                                        "Get-FileInsights": {
-                                            "runAfter": {},
-                                            "type": "Workflow",
-                                            "inputs": {
-                                                "body": {
-                                                    "AddIncidentComments": "@coalesce(triggerBody()?['AddIncidentComments'], true)",
-                                                    "Entities": "@triggerBody()?['BaseModuleBody']"
-                                                },
-                                                "host": {
-                                                    "triggerName": "triage",
-                                                    "workflow": {
-                                                        "id": "[parameters('FileModule_resourceid')]"
-                                                    }
-                                                },
-                                                "retryPolicy": {
-                                                    "type": "none"
-                                                }
-                                            }
-                                        },
-                                        "Response_-_File": {
-                                            "runAfter": {
-                                                "Get-FileInsights": [
-                                                    "Succeeded",
-                                                    "TimedOut",
-                                                    "Failed"
-                                                ]
-                                            },
-                                            "type": "Response",
-                                            "kind": "Http",
-                                            "inputs": {
-                                                "body": "@body('Get-FileInsights')",
-                                                "statusCode": "@outputs('Get-FileInsights')['statusCode']"
-                                            }
-                                        }
-                                    }
-                                },
-                                "Case_-_KQL": {
-                                    "case": "kql",
-                                    "actions": {
-                                        "Response_-_KQL": {
-                                            "runAfter": {
-                                                "Run-KQLQuery": [
-                                                    "Succeeded",
-                                                    "TimedOut",
-                                                    "Failed"
-                                                ]
-                                            },
-                                            "type": "Response",
-                                            "kind": "Http",
-                                            "inputs": {
-                                                "body": "@body('Run-KQLQuery')",
-                                                "statusCode": "@outputs('Run-KQLQuery')['statusCode']"
-                                            }
-                                        },
-                                        "Run-KQLQuery": {
-                                            "runAfter": {},
-                                            "type": "Workflow",
-                                            "inputs": {
-                                                "body": {
-                                                    "AddIncidentComments": "@coalesce(triggerBody()?['AddIncidentComments'], true)",
-                                                    "AddIncidentTask": "@coalesce(triggerBody()?['AddIncidentTask'], false)",
-                                                    "Entities": "@triggerBody()?['BaseModuleBody']",
-                                                    "IncidentTaskInstructions": "@{triggerBody()?['IncidentTaskInstructions']}",
-                                                    "KQLQuery": "@triggerBody()?['KQLQuery']",
-                                                    "LookbackInDays": "@triggerBody()?['LookbackInDays']",
-                                                    "QueryDescription": "@{triggerBody()?['QueryDescription']}",
-                                                    "RunQueryAgainst": "@triggerBody()?['RunQueryAgainst']"
-                                                },
-                                                "host": {
-                                                    "triggerName": "triage",
-                                                    "workflow": {
-                                                        "id": "[parameters('KQLModule_resourceid')]"
-                                                    }
-                                                },
-                                                "retryPolicy": {
-                                                    "type": "none"
-                                                }
-                                            }
-                                        }
-                                    }
-                                },
-                                "Case_-_MCAS": {
-                                    "case": "mcas",
-                                    "actions": {
-                                        "Get-MCASInvestigationScore": {
-                                            "runAfter": {},
-                                            "type": "Workflow",
-                                            "inputs": {
-                                                "body": {
-                                                    "AddIncidentComments": "@coalesce(triggerBody()?['AddIncidentComments'], true)",
-                                                    "Entities": "@triggerBody()?['BaseModuleBody']",
-                                                    "ScoreThreshold": "@triggerBody()?['ScoreThreshold']"
-                                                },
-                                                "host": {
-                                                    "triggerName": "triage",
-                                                    "workflow": {
-                                                        "id": "[parameters('MCASModule_resourceid')]"
-                                                    }
-                                                },
-                                                "retryPolicy": {
-                                                    "type": "none"
-                                                }
-                                            }
-                                        },
-                                        "Response_-_MCAS": {
-                                            "runAfter": {
-                                                "Get-MCASInvestigationScore": [
-                                                    "Succeeded",
-                                                    "TimedOut",
-                                                    "Failed"
-                                                ]
-                                            },
-                                            "type": "Response",
-                                            "kind": "Http",
-                                            "inputs": {
-                                                "body": "@body('Get-MCASInvestigationScore')",
-                                                "statusCode": "@outputs('Get-MCASInvestigationScore')['statusCode']"
-                                            }
-                                        }
-                                    }
-                                },
-                                "Case_-_MDE": {
-                                    "case": "mde",
-                                    "actions": {
-                                        "Get-MDEUsersDevicesRiskScore": {
-                                            "runAfter": {},
-                                            "type": "Workflow",
-                                            "inputs": {
-                                                "body": {
-                                                    "AddIncidentComments": "@coalesce(triggerBody()?['AddIncidentComments'], true)",
-                                                    "Entities": "@triggerBody()?['BaseModuleBody']",
-                                                    "LookbackInDays": "@triggerBody()?['LookbackInDays']"
-                                                },
-                                                "host": {
-                                                    "triggerName": "triage",
-                                                    "workflow": {
-                                                        "id": "[parameters('MDEModule_resourceid')]"
-                                                    }
-                                                },
-                                                "retryPolicy": {
-                                                    "type": "none"
-                                                }
-                                            }
-                                        },
-                                        "Response_-_MDE": {
-                                            "runAfter": {
-                                                "Get-MDEUsersDevicesRiskScore": [
-                                                    "Succeeded",
-                                                    "TimedOut",
-                                                    "Failed"
-                                                ]
-                                            },
-                                            "type": "Response",
-                                            "kind": "Http",
-                                            "inputs": {
-                                                "body": "@body('Get-MDEUsersDevicesRiskScore')",
-                                                "statusCode": "@outputs('Get-MDEUsersDevicesRiskScore')['statusCode']"
-                                            }
-                                        }
-                                    }
-                                },
-                                "Case_-_OOF_Module": {
-                                    "case": "oofmodule",
-                                    "actions": {
-                                        "Get-OOFDetails": {
-                                            "runAfter": {},
-                                            "type": "Workflow",
-                                            "inputs": {
-                                                "body": {
-                                                    "AddIncidentComments": "@coalesce(triggerBody()?['AddIncidentComments'], true)",
-                                                    "Entities": "@triggerBody()?['BaseModuleBody']"
-                                                },
-                                                "host": {
-                                                    "triggerName": "triage",
-                                                    "workflow": {
-                                                        "id": "[parameters('OOFModule_resourceid')]"
-                                                    }
-                                                },
-                                                "retryPolicy": {
-                                                    "type": "none"
-                                                }
-                                            }
-                                        },
-                                        "Response_-_OOF": {
-                                            "runAfter": {
-                                                "Get-OOFDetails": [
-                                                    "Succeeded",
-                                                    "TimedOut",
-                                                    "Failed"
-                                                ]
-                                            },
-                                            "type": "Response",
-                                            "kind": "Http",
-                                            "inputs": {
-                                                "body": "@body('Get-OOFDetails')",
-                                                "statusCode": "@outputs('Get-OOFDetails')['statusCode']"
-                                            }
-                                        }
-                                    }
-                                },
-                                "Case_-_Related_Alerts": {
-                                    "case": "relatedalerts",
-                                    "actions": {
-                                        "Get-RelatedAlerts": {
-                                            "runAfter": {},
-                                            "type": "Workflow",
-                                            "inputs": {
-                                                "body": {
-                                                    "AddIncidentComments": "@coalesce(triggerBody()?['AddIncidentComments'], true)",
-                                                    "AddIncidentTask": "@coalesce(triggerBody()?['AddIncidentTask'], false)",
-                                                    "AlertKQLFilter": "@{triggerBody()?['AlertKQLFilter']}",
-                                                    "CheckAccountEntityMatches": "@coalesce(triggerBody()?['CheckAccounts'], true)",
-                                                    "CheckHostEntityMatches": "@coalesce(triggerBody()?['CheckHosts'], true)",
-                                                    "CheckIPEntityMatches": "@coalesce(triggerBody()?['CheckIPs'], true)",
-                                                    "IncidentTaskInstructions": "@{triggerBody()?['IncidentTaskInstructions']}",
-                                                    "Entities": "@triggerBody()?['BaseModuleBody']",
-                                                    "LookbackInDays": "@triggerBody()?['LookbackInDays']"
-                                                },
-                                                "host": {
-                                                    "triggerName": "triage",
-                                                    "workflow": {
-                                                        "id": "[parameters('RelatedAlertsModule_resourceid')]"
-                                                    }
-                                                },
-                                                "retryPolicy": {
-                                                    "type": "none"
-                                                }
-                                            }
-                                        },
-                                        "Response_-_RelatedAlerts": {
-                                            "runAfter": {
-                                                "Get-RelatedAlerts": [
-                                                    "Succeeded",
-                                                    "TimedOut",
-                                                    "Failed"
-                                                ]
-                                            },
-                                            "type": "Response",
-                                            "kind": "Http",
-                                            "inputs": {
-                                                "body": "@body('Get-RelatedAlerts')",
-                                                "statusCode": "@outputs('Get-RelatedAlerts')['statusCode']"
-                                            }
-                                        }
-                                    }
-                                },
-                                "Case_-_Run_Playbook": {
-                                    "case": "runplaybook",
-                                    "actions": {
-                                        "Response_-_Run-Playbook": {
-                                            "runAfter": {
-                                                "Run-Playbook": [
-                                                    "Succeeded",
-                                                    "TimedOut",
-                                                    "Failed"
-                                                ]
-                                            },
-                                            "type": "Response",
-                                            "kind": "Http",
-                                            "inputs": {
-                                                "body": "@body('Run-Playbook')",
-                                                "statusCode": "@outputs('Run-Playbook')['statusCode']"
-                                            }
-                                        },
-                                        "Run-Playbook": {
-                                            "runAfter": {},
-                                            "type": "Workflow",
-                                            "inputs": {
-                                                "body": {
-                                                    "AddIncidentComments": "@coalesce(triggerBody()?['AddIncidentComments'], true)",
-                                                    "Entities": "@triggerBody()?['BaseModuleBody']",
-                                                    "LogicAppResourceId": "@{triggerBody()?['LogicAppResourceId']}",
-                                                    "PlaybookName": "@{triggerBody()?['PlaybookName']}",
-                                                    "TenantId": "@{triggerBody()?['TenantId']}"
-                                                },
-                                                "host": {
-                                                    "triggerName": "triage",
-                                                    "workflow": {
-                                                        "id": "[parameters('RunPlaybook_resourceid')]"
-                                                    }
-                                                },
-                                                "retryPolicy": {
-                                                    "type": "none"
-                                                }
-                                            }
-                                        }
-                                    }
-                                },
-                                "Case_-_Scoring": {
-                                    "case": "scoring",
-                                    "actions": {
-                                        "Calculate-RiskScore": {
-                                            "runAfter": {},
-                                            "type": "Workflow",
-                                            "inputs": {
-                                                "body": {
-                                                    "AddIncidentComments": "@coalesce(triggerBody()?['AddIncidentComments'], true)",
-                                                    "BaseModuleBody": "@triggerBody()?['BaseModuleBody']",
-                                                    "ScoringData": "@triggerBody()?['ScoringData']"
-                                                },
-                                                "host": {
-                                                    "triggerName": "calculatescore",
-                                                    "workflow": {
-                                                        "id": "[parameters('ScoringModule_resourceid')]"
-                                                    }
-                                                },
-                                                "retryPolicy": {
-                                                    "type": "none"
-                                                }
-                                            }
-                                        },
-                                        "Response_-_Calculate-RiskScore": {
-                                            "runAfter": {
-                                                "Calculate-RiskScore": [
-                                                    "Succeeded",
-                                                    "TimedOut",
-                                                    "Failed"
-                                                ]
-                                            },
-                                            "type": "Response",
-                                            "kind": "Http",
-                                            "inputs": {
-                                                "body": "@body('Calculate-RiskScore')",
-                                                "statusCode": "@outputs('Calculate-RiskScore')['statusCode']"
-                                            }
-                                        }
-                                    }
-                                },
-                                "Case_-_Threat_Intel": {
-                                    "case": "threatintel",
-                                    "actions": {
-                                        "Get-ThreatIntel": {
-                                            "runAfter": {},
-                                            "type": "Workflow",
-                                            "inputs": {
-                                                "body": {
-                                                    "AddIncidentComments": "@coalesce(triggerBody()?['AddIncidentComments'], true)",
-                                                    "AddIncidentTask": "@coalesce(triggerBody()?['AddIncidentTask'], false)",
-                                                    "CheckDomains": "@coalesce(triggerBody()?['CheckDomains'], true)",
-                                                    "CheckFileHashes": "@coalesce(triggerBody()?['CheckFileHashes'], true)",
-                                                    "CheckIPs": "@coalesce(triggerBody()?['CheckIPs'], true)",
-                                                    "CheckURLs": "@coalesce(triggerBody()?['CheckURLs'], true)",
-                                                    "Entities": "@triggerBody()?['BaseModuleBody']",
-                                                    "IncidentTaskInstructions": "@{triggerBody()?['IncidentTaskInstructions']}",
-                                                    "LookbackInDays": "@triggerBody()?['LookbackInDays']"
-                                                },
-                                                "host": {
-                                                    "triggerName": "triage",
-                                                    "workflow": {
-                                                        "id": "[parameters('ThreatIntelModule_resourceid')]"
-                                                    }
-                                                },
-                                                "retryPolicy": {
-                                                    "type": "none"
-                                                }
-                                            }
-                                        },
-                                        "Response_-_ThreatIntel": {
-                                            "runAfter": {
-                                                "Get-ThreatIntel": [
-                                                    "Succeeded",
-                                                    "TimedOut",
-                                                    "Failed"
-                                                ]
-                                            },
-                                            "type": "Response",
-                                            "kind": "Http",
-                                            "inputs": {
-                                                "body": "@body('Get-ThreatIntel')",
-                                                "statusCode": "@outputs('Get-ThreatIntel')['statusCode']"
-                                            }
-                                        }
-                                    }
-                                },
-                                "Case_-_UEBA": {
-                                    "case": "ueba",
-                                    "actions": {
-                                        "Get-UEBAInsights": {
-                                            "runAfter": {},
-                                            "type": "Workflow",
-                                            "inputs": {
-                                                "body": {
-                                                    "AddIncidentComments": "@coalesce(triggerBody()?['AddIncidentComments'], true)",
-                                                    "AddIncidentTask": "@coalesce(triggerBody()?['AddIncidentTask'], false)",
-                                                    "Entities": "@triggerBody()?['BaseModuleBody']",
-                                                    "IncidentTaskInstructions": "@{triggerBody()?['IncidentTaskInstructions']}",
-                                                    "LookbackInDays": "@triggerBody()?['LookbackInDays']",
-                                                    "MinimumInvestigationPriority": "@triggerBody()?['MinimumInvestigationPriority']"
-                                                },
-                                                "host": {
-                                                    "triggerName": "triage",
-                                                    "workflow": {
-                                                        "id": "[parameters('UEBAModule_resourceid')]"
-                                                    }
-                                                },
-                                                "retryPolicy": {
-                                                    "type": "none"
-                                                }
-                                            }
-                                        },
-                                        "Response_-_UEBA": {
-                                            "runAfter": {
-                                                "Get-UEBAInsights": [
-                                                    "Succeeded",
-                                                    "TimedOut",
-                                                    "Failed"
-                                                ]
-                                            },
-                                            "type": "Response",
-                                            "kind": "Http",
-                                            "inputs": {
-                                                "body": "@body('Get-UEBAInsights')",
-                                                "statusCode": "@outputs('Get-UEBAInsights')['statusCode']"
-                                            }
-                                        }
-                                    }
-                                },
-                                "Case_-_Watchlist": {
-                                    "case": "watchlist",
-                                    "actions": {
-                                        "Get-WatchlistInsights": {
-                                            "runAfter": {},
-                                            "type": "Workflow",
-                                            "inputs": {
-                                                "body": {
-                                                    "AddIncidentComments": "@coalesce(triggerBody()?['AddIncidentComments'], true)",
-                                                    "AddIncidentTask": "@coalesce(triggerBody()?['AddIncidentTask'], false)",
-                                                    "Entities": "@triggerBody()?['BaseModuleBody']",
-                                                    "IncidentTaskInstructions": "@{triggerBody()?['IncidentTaskInstructions']}",
-                                                    "WatchlistKey": "@triggerBody()?['WatchlistKey']",
-                                                    "WatchlistKeyDataType": "@triggerBody()?['WatchlistKeyDataType']",
-                                                    "WatchlistName": "@triggerBody()?['WatchlistName']"
-                                                },
-                                                "host": {
-                                                    "triggerName": "triage",
-                                                    "workflow": {
-                                                        "id": "[parameters('WatchlistModule_resourceid')]"
-                                                    }
-                                                },
-                                                "retryPolicy": {
-                                                    "type": "none"
-                                                }
-                                            }
-                                        },
-                                        "Response_-_Watchlist": {
-                                            "runAfter": {
-                                                "Get-WatchlistInsights": [
-                                                    "Succeeded",
-                                                    "TimedOut",
-                                                    "Failed"
-                                                ]
-                                            },
-                                            "type": "Response",
-                                            "kind": "Http",
-                                            "inputs": {
-                                                "body": "@body('Get-WatchlistInsights')",
-                                                "statusCode": "@outputs('Get-WatchlistInsights')['statusCode']"
-                                            }
-                                        }
-                                    }
-                                }
-                            },
-                            "default": {
-                                "actions": {
-                                    "Response_-_Invalid_Module": {
-                                        "runAfter": {},
-                                        "type": "Response",
-                                        "kind": "Http",
-                                        "inputs": {
-                                            "body": {
-                                                "Error": "STAT Module not found in the coordinator.  Either the module is invalid or the coordinator needs to be updated."
-                                            },
-                                            "statusCode": 400
-                                        }
-                                    }
-                                }
-                            },
-                            "expression": "@triggerOutputs()['relativePathParameters']['funcname']",
-                            "type": "Switch"
-                        }
-                    },
-                    "outputs": {}
+                "displayName": "[concat(parameters('STATFunctionName'), ' API Connection')]",
+                "parameterValues": {
+                    "api_key": "[listkeys(concat(parameters('STATFunctionResourceId'), '/functions/modules'),'2022-03-01').default]"
                 },
-                "parameters": {}
+                "api": {
+                    "id": "[resourceId('Microsoft.Web/customApis', parameters('CustomConnectorName'))]"
+                }
+            }
+        },
+        {
+            "condition": "[parameters('DeployBasicSample')]",
+            "apiVersion": "2019-10-01",
+            "name": "STATSample",
+            "type": "Microsoft.Resources/deployments",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/connections', parameters('STATFunctionName'))]"
+            ],
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[parameters('BasicSampleTemplate')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "PlaybookName": {
+                        "value": "[parameters('BasicSamplePlaybookName')]"
+                    },
+                    "STAT_Connection_resourceId": {
+                        "value": "[resourceId('Microsoft.Web/connections', parameters('STATFunctionName'))]"
+                    },
+                    "STAT_Connector_resourceId": {
+                        "value": "[resourceId('Microsoft.Web/customApis', parameters('CustomConnectorName'))]"
+                    },
+                    "STAT_Function_Name": {
+                        "value": "[parameters('STATFunctionName')]"
+                    }
+                }
             }
         }
     ],
@@ -3400,10 +2478,6 @@
         "connectorResourceId": {
             "type": "string",
             "value": "[resourceId('Microsoft.Web/customApis', parameters('CustomConnectorName'))]"
-        },
-        "coordinatorTriggerResourceId": {
-            "type": "string",
-            "value": "[resourceId('Microsoft.Logic/workflows/triggers', parameters('STATCoordinatorPlaybookName'), 'manual')]"
         }
     }
 }

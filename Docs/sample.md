@@ -1,5 +1,8 @@
 # Sentinel Triage AssistanT (STAT) :hospital: - Sample Playbook
 
+> [!NOTE]
+> STAT documentation is being relocated to the builin [Wiki](https://github.com/briandelmsft/SentinelAutomationModules/wiki)
+
 The Sample playbook is a Proof of Concept to demonstrate how STAT can be used to Triage an incident. This sample is not meant to be capable of triaging any type of incident; additional playbooks may need to be built using STAT to handle the unique requirements of different incident types.
 
 The Playbook starts on a Sentinel Incident creation rule trigger and then starts the triage process using STAT:
@@ -12,9 +15,10 @@ The Playbook starts on a Sentinel Incident creation rule trigger and then starts
     * The Related Alerts Module is configured to pass the Base Module response and check for any Related Sentinel alerts based on matching Account, Host or IP entity data in the last 30 days
     * The Threat Intel Module is configured to pass the Base module response and check for any Related Sentinel Threat Intelligence in the last 30 days based on matching 
     Domain, FileHash, IP, and URL entity data
-3. A Condition is then evaluated on the response from STAT to determine if any Related Alerts, Threat Intelligence or MFA Fraud was found
-    * If any of these risks are found, the Incident severity is raised and a tag is added with the Triage result
-    * If none of these risks are found, the Incident severity is lowered and a tag is added with the Triage result
+3. The Scoring module is then executed using the inputs of the Base, AAD Risks, Related Alerts and Threat Intel modules to determine a risk score for the incident
+3. A Condition is then evaluated on the calculated risk score to determine if it is greater than or equal to 40
+    * If it is, the Incident severity is raised and a tag is added with the Triage result
+    * If not, the Incident severity is lowered and a tag is added with the Triage result
 
 ## Sample Screenshot
 

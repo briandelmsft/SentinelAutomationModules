@@ -4,34 +4,47 @@
     "parameters": {
         "PlaybookName": {
             "defaultValue": "Sample-STAT-Triage",
-            "type": "string"
-        },
-        "STAT_Connection_resourceId": {
-            "type": "string"
+            "type": "String"
         },
         "STAT_Connector_resourceId": {
-            "type": "string"
+            "type": "String"
         },
-        "STAT_Function_Name": {
+        "STAT_Coordinator_Trigger_resourceId": {
             "type": "string"
         }
     },
     "variables": {
-        "SentinelConnectionName": "[concat(parameters('PlaybookName'), '-sentinel')]"
+        "AzureSentinelConnectionName": "[concat('azuresentinel-', parameters('PlaybookName'))]",
+        "STATConnectionName": "[concat('STAT-', parameters('PlaybookName'))]"
     },
     "resources": [
         {
             "type": "Microsoft.Web/connections",
             "apiVersion": "2016-06-01",
-            "name": "[variables('SentinelConnectionName')]",
+            "name": "[variables('AzureSentinelConnectionName')]",
             "location": "[resourceGroup().location]",
             "kind": "V1",
             "properties": {
-                "displayName": "[variables('SentinelConnectionName')]",
+                "displayName": "[variables('AzureSentinelConnectionName')]",
                 "customParameterValues": {},
                 "parameterValueType": "Alternative",
                 "api": {
                     "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azuresentinel')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[variables('STATConnectionName')]",
+            "location": "[resourceGroup().location]",
+            "kind": "V1",
+            "properties": {
+                "displayName": "[variables('STATConnectionName')]",
+                "customParameterValues": {},
+                "api": {
+                    "id": "[parameters('STAT_Connector_resourceId')]",
+                    "type": "Microsoft.Web/customApis"
                 }
             }
         },
@@ -41,7 +54,8 @@
             "name": "[parameters('PlaybookName')]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/connections', variables('SentinelConnectionName'))]"
+                "[resourceId('Microsoft.Web/connections', variables('AzureSentinelConnectionName'))]",
+                "[resourceId('Microsoft.Web/connections', variables('STATConnectionName'))]"
             ],
             "identity": {
                 "type": "SystemAssigned"
@@ -57,7 +71,7 @@
                             "type": "Object"
                         },
                         "PlaybookVersion": {
-                            "defaultValue": "1.5.6",
+                            "defaultValue": "0.1.0",
                             "type": "String"
                         },
                         "PlaybookInternalName": {
@@ -95,16 +109,24 @@
                             "type": "ApiConnection",
                             "inputs": {
                                 "body": {
-                                    "BaseModuleBody": "@body('Base_Module')",
-                                    "LookbackInDays": 14
+                                    "BaseModuleBody": "@{body('Base_Module')}",
+                                    "LookbackInDays": 14,
+                                    "MFAFailureLookup": false,
+                                    "MFAFraudLookup": true
                                 },
                                 "host": {
                                     "connection": {
-                                        "name": "@parameters('$connections')['SentinelTriageAssistantv2']['connectionId']"
+                                        "name": "@parameters('$connections')['SentinelTriageAssistant']['connectionId']"
                                     }
                                 },
                                 "method": "post",
-                                "path": "/api/modules/aadrisks"
+                                "path": "[concat('/workflows/', string(split(listCallbackUrl(parameters('STAT_Coordinator_Trigger_resourceId'), '2017-07-01').value, '/')[4]), '/triggers/manual/paths/invoke/func/aadrisks')]",
+                                "queries": {
+                                    "api-version": "2016-10-01",
+                                    "sig": "[string(split(listCallbackUrl(parameters('STAT_Coordinator_Trigger_resourceId'), '2017-07-01').value, 'sig=')[1])]",
+                                    "sp": "/triggers/manual/run",
+                                    "sv": "1.0"
+                                }
                             }
                         },
                         "Base_Module": {
@@ -112,15 +134,23 @@
                             "type": "ApiConnection",
                             "inputs": {
                                 "body": {
-                                    "Body": "@triggerBody()"
+                                    "Entities": "@triggerBody()?['object']?['properties']?['relatedEntities']",
+                                    "IncidentARMId": "@triggerBody()?['object']?['id']",
+                                    "WorkspaceId": "@triggerBody()?['workspaceId']"
                                 },
                                 "host": {
                                     "connection": {
-                                        "name": "@parameters('$connections')['SentinelTriageAssistantv2']['connectionId']"
+                                        "name": "@parameters('$connections')['SentinelTriageAssistant']['connectionId']"
                                     }
                                 },
                                 "method": "post",
-                                "path": "/api/modules/base"
+                                "path": "[concat('/workflows/', string(split(listCallbackUrl(parameters('STAT_Coordinator_Trigger_resourceId'), '2017-07-01').value, '/')[4]), '/triggers/manual/paths/invoke/func/base')]",
+                                "queries": {
+                                    "api-version": "2016-10-01",
+                                    "sig": "[string(split(listCallbackUrl(parameters('STAT_Coordinator_Trigger_resourceId'), '2017-07-01').value, 'sig=')[1])]",
+                                    "sp": "/triggers/manual/run",
+                                    "sv": "1.0"
+                                }
                             }
                         },
                         "Condition": {
@@ -210,16 +240,22 @@
                             "type": "ApiConnection",
                             "inputs": {
                                 "body": {
-                                    "BaseModuleBody": "@body('Base_Module')",
+                                    "BaseModuleBody": "@{body('Base_Module')}",
                                     "LookbackInDays": 14
                                 },
                                 "host": {
                                     "connection": {
-                                        "name": "@parameters('$connections')['SentinelTriageAssistantv2']['connectionId']"
+                                        "name": "@parameters('$connections')['SentinelTriageAssistant']['connectionId']"
                                     }
                                 },
                                 "method": "post",
-                                "path": "/api/modules/relatedalerts"
+                                "path": "[concat('/workflows/', string(split(listCallbackUrl(parameters('STAT_Coordinator_Trigger_resourceId'), '2017-07-01').value, '/')[4]), '/triggers/manual/paths/invoke/func/relatedalerts')]",
+                                "queries": {
+                                    "api-version": "2016-10-01",
+                                    "sig": "[string(split(listCallbackUrl(parameters('STAT_Coordinator_Trigger_resourceId'), '2017-07-01').value, 'sig=')[1])]",
+                                    "sp": "/triggers/manual/run",
+                                    "sv": "1.0"
+                                }
                             }
                         },
                         "Risk_Scoring_Module": {
@@ -237,7 +273,7 @@
                             "type": "ApiConnection",
                             "inputs": {
                                 "body": {
-                                    "BaseModuleBody": "@body('Base_Module')",
+                                    "BaseModuleBody": "@{body('Base_Module')}",
                                     "ScoringData": [
                                         {
                                             "ModuleBody": "@body('AAD_Risks_Module')",
@@ -261,11 +297,17 @@
                                 },
                                 "host": {
                                     "connection": {
-                                        "name": "@parameters('$connections')['SentinelTriageAssistantv2']['connectionId']"
+                                        "name": "@parameters('$connections')['SentinelTriageAssistant']['connectionId']"
                                     }
                                 },
                                 "method": "post",
-                                "path": "/api/modules/scoring"
+                                "path": "[concat('/workflows/', string(split(listCallbackUrl(parameters('STAT_Coordinator_Trigger_resourceId'), '2017-07-01').value, '/')[4]), '/triggers/manual/paths/invoke/func/scoring')]",
+                                "queries": {
+                                    "api-version": "2016-10-01",
+                                    "sig": "[string(split(listCallbackUrl(parameters('STAT_Coordinator_Trigger_resourceId'), '2017-07-01').value, 'sig=')[1])]",
+                                    "sp": "/triggers/manual/run",
+                                    "sv": "1.0"
+                                }
                             }
                         },
                         "Threat_Intel_Module": {
@@ -277,15 +319,21 @@
                             "type": "ApiConnection",
                             "inputs": {
                                 "body": {
-                                    "BaseModuleBody": "@body('Base_Module')"
+                                    "BaseModuleBody": "@{body('Base_Module')}"
                                 },
                                 "host": {
                                     "connection": {
-                                        "name": "@parameters('$connections')['SentinelTriageAssistantv2']['connectionId']"
+                                        "name": "@parameters('$connections')['SentinelTriageAssistant']['connectionId']"
                                     }
                                 },
                                 "method": "post",
-                                "path": "/api/modules/threatintel"
+                                "path": "[concat('/workflows/', string(split(listCallbackUrl(parameters('STAT_Coordinator_Trigger_resourceId'), '2017-07-01').value, '/')[4]), '/triggers/manual/paths/invoke/func/threatintel')]",
+                                "queries": {
+                                    "api-version": "2016-10-01",
+                                    "sig": "[string(split(listCallbackUrl(parameters('STAT_Coordinator_Trigger_resourceId'), '2017-07-01').value, 'sig=')[1])]",
+                                    "sp": "/triggers/manual/run",
+                                    "sv": "1.0"
+                                }
                             }
                         }
                     },
@@ -295,8 +343,8 @@
                     "$connections": {
                         "value": {
                             "azuresentinel": {
-                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('SentinelConnectionName'))]",
-                                "connectionName": "[variables('SentinelConnectionName')]",
+                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('AzureSentinelConnectionName'))]",
+                                "connectionName": "[variables('AzureSentinelConnectionName')]",
                                 "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azuresentinel')]",
                                 "connectionProperties": {
                                     "authentication": {
@@ -304,9 +352,9 @@
                                     }
                                 }
                             },
-                            "SentinelTriageAssistantv2": {
-                                "connectionId": "[parameters('STAT_Connection_resourceId')]",
-                                "connectionName": "[parameters('STAT_Function_Name')]",
+                            "SentinelTriageAssistant": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('STATConnectionName'))]",
+                                "connectionName": "[variables('AzureSentinelConnectionName')]",
                                 "id": "[parameters('STAT_Connector_resourceId')]"
                             }
                         }
