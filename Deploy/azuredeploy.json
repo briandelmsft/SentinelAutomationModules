@@ -95,7 +95,7 @@
             "type": "String"
         },
         "DeploymentBranch": {
-            "defaultValue": "main",
+            "defaultValue": "statv1",
             "type": "String"
         }
     },

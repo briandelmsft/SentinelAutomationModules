@@ -1,4 +1,8 @@
-# Sentinel Triage AssistanT (STAT) :hospital: - Deployment
+# Sentinel Triage AssistanT (STAT) v1 :hospital: - Deployment
+
+## STAT v2 is now available
+
+STAT v2 is now available in the main branch, all future deployments should use v2.  However, v1 can still be updated through this branch of the repository.
 
 The deployment of the STAT solution is broken down into 2 steps:
 

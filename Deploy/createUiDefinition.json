@@ -6,7 +6,7 @@
         "config": {
             "isWizard": true,
             "basics": {
-                "description": "## Microsoft Sentinel Triage AssistanT (STAT) Deployment\nThe Microsoft Sentinel Triage AssistanT is designed to help build automated triages for Microsoft Sentinel Incidents to optimize the efficiency of your security operations. This deployment will allow you to deploy the necessary resources to use the STAT tool.\n ### Post Deployment \nAfter deploying this template, ensure to run the [GrantPermissions.ps1](https://github.com/briandelmsft/SentinelAutomationModules/blob/main/Deploy/GrantPermissions.ps1) script to grant permissions to the STAT modules.  It may take up to 15 minutes for the permissions to become effective.",
+                "description": "## Microsoft Sentinel Triage AssistanT (STAT) Deployment\nThe Microsoft Sentinel Triage AssistanT is designed to help build automated triages for Microsoft Sentinel Incidents to optimize the efficiency of your security operations. This deployment will allow you to deploy the necessary resources to use the STAT tool.\n ### Post Deployment \nAfter deploying this template, ensure to run the [GrantPermissions.ps1](https://github.com/briandelmsft/SentinelAutomationModules/blob/statv1/Deploy/GrantPermissions.ps1) script to grant permissions to the STAT modules.  It may take up to 15 minutes for the permissions to become effective.",
                 "resourceGroup": {
                     "constraints": {
                         "validations": [
@@ -48,7 +48,7 @@
                             "text": "A standard deployment allows you to deploy or update the entire STAT solution with minimal input.  An advanced deployment allows for additional configuration such as providing customized names to the Logic Apps.",
                             "link": {
                                 "label": "Learn more",
-                                "uri": "https://github.com/briandelmsft/SentinelAutomationModules/tree/main/Deploy"
+                                "uri": "https://github.com/briandelmsft/SentinelAutomationModules/tree/statv1/Deploy"
                             }
                         }
                     },
@@ -92,7 +92,7 @@
                                     "text": "The standard setup mode will deploy all Modules and the STAT Logic Apps connector with default names",
                                     "link": {
                                         "label": "Learn more",
-                                        "uri": "https://github.com/briandelmsft/SentinelAutomationModules/tree/main/Modules"
+                                        "uri": "https://github.com/briandelmsft/SentinelAutomationModules/tree/statv1/Modules"
                                     }
                                 }
                             },
@@ -120,7 +120,7 @@
                                     "text": "The Advanced Setup allows you to configure your own names for the resources created by this deployment.  When updating the STAT solution you must use the same names or new copies of the Logic Apps will be deployed.",
                                     "link": {
                                         "label": "Learn more",
-                                        "uri": "https://github.com/briandelmsft/SentinelAutomationModules/tree/main/"
+                                        "uri": "https://github.com/briandelmsft/SentinelAutomationModules/tree/statv1/"
                                     }
                                 }
                             },
@@ -357,7 +357,7 @@
                                 "type": "Microsoft.Common.TextBox",
                                 "label": "Deploy from a specific GitHub Branch",
                                 "placeholder": "",
-                                "defaultValue": "main",
+                                "defaultValue": "statv1",
                                 "toolTip": "",
                                 "constraints": {},
                                 "visible": true
@@ -387,7 +387,7 @@
                             "text": "The Basic Sample Playbook evaluates the incident entities to look for Related Alerts (Account, Host or IP), Threat Intelligence (Domain, FileHash, IP or URL) and Azure AD MFA Fraud reports. This sample demonstrates how STAT can be used to triage an incident and how the modules can work together. This sample is not meant to be capable of triaging any type of incident; additional playbooks may need to be built using STAT to handle the unique requirements of different incident types.",
                             "link": {
                                 "label": "Learn more",
-                                "uri": "https://github.com/briandelmsft/SentinelAutomationModules/tree/main/Samples"
+                                "uri": "https://github.com/briandelmsft/SentinelAutomationModules/tree/statv1/Samples"
                             }
                         }
                     },
@@ -437,7 +437,7 @@
             "DeployWorkbook": "[coalesce(steps('automationModules').advancedSetup.DeployWorkbook, true)]",
             "M365DApiEndpoint": "[coalesce(steps('automationModules').advancedSetup.m365dApiEndpoint,'api.security.microsoft.com')]",
             "MDEApiEndpoint": "[coalesce(steps('automationModules').advancedSetup.mdeApiEndpoint,'api.securitycenter.microsoft.com')]",
-            "DeploymentBranch": "[coalesce(steps('automationModules').advancedSetup.DeploymentBranch,'main')]",
+            "DeploymentBranch": "[coalesce(steps('automationModules').advancedSetup.DeploymentBranch,'statv1')]",
             "location": "[location()]"
         }
     }
