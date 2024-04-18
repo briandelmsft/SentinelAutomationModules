@@ -3,7 +3,7 @@
 ## Description
 This module will check the incident entities to see if there are any matches on a specified watchlist in Microsoft Sentinel
 
-## Suported Entity Types
+## Supported Entity Types
 * Account (UPN)
 * IP Address
 * Host (FQDN)

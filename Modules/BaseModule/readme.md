@@ -3,7 +3,7 @@
 ## Description
 The base module must be called before any other modules in this solution.  It performs important shared functions such as enriching entity data and formatting the enriched data in a consistent way to pass into other modules.  Unsupported entity types will be returned in the OtherEntities array with no enrichments.
 
-## Suported Entity Types
+## Supported Entity Types
 * Account
 * IP
 * Host

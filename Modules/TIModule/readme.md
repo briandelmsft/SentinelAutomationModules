@@ -3,7 +3,7 @@
 ## Description
 This module will check the incident entities to see if there is corresponding threat intelligence in Microsoft Sentinel.
 
-## Suported Entity Types
+## Supported Entity Types
 * IP
 * Domain
 * URL

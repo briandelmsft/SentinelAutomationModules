@@ -3,7 +3,7 @@
 ## Description
 This module will check the incidient entities to see if a user has configured Automatic Replies on their Office 365 mailbox.
 
-## Suported Entity Types
+## Supported Entity Types
 * Account
 
 ## Trigger Parameters

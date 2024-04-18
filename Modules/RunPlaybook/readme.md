@@ -3,7 +3,7 @@
 ## Description
 This module will allow you to start another Microsoft Sentinel playbook on the incident being investigated via STAT. This allows you to benefit from the many existing Playbooks available for Microsoft Sentinel without having to incorporate their Logic into your triage playbooks.
 
-## Suported Entity Types
+## Supported Entity Types
 * N/A
 
 ## Trigger Parameters

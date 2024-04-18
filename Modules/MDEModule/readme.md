@@ -3,7 +3,7 @@
 ## Description
 This module will return the risk score and exposure level from Microsoft Defender for Endpoint of all the machines on which a user logged on interactively and for all machines with specified IP addresses.
 
-## Suported Entity Types
+## Supported Entity Types
 * Accounts (if the accounts have objectSid available)
 * IPs
 * Hosts (using the MdatpDeviceId if present, else construct the FQDN from the raw entitiy)

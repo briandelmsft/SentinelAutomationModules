@@ -3,7 +3,7 @@
 ## Description
 This module will check if the entities are found as email attachments and will run the [FileProfile()](https://docs.microsoft.com/en-us/microsoft-365/security/defender/advanced-hunting-fileprofile-function) function on the provided hashes. 
 
-## Suported Entity Types
+## Supported Entity Types
 * File
 * FileHash
 

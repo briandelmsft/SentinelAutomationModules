@@ -5,7 +5,7 @@ This module will retrieve the level of risk of the users in Azure AD Identity Pr
 * Number of MFA fraud report for the specified entities
 * Number of MFA failure (the user denied the MFA request or the MFA request timed out) for the specified entities
 
-## Suported Entity Types
+## Supported Entity Types
 * Accounts
 
 ## Trigger Parameters

@@ -3,7 +3,7 @@
 ## Description
 This module allows you to run custom KQL queries against Microsoft Sentinel, Azure Data Explorer or Microsoft 365 Advanced Hunting.  In these queries you can filter the results based on the entities data from you Microsoft Sentinel Incident
 
-## Suported Entity Types
+## Supported Entity Types
 * Account
 * IP Address
 * Host

@@ -4,7 +4,7 @@
 
 This module will take the outputs from other STAT modules and calculate a cumulative risk score based on the inputs
 
-## Suported Module Inputs
+## Supported Module Inputs
 
 * AAD Risks Module
 * Microsoft Defender for Endpoint Module

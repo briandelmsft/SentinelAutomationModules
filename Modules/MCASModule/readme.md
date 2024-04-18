@@ -3,7 +3,7 @@
 ## Description
 This module will get the MCAS Investigation Score of the account entities of the incidient.
 
-## Suported Entity Types
+## Supported Entity Types
 * Account
 
 ## Trigger Parameters
