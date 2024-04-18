@@ -2,6 +2,9 @@
 
 You will find here the troubleshooting steps for specific situations.
 
+> [!WARNING]
+> STAT v2 is now available in the main branch, all future deployments should use v2.  However, v1 can still be updated through this branch of the repository.
+
 ## A module is failing with a 40x error message
 
 This can happen in the following situations:

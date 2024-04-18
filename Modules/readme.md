@@ -1,5 +1,8 @@
 # Automation Modules Home
 
+> [!WARNING]
+> STAT v2 is now available in the main branch, all future deployments should use v2.  However, v1 can still be updated through this branch of the repository.
+
 Automation Modules make it easier to perform routine tasks by using a common set of callable Logic Apps.
 
 ## Available Modules
