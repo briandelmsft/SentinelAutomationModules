@@ -4,33 +4,17 @@ param(
     [Parameter(Mandatory=$true)]
     [string] $AzureSubscriptionId,
     [Parameter(Mandatory=$true)]
-    [string] $SentinelResourceGroupName,
+    [string] $SentinelResourceGroupName, #Resource Group Name where the Sentinel workspace is
     [Parameter(Mandatory=$true)]
-    [string] $STATIdentityName,
+    [string] $STATIdentityName, #Name of identity STAT will be running under
     [Parameter(Mandatory=$false)]
     [string] $SampleLogicAppName
 )
-# Required PowerShell modules:
-#  - MgGraph to grant MSI permissions using the Microsoft Graph API
-#  - Az grant permissons on Azure resources
-# To install the pre-requisites, uncomment the following two lines:
-#  Install-Module Microsoft.Graph.Applications -Scope CurrentUser -Force
-#  Install-Module -Name Az.Resources -Scope CurrentUser -Repository PSGallery -Force
-
 #Requires -Modules Microsoft.Graph.Applications, Az.Resources
 
 # Required Permissions
-#  - Azure AD Global Administrator or an Azure AD Privileged Role Administrator to execute the Set-APIPermissions function
+#  - Entra ID Global Administrator or an Entra ID Privileged Role Administrator to execute the Set-APIPermissions function
 #  - Resource Group Owner or User Access Administrator on the Microsoft Sentinel resource group to execute the Set-RBACPermissions function
-
-# Enter your tenant and subscrition details below:
-$TenantId = ""
-$AzureSubscriptionId = ""
-$SentinelResourceGroupName = "" # Resource Group Name where the Sentinel workspace is
-
-$STATIdentityName = ""   #Name of identity STAT will be running under
-#If using a System assigned managed identity, this will be the name of the function app (do not include .azurewebsites.net)
-#If using a User Assigned Managed Identity or service principal, this will be the name of that identity
 
 # Connect to the Microsoft Graph API and Azure Management API
 Write-Host "[+] Connect to the Azure AD tenant: $TenantId"
@@ -38,7 +22,7 @@ Connect-MgGraph -TenantId $TenantId -Scopes AppRoleAssignment.ReadWrite.All, App
 Write-Host "[+] Connecting to  to the Azure subscription: $AzureSubscriptionId"
 try
 {
-    Login-AzAccount -Subscription $AzureSubscriptionId -Tenant $TenantId -ErrorAction Stop | Out-Null
+    Connect-AzAccount -Subscription $AzureSubscriptionId -Tenant $TenantId -ErrorAction Stop -UseDeviceAuthentication | Out-Null
 }
 catch
 {
