@@ -1,3 +1,15 @@
+param(
+    [Parameter(Mandatory=$true)]
+    [string] $TenantId,
+    [Parameter(Mandatory=$true)]
+    [string] $AzureSubscriptionId,
+    [Parameter(Mandatory=$true)]
+    [string] $SentinelResourceGroupName,
+    [Parameter(Mandatory=$true)]
+    [string] $STATIdentityName,
+    [Parameter(Mandatory=$false)]
+    [string] $SampleLogicAppName
+)
 # Required PowerShell modules:
 #  - MgGraph to grant MSI permissions using the Microsoft Graph API
 #  - Az grant permissons on Azure resources
@@ -19,18 +31,6 @@ $SentinelResourceGroupName = "" # Resource Group Name where the Sentinel workspa
 $STATIdentityName = ""   #Name of identity STAT will be running under
 #If using a System assigned managed identity, this will be the name of the function app (do not include .azurewebsites.net)
 #If using a User Assigned Managed Identity or service principal, this will be the name of that identity
-
-#Check if modules are installed in case the script is ran interactively from an IDE
-if ((Get-Module -ListAvailable -Name Microsoft.Graph.Applications) -eq $null) {
-    Write-Host "[-] Make sure the module Microsoft.Graph.Applications is installed. You can use the following command to install it: Install-Module Microsoft.Graph.Applications -Scope CurrentUser -Force" -ForegroundColor Red
-    return 
-} elseif ((Get-Module -ListAvailable -Name Az.Resources) -eq $null) {
-    Write-Host "[-] Make sure the module Az.Resources is installed. You can use the following command to install it: Install-Module -Name Az.Resources -Scope CurrentUser -Repository PSGallery -Force" -ForegroundColor Red
-    return 
-}
-
-
-#$SampleLogicAppName="Sample-STAT-Triage"           #Name of the Sample Logic App
 
 # Connect to the Microsoft Graph API and Azure Management API
 Write-Host "[+] Connect to the Azure AD tenant: $TenantId"
@@ -120,7 +120,8 @@ Set-APIPermissions -MSIName $STATIdentityName -AppId "00000003-0000-0000-c000-00
 
 
 #Triage-Content Sample
-#Set-RBACPermissions -MSIName $SampleLogicAppName -Role "Microsoft Sentinel Responder"
-
+if ( $SampleLogicAppName -ne $null ) {
+    Set-RBACPermissions -MSIName $SampleLogicAppName -Role "Microsoft Sentinel Responder"
+}
 
 Write-Host "[+] End of the script. Please review the output and check for potential failures."
