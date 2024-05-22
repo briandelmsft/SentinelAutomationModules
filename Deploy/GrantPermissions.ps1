@@ -12,6 +12,9 @@ param(
 )
 #Requires -Modules Microsoft.Graph.Applications, Az.Resources
 
+# Invoke-WebRequest -Uri https://aka.ms/mstatgrantscript -OutFile GrantPermissions.ps1
+# .\GrantPermissions.ps1
+
 # Required Permissions
 #  - Entra ID Global Administrator or an Entra ID Privileged Role Administrator to execute the Set-APIPermissions function
 #  - Resource Group Owner or User Access Administrator on the Microsoft Sentinel resource group to execute the Set-RBACPermissions function
