@@ -1,3 +1,41 @@
+<#
+.SYNOPSIS
+    This script is configuring the permissions necessary for STATv2 to function (https://aka.ms/mstat).
+
+.DESCRIPTION
+    This script can be instanciated directly in Azure Cloud Shell with the following steps:
+    1. Invoke-WebRequest -Uri https://aka.ms/mstatgrantscript -OutFile GrantPermissions.ps1
+    2. .\GrantPermissions.ps
+
+.PARAMETER TenantId
+    TenantId of the tenant where the identity running STATv2 exists.
+
+.PARAMETER AzureSubscriptionId
+    SubscriptionId of the Azure subscription hosting the Sentinel workspace. 
+
+.PARAMETER SentinelResourceGroupName
+    SentinelResourceGroupName is the resource group where the Sentinel workspace is.
+    Note that it is not necessarily the same as the resourec group of where STATv2 is deployed to.   
+
+.PARAMETER STATIdentityName
+    Name of identity STAT will be running under.
+    If using a System assigned managed identity, this will be the name of the function app (do not include .azurewebsites.net).
+    If using a User Assigned Managed Identity or service principal, this will be the name of that identity.
+
+.PARAMETER SampleLogicAppName
+    The name of the sample logic app if it has been deployed to grant its managed identity Sentinel Responder permissions.
+    It is not mandatory and if not specificed the permissions will not be granted.
+
+.NOTES
+    This script is always available at https://aka.ms/mstatgrantscript.
+    Required PowerShell modules:
+    - MgGraph to grant MSI permissions using the Microsoft Graph API
+    - Az grant permissons on Azure resources
+    To install the pre-requisites, you can use the following cmdlets:
+    - Install-Module Microsoft.Graph.Applications -Scope CurrentUser -Force
+    - Install-Module -Name Az.Resources -Scope CurrentUser -Repository PSGallery -Force
+#>
+
 param(
     [Parameter(Mandatory=$true)]
     [string] $TenantId,
@@ -10,10 +48,8 @@ param(
     [Parameter(Mandatory=$false)]
     [string] $SampleLogicAppName
 )
-#Requires -Modules Microsoft.Graph.Applications, Az.Resources
 
-# Invoke-WebRequest -Uri https://aka.ms/mstatgrantscript -OutFile GrantPermissions.ps1
-# .\GrantPermissions.ps1
+#Requires -Modules Microsoft.Graph.Applications, Az.Resources
 
 # Required Permissions
 #  - Entra ID Global Administrator or an Entra ID Privileged Role Administrator to execute the Set-APIPermissions function
