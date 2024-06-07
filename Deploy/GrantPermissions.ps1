@@ -147,7 +147,6 @@ function Set-RBACPermissions ($MSIName, $Role) {
     }
 }
 
-Set-RBACPermissions -MSIName $STATIdentityName -Role "Microsoft Sentinel Responder"
 Set-APIPermissions -MSIName $STATIdentityName -AppId "ca7f3f0b-7d91-482c-8e09-c5d840d0eac5" -PermissionName "Data.Read"
 Set-APIPermissions -MSIName $STATIdentityName -AppId "00000003-0000-0000-c000-000000000000" -PermissionName "MailboxSettings.Read"
 Set-APIPermissions -MSIName $STATIdentityName -AppId "fc780465-2017-40d4-a0c5-307022471b92" -PermissionName "AdvancedQuery.Read.All"
@@ -161,6 +160,7 @@ Set-APIPermissions -MSIName $STATIdentityName -AppId "00000003-0000-0000-c000-00
 Set-APIPermissions -MSIName $STATIdentityName -AppId "8ee8fdad-f234-4243-8f3b-15c294843740" -PermissionName "AdvancedHunting.Read.All"
 Set-APIPermissions -MSIName $STATIdentityName -AppId "00000003-0000-0000-c000-000000000000" -PermissionName "IdentityRiskyUser.Read.All"
 Set-APIPermissions -MSIName $STATIdentityName -AppId "00000003-0000-0000-c000-000000000000" -PermissionName "IdentityRiskEvent.Read.All"
+Set-RBACPermissions -MSIName $STATIdentityName -Role "Microsoft Sentinel Responder"
 
 
 #Triage-Content Sample
