@@ -5,7 +5,7 @@
 .DESCRIPTION
     This script can be instanciated directly in Azure Cloud Shell with the following steps:
     1. Invoke-WebRequest -Uri https://aka.ms/mstatgrantscript -OutFile GrantPermissions.ps1
-    2. .\GrantPermissions.ps
+    2. .\GrantPermissions.ps1
 
 .PARAMETER TenantId
     TenantId of the tenant where the identity running STATv2 exists.
@@ -56,7 +56,7 @@ param(
 #  - Resource Group Owner or User Access Administrator on the Microsoft Sentinel resource group to execute the Set-RBACPermissions function
 
 # Connect to the Microsoft Graph API and Azure Management API
-Write-Host "[+] Connect to the Azure AD tenant: $TenantId"
+Write-Host "[+] Connect to the Entra ID tenant: $TenantId"
 Connect-MgGraph -TenantId $TenantId -Scopes AppRoleAssignment.ReadWrite.All, Application.Read.All -ErrorAction Stop | Out-Null
 Write-Host "[+] Connecting to  to the Azure subscription: $AzureSubscriptionId"
 try
