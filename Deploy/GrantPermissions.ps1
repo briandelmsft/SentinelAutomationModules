@@ -80,7 +80,7 @@ Write-Host "[+] Connecting to  to the Azure subscription: $AzureSubscriptionId"
 try
 {
     if ( $DeviceCodeFlow -eq $true ) {
-        Connect-AzAccount -Subscription $AzureSubscriptionId -Tenant $TenantId -ErrorAction Stop -UseDeviceAuthentication
+        Connect-AzAccount -Subscription $AzureSubscriptionId -Tenant $TenantId -ErrorAction Stop -UseDeviceAuthentication | Out-Null
     } else {
         Login-AzAccount -Subscription $AzureSubscriptionId -Tenant $TenantId -ErrorAction Stop | Out-Null
     }
