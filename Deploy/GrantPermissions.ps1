@@ -63,7 +63,8 @@ param(
 
 # Check if the script is running in Azure Cloud Shell
 if( $env:AZUREPS_HOST_ENVIRONMENT -like "cloud-shell*" ) {
-    Write-Host "[+] The script is running in Azure Cloud Shell, Device Code flow will be used for authentication" -ForegroundColor Yellow
+    Write-Host "[+] The script is running in Azure Cloud Shell, Device Code flow will be used for authentication." 
+    Write-Host "[+] It will look like the connection is coming from the Azure data center and not your client's location." -ForegroundColor Yellow
     $DeviceCodeFlow = $true
 }
 
