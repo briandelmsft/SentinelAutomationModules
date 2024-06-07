@@ -55,6 +55,9 @@ param(
     [bool] $DeviceCodeFlow = $false
 )
 
+
+Get-Type $SampleLogicAppName 
+Write-Host "--$($SampleLogicAppName)--"
 #Requires -Modules Microsoft.Graph.Applications, Az.Resources
 
 # Required Permissions
