@@ -50,7 +50,7 @@ param(
     [Parameter(Mandatory=$true)]
     [string] $STATIdentityName, #Name of identity STAT will be running under
     [Parameter(Mandatory=$false)]
-    [string] $SampleLogicAppName,
+    [string] $SampleLogicAppName = $null,
     [Parameter(Mandatory=$false)]
     [bool] $DeviceCodeFlow = $false
 )
