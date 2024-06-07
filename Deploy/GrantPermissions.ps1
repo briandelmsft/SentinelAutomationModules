@@ -1,9 +1,9 @@
 <#
 .SYNOPSIS
-    This script is configuring the permissions necessary for STATv2 to function (https://aka.ms/mstat).
+    This script configures the permissions required for the proper functioning of STATv2 (https://aka.ms/mstat).
 
 .DESCRIPTION
-    This script can be instanciated directly in Azure Cloud Shell with the following steps:
+    This script can be instantiated directly in Azure Cloud Shell with the following steps:
     1. Invoke-WebRequest -Uri https://aka.ms/mstatgrantscript -OutFile GrantPermissions.ps1
     2. .\GrantPermissions.ps1
 
