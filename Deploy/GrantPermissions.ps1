@@ -50,14 +50,12 @@ param(
     [Parameter(Mandatory=$true)]
     [string] $STATIdentityName, #Name of identity STAT will be running under
     [Parameter(Mandatory=$false)]
-    [string] $SampleLogicAppName = $null,
+    [string] $SampleLogicAppName,
     [Parameter(Mandatory=$false)]
     [bool] $DeviceCodeFlow = $false
 )
 
 #Requires -Modules Microsoft.Graph.Applications, Az.Resources
-
-Write-Host "--$($SampleLogicAppName)--"
 
 # Required Permissions
 #  - Entra ID Global Administrator or an Entra ID Privileged Role Administrator to execute the Set-APIPermissions function
@@ -165,7 +163,7 @@ Set-APIPermissions -MSIName $STATIdentityName -AppId "00000003-0000-0000-c000-00
 Set-APIPermissions -MSIName $STATIdentityName -AppId "00000003-0000-0000-c000-000000000000" -PermissionName "IdentityRiskEvent.Read.All"
 
 #Triage-Content Sample
-if ( $SampleLogicAppName -ne $null ) {
+if ( $PSBoundParameters.ContainsKey('SampleLogicAppName') ) {
     Set-RBACPermissions -MSIName $SampleLogicAppName -Role "Microsoft Sentinel Responder"
 }
 
