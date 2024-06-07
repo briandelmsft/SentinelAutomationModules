@@ -70,9 +70,9 @@ if( $env:AZUREPS_HOST_ENVIRONMENT -like "cloud-shell*" ) {
 # Connect to the Microsoft Graph API and Azure Management API
 Write-Host "[+] Connect to the Entra ID tenant: $TenantId"
 if ( $DeviceCodeFlow -eq $true ) {
-    Connect-MgGraph -TenantId $TenantId -Scopes AppRoleAssignment.ReadWrite.All, Application.Read.All -ErrorAction Stop
+    Connect-MgGraph -TenantId $TenantId -Scopes AppRoleAssignment.ReadWrite.All, Application.Read.All -NoWelcome -ErrorAction Stop
 } else {
-    Connect-MgGraph -TenantId $TenantId -Scopes AppRoleAssignment.ReadWrite.All, Application.Read.All -ErrorAction Stop | Out-Null
+    Connect-MgGraph -TenantId $TenantId -Scopes AppRoleAssignment.ReadWrite.All, Application.Read.All -NoWelcome -ErrorAction Stop | Out-Null
 }
 
 Write-Host "[+] Connecting to  to the Azure subscription: $AzureSubscriptionId"
@@ -81,7 +81,7 @@ try
     if ( $DeviceCodeFlow -eq $true ) {
         Connect-AzAccount -Subscription $AzureSubscriptionId -Tenant $TenantId -ErrorAction Stop -UseDeviceAuthentication
     } else {
-        Connect-AzAccount -Subscription $AzureSubscriptionId -Tenant $TenantId -ErrorAction Stop | Out-Null
+        Login-AzAccount -Subscription $AzureSubscriptionId -Tenant $TenantId -ErrorAction Stop | Out-Null
     }
 }
 catch
