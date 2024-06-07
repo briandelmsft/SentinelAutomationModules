@@ -26,6 +26,10 @@
     The name of the sample logic app if it has been deployed to grant its managed identity Sentinel Responder permissions.
     It is not mandatory and if not specificed the permissions will not be granted.
 
+.PARAMETER DeviceCodeFlow
+    Use the device code flow to sign-in to the Graph API and to the Azure Management modules. It is set to $false by default.
+    Note that it is autoamtically set to $true and it is the only supported mode when the script is running in Azure Cloud Shell.
+    
 .NOTES
     This script is always available at https://aka.ms/mstatgrantscript.
     Required PowerShell modules:
@@ -46,7 +50,9 @@ param(
     [Parameter(Mandatory=$true)]
     [string] $STATIdentityName, #Name of identity STAT will be running under
     [Parameter(Mandatory=$false)]
-    [string] $SampleLogicAppName
+    [string] $SampleLogicAppName,
+    [Parameter(Mandatory=$false)]
+    [bool] $DeviceCodeFlow = $false
 )
 
 #Requires -Modules Microsoft.Graph.Applications, Az.Resources
@@ -55,13 +61,28 @@ param(
 #  - Entra ID Global Administrator or an Entra ID Privileged Role Administrator to execute the Set-APIPermissions function
 #  - Resource Group Owner or User Access Administrator on the Microsoft Sentinel resource group to execute the Set-RBACPermissions function
 
+# Check if the script is running in Azure Cloud Shell
+if( $env:AZUREPS_HOST_ENVIRONMENT -like "cloud-shell*" ) {
+    Write-Host "[+] The script is running in Azure Cloud Shell, Device Code flow will be used for authentication" -ForegroundColor Yellow
+    $DeviceCodeFlow = $true
+}
+
 # Connect to the Microsoft Graph API and Azure Management API
 Write-Host "[+] Connect to the Entra ID tenant: $TenantId"
-Connect-MgGraph -TenantId $TenantId -Scopes AppRoleAssignment.ReadWrite.All, Application.Read.All -ErrorAction Stop | Out-Null
+if ( $DeviceCodeFlow -eq $true ) {
+    Connect-MgGraph -TenantId $TenantId -Scopes AppRoleAssignment.ReadWrite.All, Application.Read.All -ErrorAction Stop
+} else {
+    Connect-MgGraph -TenantId $TenantId -Scopes AppRoleAssignment.ReadWrite.All, Application.Read.All -ErrorAction Stop | Out-Null
+}
+
 Write-Host "[+] Connecting to  to the Azure subscription: $AzureSubscriptionId"
 try
 {
-    Connect-AzAccount -Subscription $AzureSubscriptionId -Tenant $TenantId -ErrorAction Stop -UseDeviceAuthentication | Out-Null
+    if ( $DeviceCodeFlow -eq $true ) {
+        Connect-AzAccount -Subscription $AzureSubscriptionId -Tenant $TenantId -ErrorAction Stop -UseDeviceAuthentication
+    } else {
+        Connect-AzAccount -Subscription $AzureSubscriptionId -Tenant $TenantId -ErrorAction Stop | Out-Null
+    }
 }
 catch
 {
