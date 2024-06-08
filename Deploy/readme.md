@@ -22,16 +22,7 @@ To upgrade the Microsoft Sentinel Triage AssistanT you can simply deploy the sol
 
 ### Grant Permissions
 
-* Run [GrantPermissions.ps1](GrantPermissions.ps1) to grant the necessary API and RBAC permissions to the STAT Function deployed by this template.
-
-The GrantPermissions.ps1 script contains 2 types of permissions assignments that are set via PowerShell Functions.  To execute these functions you will require permission:
-
-|Function|Permissions|
-|---|---|
-|Set-APIPermissions|Calls to this function require the user to be either an Azure AD Global Administrator or Azure AD Privileged Role Administrator|
-|Set-RBACPermissions|Calls to this function require the user to be either a Resource Group Owner or User Access Administrator on the Resource Group where Microsoft Sentinel is installed|
-
-> If you do not have a single account with both the necessary Azure AD and Resource group permissions, you can run the Set-APIPermissions and Set-RBACPermissions calls seperately under different accounts.
+* Run [GrantPermissions.ps1](GrantPermissions.ps1) to grant the necessary API and RBAC permissions to the STAT Function deployed by this template. You will find more information on how to run the script in the [wiki](/wiki/Deployment#grant-permissions).
 
 ### Restrict Calls to STAT Function (optional)
 
