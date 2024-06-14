@@ -8,17 +8,17 @@
     2. .\GrantPermissions.ps1
 
 .PARAMETER TenantId
-    TenantId of the tenant where the identity running STATv2 exists.
+    TenantId refers to the identifier of the tenant in which the identity executing STATv2 is located.
 
 .PARAMETER AzureSubscriptionId
     SubscriptionId of the Azure subscription hosting the Sentinel workspace. 
 
 .PARAMETER SentinelResourceGroupName
     SentinelResourceGroupName is the resource group where the Sentinel workspace is.
-    Note that it is not necessarily the same as the resourec group of where STATv2 is deployed to.   
+    Note that it is not necessarily the same as the resource group where STATv2 is deployed.  
 
 .PARAMETER STATIdentityName
-    Name of identity STAT will be running under.
+    is the name of identity STAT will be running under.
     If using a System assigned managed identity, this will be the name of the function app (do not include .azurewebsites.net).
     If using a User Assigned Managed Identity or service principal, this will be the name of that identity.
 
@@ -28,7 +28,7 @@
 
 .PARAMETER DeviceCodeFlow
     Use the device code flow to sign-in to the Graph API and to the Azure Management modules. It is set to $false by default.
-    Note that it is autoamtically set to $true and it is the only supported mode when the script is running in Azure Cloud Shell.
+    Note that it is automatically set to $true and it is the only supported mode when the script is running in Azure Cloud Shell.
     
 .NOTES
     This script is always available at https://aka.ms/mstatgrantscript.
