@@ -7,6 +7,9 @@
     1. Invoke-WebRequest -Uri https://aka.ms/mstatgrantscript -OutFile GrantPermissions.ps1
     2. .\GrantPermissions.ps1
 
+    If you do not set the parameters when calling the script, you will be prompted to enter all mandatory parameters one by one. You can also specify the parameters directly in the call using this format:
+    .\GrantPermissions.ps1 -TenantId <TenantId> -AzureSubscriptionId <AzureSubscriptionId> -SentinelResourceGroupName <SentinelResourceGroupName> -STATIdentityName <STATIdentityName>
+
 .PARAMETER TenantId
     TenantId refers to the identifier of the tenant in which the identity executing STATv2 is located.
 
