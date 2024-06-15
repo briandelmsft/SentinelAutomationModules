@@ -1,44 +1,92 @@
-# Required PowerShell modules:
-#  - MgGraph to grant MSI permissions using the Microsoft Graph API
-#  - Az grant permissons on Azure resources
-# To install the pre-requisites, uncomment the following two lines:
-#  Install-Module Microsoft.Graph.Applications -Scope CurrentUser -Force
-#  Install-Module -Name Az.Resources -Scope CurrentUser -Repository PSGallery -Force
+<#
+.SYNOPSIS
+    This script configures the permissions required for the proper functioning of STATv2 (https://aka.ms/mstat).
+
+.DESCRIPTION
+    This script can be instantiated directly in Azure Cloud Shell with the following steps:
+    1. Invoke-WebRequest -Uri https://aka.ms/mstatgrantscript -OutFile GrantPermissions.ps1
+    2. .\GrantPermissions.ps1
+
+    If you do not set the parameters when calling the script, you will be prompted to enter all mandatory parameters one by one. You can also specify the parameters directly in the call using this format:
+    .\GrantPermissions.ps1 -TenantId <TenantId> -AzureSubscriptionId <AzureSubscriptionId> -SentinelResourceGroupName <SentinelResourceGroupName> -STATIdentityName <STATIdentityName>
+
+.PARAMETER TenantId
+    TenantId refers to the identifier of the tenant in which the identity executing STATv2 is located.
+
+.PARAMETER AzureSubscriptionId
+    SubscriptionId of the Azure subscription hosting the Sentinel workspace. 
+
+.PARAMETER SentinelResourceGroupName
+    SentinelResourceGroupName is the resource group where the Sentinel workspace is.
+    Note that it is not necessarily the same as the resource group where STATv2 is deployed.  
+
+.PARAMETER STATIdentityName
+    is the name of identity STAT will be running under.
+    If using a System assigned managed identity, this will be the name of the function app (do not include .azurewebsites.net).
+    If using a User Assigned Managed Identity or service principal, this will be the name of that identity.
+
+.PARAMETER SampleLogicAppName
+    The name of the sample logic app if it has been deployed to grant its managed identity Sentinel Responder permissions.
+    It is not mandatory and if not specificed the permissions will not be granted.
+
+.PARAMETER DeviceCodeFlow
+    Use the device code flow to sign-in to the Graph API and to the Azure Management modules. It is set to $false by default.
+    Note that it is automatically set to $true and it is the only supported mode when the script is running in Azure Cloud Shell.
+    
+.NOTES
+    This script is always available at https://aka.ms/mstatgrantscript.
+    Required PowerShell modules:
+    - MgGraph to grant MSI permissions using the Microsoft Graph API
+    - Az grant permissons on Azure resources
+    To install the pre-requisites, you can use the following cmdlets:
+    - Install-Module Microsoft.Graph.Applications -Scope CurrentUser -Force
+    - Install-Module -Name Az.Resources -Scope CurrentUser -Repository PSGallery -Force
+#>
+
+param(
+    [Parameter(Mandatory=$true)]
+    [string] $TenantId,
+    [Parameter(Mandatory=$true)]
+    [string] $AzureSubscriptionId,
+    [Parameter(Mandatory=$true)]
+    [string] $SentinelResourceGroupName, #Resource Group Name where the Sentinel workspace is
+    [Parameter(Mandatory=$true)]
+    [string] $STATIdentityName, #Name of identity STAT will be running under
+    [Parameter(Mandatory=$false)]
+    [string] $SampleLogicAppName,
+    [Parameter(Mandatory=$false)]
+    [bool] $DeviceCodeFlow = $false
+)
 
 #Requires -Modules Microsoft.Graph.Applications, Az.Resources
 
 # Required Permissions
-#  - Azure AD Global Administrator or an Azure AD Privileged Role Administrator to execute the Set-APIPermissions function
+#  - Entra ID Global Administrator or an Entra ID Privileged Role Administrator to execute the Set-APIPermissions function
 #  - Resource Group Owner or User Access Administrator on the Microsoft Sentinel resource group to execute the Set-RBACPermissions function
 
-# Enter your tenant and subscrition details below:
-$TenantId = ""
-$AzureSubscriptionId = ""
-$SentinelResourceGroupName = "" # Resource Group Name where the Sentinel workspace is
-
-$STATIdentityName = ""   #Name of identity STAT will be running under
-#If using a System assigned managed identity, this will be the name of the function app (do not include .azurewebsites.net)
-#If using a User Assigned Managed Identity or service principal, this will be the name of that identity
-
-#Check if modules are installed in case the script is ran interactively from an IDE
-if ((Get-Module -ListAvailable -Name Microsoft.Graph.Applications) -eq $null) {
-    Write-Host "[-] Make sure the module Microsoft.Graph.Applications is installed. You can use the following command to install it: Install-Module Microsoft.Graph.Applications -Scope CurrentUser -Force" -ForegroundColor Red
-    return 
-} elseif ((Get-Module -ListAvailable -Name Az.Resources) -eq $null) {
-    Write-Host "[-] Make sure the module Az.Resources is installed. You can use the following command to install it: Install-Module -Name Az.Resources -Scope CurrentUser -Repository PSGallery -Force" -ForegroundColor Red
-    return 
+# Check if the script is running in Azure Cloud Shell
+if( $env:AZUREPS_HOST_ENVIRONMENT -like "cloud-shell*" ) {
+    Write-Host "[+] The script is running in Azure Cloud Shell, Device Code flow will be used for authentication." 
+    Write-Host "[+] It will look like the connection is coming from the Azure data center and not your client's location." -ForegroundColor Yellow
+    $DeviceCodeFlow = $true
 }
 
-
-#$SampleLogicAppName="Sample-STAT-Triage"           #Name of the Sample Logic App
-
 # Connect to the Microsoft Graph API and Azure Management API
-Write-Host "[+] Connect to the Azure AD tenant: $TenantId"
-Connect-MgGraph -TenantId $TenantId -Scopes AppRoleAssignment.ReadWrite.All, Application.Read.All -ErrorAction Stop | Out-Null
+Write-Host "[+] Connect to the Entra ID tenant: $TenantId"
+if ( $DeviceCodeFlow -eq $true ) {
+    Connect-MgGraph -TenantId $TenantId -Scopes AppRoleAssignment.ReadWrite.All, Application.Read.All -NoWelcome -ErrorAction Stop
+} else {
+    Connect-MgGraph -TenantId $TenantId -Scopes AppRoleAssignment.ReadWrite.All, Application.Read.All -NoWelcome -ErrorAction Stop | Out-Null
+}
+
 Write-Host "[+] Connecting to  to the Azure subscription: $AzureSubscriptionId"
 try
 {
-    Login-AzAccount -Subscription $AzureSubscriptionId -Tenant $TenantId -ErrorAction Stop | Out-Null
+    if ( $DeviceCodeFlow -eq $true ) {
+        Connect-AzAccount -Subscription $AzureSubscriptionId -Tenant $TenantId -ErrorAction Stop -UseDeviceAuthentication | Out-Null
+    } else {
+        Login-AzAccount -Subscription $AzureSubscriptionId -Tenant $TenantId -ErrorAction Stop | Out-Null
+    }
 }
 catch
 {
@@ -118,9 +166,9 @@ Set-APIPermissions -MSIName $STATIdentityName -AppId "8ee8fdad-f234-4243-8f3b-15
 Set-APIPermissions -MSIName $STATIdentityName -AppId "00000003-0000-0000-c000-000000000000" -PermissionName "IdentityRiskyUser.Read.All"
 Set-APIPermissions -MSIName $STATIdentityName -AppId "00000003-0000-0000-c000-000000000000" -PermissionName "IdentityRiskEvent.Read.All"
 
-
 #Triage-Content Sample
-#Set-RBACPermissions -MSIName $SampleLogicAppName -Role "Microsoft Sentinel Responder"
-
+if ( $PSBoundParameters.ContainsKey('SampleLogicAppName') ) {
+    Set-RBACPermissions -MSIName $SampleLogicAppName -Role "Microsoft Sentinel Responder"
+}
 
 Write-Host "[+] End of the script. Please review the output and check for potential failures."
