@@ -27,7 +27,7 @@
 
 .PARAMETER SampleLogicAppName
     The name of the sample logic app if it has been deployed to grant its managed identity Sentinel Responder permissions.
-    It is not mandatory and if not specificed the permissions will not be granted.
+    It is not mandatory and if not specified the permissions will not be granted.
 
 .PARAMETER DeviceCodeFlow
     Use the device code flow to sign-in to the Graph API and to the Azure Management modules. It is set to $false by default.
@@ -83,7 +83,7 @@ Write-Host "[+] Connecting to  to the Azure subscription: $AzureSubscriptionId"
 try
 {
     if ( $DeviceCodeFlow -eq $true ) {
-        Connect-AzAccount -Subscription $AzureSubscriptionId -Tenant $TenantId -ErrorAction Stop -UseDeviceAuthentication | Out-Null
+        Connect-AzAccount -Subscription $AzureSubscriptionId -Tenant $TenantId -ErrorAction Stop -UseDeviceAuthentication
     } else {
         Login-AzAccount -Subscription $AzureSubscriptionId -Tenant $TenantId -ErrorAction Stop | Out-Null
     }
