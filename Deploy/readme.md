@@ -22,7 +22,7 @@ To upgrade the Microsoft Sentinel Triage AssistanT you can simply deploy the sol
 
 ### Grant Permissions
 
-* Run [GrantPermissions.ps1](GrantPermissions.ps1) to grant the necessary API and RBAC permissions to the STAT Function deployed by this template. You will find more information on how to run the script in the [documentation](https://github.com/KostaS10/SentinelAutomationModules/blob/main/Docs/deployment.md#grant-permissions).
+* Run [GrantPermissions.ps1](GrantPermissions.ps1) to grant the necessary API and RBAC permissions to the STAT Function deployed by this template. You will find more information on how to run the script in the [documentation](https://github.com/briandelmsft/SentinelAutomationModules/blob/main/Docs/deployment.md#grant-permissions).
 
 ### Restrict Calls to STAT Function (optional)
 
