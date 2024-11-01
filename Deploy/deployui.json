@@ -314,7 +314,7 @@
             },
             {
                 "name": "apiStep",
-                "label": "API Endpoing Configuration",
+                "label": "API Endpoint Configuration",
                 "elements": [
                     {
                         "name": "apiTextBlock2",
