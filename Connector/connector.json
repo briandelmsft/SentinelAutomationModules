@@ -2058,9 +2058,10 @@
                         },
                         "/api/modules/mdca": {
                             "post": {
-                                "summary": "z MDCA (Deprecated)",
+                                "summary": "Microsoft Defender for Cloud Apps (Deprecated)",
                                 "description": "This module has been deprecated due to the removal of the investigation priority score from MDCA",
                                 "operationId": "MDCAModule",
+                                "deprecated": true,
                                 "parameters": [
                                     {
                                         "name": "body",
