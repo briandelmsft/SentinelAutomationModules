@@ -30,7 +30,7 @@
         }
     },
     "variables": {
-        "STATConnectorVersion": "2.0.0"
+        "STATConnectorVersion": "2.0.21"
     },
     "resources": [
         {
@@ -110,6 +110,36 @@
                                                 "AddIPComments": {
                                                     "type": "boolean",
                                                     "description": "Enrich Incident with IP details comment",
+                                                    "title": "",
+                                                    "enum": [
+                                                        true,
+                                                        false
+                                                    ],
+                                                    "x-ms-visibility": "advanced"
+                                                },
+                                                "EnrichAccountsWithMFA": {
+                                                    "type": "boolean",
+                                                    "description": "EnrichAccountsWithMFA",
+                                                    "title": "",
+                                                    "enum": [
+                                                        true,
+                                                        false
+                                                    ],
+                                                    "x-ms-visibility": "advanced"
+                                                },
+                                                "EnrichAccountsWithRoles": {
+                                                    "type": "boolean",
+                                                    "description": "EnrichAccountsWithRoles",
+                                                    "title": "",
+                                                    "enum": [
+                                                        true,
+                                                        false
+                                                    ],
+                                                    "x-ms-visibility": "advanced"
+                                                },
+                                                "EnrichHostsWithMDE": {
+                                                    "type": "boolean",
+                                                    "description": "EnrichHostsWithMDE",
                                                     "title": "",
                                                     "enum": [
                                                         true,
@@ -1237,6 +1267,15 @@
                                                     "description": "Instructions to include in the Microsoft Sentinel Task",
                                                     "x-ms-visibility": "advanced"
                                                 },
+                                                "Endpoint": {
+                                                    "type": "string",
+                                                    "description": "KQL Query Endpoint. Query for Analytics, Search for Basic/Auxiliary Logs.",
+                                                    "enum": [
+                                                        "Query",
+                                                        "Search"
+                                                    ],
+                                                    "x-ms-visibility": "advanced"
+                                                },
                                                 "BaseModuleBody": {
                                                     "type": "object",
                                                     "description": "Body from STAT Base Module",
@@ -2019,8 +2058,8 @@
                         },
                         "/api/modules/mdca": {
                             "post": {
-                                "summary": "Microsoft Defender for Cloud Apps Module",
-                                "description": "Sentinel Triage AssistanT Module for determining if user entities have investigation priorities in Microsoft Defender for Cloud Apps.",
+                                "summary": "z MDCA (Deprecated)",
+                                "description": "This module has been deprecated due to the removal of the investigation priority score from MDCA",
                                 "operationId": "MDCAModule",
                                 "parameters": [
                                     {
