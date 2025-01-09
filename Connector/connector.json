@@ -30,7 +30,7 @@
         }
     },
     "variables": {
-        "STATConnectorVersion": "2.0.21"
+        "STATConnectorVersion": "2.1.0"
     },
     "resources": [
         {
