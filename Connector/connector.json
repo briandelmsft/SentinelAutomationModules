@@ -684,7 +684,7 @@
                                         "description": "default",
                                         "schema": {
                                             "type": "object",
-                                            "description": "OOF Module Body",
+                                            "description": "Exchange Module Body",
                                             "properties": {
                                                 "AllUsersInOffice": {
                                                     "type": "boolean",
