@@ -30,7 +30,7 @@
         }
     },
     "variables": {
-        "STATConnectorVersion": "2.0.21"
+        "STATConnectorVersion": "2.1.0"
     },
     "resources": [
         {
@@ -589,8 +589,8 @@
                         },
                         "/api/modules/oofmodule": {
                             "post": {
-                                "summary": "Out of Office Module",
-                                "description": "Sentinel Triage AssistanT Module for determining if user entities are out of the office.",
+                                "summary": "Exchange Online Module",
+                                "description": "Sentinel Triage AssistanT Module for reviewing Exchange Online risks.",
                                 "operationId": "OOFModule",
                                 "parameters": [
                                     {
@@ -602,6 +602,58 @@
                                                 "AddIncidentComments": {
                                                     "type": "boolean",
                                                     "description": "Add Comments to Microsoft Sentinel Incident",
+                                                    "title": "",
+                                                    "enum": [
+                                                        true,
+                                                        false
+                                                    ],
+                                                    "x-ms-visibility": "advanced"
+                                                },
+                                                "AddIncidentTask": {
+                                                    "type": "boolean",
+                                                    "description": "Add a task to Microsoft Sentinel Incident",
+                                                    "title": "",
+                                                    "enum": [
+                                                        true,
+                                                        false
+                                                    ],
+                                                    "x-ms-visibility": "advanced"
+                                                },
+                                                "IncidentTaskInstructions": {
+                                                    "type": "string",
+                                                    "description": "Instructions to include in the Microsoft Sentinel Task",
+                                                    "x-ms-visibility": "advanced"
+                                                },
+                                                "LookbackInDays": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "Number of days to lookback in EXO audit logs",
+                                                    "title": "",
+                                                    "x-ms-visibility": "advanced"
+                                                },
+                                                "CheckAuditLog": {
+                                                    "type": "boolean",
+                                                    "description": "Check Exchange Online Audit Logs",
+                                                    "title": "",
+                                                    "enum": [
+                                                        true,
+                                                        false
+                                                    ],
+                                                    "x-ms-visibility": "advanced"
+                                                },
+                                                "CheckOutOfOffice": {
+                                                    "type": "boolean",
+                                                    "description": "Check Out of Office status",
+                                                    "title": "",
+                                                    "enum": [
+                                                        true,
+                                                        false
+                                                    ],
+                                                    "x-ms-visibility": "advanced"
+                                                },
+                                                "CheckRules": {
+                                                    "type": "boolean",
+                                                    "description": "Check Exchange Online mailbox rules",
                                                     "title": "",
                                                     "enum": [
                                                         true,
@@ -632,7 +684,7 @@
                                         "description": "default",
                                         "schema": {
                                             "type": "object",
-                                            "description": "OOF Module Body",
+                                            "description": "Exchange Module Body",
                                             "properties": {
                                                 "AllUsersInOffice": {
                                                     "type": "boolean",
@@ -642,7 +694,7 @@
                                                     "type": "boolean",
                                                     "description": "true if All users are out of the office"
                                                 },
-                                                "DetailedResults": {
+                                                "OOF": {
                                                     "type": "array",
                                                     "items": {
                                                         "type": "object",
@@ -666,6 +718,26 @@
                                                         }
                                                     },
                                                     "description": "Array of by user DetailedResults"
+                                                },
+                                                "RulesDelete": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "Count of mail rules with deletion found"
+                                                },
+                                                "RulesMove": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "Count of mail rules with move found"
+                                                },
+                                                "RulesForward": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "Count of mail rules with forward found"
+                                                },
+                                                "DelegationsFound": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "Count of delegation audits found"
                                                 },
                                                 "UsersInOffice": {
                                                     "type": "integer",
