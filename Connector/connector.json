@@ -760,6 +760,162 @@
                                 }
                             }
                         },
+                        "/api/modules/deviceexposure": {
+                            "post": {
+                                "summary": "Device Exposure Module",
+                                "description": "Sentinel Triage AssistanT Module for reviewing Device Exposure Risks",
+                                "operationId": "DeviceExposureModule",
+                                "parameters": [
+                                    {
+                                        "name": "body",
+                                        "in": "body",
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "AddIncidentComments": {
+                                                    "type": "boolean",
+                                                    "description": "Add Comments to Microsoft Sentinel Incident",
+                                                    "title": "",
+                                                    "enum": [
+                                                        true,
+                                                        false
+                                                    ],
+                                                    "x-ms-visibility": "advanced"
+                                                },
+                                                "AddIncidentTask": {
+                                                    "type": "boolean",
+                                                    "description": "Add a task to Microsoft Sentinel Incident",
+                                                    "title": "",
+                                                    "enum": [
+                                                        true,
+                                                        false
+                                                    ],
+                                                    "x-ms-visibility": "advanced"
+                                                },
+                                                "IncidentTaskInstructions": {
+                                                    "type": "string",
+                                                    "description": "Instructions to include in the Microsoft Sentinel Task",
+                                                    "x-ms-visibility": "advanced"
+                                                },
+                                                "BaseModuleBody": {
+                                                    "type": "object",
+                                                    "description": "Body from STAT Base Module",
+                                                    "title": "",
+                                                    "x-ms-visibility": "important"
+                                                }
+                                            },
+                                            "default": {
+                                                "AddIncidentComments": true,
+                                                "Entities": ""
+                                            },
+                                            "required": [
+                                                "BaseModuleBody"
+                                            ]
+                                        },
+                                        "required": true
+                                    }
+                                ],
+                                "responses": {
+                                    "default": {
+                                        "description": "default",
+                                        "schema": {
+                                            "type": "object",
+                                            "description": "Device Exposure Module",
+                                            "properties": {
+                                                "RulesDelete": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "Count of mail rules with deletion found"
+                                                },
+                                                "UsersUnknown": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "Count of Users with unknown Out of Office status"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "/api/modules/userexposure": {
+                            "post": {
+                                "summary": "User Exposure Module",
+                                "description": "Sentinel Triage AssistanT Module for evaulating User exposure.",
+                                "operationId": "UserExposureModule",
+                                "parameters": [
+                                    {
+                                        "name": "body",
+                                        "in": "body",
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "AddIncidentComments": {
+                                                    "type": "boolean",
+                                                    "description": "Add Comments to Microsoft Sentinel Incident",
+                                                    "title": "",
+                                                    "enum": [
+                                                        true,
+                                                        false
+                                                    ],
+                                                    "x-ms-visibility": "advanced"
+                                                },
+                                                "AddIncidentTask": {
+                                                    "type": "boolean",
+                                                    "description": "Add a task to Microsoft Sentinel Incident",
+                                                    "title": "",
+                                                    "enum": [
+                                                        true,
+                                                        false
+                                                    ],
+                                                    "x-ms-visibility": "advanced"
+                                                },
+                                                "IncidentTaskInstructions": {
+                                                    "type": "string",
+                                                    "description": "Instructions to include in the Microsoft Sentinel Task",
+                                                    "x-ms-visibility": "advanced"
+                                                },
+                                                "BaseModuleBody": {
+                                                    "type": "object",
+                                                    "description": "Body from STAT Base Module",
+                                                    "title": "",
+                                                    "x-ms-visibility": "important"
+                                                }
+                                            },
+                                            "default": {
+                                                "AddIncidentComments": true,
+                                                "Entities": ""
+                                            },
+                                            "required": [
+                                                "BaseModuleBody"
+                                            ]
+                                        },
+                                        "required": true
+                                    }
+                                ],
+                                "responses": {
+                                    "default": {
+                                        "description": "default",
+                                        "schema": {
+                                            "type": "object",
+                                            "description": "User Exposure Module Body",
+                                            "properties": {
+                                                "RulesDelete": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "Count of mail rules with deletion found"
+                                                },
+                                                "UsersUnknown": {
+                                                    "type": "integer",
+                                                    "format": "int32",
+                                                    "description": "Count of Users with unknown Out of Office status"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
                         "/api/modules/threatintel": {
                             "post": {
                                 "summary": "Threat Intel Module",
