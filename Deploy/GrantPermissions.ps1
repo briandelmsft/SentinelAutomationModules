@@ -158,7 +158,7 @@ Set-APIPermissions -MSIName $STATIdentityName -AppId "00000003-0000-0000-c000-00
 Set-APIPermissions -MSIName $STATIdentityName -AppId "fc780465-2017-40d4-a0c5-307022471b92" -PermissionName "AdvancedQuery.Read.All"
 Set-APIPermissions -MSIName $STATIdentityName -AppId "fc780465-2017-40d4-a0c5-307022471b92" -PermissionName "Machine.Read.All"
 Set-APIPermissions -MSIName $STATIdentityName -AppId "fc780465-2017-40d4-a0c5-307022471b92" -PermissionName "File.Read.All"
-Set-APIPermissions -MSIName $STATIdentityName -AppId "05a65629-4c1b-48c1-a78b-804c4abdd4af" -PermissionName "investigation.read"
+#Set-APIPermissions -MSIName $STATIdentityName -AppId "05a65629-4c1b-48c1-a78b-804c4abdd4af" -PermissionName "investigation.read"
 Set-APIPermissions -MSIName $STATIdentityName -AppId "00000003-0000-0000-c000-000000000000" -PermissionName "Directory.Read.All"
 Set-APIPermissions -MSIName $STATIdentityName -AppId "00000003-0000-0000-c000-000000000000" -PermissionName "Reports.Read.All"
 Set-APIPermissions -MSIName $STATIdentityName -AppId "00000003-0000-0000-c000-000000000000" -PermissionName "AuditLog.Read.All"
