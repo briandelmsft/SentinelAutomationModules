@@ -137,7 +137,10 @@
             "sku": {
                 "name": "[parameters('storageAccountType')]"
             },
-            "kind": "Storage"
+            "kind": "Storage",
+            "properties": {
+                "allowBlobPublicAccess": false
+            }
         },
         {
             "type": "Microsoft.Web/serverfarms",
