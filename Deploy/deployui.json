@@ -462,36 +462,6 @@
                             }
                         ],
                         "visible": "[if(equals(steps('apiStep').api, 'custom'), true, false)]"
-                    },
-                    {
-                        "name": "apiTextBlock5",
-                        "type": "Microsoft.Common.TextBlock",
-                        "visible": true,
-                        "options": {
-                            "text": "Microsoft Defender for Cloud Apps API uses a tenant specific endpoint which must be entered to use that module.",
-                            "link": {
-                                "label": "Learn more",
-                                "uri": "https://learn.microsoft.com/defender-cloud-apps/api-introduction#api-url-structure"
-                            }
-                        }
-                    },
-                    {
-                        "name": "mdcaApi",
-                        "type": "Microsoft.Common.TextBox",
-                        "label": "Microsoft Defender for Cloud Apps API",
-                        "placeholder": "*.*.portal.cloudappsecurity.com",
-                        "defaultValue": "",
-                        "toolTip": "Microsoft Defender for Cloud Apps API Endpoint",
-                        "constraints": {
-                            "required": true,
-                                "validations": [
-                                    {
-                                        "regex": "(^(?![hH][tT][tT][pP][sS]?:\/\/)).*",
-                                        "message": "Enter only the hostname, such as org.region.cloudappsecurity.com, do not include the https:// prefix."
-                                    }
-                                ]
-                        },
-                        "visible": true
                     }
                 ]
             },
@@ -584,7 +554,6 @@
             "MSGraphEndpoint": "[coalesce(steps('apiStep').customApi.graphApi,'graph.microsoft.com')]",
             "M365Endpoint": "[coalesce(steps('apiStep').customApi.m365Api,'api.security.microsoft.com')]",
             "MDEEndpoint": "[coalesce(steps('apiStep').customApi.mdeApi,'api.securitycenter.microsoft.com')]",
-            "MDCAEndpoint": "[steps('apiStep').mdcaApi]",
             "LogAnalyticsEndpoint": "[coalesce(steps('apiStep').customApi.laApi,'api.loganalytics.io')]",
             "AzureResourceManagerEndpoint": "[coalesce(steps('apiStep').customApi.armApi,'management.azure.com')]",
             "ServicePrincipalClientId": "[coalesce(steps('identityStep').spId.clientId,steps('identityStep').userId.clientId, 'none')]",

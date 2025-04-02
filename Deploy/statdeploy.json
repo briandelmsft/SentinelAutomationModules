@@ -66,13 +66,6 @@
                 "description": "Microsoft Defender for Endpoint API endpoint"
             }
         },
-        "MDCAEndpoint": {
-            "type": "string",
-            "defaultValue": "",
-            "metadata": {
-                "description": "Organization Specific Microsoft Defender for Cloud Apps Endpoint"
-            }
-        },
         "LogAnalyticsEndpoint": {
             "type": "string",
             "defaultValue": "api.loganalytics.io",
@@ -191,9 +184,6 @@
                     "MDEEndpoint": {
                         "value": "[parameters('MDEEndpoint')]"
                     },
-                    "MDCAEndpoint": {
-                        "value": "[parameters('MDCAEndpoint')]"
-                    },
                     "LogAnalyticsEndpoint": {
                         "value": "[parameters('LogAnalyticsEndpoint')]"
                     },
@@ -267,9 +257,6 @@
                     "MDEEndpoint": {
                         "value": "[parameters('MDEEndpoint')]"
                     },
-                    "MDCAEndpoint": {
-                        "value": "[parameters('MDCAEndpoint')]"
-                    },
                     "LogAnalyticsEndpoint": {
                         "value": "[parameters('LogAnalyticsEndpoint')]"
                     },
@@ -336,9 +323,6 @@
                     },
                     "MDEEndpoint": {
                         "value": "[parameters('MDEEndpoint')]"
-                    },
-                    "MDCAEndpoint": {
-                        "value": "[parameters('MDCAEndpoint')]"
                     },
                     "LogAnalyticsEndpoint": {
                         "value": "[parameters('LogAnalyticsEndpoint')]"
