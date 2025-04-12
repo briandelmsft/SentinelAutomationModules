@@ -474,24 +474,6 @@
                                 "uri": "https://learn.microsoft.com/defender-cloud-apps/api-introduction#api-url-structure"
                             }
                         }
-                    },
-                    {
-                        "name": "mdcaApi",
-                        "type": "Microsoft.Common.TextBox",
-                        "label": "Microsoft Defender for Cloud Apps API",
-                        "placeholder": "*.*.portal.cloudappsecurity.com",
-                        "defaultValue": "",
-                        "toolTip": "Microsoft Defender for Cloud Apps API Endpoint",
-                        "constraints": {
-                            "required": true,
-                                "validations": [
-                                    {
-                                        "regex": "(^(?![hH][tT][tT][pP][sS]?:\/\/)).*",
-                                        "message": "Enter only the hostname, such as org.region.cloudappsecurity.com, do not include the https:// prefix."
-                                    }
-                                ]
-                        },
-                        "visible": true
                     }
                 ]
             },
@@ -566,6 +548,28 @@
                                     "validations": []
                                 },
                                 "visible": "[steps('additionalStep').advanced.showAdvanced]"
+                            },
+                            {
+                                "name": "storageAccountAllowBlobPublicAccess",
+                                "type": "Microsoft.Common.Toggle",
+                                "label": "Allow blob public access for the storage account",
+                                "defaultValue": true,
+                                "toolTip": "Set the allowBlobPublicAccess property on the storage account.",
+                                "constraints": {
+                                    "required": true
+                                },
+                                "visible": "[steps('additionalStep').advanced.showAdvanced]"
+                            },
+                            {
+                                "name": "storageAccountPublicNetworkAccess",
+                                "type": "Microsoft.Common.Toggle",
+                                "label": "Allow  public network access for the storage account",
+                                "defaultValue": true,
+                                "toolTip": "Set the publicNetworkAccess property on the storage account.",
+                                "constraints": {
+                                    "required": true
+                                },
+                                "visible": "[steps('additionalStep').advanced.showAdvanced]"
                             }
                         ],
                         "visible": true
@@ -580,11 +584,13 @@
             "STATConnectorName": "[coalesce(steps('namingStep').customNaming.statConnectorName, 'SentinelTriageAssistantv2')]",
             "STATConnectorDisplayName": "[coalesce(steps('namingStep').customNaming.statConnectorDisplayName, 'STAT v2')]",
             "storageAccountType": "Standard_LRS",
+            "storageAccountAllowBlobPublicAccess": "[coalesce(steps('additionalStep').advanced.storageAccountAllowBlobPublicAccess],true)]",
+            "storageAccountPublicNetworkAccess": "[coalesce(steps('additionalStep').advanced.storageAccountPublicNetworkAccess],true)]",
+            "MDCAEndpoint":"-",
             "FunctionPackage": "[coalesce(steps('additionalStep').advanced.functionPackage, 'https://github.com/briandelmsft/STAT-Function/releases/download/v2.1.0/stat.zip')]",
             "MSGraphEndpoint": "[coalesce(steps('apiStep').customApi.graphApi,'graph.microsoft.com')]",
             "M365Endpoint": "[coalesce(steps('apiStep').customApi.m365Api,'api.security.microsoft.com')]",
             "MDEEndpoint": "[coalesce(steps('apiStep').customApi.mdeApi,'api.securitycenter.microsoft.com')]",
-            "MDCAEndpoint": "[steps('apiStep').mdcaApi]",
             "LogAnalyticsEndpoint": "[coalesce(steps('apiStep').customApi.laApi,'api.loganalytics.io')]",
             "AzureResourceManagerEndpoint": "[coalesce(steps('apiStep').customApi.armApi,'management.azure.com')]",
             "ServicePrincipalClientId": "[coalesce(steps('identityStep').spId.clientId,steps('identityStep').userId.clientId, 'none')]",
