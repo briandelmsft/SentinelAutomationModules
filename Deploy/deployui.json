@@ -564,12 +564,11 @@
                                 "name": "storageAccountPublicNetworkAccess",
                                 "type": "Microsoft.Common.Toggle",
                                 "label": "Allow  public network access for the storage account",
-                                "defaultValue": "Enabled",
-                                "toolTip": "Set the publicNetworkAccess property on the storage account.",
+                                "defaultValue": true,
+                                "toolTip": "Control the publicNetworkAccess property on the storage account.",
                                 "constraints": {
                                     "required": true
                                 },
-                                "value": "[if(equals(parameters('storageAccountPublicNetworkAccess'), true), 'Enabled', 'Disabled')]",
                                 "visible": "[steps('additionalStep').advanced.showAdvanced]"
                             }
                         ],
@@ -586,7 +585,7 @@
             "STATConnectorDisplayName": "[coalesce(steps('namingStep').customNaming.statConnectorDisplayName, 'STAT v2')]",
             "storageAccountType": "Standard_LRS",
             "storageAccountAllowBlobPublicAccess": "[coalesce(steps('additionalStep').advanced.storageAccountAllowBlobPublicAccess],true)]",
-            "storageAccountPublicNetworkAccess": "[coalesce(steps('additionalStep').advanced.storageAccountPublicNetworkAccess],'Enabled')]",
+            "storageAccountPublicNetworkAccess": "[if(equals(parameters('storageAccountPublicNetworkAccess'), true), 'Enabled', 'Disabled')]",
             "MDCAEndpoint":"-",
             "FunctionPackage": "[coalesce(steps('additionalStep').advanced.functionPackage, 'https://github.com/briandelmsft/STAT-Function/releases/download/v2.1.0/stat.zip')]",
             "MSGraphEndpoint": "[coalesce(steps('apiStep').customApi.graphApi,'graph.microsoft.com')]",
