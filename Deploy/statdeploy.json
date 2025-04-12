@@ -136,7 +136,7 @@
             "location": "[parameters('location')]",
             "properties":
             {
-                "allowBlobPublicAccess": [parameters('storageAccountAllowBlobPublicAccess')],
+                "allowBlobPublicAccess": "[parameters('storageAccountAllowBlobPublicAccess')]",
                 "publicNetworkAccess": "[parameters('storageAccountPublicNetworkAccess')]"
             }
             "sku": {
