@@ -134,8 +134,7 @@
             "apiVersion": "2022-05-01",
             "name": "[variables('storageAccountName')]",
             "location": "[parameters('location')]",
-            "properties":
-            {
+            "properties": {
                 "allowBlobPublicAccess": "[parameters('storageAccountAllowBlobPublicAccess')]",
                 "publicNetworkAccess": "[parameters('storageAccountPublicNetworkAccess')]"
             },
