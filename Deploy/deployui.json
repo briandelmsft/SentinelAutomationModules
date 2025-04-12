@@ -555,9 +555,6 @@
                                 "label": "Allow blob public access for the storage account",
                                 "defaultValue": true,
                                 "toolTip": "Set the allowBlobPublicAccess property on the storage account.",
-                                "constraints": {
-                                    "required": true
-                                },
                                 "visible": "[steps('additionalStep').advanced.showAdvanced]"
                             },
                             {
@@ -566,9 +563,6 @@
                                 "label": "Allow  public network access for the storage account",
                                 "defaultValue": true,
                                 "toolTip": "Control the publicNetworkAccess property on the storage account.",
-                                "constraints": {
-                                    "required": true
-                                },
                                 "visible": "[steps('additionalStep').advanced.showAdvanced]"
                             }
                         ],
