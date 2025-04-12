@@ -553,18 +553,9 @@
                                 "name": "storageAccountAllowBlobPublicAccess",
                                 "type": "Microsoft.Common.CheckBox",
                                 "label": "Allow blob public access for the storage account",
-                                "defaultValue": true,
+                                "defaultValue": false,
                                 "constraints": {},
                                 "toolTip": "Set the allowBlobPublicAccess property on the storage account.",
-                                "visible": "[steps('additionalStep').advanced.showAdvanced]"
-                            },
-                            {
-                                "name": "storageAccountPublicNetworkAccess",
-                                "type": "Microsoft.Common.CheckBox",
-                                "label": "Allow  public network access for the storage account",
-                                "defaultValue": true,
-                                "constraints": {},
-                                "toolTip": "Control the publicNetworkAccess property on the storage account.",
                                 "visible": "[steps('additionalStep').advanced.showAdvanced]"
                             }
                         ],
@@ -581,7 +572,6 @@
             "STATConnectorDisplayName": "[coalesce(steps('namingStep').customNaming.statConnectorDisplayName, 'STAT v2')]",
             "storageAccountType": "Standard_LRS",
             "storageAccountAllowBlobPublicAccess": "[if(equals(steps('additionalStep').advanced.storageAccountAllowBlobPublicAccess, true), true, false)]",
-            "storageAccountPublicNetworkAccess": "[if(equals(steps('additionalStep').advanced.storageAccountPublicNetworkAccess, true), 'Enabled', 'Disabled')]",
             "MDCAEndpoint":"-",
             "FunctionPackage": "[coalesce(steps('additionalStep').advanced.functionPackage, 'https://github.com/briandelmsft/STAT-Function/releases/download/v2.1.0/stat.zip')]",
             "MSGraphEndpoint": "[coalesce(steps('apiStep').customApi.graphApi,'graph.microsoft.com')]",
