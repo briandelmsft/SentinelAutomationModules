@@ -554,6 +554,7 @@
                                 "type": "Microsoft.Common.CheckBox",
                                 "label": "Allow blob public access for the storage account",
                                 "defaultValue": true,
+                                "constraints": {},
                                 "toolTip": "Set the allowBlobPublicAccess property on the storage account.",
                                 "visible": "[steps('additionalStep').advanced.showAdvanced]"
                             },
@@ -562,6 +563,7 @@
                                 "type": "Microsoft.Common.CheckBox",
                                 "label": "Allow  public network access for the storage account",
                                 "defaultValue": true,
+                                "constraints": {},
                                 "toolTip": "Control the publicNetworkAccess property on the storage account.",
                                 "visible": "[steps('additionalStep').advanced.showAdvanced]"
                             }
