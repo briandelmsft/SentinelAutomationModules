@@ -116,6 +116,12 @@
         },
         "BasicSamplePlaybookName": {
             "type": "string"
+        },
+        "storageAccountAllowBlobPublicAccess": {
+            "type": "bool"
+        },
+        "storageAccountPublicNetworkAccess": {
+            "type": "string"
         }
     },
     "variables": {
