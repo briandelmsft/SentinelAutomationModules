@@ -119,9 +119,6 @@
         },
         "storageAccountAllowBlobPublicAccess": {
             "type": "bool"
-        },
-        "storageAccountPublicNetworkAccess": {
-            "type": "string"
         }
     },
     "variables": {
@@ -141,8 +138,7 @@
             "name": "[variables('storageAccountName')]",
             "location": "[parameters('location')]",
             "properties": {
-                "allowBlobPublicAccess": "[parameters('storageAccountAllowBlobPublicAccess')]",
-                "publicNetworkAccess": "[parameters('storageAccountPublicNetworkAccess')]"
+                "allowBlobPublicAccess": "[parameters('storageAccountAllowBlobPublicAccess')]"
             },
             "sku": {
                 "name": "[parameters('storageAccountType')]"
