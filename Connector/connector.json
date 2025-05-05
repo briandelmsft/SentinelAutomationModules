@@ -822,16 +822,6 @@
                                             "type": "object",
                                             "description": "Device Exposure Module",
                                             "properties": {
-                                                "RulesDelete": {
-                                                    "type": "integer",
-                                                    "format": "int32",
-                                                    "description": "Count of mail rules with deletion found"
-                                                },
-                                                "UsersUnknown": {
-                                                    "type": "integer",
-                                                    "format": "int32",
-                                                    "description": "Count of Users with unknown Out of Office status"
-                                                }
                                             }
                                         }
                                     }
@@ -900,16 +890,6 @@
                                             "type": "object",
                                             "description": "User Exposure Module Body",
                                             "properties": {
-                                                "RulesDelete": {
-                                                    "type": "integer",
-                                                    "format": "int32",
-                                                    "description": "Count of mail rules with deletion found"
-                                                },
-                                                "UsersUnknown": {
-                                                    "type": "integer",
-                                                    "format": "int32",
-                                                    "description": "Count of Users with unknown Out of Office status"
-                                                }
                                             }
                                         }
                                     }
