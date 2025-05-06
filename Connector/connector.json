@@ -782,6 +782,16 @@
                                                     ],
                                                     "x-ms-visibility": "advanced"
                                                 },
+                                                "AddIncidentTags": {
+                                                    "type": "boolean",
+                                                    "description": "Add Tags to Microsoft Sentinel Incident",
+                                                    "title": "",
+                                                    "enum": [
+                                                        true,
+                                                        false
+                                                    ],
+                                                    "x-ms-visibility": "advanced"
+                                                },
                                                 "AddIncidentTask": {
                                                     "type": "boolean",
                                                     "description": "Add a task to Microsoft Sentinel Incident",
@@ -843,6 +853,16 @@
                                                 "AddIncidentComments": {
                                                     "type": "boolean",
                                                     "description": "Add Comments to Microsoft Sentinel Incident",
+                                                    "title": "",
+                                                    "enum": [
+                                                        true,
+                                                        false
+                                                    ],
+                                                    "x-ms-visibility": "advanced"
+                                                },
+                                                "AddIncidentTags": {
+                                                    "type": "boolean",
+                                                    "description": "Add Tags to Microsoft Sentinel Incident",
                                                     "title": "",
                                                     "enum": [
                                                         true,
