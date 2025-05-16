@@ -516,7 +516,7 @@
                                 "type": "Microsoft.Common.TextBox",
                                 "label": "STAT Function ZIP Package",
                                 "placeholder": "",
-                                "defaultValue": "https://github.com/briandelmsft/STAT-Function/releases/download/v2.1.0/stat.zip",
+                                "defaultValue": "https://github.com/briandelmsft/STAT-Function/releases/download/v2.2.0/stat.zip",
                                 "toolTip": "Full path to the STAT Function ZIP deployment package",
                                 "constraints": {
                                     "required": true,
@@ -550,7 +550,7 @@
             "STATConnectorName": "[coalesce(steps('namingStep').customNaming.statConnectorName, 'SentinelTriageAssistantv2')]",
             "STATConnectorDisplayName": "[coalesce(steps('namingStep').customNaming.statConnectorDisplayName, 'STAT v2')]",
             "storageAccountType": "Standard_LRS",
-            "FunctionPackage": "[coalesce(steps('additionalStep').advanced.functionPackage, 'https://github.com/briandelmsft/STAT-Function/releases/download/v2.1.0/stat.zip')]",
+            "FunctionPackage": "[coalesce(steps('additionalStep').advanced.functionPackage, 'https://github.com/briandelmsft/STAT-Function/releases/download/v2.2.0/stat.zip')]",
             "MSGraphEndpoint": "[coalesce(steps('apiStep').customApi.graphApi,'graph.microsoft.com')]",
             "M365Endpoint": "[coalesce(steps('apiStep').customApi.m365Api,'api.security.microsoft.com')]",
             "MDEEndpoint": "[coalesce(steps('apiStep').customApi.mdeApi,'api.securitycenter.microsoft.com')]",
