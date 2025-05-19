@@ -66,13 +66,6 @@
                 "description": "Microsoft Defender for Endpoint API endpoint"
             }
         },
-        "MDCAEndpoint": {
-            "type": "string",
-            "defaultValue": "",
-            "metadata": {
-                "description": "Organization Specific Microsoft Defender for Cloud Apps Endpoint"
-            }
-        },
         "LogAnalyticsEndpoint": {
             "type": "string",
             "defaultValue": "api.loganalytics.io",
@@ -137,7 +130,10 @@
             "sku": {
                 "name": "[parameters('storageAccountType')]"
             },
-            "kind": "Storage"
+            "kind": "Storage",
+            "properties": {
+                "allowBlobPublicAccess": false
+            }
         },
         {
             "type": "Microsoft.Web/serverfarms",
@@ -190,9 +186,6 @@
                     },
                     "MDEEndpoint": {
                         "value": "[parameters('MDEEndpoint')]"
-                    },
-                    "MDCAEndpoint": {
-                        "value": "[parameters('MDCAEndpoint')]"
                     },
                     "LogAnalyticsEndpoint": {
                         "value": "[parameters('LogAnalyticsEndpoint')]"
@@ -267,9 +260,6 @@
                     "MDEEndpoint": {
                         "value": "[parameters('MDEEndpoint')]"
                     },
-                    "MDCAEndpoint": {
-                        "value": "[parameters('MDCAEndpoint')]"
-                    },
                     "LogAnalyticsEndpoint": {
                         "value": "[parameters('LogAnalyticsEndpoint')]"
                     },
@@ -336,9 +326,6 @@
                     },
                     "MDEEndpoint": {
                         "value": "[parameters('MDEEndpoint')]"
-                    },
-                    "MDCAEndpoint": {
-                        "value": "[parameters('MDCAEndpoint')]"
                     },
                     "LogAnalyticsEndpoint": {
                         "value": "[parameters('LogAnalyticsEndpoint')]"

@@ -47,13 +47,6 @@
                 "description": "Microsoft Defender for Endpoint API endpoint"
             }
         },
-        "MDCAEndpoint": {
-            "type": "string",
-            "defaultValue": "",
-            "metadata": {
-                "description": "Organization Specific Microsoft Defender for Cloud Apps Endpoint"
-            }
-        },
         "LogAnalyticsEndpoint": {
             "type": "string",
             "defaultValue": "api.loganalytics.io",
@@ -161,10 +154,6 @@
                         {
                             "name": "MDE_ENDPOINT",
                             "value": "[parameters('MDEEndpoint')]"
-                        },
-                        {
-                            "name": "MDCA_ENDPOINT",
-                            "value": "[parameters('MDCAEndpoint')]"
                         },
                         {
                             "name": "AZURE_CLIENT_ID",
