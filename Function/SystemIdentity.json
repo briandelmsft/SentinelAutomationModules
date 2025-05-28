@@ -97,7 +97,7 @@
                 "clientAffinityEnabled": true,
                 "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('STATFunctionName'))]",
                 "siteConfig": {
-                    "linuxFxVersion": "PYTHON|3.10",
+                    "linuxFxVersion": "PYTHON|3.12",
                     "appSettings": [
                         {
                             "name": "AzureWebJobsStorage",
