@@ -166,6 +166,7 @@ Set-APIPermissions -MSIName $STATIdentityName -AppId "00000003-0000-0000-c000-00
 Set-APIPermissions -MSIName $STATIdentityName -AppId "8ee8fdad-f234-4243-8f3b-15c294843740" -PermissionName "AdvancedHunting.Read.All"
 Set-APIPermissions -MSIName $STATIdentityName -AppId "00000003-0000-0000-c000-000000000000" -PermissionName "IdentityRiskyUser.Read.All"
 Set-APIPermissions -MSIName $STATIdentityName -AppId "00000003-0000-0000-c000-000000000000" -PermissionName "IdentityRiskEvent.Read.All"
+Set-APIPermissions -MSIName $STATIdentityName -AppId "00000003-0000-0000-c000-000000000000" -PermissionName "SecurityAnalyzedMessage.Read.All" #Not supported in GCC/GCC High/DoD
 
 #Triage-Content Sample
 if ( $PSBoundParameters.ContainsKey('SampleLogicAppName') ) {
