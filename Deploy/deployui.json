@@ -529,7 +529,7 @@
                                 "type": "Microsoft.Common.TextBox",
                                 "label": "Deploy From Github Branch",
                                 "placeholder": "",
-                                "defaultValue": "main",
+                                "defaultValue": "no_asp",
                                 "toolTip": "Name of Github branch to deploy from",
                                 "constraints": {
                                     "required": true,
@@ -560,7 +560,7 @@
             "UserIdentityResourceId": "[coalesce(steps('identityStep').userId.userIdResId, 'none')]",
             "ServicePrincipalSecret": "[coalesce(steps('identityStep').spId.spSecret, 'none')]",
             "identityType": "[steps('identityStep').idType]",
-            "DeploymentBranch": "[coalesce(steps('additionalStep').advanced.deploymentBranch, 'main')]",
+            "DeploymentBranch": "[coalesce(steps('additionalStep').advanced.deploymentBranch, 'no_asp')]",
             "DeployBasicSample": "[steps('additionalStep').samples.DeployBasicSamplePlaybook]",
             "BasicSamplePlaybookName": "[coalesce(steps('additionalStep').samples.BasicSamplePlaybookName,'Sample-STAT-Triage')]",
             "location": "[location()]"
