@@ -136,27 +136,11 @@
             }
         },
         {
-            "type": "Microsoft.Web/serverfarms",
-            "apiVersion": "2021-02-01",
-            "name": "[variables('functionName')]",
-            "location": "[parameters('location')]",
-            "sku": {
-                "name": "Y1",
-                "tier": "Dynamic",
-                "size": "Y1",
-                "family": "Y"
-            },
-            "properties": {
-                "reserved": true
-            }
-        },
-        {
             "condition": "[equals(parameters('identityType'), 'sp')]",
             "apiVersion": "2019-10-01",
             "name": "STATFunctionSP",
             "type": "Microsoft.Resources/deployments",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/serverfarms', variables('functionName'))]",
                 "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
             ],
             "properties": {
@@ -229,7 +213,6 @@
             "name": "STATFunctionSystemId",
             "type": "Microsoft.Resources/deployments",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/serverfarms', variables('functionName'))]",
                 "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
             ],
             "properties": {
@@ -296,7 +279,6 @@
             "name": "STATFunctionUser",
             "type": "Microsoft.Resources/deployments",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/serverfarms', variables('functionName'))]",
                 "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
             ],
             "properties": {
