@@ -169,6 +169,11 @@ Set-APIPermissions -MSIName $STATIdentityName -AppId "00000003-0000-0000-c000-00
 Set-APIPermissions -MSIName $STATIdentityName -AppId "00000003-0000-0000-c000-000000000000" -PermissionName "SecurityAnalyzedMessage.Read.All" #Not supported in GCC/GCC High/DoD
 Set-APIPermissions -MSIName $STATIdentityName -AppId "00000003-0000-0000-c000-000000000000" -PermissionName "ThreatIntelligence.Read.All" #Not supported in GCC/GCC High/DoD
 
+#ISOC
+Set-APIPermissions -MSIName $STATIdentityName -AppId "00000003-0000-0000-c000-000000000000" -PermissionName "CaseManagement.ReadWrite.All"
+Set-APIPermissions -MSIName $STATIdentityName -AppId "00000003-0000-0000-c000-000000000000" -PermissionName "SecurityIncident.ReadWrite.All"
+Set-APIPermissions -MSIName $STATIdentityName -AppId "00000003-0000-0000-c000-000000000000" -PermissionName "SecurityAlert.ReadWrite.All"
+
 #Triage-Content Sample
 if ( $PSBoundParameters.ContainsKey('SampleLogicAppName') ) {
     Set-RBACPermissions -MSIName $SampleLogicAppName -Role "Microsoft Sentinel Responder"
